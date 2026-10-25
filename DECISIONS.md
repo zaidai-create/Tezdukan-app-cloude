@@ -23,6 +23,14 @@ section. Format: **decision** — reason (date).
 - **pnpm** as the package manager (spec uses `pnpm seed:reset`). (2026-10-25)
 - **`src/` directory** with `@/*` imports — keeps config files and app code apart. The spec's
   `components/ui`, `lib/ai`, `lib/integrations` live under `src/`. (2026-10-25)
+- **`@playwright/test` pinned to 1.63.0** — matches the Chromium build preinstalled in the cloud
+  build container (1.64 would need a different browser revision). CI installs matching browsers
+  with `pnpm exec playwright install chromium`. (2026-10-25)
+- **shadcn/ui CLI v4, `radix-nova` style, RTL enabled** — Radix primitives per the spec; the
+  generated components are rewritten to TezDukan tokens (sizes, radius, colours) rather than
+  used as-is. shadcn's `cn` package replaces `clsx` + `tailwind-merge`. (2026-10-25)
+- **Brand rules enforced by ESLint** — custom rules reject emoji, hex colours and Tailwind palette
+  classes in components, and `react/jsx-no-literals` rejects hard-coded UI text. (2026-10-25)
 
 ## Internationalisation
 

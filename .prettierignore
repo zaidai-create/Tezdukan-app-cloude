@@ -1,0 +1,11 @@
+pnpm-lock.yaml
+.next
+node_modules
+public/sw.js
+supabase/.temp
+supabase/.branches
+playwright-report
+test-results
+e2e/__screenshots__
+messages/*.d.json.ts
+*.md

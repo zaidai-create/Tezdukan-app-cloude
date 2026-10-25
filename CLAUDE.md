@@ -25,8 +25,11 @@ the way they are. This file is the short list of rules to follow on every change
 | New migration | `pnpm db:migration <name>` |
 | Seed / remove seed | `pnpm seed` / `pnpm seed:reset` |
 
-Local Supabase pulls images from Docker Hub (`SUPABASE_INTERNAL_IMAGE_REGISTRY=docker.io`,
-set by the `db:*` scripts). Start Docker first if it isn't running (`sudo dockerd &`).
+Local Supabase needs Docker. If image pulls fail with "Data limit exceeded" (the default
+registry rate-limits some networks), pull from Docker Hub instead:
+`export SUPABASE_INTERNAL_IMAGE_REGISTRY=docker.io`. In the Claude cloud container start
+Docker first (`sudo dockerd &`) and skip Studio: `supabase start -x studio,logflare,vector,supavisor,imgproxy`.
+Local keys go in `.env.local` (see `.env.example`; values from `pnpm db:status`).
 
 Before every commit: `pnpm typecheck && pnpm lint && pnpm test` (and `pnpm db:test` if SQL
 changed). After a phase: also `pnpm test:e2e` and `pnpm screenshots`, then review them.
