@@ -3,7 +3,7 @@
 -- tables, nothing exposed to anon beyond reference data, safe SECURITY DEFINER functions.
 begin;
 \ir helpers/setup.psql
-select plan(19);
+select plan(22);
 
 -- Financial records (soft delete, never hard-deleted).
 create temporary table financial_tables (name text primary key) on commit drop;
@@ -179,6 +179,44 @@ select ok(
   (select count(*) from pg_policies where schemaname = 'public') > 200,
   'policies are defined across the schema'
 );
+
+-- CHECK constraints, defaults, generated columns and policies run with the caller's privileges,
+-- so every private function they use must be executable by the API roles that write/read.
+select is_empty(
+  $$ select distinct p.oid::regprocedure::text || ' for ' || r.rolname
+       from pg_depend d
+       join pg_proc p on d.refclassid = 'pg_proc'::regclass and d.refobjid = p.oid
+       join pg_namespace pn on pn.oid = p.pronamespace and pn.nspname = 'private'
+       cross join (values ('authenticated'), ('service_role')) as r(rolname)
+      where d.classid in ('pg_constraint'::regclass, 'pg_attrdef'::regclass, 'pg_policy'::regclass)
+        and not has_function_privilege(r.rolname, p.oid, 'EXECUTE') $$,
+  'functions used by constraints, defaults, generated columns and policies are executable by API roles'
+);
+
+-- Data API sessions load pg-safeupdate, which rejects DELETE without WHERE even inside RPCs.
+select is_empty(
+  $$ select p.oid::regprocedure::text
+       from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+      where n.nspname in ('public', 'private')
+        and p.prosrc ~* 'delete\s+from\s+[a-z0-9_."]+(\s+(as\s+)?[a-z0-9_]+)?\s*;' $$,
+  'no function issues a DELETE without a WHERE clause (pg-safeupdate)'
+);
+
+set local role service_role;
+select lives_ok(
+  $$
+    with org as (
+      insert into public.organizations (name, slug, phone, status, settings)
+      values ('Structure Check Traders', 'structure-check-traders', '+923110000000', 'approved',
+              '{"order_cutoff_time": "18:00", "delivery_days": [1, 2, 3], "enforce_stock": false}')
+      returning id
+    )
+    insert into public.schemes (org_id, name, kind, rules)
+    select id, '12 + 1', 'buy_x_get_y', '{"buy_base_qty": 12, "free_base_qty": 1}' from org
+  $$,
+  'the service role can write rows guarded by validation functions'
+);
+reset role;
 
 select * from finish();
 rollback;

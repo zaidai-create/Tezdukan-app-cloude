@@ -746,6 +746,8 @@ $$;
 -- seed_reset(): deletes exactly the rows listed in seed_registry, newest first. Consecutive
 -- rows of the same table are deleted in one statement. Fails (and changes nothing) if real data
 -- still references a seeded row. Service role / postgres only.
+-- Every DELETE has a WHERE clause: Data API sessions load pg-safeupdate, which rejects
+-- unqualified DELETE/UPDATE even inside functions.
 -- ---------------------------------------------------------------------------------------------
 create or replace function private.seed_reset()
 returns jsonb
@@ -777,8 +779,8 @@ begin
     execute format('delete from %s where id = any ($1)', r.table_name::regclass) using r.ids;
     get diagnostics v_count = row_count;
     v_result := jsonb_set(v_result, array[r.table_name], to_jsonb(coalesce((v_result ->> r.table_name)::integer, 0) + v_count));
+    delete from public.seed_registry sr where sr.table_name = r.table_name and sr.row_id = any (r.ids);
   end loop;
-  delete from public.seed_registry;
   perform set_config('tezdukan.allow_hard_delete', 'off', true);
   return v_result;
 end;

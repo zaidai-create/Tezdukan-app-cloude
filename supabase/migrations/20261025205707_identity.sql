@@ -141,6 +141,8 @@ begin
   return true;
 end;
 $$;
+-- CHECK constraints run with the writer's privileges.
+grant execute on function private.valid_org_settings(jsonb) to authenticated, service_role;
 
 create table public.organizations (
   id uuid primary key default gen_random_uuid(),

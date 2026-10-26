@@ -284,6 +284,8 @@ begin
   return false;
 end;
 $$;
+-- CHECK constraints run with the writer's privileges.
+grant execute on function private.valid_scheme_rules(public.scheme_kind, jsonb) to authenticated, service_role;
 
 create table public.schemes (
   id uuid primary key default gen_random_uuid(),

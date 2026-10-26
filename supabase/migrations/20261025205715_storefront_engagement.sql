@@ -48,6 +48,8 @@ begin
   return true;
 end;
 $$;
+-- CHECK constraints run with the writer's privileges.
+grant execute on function private.valid_timings(jsonb) to authenticated, service_role;
 
 create or replace function private.is_open_at(p_timings jsonb, p_at timestamptz)
 returns boolean
