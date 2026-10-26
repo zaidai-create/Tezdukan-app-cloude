@@ -6,6 +6,20 @@ All notable changes, newest first. Dates are Asia/Karachi.
 
 ### Phase 1 — Foundation (in progress)
 
+- The Phase 1 database is merged:
+  - 90 tables, all with row-level security, plus identity RPCs and storage buckets with their
+    policies.
+  - Realtime for orders and notifications.
+  - 245 pgTAP tests, including tenant isolation.
+- Demo seed: the live TezDukan dukan, the Indus Traders distributor, 16 Hyderabad areas and 53
+  real products. Eight demo logins cover every role, and each user opens on their own home.
+  (2026-10-26)
+- End-to-end journeys against the real database:
+  - sign up, verify with the Sandbox code, and land home
+  - sign in to each role, and stay signed in
+  - switch roles without signing out
+  - sign out
+  (2026-10-26)
 - A new sign-in experience. Phones get a shopfront layout: a black signboard with the logo,
   the awning hanging below, the form underneath. The logo assembles itself (cart rolls in, speed
   lines trail, awning drops). Other touches:

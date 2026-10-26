@@ -75,7 +75,9 @@ export async function saveThemeAction(theme: string): Promise<ActionResult> {
 
 export async function signOutAction(): Promise<ActionResult> {
   const supabase = await getSupabaseServerClient();
-  const { error } = await supabase.auth.signOut();
+  // This device only: signing out on the shop's shared phone must not end the owner's
+  // session on their own phone.
+  const { error } = await supabase.auth.signOut({ scope: "local" });
   const cookieStore = await cookies();
   cookieStore.delete(CONTEXT_COOKIE);
   return error ? { ok: false, error: "failed" } : { ok: true };

@@ -1,5 +1,12 @@
 import { defineConfig, devices } from "@playwright/test";
 
+// Signed-in journeys use the local stack and its demo seed; tests read the same keys as the app.
+try {
+  process.loadEnvFile(".env.local");
+} catch {
+  // No .env.local (CI injects the variables instead).
+}
+
 const PORT = Number(process.env.E2E_PORT || 3100);
 const baseURL = process.env.E2E_BASE_URL || `http://localhost:${PORT}`;
 // E2E_DEV=1 runs against `next dev` for quick iteration; the default is a production build,

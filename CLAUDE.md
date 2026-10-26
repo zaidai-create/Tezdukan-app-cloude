@@ -18,7 +18,7 @@ the way they are. This file is the short list of rules to follow on every change
 | E2E tests | `pnpm test:e2e` (both viewports; needs dev DB + seed) |
 | Screenshots | `pnpm screenshots` (writes `e2e/__screenshots__/`) |
 | Local Supabase | `pnpm db:start` / `pnpm db:stop` / `pnpm db:status` |
-| Reset DB (migrations + seed) | `pnpm db:reset` |
+| Reset DB (migrations only, then seed) | `pnpm db:reset && pnpm seed` |
 | DB tests (pgTAP) | `pnpm db:test` |
 | Lint SQL / advisors | `pnpm db:lint` |
 | Generate DB types | `pnpm db:types` → `src/lib/supabase/database.types.ts` |
@@ -28,7 +28,11 @@ the way they are. This file is the short list of rules to follow on every change
 Local Supabase needs Docker. If image pulls fail with "Data limit exceeded" (the default
 registry rate-limits some networks), pull from Docker Hub instead:
 `export SUPABASE_INTERNAL_IMAGE_REGISTRY=docker.io`. In the Claude cloud container start
-Docker first (`sudo dockerd &`) and skip Studio: `supabase start -x studio,logflare,vector,supavisor,imgproxy`.
+Docker detached so it outlives the shell (`setsid nohup dockerd > /tmp/dockerd.log 2>&1 &`) and skip
+Studio: `supabase start -x studio,logflare,vector,supavisor,imgproxy`. Demo logins (password
+`TezDukan-Demo-1`): `+923000000001` admin, `…02` dukandar, `…03` distributor, `…04` booker,
+`…05` rider, `…06` customer, `…07` and `…08` multi-role. If a CSS change does not show in
+`pnpm dev`, delete `.next/dev` (Turbopack's dev cache) and restart.
 Local keys go in `.env.local` (see `.env.example`; values from `pnpm db:status`).
 
 Before every commit: `pnpm typecheck && pnpm lint && pnpm test` (and `pnpm db:test` if SQL

@@ -104,6 +104,15 @@ section. Format: **decision** — reason (date).
   labelled Sandbox notice) and `agent_unavailable` until the agent ships in Phase 5. It never
   pretends to answer. (2026-10-25)
 
+- **Signing out ends this device's session only** (`signOut({ scope: "local" })`). Signing out
+  on the shop's shared phone must not end the owner's session on their own phone. (2026-10-26)
+- **Sign-in language: the device's choice wins, otherwise the profile's** — a language picked on
+  the sign-in screen is saved to the profile; a device that never chose adopts the profile's
+  language, so a returning user on a new phone gets their own language. (2026-10-26)
+- **Demo users start in their own role** — the seed sets each demo profile's active context
+  (admin, dukandar, distributor, booker, rider), so a demo opens on that role's home. The two
+  multi-role users start as customers; parallel end-to-end runs use one each. (2026-10-26)
+
 ## Offline and PWA
 
 - **The service worker is bundled at build time** — `/serwist/sw.js` is a prerendered route

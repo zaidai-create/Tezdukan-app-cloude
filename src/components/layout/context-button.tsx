@@ -46,7 +46,10 @@ function ContextButton({ session, className }: { session: ShellSession; classNam
             <span className="truncate">{title}</span>
             {canSwitch ? <ChevronDown aria-hidden className="size-4 shrink-0 text-muted" /> : null}
           </span>
-          <span className="truncate text-xs text-muted">{t(session.activeRole)}</span>
+          {/* Under a shop or company name, say which role it is; on its own the role is the title. */}
+          {active?.name ? (
+            <span className="truncate text-xs text-muted">{t(session.activeRole)}</span>
+          ) : null}
         </span>
       </button>
       {canSwitch ? (

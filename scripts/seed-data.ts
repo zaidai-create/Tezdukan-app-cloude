@@ -23,6 +23,7 @@ type TableName = keyof Tables;
 export type SeedRow<T extends TableName> = Tables[T]["Insert"] & { id: string };
 type AppLocale = Database["public"]["Enums"]["app_locale"];
 type MeasureUnit = Database["public"]["Enums"]["measure_unit"];
+type AppRole = Database["public"]["Enums"]["app_role"];
 
 // ------------------------------------------------------------------------------------------------
 // Helpers
@@ -121,6 +122,14 @@ export const DEMO_USERS = {
     "Kashif Ali",
     "ur-Latn",
     "Multi-role: cashier at TezDukan (shop staff) + manager at Indus Traders (distributor staff)",
+  ),
+  // A second multi-role account, so parallel end-to-end runs never switch the same profile.
+  multi2: demoUser(
+    "multi2",
+    "+923000000008",
+    "Nadia Baloch",
+    "en",
+    "Multi-role: stock keeper at TezDukan (shop staff) + accountant at Indus Traders",
   ),
 } as const;
 
@@ -1671,6 +1680,17 @@ export const orgMembers: SeedRow<"org_members">[] = [
     joined_at: "2026-09-03T05:00:00Z",
   },
   {
+    id: memberId(DEMO_USERS.multi2),
+    org_id: ORG_ID,
+    user_id: DEMO_USERS.multi2.id,
+    role: "accountant",
+    permissions: [],
+    status: "active",
+    display_name: DEMO_USERS.multi2.fullName,
+    phone: DEMO_USERS.multi2.phone,
+    joined_at: "2026-09-04T05:00:00Z",
+  },
+  {
     id: memberId(DEMO_USERS.booker),
     org_id: ORG_ID,
     user_id: DEMO_USERS.booker.id,
@@ -1727,6 +1747,17 @@ export const shopStaff: SeedRow<"shop_staff">[] = [
     display_name: DEMO_USERS.multi.fullName,
     phone: DEMO_USERS.multi.phone,
     joined_at: "2026-09-06T05:00:00Z",
+  },
+  {
+    id: seedId("shop-staff:tezdukan:multi2"),
+    shop_id: SHOP_ID,
+    user_id: DEMO_USERS.multi2.id,
+    role: "staff",
+    permissions: ["inventory"],
+    status: "active",
+    display_name: DEMO_USERS.multi2.fullName,
+    phone: DEMO_USERS.multi2.phone,
+    joined_at: "2026-09-07T05:00:00Z",
   },
 ];
 
@@ -1787,4 +1818,22 @@ export const addresses: SeedRow<"addresses">[] = [
     phone: DEMO_USERS.customer.phone,
     is_default: true,
   },
+];
+
+// ------------------------------------------------------------------------------------------------
+// Where each demo user starts, so a demo opens on that role's home instead of the default
+// customer view. The multi-role user starts as a customer so the role switcher has a job.
+// ------------------------------------------------------------------------------------------------
+
+export const demoStartingContexts: {
+  userId: string;
+  role: AppRole;
+  shopId: string | null;
+  orgId: string | null;
+}[] = [
+  { userId: DEMO_USERS.admin.id, role: "admin", shopId: null, orgId: null },
+  { userId: DEMO_USERS.dukandar.id, role: "dukandar", shopId: SHOP_ID, orgId: null },
+  { userId: DEMO_USERS.distributor.id, role: "distributor", shopId: null, orgId: ORG_ID },
+  { userId: DEMO_USERS.booker.id, role: "booker", shopId: null, orgId: ORG_ID },
+  { userId: DEMO_USERS.rider.id, role: "rider", shopId: null, orgId: ORG_ID },
 ];

@@ -83,6 +83,25 @@ async function ensureDemoUser(db: SeedClient, user: data.DemoUser): Promise<void
   }
 }
 
+/**
+ * Profiles come from the new-user trigger, so they are not in seed_registry; they go when the
+ * demo users are removed. The secret key may write active_* directly; the app may not.
+ */
+async function setStartingContexts(db: SeedClient): Promise<void> {
+  for (const context of data.demoStartingContexts) {
+    const { error } = await db
+      .from("profiles")
+      .update({
+        active_role: context.role,
+        active_shop_id: context.shopId,
+        active_org_id: context.orgId,
+      })
+      .eq("id", context.userId);
+    if (error) throw new Error(`profiles (starting context): ${error.message}`);
+  }
+  console.log(`  ${"starting contexts".padEnd(22)} ${data.demoStartingContexts.length}`);
+}
+
 async function main(): Promise<void> {
   const url = supabaseUrl();
   const flag = process.env.SEED_DEMO_USERS;
@@ -132,6 +151,7 @@ async function main(): Promise<void> {
     await seedTable(db, "addresses", data.addresses);
   }
   await seedTable(db, "retailer_accounts", data.buildRetailerAccounts(withDemoUsers));
+  if (withDemoUsers) await setStartingContexts(db);
 
   if (withDemoUsers) {
     console.log(`\nDemo logins (password ${data.DEMO_PASSWORD}):`);
