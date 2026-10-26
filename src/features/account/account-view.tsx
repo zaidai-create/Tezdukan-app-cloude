@@ -1,19 +1,17 @@
 "use client";
 
-import { useQueryClient } from "@tanstack/react-query";
 import { LogOut, Repeat } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState, useTransition } from "react";
-import { toast } from "sonner";
+import { useState } from "react";
 import { RoleSwitcherSheet } from "@/components/layout/role-switcher";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Switch } from "@/components/ui/switch";
-import { saveThemeAction, signOutAction } from "@/features/auth/actions";
+import { saveThemeAction } from "@/features/auth/actions";
+import { useSignOut } from "@/features/auth/use-sign-out";
 import { LanguageChips } from "@/features/auth/components/language-chips";
-import { useRouter } from "@/i18n/navigation";
 import { activeContextOf, type ShellSession } from "@/lib/auth/session-types";
 import { formatPkMobile } from "@/lib/phone";
 import { useTheme } from "@/lib/theme/use-theme";
@@ -41,11 +39,9 @@ function SettingRow({
 /** Profile, roles, language, theme and sign-out. Shared by every role's account page. */
 function AccountView({ session }: { session: ShellSession }) {
   const t = useTranslations();
-  const router = useRouter();
-  const queryClient = useQueryClient();
   const { preference, resolved, setPreference } = useTheme();
   const [switcherOpen, setSwitcherOpen] = useState(false);
-  const [signingOut, startSignOut] = useTransition();
+  const { signOut, signingOut } = useSignOut();
   const name = session.fullName || formatPkMobile(session.phone ?? "");
   const active = activeContextOf(session);
 
@@ -53,18 +49,6 @@ function AccountView({ session }: { session: ShellSession }) {
     setPreference(next);
     void saveThemeAction(next);
   };
-
-  const signOut = () =>
-    startSignOut(async () => {
-      const result = await signOutAction();
-      if (!result.ok) {
-        toast.error(t("auth.errors.generic"));
-        return;
-      }
-      queryClient.clear();
-      router.replace("/login");
-      router.refresh();
-    });
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-6">

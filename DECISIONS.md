@@ -85,6 +85,25 @@ section. Format: **decision** — reason (date).
   labelled Sandbox notice) and `agent_unavailable` until the agent ships in Phase 5. It never
   pretends to answer. (2026-10-25)
 
+## Offline and PWA
+
+- **The service worker is bundled at build time** — `/serwist/sw.js` is a prerendered route
+  (`generateStaticParams` plus a `'use cache'` function, since Cache Components drops
+  `dynamic = 'force-static'`). Otherwise the first request after each serverless cold start
+  would run esbuild and scan a build folder that is not deployed with the function. Unknown
+  file names return 404. (2026-10-26)
+- **Our own runtime caching rules instead of Serwist's `defaultCache`** — `defaultCache` is
+  built against a second copy of `serwist` (pnpm resolves its `browserslist` peer
+  differently), so its strategies failed the `instanceof` check that attaches the offline
+  fallback, and offline navigations errored. Our rules: API routes are network-only; pages and
+  RSC payloads are network-first with a 10 s timeout and a week of copies; build assets and
+  fonts are cache-first; images are stale-while-revalidate. (2026-10-26)
+- **Signing out clears the cached screens** (`pages`, `pages-rsc`) so the next person on a
+  shared shop phone cannot open the previous account's pages offline. (2026-10-26)
+- **Offline copy only promises what works today** — "recent pages can still be viewed". The
+  "saved and will sync" wording arrives with the offline queues (cart, POS bills, khata).
+  (2026-10-26)
+
 ## Backend
 
 - **Develop against a local Supabase stack (Docker) — the existing hosted project is not

@@ -1,10 +1,8 @@
 "use client";
 
-import { useQueryClient } from "@tanstack/react-query";
 import { Check, Languages, LogOut, Moon, Repeat, Settings, SunMedium } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState, useTransition } from "react";
-import { toast } from "sonner";
+import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -17,7 +15,8 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { saveThemeAction, signOutAction } from "@/features/auth/actions";
+import { saveThemeAction } from "@/features/auth/actions";
+import { useSignOut } from "@/features/auth/use-sign-out";
 import { localeNames, pickerLocales } from "@/i18n/locales";
 import { useRouter } from "@/i18n/navigation";
 import { accountPath } from "@/lib/auth/roles";
@@ -30,11 +29,10 @@ import { useLocaleSwitch } from "./use-locale-switch";
 function UserMenu({ session }: { session: ShellSession }) {
   const t = useTranslations();
   const router = useRouter();
-  const queryClient = useQueryClient();
   const { resolved, setPreference } = useTheme();
   const { locale, switchLocale } = useLocaleSwitch();
   const [switcherOpen, setSwitcherOpen] = useState(false);
-  const [signingOut, startSignOut] = useTransition();
+  const { signOut, signingOut } = useSignOut();
   const name = session.fullName || formatPkMobile(session.phone ?? "");
 
   const toggleDark = () => {
@@ -42,18 +40,6 @@ function UserMenu({ session }: { session: ShellSession }) {
     setPreference(next);
     void saveThemeAction(next);
   };
-
-  const signOut = () =>
-    startSignOut(async () => {
-      const result = await signOutAction();
-      if (!result.ok) {
-        toast.error(t("auth.errors.generic"));
-        return;
-      }
-      queryClient.clear();
-      router.replace("/login");
-      router.refresh();
-    });
 
   return (
     <>

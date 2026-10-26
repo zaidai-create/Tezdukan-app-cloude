@@ -164,7 +164,7 @@
     "errorBody": "Yeh load nahi ho saka. Internet dekh kar dobara koshish karein.",
     "offlineTitle": "Aap offline hain",
     "offlineBody": "Iske liye internet chahiye. Internet aate hi yeh load ho jayega.",
-    "offlineBanner": "Internet nahi hai. Aapka kaam mehfooz hai, internet aate hi sync ho jayega.",
+    "offlineBanner": "Internet nahi hai. Haaliya safhat dekh sakte hain, save karne ke liye internet chahiye.",
     "retry": "Dobara koshish karein",
     "notFoundTitle": "Safha nahi mila",
     "notFoundBody": "Yeh safha mojood nahi ya kahin aur muntaqil ho gaya hai.",
@@ -172,7 +172,7 @@
   },
   "offlinePage": {
     "title": "Aap offline hain",
-    "body": "TezDukan abhi internet tak nahi pohanch pa rahi. Haal hi mein khole gaye safhat kaam karenge, aur jo bhi aap save karenge woh baad mein sync ho jayega.",
+    "body": "TezDukan abhi internet tak nahi pohanch pa rahi. Haal hi mein khole gaye safhat ab bhi dekhe ja sakte hain.",
     "retry": "Dobara koshish karein"
   },
   "product": {

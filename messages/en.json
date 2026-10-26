@@ -164,7 +164,7 @@
     "errorBody": "We could not load this. Check your connection and try again.",
     "offlineTitle": "You are offline",
     "offlineBody": "This needs the internet. It will load as soon as you are back online.",
-    "offlineBanner": "No internet. Your work is saved and will sync when you are back online.",
+    "offlineBanner": "No internet. You can still view recent pages; saving needs the internet.",
     "retry": "Try again",
     "notFoundTitle": "Page not found",
     "notFoundBody": "This page does not exist or has moved.",
@@ -172,7 +172,7 @@
   },
   "offlinePage": {
     "title": "You are offline",
-    "body": "TezDukan cannot reach the internet right now. Pages you opened recently still work, and anything you save will sync later.",
+    "body": "TezDukan cannot reach the internet right now. Pages you opened recently can still be viewed.",
     "retry": "Try again"
   },
   "product": {
