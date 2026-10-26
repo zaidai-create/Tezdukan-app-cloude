@@ -65,11 +65,13 @@ enabled = true
 schema_paths = []
 
 [db.seed]
-# If enabled, seeds the database after migrations during a db reset.
-enabled = true
+# Seed data is loaded by `pnpm seed` (scripts/seed.ts, through the Auth admin API and the Data API
+# with the secret key) so local and hosted projects are seeded the same way. Run it after
+# `pnpm db:reset`; `pnpm seed:reset` removes exactly the rows it created (public.seed_registry).
+enabled = false
 # Specifies an ordered list of seed files to load during db reset.
 # Supports glob patterns relative to supabase directory: "./seeds/*.sql"
-sql_paths = ["./seed.sql"]
+sql_paths = []
 
 [db.network_restrictions]
 # Enable management of network restrictions.
@@ -295,12 +297,16 @@ uri = "pg-functions://postgres/private/hook_send_sms"
 # uri = "pg-functions://<database>/<schema>/<hook_name>"
 
 # Configure one of the supported SMS providers: `twilio`, `twilio_verify`, `messagebird`, `textlocal`, `vonage`.
+# PLACEHOLDER PROVIDER - nothing is ever sent through Twilio. GoTrue only accepts phone sign-ups
+# (GOTRUE_EXTERNAL_PHONE_ENABLED) when an SMS provider block is enabled, but because
+# [auth.hook.send_sms] above is enabled, GoTrue hands every OTP to private.hook_send_sms, which
+# queues it in public.message_outbox for our SMS adapter (Sandbox until a provider is set up).
+# These values are dummies, not credentials.
 [auth.sms.twilio]
-enabled = false
-account_sid = ""
-message_service_sid = ""
-# DO NOT commit your Twilio auth token to git. Use environment variable substitution instead:
-auth_token = "env(SUPABASE_AUTH_SMS_TWILIO_AUTH_TOKEN)"
+enabled = true
+account_sid = "AC_placeholder_not_used_send_sms_hook_delivers"
+message_service_sid = "MG_placeholder_not_used_send_sms_hook_delivers"
+auth_token = "placeholder_not_used_send_sms_hook_delivers"
 
 # Multi-factor-authentication is available to Supabase Pro plan.
 [auth.mfa]

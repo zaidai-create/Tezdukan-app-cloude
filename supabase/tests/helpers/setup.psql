@@ -1,0 +1,258 @@
+-- Shared pgTAP helpers. Each test file runs `begin; \ir helpers/setup.psql ... rollback;`, so
+-- everything created here (schema, functions, fixtures) disappears with the transaction.
+-- pg_prove only runs *.sql / *.pg files, so this .psql include is never run on its own.
+
+-- pgTAP is installed by `supabase test db` after the migrations, so our secure default
+-- privileges keep its functions private. Tests call assertions while impersonating API roles.
+-- (client_min_messages hides "no privileges were granted" notices for other extensions'
+-- functions in the same schema.)
+set local client_min_messages = error;
+do $$
+declare
+  v_schema text;
+begin
+  select e.extnamespace::regnamespace::text into v_schema from pg_extension e where e.extname = 'pgtap';
+  execute format('grant usage on schema %I to anon, authenticated', v_schema);
+  execute format('grant execute on all functions in schema %I to anon, authenticated', v_schema);
+end;
+$$;
+set local client_min_messages = notice;
+
+create schema if not exists tests;
+grant usage on schema tests to anon, authenticated;
+
+-- alias -> id for users and fixtures, so tests read as tests.id('ali').
+create table if not exists tests.refs (alias text primary key, id uuid not null);
+grant select on tests.refs to anon, authenticated;
+
+create or replace function tests.id(p_alias text)
+returns uuid
+language plpgsql
+stable
+as $$
+declare
+  v_id uuid;
+begin
+  select r.id into v_id from tests.refs r where r.alias = p_alias;
+  if v_id is null then
+    raise exception 'unknown test alias %', p_alias;
+  end if;
+  return v_id;
+end;
+$$;
+
+create or replace function tests.remember(p_alias text, p_id uuid)
+returns uuid
+language sql
+as $$
+  insert into tests.refs (alias, id) values (p_alias, p_id)
+  on conflict (alias) do update set id = excluded.id
+  returning id
+$$;
+
+-- An auth user the way GoTrue stores one (phone without plus). The on_auth_user_created
+-- trigger creates the profile.
+create or replace function tests.create_user(
+  p_alias text,
+  p_phone text default null,
+  p_name text default null,
+  p_confirmed boolean default true,
+  p_locale text default null
+)
+returns uuid
+language plpgsql
+as $$
+declare
+  v_id uuid := gen_random_uuid();
+  v_phone text := coalesce(p_phone, '+923' || lpad((floor(random() * 1000000000))::bigint::text, 9, '0'));
+begin
+  insert into auth.users (
+    instance_id, id, aud, role, phone, phone_confirmed_at, encrypted_password, raw_app_meta_data,
+    raw_user_meta_data, created_at, updated_at, confirmation_token, recovery_token,
+    email_change_token_new, email_change
+  )
+  values (
+    '00000000-0000-0000-0000-000000000000', v_id, 'authenticated', 'authenticated', ltrim(v_phone, '+'),
+    case when p_confirmed then now() end, '', '{"provider": "phone", "providers": ["phone"]}'::jsonb,
+    jsonb_strip_nulls(jsonb_build_object('full_name', coalesce(p_name, initcap(p_alias)), 'locale', p_locale)),
+    now(), now(), '', '', '', ''
+  );
+  perform tests.remember(p_alias, v_id);
+  return v_id;
+end;
+$$;
+
+-- Impersonate a signed-in user the way PostgREST does (role + JWT claims).
+create or replace function tests.authenticate_as(p_alias text)
+returns void
+language plpgsql
+as $$
+declare
+  v_id uuid := tests.id(p_alias);
+begin
+  perform set_config('request.jwt.claims', json_build_object('sub', v_id, 'role', 'authenticated')::text, true);
+  perform set_config('request.jwt.claim.sub', v_id::text, true);
+  perform set_config('request.jwt.claim.role', 'authenticated', true);
+  perform set_config('role', 'authenticated', true);
+end;
+$$;
+
+create or replace function tests.authenticate_anon()
+returns void
+language plpgsql
+as $$
+begin
+  perform set_config('request.jwt.claims', '{"role": "anon"}', true);
+  perform set_config('request.jwt.claim.sub', '', true);
+  perform set_config('request.jwt.claim.role', 'anon', true);
+  perform set_config('role', 'anon', true);
+end;
+$$;
+
+-- Back to the test runner (postgres), with no JWT.
+create or replace function tests.clear_authentication()
+returns void
+language plpgsql
+as $$
+begin
+  perform set_config('role', 'postgres', true);
+  perform set_config('request.jwt.claims', '', true);
+  perform set_config('request.jwt.claim.sub', '', true);
+  perform set_config('request.jwt.claim.role', '', true);
+end;
+$$;
+
+-- Rows affected by a statement, run with the caller's privileges (RLS applies).
+create or replace function tests.row_count(p_sql text)
+returns integer
+language plpgsql
+as $$
+declare
+  v_count integer;
+begin
+  execute p_sql;
+  get diagnostics v_count = row_count;
+  return v_count;
+end;
+$$;
+
+-- Fixtures (call as postgres) -------------------------------------------------------------
+create or replace function tests.make_area(p_alias text)
+returns uuid
+language plpgsql
+as $$
+declare
+  v_city uuid;
+  v_id uuid;
+begin
+  select a.id into v_city from public.service_areas a where a.slug = 'test-city';
+  if v_city is null then
+    insert into public.service_areas (kind, name, slug, center_lat, center_lng, radius_m)
+    values ('city', 'Test City', 'test-city', 25.396, 68.358, 15000)
+    returning id into v_city;
+  end if;
+  insert into public.service_areas (parent_id, kind, name, slug, center_lat, center_lng, radius_m)
+  values (v_city, 'zone', initcap(replace(p_alias, '_', ' ')), 'test-' || replace(p_alias, '_', '-'), 25.39, 68.36, 3000)
+  returning id into v_id;
+  return tests.remember(p_alias, v_id);
+end;
+$$;
+
+create or replace function tests.make_shop(
+  p_alias text,
+  p_owner text default null,
+  p_status public.approval_status default 'approved',
+  p_area uuid default null
+)
+returns uuid
+language plpgsql
+as $$
+declare
+  v_id uuid;
+begin
+  insert into public.shops (owner_id, name, slug, phone, address_line, area_id, lat, lng, status)
+  values (
+    case when p_owner is not null then tests.id(p_owner) end,
+    initcap(replace(p_alias, '_', ' ')), 'test-' || replace(p_alias, '_', '-') || '-' || substr(md5(random()::text), 1, 6),
+    '+923' || lpad((floor(random() * 1000000000))::bigint::text, 9, '0'), 'Test Road, Hyderabad', p_area, 25.39, 68.36, p_status
+  )
+  returning id into v_id;
+  if p_owner is not null then
+    insert into public.shop_staff (shop_id, user_id, role, status) values (v_id, tests.id(p_owner), 'owner', 'active');
+  end if;
+  return tests.remember(p_alias, v_id);
+end;
+$$;
+
+create or replace function tests.make_org(
+  p_alias text,
+  p_owner text default null,
+  p_status public.approval_status default 'approved'
+)
+returns uuid
+language plpgsql
+as $$
+declare
+  v_id uuid;
+begin
+  insert into public.organizations (name, slug, phone, address_line, lat, lng, status)
+  values (
+    initcap(replace(p_alias, '_', ' ')), 'test-' || replace(p_alias, '_', '-') || '-' || substr(md5(random()::text), 1, 6),
+    '+923' || lpad((floor(random() * 1000000000))::bigint::text, 9, '0'), 'Test Road, Hyderabad', 25.39, 68.36, p_status
+  )
+  returning id into v_id;
+  if p_owner is not null then
+    insert into public.org_members (org_id, user_id, role, status) values (v_id, tests.id(p_owner), 'owner', 'active');
+  end if;
+  return tests.remember(p_alias, v_id);
+end;
+$$;
+
+create or replace function tests.add_shop_staff(
+  p_shop text,
+  p_user text,
+  p_role public.shop_member_role,
+  p_permissions text[] default '{}',
+  p_status public.member_status default 'active'
+)
+returns uuid
+language sql
+as $$
+  insert into public.shop_staff (shop_id, user_id, role, permissions, status)
+  values (tests.id(p_shop), tests.id(p_user), p_role, p_permissions, p_status)
+  returning id
+$$;
+
+create or replace function tests.add_org_member(
+  p_org text,
+  p_user text,
+  p_role public.org_member_role,
+  p_permissions text[] default '{}',
+  p_status public.member_status default 'active'
+)
+returns uuid
+language plpgsql
+as $$
+declare
+  v_id uuid;
+begin
+  insert into public.org_members (org_id, user_id, role, permissions, status)
+  values (tests.id(p_org), tests.id(p_user), p_role, p_permissions, p_status)
+  returning id into v_id;
+  return tests.remember(p_org || ':' || p_user, v_id);
+end;
+$$;
+
+create or replace function tests.make_admin(p_alias text)
+returns uuid
+language plpgsql
+as $$
+declare
+  v_id uuid := tests.create_user(p_alias);
+begin
+  insert into public.user_roles (user_id, role) values (v_id, 'admin');
+  return v_id;
+end;
+$$;
+
+grant execute on all functions in schema tests to anon, authenticated;
