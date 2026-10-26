@@ -4,14 +4,13 @@ import { cookies } from "next/headers";
 import { z } from "zod";
 import { isLocale } from "@/i18n/locales";
 import { LOCALE_COOKIE } from "@/i18n/routing";
-import { publicEnv } from "@/lib/env";
 import { normalizePkMobile } from "@/lib/phone";
 import { CONTEXT_COOKIE, appRoles, roleHome, serializeContext } from "@/lib/auth/roles";
 import { safeNextPath } from "@/lib/auth/safe-next";
-import { serverEnv } from "@/lib/server-env";
 import { getSupabaseAdminClient, hasAdminClient } from "@/lib/supabase/admin";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { authErrorKey, type AuthErrorKey } from "./errors";
+import { isSandboxSms, sandboxRevealAllowed } from "./sms-sandbox";
 import {
   forgotSchema,
   loginSchema,
@@ -168,25 +167,13 @@ export async function resendOtpAction(phoneInput: string, mode: OtpMode): Promis
 }
 
 /** Whether codes can be revealed on screen for this mode (Sandbox SMS only). */
-function sandboxRevealAllowed(mode: OtpMode): boolean {
-  if (serverEnv.SMS_PROVIDER !== "sandbox" || !serverEnv.SMS_SANDBOX_REVEAL_OTP) return false;
-  // Password-reset codes are never shown on screen in production: that would let anyone
-  // take over an account. In production Sandbox, an admin resets the password instead.
-  return mode === "signup" || publicEnv.NEXT_PUBLIC_APP_ENV !== "production";
-}
-
-export async function smsModeAction(): Promise<{ sandbox: boolean; resetBlocked: boolean }> {
-  const sandbox = serverEnv.SMS_PROVIDER === "sandbox";
-  return { sandbox, resetBlocked: sandbox && !sandboxRevealAllowed("recovery") };
-}
-
 export async function requestPasswordResetAction(
   values: ForgotValues,
 ): Promise<AuthResult<{ phone: string }> | { ok: false; error: "sandboxBlocked" }> {
   const parsed = forgotSchema.safeParse(values);
   const phone = parsed.success ? normalizePkMobile(parsed.data.phone) : null;
   if (!phone) return { ok: false, error: "generic" };
-  if (serverEnv.SMS_PROVIDER === "sandbox" && !sandboxRevealAllowed("recovery")) {
+  if (isSandboxSms() && !sandboxRevealAllowed("recovery")) {
     return { ok: false, error: "sandboxBlocked" };
   }
   const supabase = await getSupabaseServerClient();
@@ -221,7 +208,7 @@ export async function sandboxOtpAction(
   phoneInput: string,
   mode: OtpMode,
 ): Promise<{ sandbox: boolean; code: string | null }> {
-  const sandbox = serverEnv.SMS_PROVIDER === "sandbox";
+  const sandbox = isSandboxSms();
   const phone = normalizePkMobile(phoneInput);
   if (!sandbox || !phone || !sandboxRevealAllowed(mode) || !hasAdminClient()) {
     return { sandbox, code: null };

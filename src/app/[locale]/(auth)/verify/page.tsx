@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { AuthFormSkeleton, AuthHeading } from "@/features/auth/components/auth-heading";
 import { VerifyForm } from "@/features/auth/components/verify-form";
 import { otpModeSchema } from "@/features/auth/schemas";
+import { sandboxRevealAllowed } from "@/features/auth/sms-sandbox";
 import { normalizePkMobile } from "@/lib/phone";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -31,5 +32,5 @@ async function VerifyContent({
   const phone = typeof params.phone === "string" ? normalizePkMobile(params.phone) : null;
   const mode = otpModeSchema.safeParse(params.mode);
   if (!phone || !mode.success) redirect("/signup");
-  return <VerifyForm phone={phone} mode={mode.data} />;
+  return <VerifyForm phone={phone} mode={mode.data} sandbox={sandboxRevealAllowed(mode.data)} />;
 }

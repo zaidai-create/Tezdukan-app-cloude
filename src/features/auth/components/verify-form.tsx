@@ -18,9 +18,10 @@ const RESEND_SECONDS = 30;
 
 /**
  * Six-digit SMS code. Submits by itself when the sixth digit lands. While SMS runs in
- * Sandbox, a clearly labelled panel shows the code that would have been texted.
+ * Sandbox, a clearly labelled panel shows the code that would have been texted. The server
+ * decides whether the panel shows, so it is in the first paint instead of popping in.
  */
-function VerifyForm({ phone, mode }: { phone: string; mode: OtpMode }) {
+function VerifyForm({ phone, mode, sandbox }: { phone: string; mode: OtpMode; sandbox: boolean }) {
   const t = useTranslations("auth");
   const router = useRouter();
   const [code, setCode] = useState("");
@@ -33,12 +34,12 @@ function VerifyForm({ phone, mode }: { phone: string; mode: OtpMode }) {
   const sandboxQuery = useQuery({
     queryKey: ["sandbox-otp", phone, mode],
     queryFn: () => sandboxOtpAction(phone, mode),
+    enabled: sandbox,
     staleTime: 0,
+    // The hook writes the outbox row as the code is sent; keep looking until it is there.
+    refetchInterval: (query) => (query.state.data?.code ? false : 3000),
   });
-  const sandbox = {
-    active: sandboxQuery.data?.sandbox ?? false,
-    code: sandboxQuery.data?.code ?? null,
-  };
+  const sandboxCode = sandboxQuery.data?.code ?? null;
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -75,7 +76,7 @@ function VerifyForm({ phone, mode }: { phone: string; mode: OtpMode }) {
       }
       setCooldown(RESEND_SECONDS);
       setNotice(t("codeSent"));
-      await sandboxQuery.refetch();
+      if (sandbox) await sandboxQuery.refetch();
     });
 
   return (
@@ -90,7 +91,7 @@ function VerifyForm({ phone, mode }: { phone: string; mode: OtpMode }) {
         </Link>
       </p>
 
-      {sandbox.active ? (
+      {sandbox ? (
         <section
           aria-live="polite"
           className="flex gap-3 rounded-lg border border-dashed border-awning-ink/40 bg-awning-soft p-4"
@@ -104,11 +105,11 @@ function VerifyForm({ phone, mode }: { phone: string; mode: OtpMode }) {
               <span className="text-sm font-semibold text-ink">{t("sandboxSmsTitle")}</span>
             </div>
             <p className="text-sm text-ink">{t("sandboxSmsBody")}</p>
-            {sandbox.code ? (
+            {sandboxCode ? (
               <p className="flex items-baseline gap-2 text-base font-semibold text-ink">
                 {t("sandboxCodeLabel")}
                 <span dir="ltr" className="num font-heading text-2xl tracking-[0.3em]">
-                  {sandbox.code}
+                  {sandboxCode}
                 </span>
               </p>
             ) : (

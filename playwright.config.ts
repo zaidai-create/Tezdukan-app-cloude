@@ -1,7 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const PORT = Number(process.env.E2E_PORT ?? 3100);
-const baseURL = process.env.E2E_BASE_URL ?? `http://localhost:${PORT}`;
+const PORT = Number(process.env.E2E_PORT || 3100);
+const baseURL = process.env.E2E_BASE_URL || `http://localhost:${PORT}`;
 // E2E_DEV=1 runs against `next dev` for quick iteration; the default is a production build,
 // which is what users get (static shells, service worker, real bundle sizes).
 const serverCommand =

@@ -11,7 +11,7 @@ export default async function AuthLayout({ children }: { children: ReactNode }) 
   return (
     <div className="flex min-h-dvh flex-col bg-canvas lg:flex-row">
       {/* Brand panel (desktop): the logo as it was drawn, on black. */}
-      <aside className="relative hidden w-[44%] max-w-[640px] flex-col overflow-hidden bg-brand-panel text-on-brand-panel lg:flex">
+      <aside className="relative hidden w-[44%] max-w-[640px] flex-col overflow-hidden border-e border-border bg-brand-panel text-on-brand-panel lg:flex">
         <Awning height={34} stripe={36} />
         <div className="flex flex-1 flex-col justify-between gap-12 p-12">
           {/* Same composition as the logo artwork: the mark centred over the wordmark. */}
