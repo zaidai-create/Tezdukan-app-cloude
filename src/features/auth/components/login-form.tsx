@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Link, useRouter } from "@/i18n/navigation";
 import { signInAction } from "../session-actions";
+import { useFormError } from "../use-form-error";
 import { loginSchema, type LoginValues } from "../schemas";
 import { FormAlert } from "./form-alert";
 import { PasswordInput } from "./password-input";
@@ -23,7 +24,9 @@ import { PhoneInput } from "./phone-input";
 function LoginForm({ next }: { next?: string }) {
   const t = useTranslations("auth");
   const router = useRouter();
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useFormError();
+  // Stays true once signed in, so the button keeps working until the next screen arrives.
+  const [leaving, setLeaving] = useState(false);
   const [pending, startTransition] = useTransition();
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
@@ -37,11 +40,13 @@ function LoginForm({ next }: { next?: string }) {
       try {
         const result = await signInAction(values, next);
         if (result.ok) {
+          setLeaving(true);
           router.replace(result.redirectTo);
           router.refresh();
           return;
         }
         if ("phone" in result) {
+          setLeaving(true);
           router.push(`/verify?${new URLSearchParams({ phone: result.phone, mode: "signup" })}`);
           return;
         }
@@ -93,9 +98,9 @@ function LoginForm({ next }: { next?: string }) {
             </FormItem>
           )}
         />
-        {error ? <FormAlert>{error}</FormAlert> : null}
-        <Button type="submit" size="lg" block loading={pending}>
-          {pending ? t("signingIn") : t("signIn")}
+        {error ? <FormAlert key={error.attempt}>{error.value}</FormAlert> : null}
+        <Button type="submit" size="lg" block loading={pending || leaving}>
+          {pending || leaving ? t("signingIn") : t("signIn")}
         </Button>
         <p className="text-center text-base text-muted">
           {t("noAccount")}{" "}

@@ -22,6 +22,8 @@ function GradientDef({ id, paint }: { id: string; paint: Gradient }) {
 /**
  * The mark's paths. Gradient ids are per instance: a page can hold several marks, and a
  * reference to a gradient inside a hidden one (the desktop sidebar on a phone) paints nothing.
+ * `data-part` names the pieces the logo reveal animates (see `[data-logo-reveal]` in
+ * globals.css); outside a reveal they are plain groups.
  */
 function MarkArt() {
   const uid = useId().replace(/[^\w-]/g, "");
@@ -35,10 +37,26 @@ function MarkArt() {
         <GradientDef id={awning} paint={markPaint.awning} />
         <GradientDef id={stripes} paint={markPaint.stripes} />
       </defs>
-      <path fill={markPaint.body} d={mark.body} />
-      <path fill={`url(#${fold})`} d={mark.fold} />
-      <path fill={`url(#${awning})`} d={mark.awning} />
-      <path fill={`url(#${stripes})`} d={mark.stripes} />
+      {mark.speedLines.map((d, index) => (
+        <path
+          key={d}
+          data-part="speed"
+          style={{ "--i": index } as React.CSSProperties}
+          fill={markPaint.body}
+          d={d}
+        />
+      ))}
+      <g data-part="cart">
+        <path fill={markPaint.body} d={mark.frame} />
+        {mark.wheels.map((d) => (
+          <path key={d} fill={markPaint.body} d={d} />
+        ))}
+        <path data-part="fold" fill={`url(#${fold})`} d={mark.fold} />
+      </g>
+      <g data-part="awning">
+        <path fill={`url(#${awning})`} d={mark.awning} />
+        <path fill={`url(#${stripes})`} d={mark.stripes} />
+      </g>
     </>
   );
 }

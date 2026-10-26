@@ -74,6 +74,25 @@ section. Format: **decision** — reason (date).
   spring and drag-to-dismiss. Dragging starts only from the handle, so long lists inside a sheet
   scroll normally. (2026-10-25)
 
+- **The auth screens are a shopfront** — on phones, a black signboard carries the logo, the
+  awning hangs below it and the form sits underneath like the counter; on desktop the signboard
+  is a side panel with what TezDukan does. The logo assembles itself once per page load: the
+  cart rolls in trailing its speed lines, the flag curls, the awning drops into place, then the
+  wordmark and tagline rise. The lockup is never mirrored; in RTL it sits at the start.
+  (2026-10-26)
+- **Brand moments in CSS, interactions in Motion** — the logo reveal and entrance rises are CSS
+  keyframes, so they play on first paint without waiting for JavaScript and cost almost nothing
+  on low-end phones. Interactive motion (the sliding language pill, sheets, the cart) uses
+  Motion under `MotionConfig reducedMotion="user"`. With reduced motion, the CSS block zeroes
+  durations and delays, so everything appears finished. (2026-10-26)
+- **The theme boot script is rendered only in the server HTML** (`ServerOnlyScript`).
+  `next/script` with `beforeInteractive` defers inline code until after Next's bootstrap, which
+  would flash white in dark mode. A plain `<script>` is re-created inert, with a React warning,
+  when switching language re-renders the root layout. (2026-10-26)
+- **Phone numbers format as they are typed** ("0300 1234567"), a pasted +92/0092 is
+  understood, and a check appears once the number is complete. The cursor stays after the
+  digit just typed. (2026-10-26)
+
 ## App shell
 
 - **Each role has its own account page** (`/dukan/account`, `/rider/account`, …) so the page

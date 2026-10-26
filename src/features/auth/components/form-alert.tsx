@@ -2,7 +2,10 @@ import { cn } from "cn";
 import { CircleAlert, Info } from "lucide-react";
 import type * as React from "react";
 
-/** Inline message above a form's submit button (auth errors, notices). */
+/**
+ * Inline message above a form's submit button (auth errors, notices). Errors arrive with a
+ * short shake; give the alert a new `key` per attempt so a repeated error shakes again.
+ */
 function FormAlert({
   tone = "error",
   className,
@@ -18,7 +21,9 @@ function FormAlert({
       role={tone === "error" ? "alert" : "status"}
       className={cn(
         "flex items-start gap-2.5 rounded-md px-3.5 py-3 text-sm font-medium",
-        tone === "error" ? "bg-danger-soft text-danger-ink" : "bg-subtle text-ink",
+        tone === "error"
+          ? "animate-shake bg-danger-soft text-danger-ink"
+          : "animate-rise bg-subtle text-ink",
         className,
       )}
     >

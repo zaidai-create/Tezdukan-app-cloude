@@ -1,8 +1,12 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, type Page } from "@playwright/test";
 
-/** Runs axe with the WCAG 2.1 A and AA rules and fails with a readable list of violations. */
+/**
+ * Runs axe with the WCAG 2.1 A and AA rules and fails with a readable list of violations.
+ * Motion is settled first: text that is mid-fade would otherwise fail colour contrast.
+ */
 export async function expectAccessible(page: Page) {
+  await page.emulateMedia({ reducedMotion: "reduce" });
   const results = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
     .analyze();

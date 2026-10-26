@@ -39,3 +39,36 @@ export function maskPkMobile(e164: string): string {
 export function whatsappNumber(e164: string): string {
   return e164.replace(/^\+/, "");
 }
+
+/**
+ * Formats a number while it is being typed into the +92 field: "03001234567" → "0300 1234567",
+ * "3001234567" → "300 1234567". A pasted country code (+92, 92, 0092) is dropped because the
+ * field shows +92 already. `caret` is the cursor position in `raw`; the result says where it
+ * belongs in the formatted text, so editing in the middle does not jump to the end.
+ */
+export function formatPkMobileInput(raw: string, caret = raw.length) {
+  const digitsBeforeCaret = raw.slice(0, caret).replace(/\D/g, "").length;
+  let digits = raw.replace(/\D/g, "");
+  let dropped = 0;
+  if (digits.startsWith("0092")) dropped = 4;
+  // No national mobile number starts with 9, so "923…" (or anything after a "+") is +92.
+  else if (/^923/.test(digits) || (digits.startsWith("92") && raw.trim().startsWith("+"))) {
+    dropped = 2;
+  }
+  digits = digits.slice(dropped);
+
+  const max = digits.startsWith("0") ? 11 : 10;
+  const split = digits.startsWith("0") ? 4 : 3;
+  digits = digits.slice(0, max);
+  const value = digits.length > split ? `${digits.slice(0, split)} ${digits.slice(split)}` : digits;
+
+  // Place the cursor after the same digit it followed before formatting.
+  const target = Math.min(Math.max(digitsBeforeCaret - dropped, 0), digits.length);
+  let seen = 0;
+  let position = 0;
+  while (position < value.length && seen < target) {
+    if (/\d/.test(value.charAt(position))) seen += 1;
+    position += 1;
+  }
+  return { value, caret: position };
+}

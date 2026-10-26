@@ -11,6 +11,7 @@ import { Link, useRouter } from "@/i18n/navigation";
 import { haptic } from "@/lib/haptics";
 import { maskPkMobile } from "@/lib/phone";
 import { resendOtpAction, sandboxOtpAction, verifyOtpAction } from "../session-actions";
+import { useFormError } from "../use-form-error";
 import type { OtpMode } from "../schemas";
 import { FormAlert } from "./form-alert";
 
@@ -25,7 +26,9 @@ function VerifyForm({ phone, mode, sandbox }: { phone: string; mode: OtpMode; sa
   const t = useTranslations("auth");
   const router = useRouter();
   const [code, setCode] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useFormError();
+  // Set once the code is accepted: the boxes turn green and stay busy until the next screen.
+  const [verified, setVerified] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [cooldown, setCooldown] = useState(RESEND_SECONDS);
   const [verifying, startVerify] = useTransition();
@@ -54,6 +57,7 @@ function VerifyForm({ phone, mode, sandbox }: { phone: string; mode: OtpMode; sa
         const result = await verifyOtpAction({ phone, token: value, mode });
         if (result.ok) {
           haptic("success");
+          setVerified(true);
           router.replace(result.redirectTo);
           router.refresh();
           return;
@@ -132,29 +136,37 @@ function VerifyForm({ phone, mode, sandbox }: { phone: string; mode: OtpMode; sa
             setError(null);
           }}
           onComplete={submit}
-          disabled={verifying}
+          disabled={verifying || verified}
           aria-invalid={Boolean(error)}
           pattern="^[0-9]+$"
         >
-          <InputOTPGroup>
+          {/* A new key per failed attempt replays the shake. */}
+          <InputOTPGroup key={error?.attempt ?? 0} className={error ? "animate-shake" : undefined}>
             {Array.from({ length: 6 }, (_, index) => (
-              <InputOTPSlot key={index} index={index} aria-invalid={Boolean(error)} />
+              <InputOTPSlot
+                key={index}
+                index={index}
+                aria-invalid={Boolean(error)}
+                data-verified={verified || undefined}
+                className="data-verified:border-primary-strong data-verified:bg-primary-soft data-verified:text-primary-strong"
+                style={verified ? { transitionDelay: `${index * 40}ms` } : undefined}
+              />
             ))}
           </InputOTPGroup>
         </InputOTP>
       </div>
 
-      {error ? <FormAlert>{error}</FormAlert> : null}
+      {error ? <FormAlert key={error.attempt}>{error.value}</FormAlert> : null}
       {notice && !error ? <FormAlert tone="info">{notice}</FormAlert> : null}
 
       <Button
         size="lg"
         block
-        loading={verifying}
+        loading={verifying || verified}
         disabled={code.length !== 6}
         onClick={() => submit(code)}
       >
-        {verifying ? t("verifying") : t("verify")}
+        {verifying || verified ? t("verifying") : t("verify")}
       </Button>
       <Button
         variant="ghost"

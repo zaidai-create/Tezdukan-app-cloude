@@ -40,7 +40,7 @@ test.describe("in Urdu", () => {
     await expect(html(page)).toHaveAttribute("dir", "rtl");
     const phone = page.getByLabel(ur.auth.phoneLabel);
     await phone.fill("03001234567");
-    await expect(phone).toHaveValue("03001234567");
+    await expect(phone).toHaveValue("0300 1234567");
     await expect(phone.locator("xpath=ancestor::*[@dir][1]")).toHaveAttribute("dir", "ltr");
   });
 

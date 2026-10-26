@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Inter, Noto_Naskh_Arabic, Noto_Nastaliq_Urdu, Plus_Jakarta_Sans } from "next/font/google";
 import { Providers } from "@/components/providers";
+import { ServerOnlyScript } from "@/components/server-only-script";
 import { localeDir } from "@/i18n/locales";
 import { routing } from "@/i18n/routing";
 import { themeColor } from "@/lib/brand/colors";
@@ -77,7 +78,8 @@ export default async function LocaleLayout({ children }: LayoutProps<"/[locale]"
       className={`${inter.variable} ${jakarta.variable} ${naskh.variable} ${nastaliq.variable}`}
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
+        {/* Runs before first paint, so dark mode never flashes white. */}
+        <ServerOnlyScript code={themeBootScript} />
       </head>
       <body>
         <SerwistProvider swUrl="/serwist/sw.js" disable={process.env.NODE_ENV === "development"}>

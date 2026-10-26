@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/form";
 import { Link, useRouter } from "@/i18n/navigation";
 import { requestPasswordResetAction } from "../session-actions";
+import { useFormError } from "../use-form-error";
 import { forgotSchema, type ForgotValues } from "../schemas";
 import { FormAlert } from "./form-alert";
 import { PhoneInput } from "./phone-input";
@@ -29,7 +30,7 @@ import { PhoneInput } from "./phone-input";
 function ForgotForm({ supportPhone }: { supportPhone: string | null }) {
   const t = useTranslations("auth");
   const router = useRouter();
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useFormError();
   const [blocked, setBlocked] = useState(false);
   const [pending, startTransition] = useTransition();
   const form = useForm<ForgotValues>({
@@ -103,7 +104,7 @@ function ForgotForm({ supportPhone }: { supportPhone: string | null }) {
             </FormItem>
           )}
         />
-        {error ? <FormAlert>{error}</FormAlert> : null}
+        {error ? <FormAlert key={error.attempt}>{error.value}</FormAlert> : null}
         <Button type="submit" size="lg" block loading={pending}>
           {t("sendCode")}
         </Button>

@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -18,13 +18,14 @@ import {
 import { useRouter } from "@/i18n/navigation";
 import { updatePasswordAction } from "../session-actions";
 import { newPasswordSchema, type NewPasswordValues } from "../schemas";
+import { useFormError } from "../use-form-error";
 import { FormAlert } from "./form-alert";
 import { PasswordInput } from "./password-input";
 
 function NewPasswordForm() {
   const t = useTranslations("auth");
   const router = useRouter();
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useFormError();
   const [pending, startTransition] = useTransition();
   const form = useForm<NewPasswordValues>({
     resolver: zodResolver(newPasswordSchema),
@@ -67,7 +68,7 @@ function NewPasswordForm() {
             </FormItem>
           )}
         />
-        {error ? <FormAlert>{error}</FormAlert> : null}
+        {error ? <FormAlert key={error.attempt}>{error.value}</FormAlert> : null}
         <Button type="submit" size="lg" block loading={pending}>
           {t("updatePassword")}
         </Button>

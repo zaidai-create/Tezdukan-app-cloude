@@ -51,14 +51,19 @@ function InputOTPSlot({
       data-active={active}
       className={cn(
         "relative flex h-14 w-12 items-center justify-center rounded-md border border-border-strong bg-surface",
-        "num font-heading text-2xl font-semibold text-ink transition-[border-color,box-shadow] duration-150",
+        "num font-heading text-2xl font-semibold text-ink transition-[border-color,box-shadow,background-color,color] duration-200",
         "data-[active=true]:border-primary-strong data-[active=true]:ring-3 data-[active=true]:ring-primary/20",
         "aria-invalid:border-danger-ink",
         className,
       )}
       {...props}
     >
-      {slot?.char}
+      {/* Keyed by the digit so each new one pops in. */}
+      {slot?.char ? (
+        <span key={slot.char} className="animate-pop">
+          {slot.char}
+        </span>
+      ) : null}
       {slot?.hasFakeCaret ? (
         <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
           <span className="h-6 w-px animate-pulse bg-ink" />

@@ -31,6 +31,8 @@ for (const variant of variants) {
       );
       await page.goto(screen.path);
       await page.evaluate(() => document.fonts.ready);
+      // Capture the finished screen: the logo reveal and rises jump to their end state.
+      await page.emulateMedia({ reducedMotion: "reduce" });
       const viewport = testInfo.project.name.replace("screenshots-", "");
       await page.screenshot({
         path: `e2e/__screenshots__/${viewport}/${screen.name}-${variant.id}.png`,

@@ -113,6 +113,8 @@ const eslintConfig = defineConfig([
     rules: { "react/jsx-no-literals": "off" },
   },
   globalIgnores([
+    // Claude Code agent worktrees are separate checkouts with their own build output.
+    ".claude/**",
     ".next/**",
     "out/**",
     "build/**",

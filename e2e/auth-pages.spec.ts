@@ -108,3 +108,34 @@ test.describe("code entry", () => {
     await expectAccessible(page);
   });
 });
+
+test.describe("phone field", () => {
+  test("spaces the number while typing and accepts pasted +92 numbers", async ({ page }) => {
+    await page.goto("/login");
+    const phone = page.getByLabel(auth.phoneLabel);
+    await phone.pressSequentially("03001234567");
+    await expect(phone).toHaveValue("0300 1234567");
+    await phone.fill("+92 300-765-4321");
+    await expect(phone).toHaveValue("300 7654321");
+  });
+});
+
+test("warns when Caps Lock is on", async ({ page }) => {
+  await page.goto("/login");
+  const password = page.getByLabel(auth.passwordLabel, { exact: true });
+  await password.focus();
+  await password.dispatchEvent("keydown", { key: "A", modifierCapsLock: true });
+  await expect(page.getByText(auth.capsLockOn)).toBeVisible();
+  await password.dispatchEvent("keydown", { key: "a", modifierCapsLock: false });
+  await expect(page.getByText(auth.capsLockOn)).toBeHidden();
+});
+
+test.describe("with reduced motion", () => {
+  test.use({ reducedMotion: "reduce" });
+
+  test("shows the finished logo straight away", async ({ page }) => {
+    await page.goto("/login");
+    const wordmark = page.locator('[data-part="wordmark"]').filter({ visible: true }).first();
+    await expect(wordmark).toHaveCSS("opacity", "1");
+  });
+});

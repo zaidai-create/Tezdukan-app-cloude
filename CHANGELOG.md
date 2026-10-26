@@ -6,6 +6,17 @@ All notable changes, newest first. Dates are Asia/Karachi.
 
 ### Phase 1 — Foundation (in progress)
 
+- A new sign-in experience. Phones get a shopfront layout: a black signboard with the logo,
+  the awning hanging below, the form underneath. The logo assembles itself (cart rolls in, speed
+  lines trail, awning drops). Other touches:
+  - a language highlight that slides
+  - phone numbers that space themselves, with a check when complete
+  - a Caps Lock warning
+  - errors that shake
+  - code digits that pop in and turn green when accepted
+  - a short rise between screens
+
+  All of it respects the phone's reduce-motion setting. (2026-10-26)
 - End-to-end tests for the public screens at 390×844 and 1440×900, with WCAG 2.1 AA checks
   (axe) in English and Urdu, and `pnpm screenshots` for design review. (2026-10-26)
 - Offline: pages not yet visited now show the offline page instead of a browser error, the

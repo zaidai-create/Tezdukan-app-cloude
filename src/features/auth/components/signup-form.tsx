@@ -17,6 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Link, useRouter } from "@/i18n/navigation";
 import { signUpAction } from "../session-actions";
+import { useFormError } from "../use-form-error";
 import { signupSchema, type SignupValues } from "../schemas";
 import { FormAlert } from "./form-alert";
 import { PasswordInput } from "./password-input";
@@ -25,7 +26,8 @@ import { PhoneInput } from "./phone-input";
 function SignupForm() {
   const t = useTranslations("auth");
   const router = useRouter();
-  const [error, setError] = useState<{ key: string; signIn?: boolean } | null>(null);
+  const [error, setError] = useFormError<{ message: string; signIn?: boolean }>();
+  const [leaving, setLeaving] = useState(false);
   const [pending, startTransition] = useTransition();
   const form = useForm<SignupValues>({
     resolver: zodResolver(signupSchema),
@@ -39,12 +41,16 @@ function SignupForm() {
       try {
         const result = await signUpAction(values);
         if (result.ok) {
+          setLeaving(true);
           router.push(`/verify?${new URLSearchParams({ phone: result.phone, mode: "signup" })}`);
           return;
         }
-        setError({ key: t(`errors.${result.error}`), signIn: result.error === "phoneTaken" });
+        setError({
+          message: t(`errors.${result.error}`),
+          signIn: result.error === "phoneTaken",
+        });
       } catch {
-        setError({ key: t("errors.network") });
+        setError({ message: t("errors.network") });
       }
     }),
   );
@@ -93,16 +99,16 @@ function SignupForm() {
           )}
         />
         {error ? (
-          <FormAlert>
-            {error.key}{" "}
-            {error.signIn ? (
+          <FormAlert key={error.attempt}>
+            {error.value.message}{" "}
+            {error.value.signIn ? (
               <Link href="/login" className="font-semibold underline underline-offset-4">
                 {t("signIn")}
               </Link>
             ) : null}
           </FormAlert>
         ) : null}
-        <Button type="submit" size="lg" block loading={pending}>
+        <Button type="submit" size="lg" block loading={pending || leaving}>
           {t("signUp")}
         </Button>
         <p className="text-center text-sm text-muted">{t("termsNote")}</p>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale } from "next-intl";
-import { useTransition } from "react";
+import { useOptimistic, useTransition } from "react";
 import { saveLocaleAction } from "@/features/auth/actions";
 import { localeDir, type Locale } from "@/i18n/locales";
 import { usePathname, useRouter } from "@/i18n/navigation";
@@ -16,17 +16,20 @@ export function useLocaleSwitch() {
   const router = useRouter();
   const pathname = usePathname();
   const [pending, startTransition] = useTransition();
+  // The picker moves at once; the page follows when the new language arrives.
+  const [shownLocale, setShownLocale] = useOptimistic(locale);
 
   const switchLocale = (next: Locale) => {
-    if (next === locale) return;
+    if (next === shownLocale) return;
     document.documentElement.lang = next;
     document.documentElement.dir = localeDir(next);
     startTransition(() => {
+      setShownLocale(next);
       router.replace(pathname, { locale: next });
       router.refresh();
     });
     void saveLocaleAction(next);
   };
 
-  return { locale, switchLocale, pending };
+  return { locale: shownLocale, switchLocale, pending };
 }

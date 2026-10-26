@@ -1,6 +1,7 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { MotionConfig } from "motion/react";
 import { Direction } from "radix-ui";
 import { useState, type ReactNode } from "react";
 import { Toaster } from "@/components/ui/toaster";
@@ -25,12 +26,15 @@ export function Providers({ children, dir }: { children: ReactNode; dir: "ltr" |
   const [queryClient] = useState(makeQueryClient);
   return (
     <QueryClientProvider client={queryClient}>
-      <Direction.Provider dir={dir}>
-        <TooltipProvider>
-          {children}
-          <Toaster dir={dir} />
-        </TooltipProvider>
-      </Direction.Provider>
+      {/* Motion follows the phone's reduce-motion setting, like the CSS animations do. */}
+      <MotionConfig reducedMotion="user">
+        <Direction.Provider dir={dir}>
+          <TooltipProvider>
+            {children}
+            <Toaster dir={dir} />
+          </TooltipProvider>
+        </Direction.Provider>
+      </MotionConfig>
     </QueryClientProvider>
   );
 }

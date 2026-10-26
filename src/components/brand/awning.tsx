@@ -7,6 +7,8 @@ type AwningProps = {
   height?: number;
   /** Width of one stripe in px. */
   stripe?: number;
+  /** Unrolls from the top on first paint (auth screens, order success). */
+  animated?: boolean;
 };
 
 /**
@@ -15,13 +17,18 @@ type AwningProps = {
  * empty states. It tiles to any width, so it can span a header edge to edge. As in the logo,
  * the orange stripes hang a little shorter than the amber ones.
  */
-function Awning({ className, height = 20, stripe = 22 }: AwningProps) {
+function Awning({ className, height = 20, stripe = 22, animated = false }: AwningProps) {
   const id = useId().replace(/[^\w-]/g, "");
   const radius = stripe / 2;
   const total = height + radius;
   const tile = stripe * 2;
   return (
-    <svg aria-hidden className={cn("block w-full", className)} height={total} data-slot="awning">
+    <svg
+      aria-hidden
+      className={cn("block w-full", animated && "origin-top animate-unroll", className)}
+      height={total}
+      data-slot="awning"
+    >
       <defs>
         <pattern id={`awning-${id}`} width={tile} height={total} patternUnits="userSpaceOnUse">
           <rect x={0} y={0} width={stripe} height={height} className="fill-awning" />
