@@ -59,7 +59,9 @@ function LoginForm({ next }: { next?: string }) {
 
   return (
     <Form {...form}>
-      <form onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
+      {/* POST: a tap before the page has hydrated must not put
+          the password in the URL. */}
+      <form method="post" onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
         <FormField
           control={form.control}
           name="phone"

@@ -1,5 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
-import { deleteUserByPhone } from "./support/admin";
+import { createConfirmedUser, deleteUserByPhone } from "./support/admin";
 import { messages } from "./support/messages";
 
 /**
@@ -76,10 +76,13 @@ test("signing out returns to sign in and protects the app again", async ({ page 
   await expect(page).toHaveURL(/\/login\?next=%2Faccount$/);
 });
 
+/** A number from the unused 0399 range, different per run and per viewport. */
+const throwawayNumber = () => `0399${String(Math.floor(1_000_000 + Math.random() * 8_999_999))}`;
+const toE164 = (national: string) => `+92${national.slice(1)}`;
+
 test.describe("sign up", () => {
-  // A number from a range no operator uses, different per run and per viewport.
-  const phone = `0399${String(Math.floor(1_000_000 + Math.random() * 8_999_999))}`;
-  const e164 = `+92${phone.slice(1)}`;
+  const phone = throwawayNumber();
+  const e164 = toE164(phone);
 
   test.afterAll(async () => {
     await deleteUserByPhone(e164);
@@ -100,4 +103,69 @@ test.describe("sign up", () => {
     await expect(page).toHaveURL(/\/$/, { timeout: 15_000 });
     await expect(page.getByRole("heading", { name: greeting("Bilal") })).toBeVisible();
   });
+});
+
+test.describe("password reset", () => {
+  // Its own verified account: sign-up just texted the other number, and SMS codes are limited
+  // to one every 30 seconds per number.
+  const phone = throwawayNumber();
+  const e164 = toE164(phone);
+
+  test.beforeAll(async () => {
+    await createConfirmedUser(e164, "dukan-e2e-123", "Zainab Shah");
+  });
+
+  test.afterAll(async () => {
+    await deleteUserByPhone(e164);
+  });
+
+  test("a forgotten password is reset with an SMS code", async ({ page }) => {
+    await page.goto("/forgot-password");
+    await page.getByLabel(auth.phoneLabel).fill(phone);
+    await page.getByRole("button", { name: auth.sendCode }).click();
+
+    await expect(page).toHaveURL(/\/verify\?.*mode=recovery/);
+    const code = page.locator("p", { hasText: auth.sandboxCodeLabel }).locator("span[dir=ltr]");
+    await expect(code).toHaveText(/^\d{6}$/, { timeout: 15_000 });
+    await page.getByLabel(auth.codeLabel).pressSequentially((await code.textContent()) ?? "");
+
+    await expect(page).toHaveURL(/\/forgot-password\/new$/, { timeout: 15_000 });
+    await page.getByLabel(auth.newPasswordLabel).fill("dukan-e2e-456");
+    await page.getByRole("button", { name: auth.updatePassword }).click();
+    await expect(page).toHaveURL(/\/$/, { timeout: 15_000 });
+
+    // The new password works from a fresh device.
+    await page.context().clearCookies();
+    await page.goto("/login");
+    await page.getByLabel(auth.phoneLabel).fill(phone);
+    await page.getByLabel(auth.passwordLabel, { exact: true }).fill("dukan-e2e-456");
+    await page.getByRole("button", { name: auth.signIn }).click();
+    await expect(page.getByRole("heading", { name: greeting("Zainab") })).toBeVisible();
+  });
+});
+
+test("Ctrl+K opens the command palette and jumps to a page", async ({ page }) => {
+  await signIn(page, "0300 0000002");
+  await expect(page).toHaveURL(/\/dukan$/);
+  await page.keyboard.press("Control+k");
+  const palette = page.getByRole("dialog", { name: messages.en.command.title });
+  await expect(palette).toBeVisible();
+  await palette.getByRole("combobox").fill(messages.en.nav.account);
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/\/dukan\/account$/);
+});
+
+test("a question typed into the palette goes to Munshi", async ({ page }) => {
+  await signIn(page, "0300 0000002");
+  await expect(page).toHaveURL(/\/dukan$/);
+  await page.keyboard.press("Control+k");
+  await page
+    .getByRole("dialog", { name: messages.en.command.title })
+    .getByRole("combobox")
+    .fill("aaj ki sale");
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("dialog", { name: messages.en.nav.munshi })).toBeVisible();
+  await expect(page.getByRole("textbox", { name: messages.en.munshi.inputLabel })).toHaveValue(
+    "aaj ki sale",
+  );
 });

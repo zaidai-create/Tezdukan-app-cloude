@@ -24,3 +24,14 @@ export async function deleteUserByPhone(e164: string) {
     if (data.users.length < 200) return;
   }
 }
+
+/** A verified account for a test, created without sending an SMS (no rate limit). */
+export async function createConfirmedUser(e164: string, password: string, fullName: string) {
+  const { error } = await adminClient().auth.admin.createUser({
+    phone: e164.replace(/^\+/, ""),
+    password,
+    phone_confirm: true,
+    user_metadata: { full_name: fullName, locale: "en" },
+  });
+  if (error) throw error;
+}

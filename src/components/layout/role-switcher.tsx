@@ -15,6 +15,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { switchContextAction } from "@/features/auth/actions";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { useRouter } from "@/i18n/navigation";
 import { isUsable, type RoleContext, type ShellSession } from "@/lib/auth/session-types";
 import { haptic } from "@/lib/haptics";
@@ -38,6 +39,8 @@ function RoleSwitcherSheet({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  // A bottom sheet on phones; on desktop, the side panel Munshi uses too.
+  const desktop = useMediaQuery("(min-width: 1024px)");
   const t = useTranslations("roles");
   const router = useRouter();
   const [pendingKey, setPendingKey] = useState<string | null>(null);
@@ -68,7 +71,7 @@ function RoleSwitcherSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent aria-describedby={undefined}>
+      <SheetContent side={desktop ? "end" : "bottom"} aria-describedby={undefined}>
         <SheetHeader>
           <SheetTitle>{t("switchTitle")}</SheetTitle>
           <SheetDescription>{t("switchDescription")}</SheetDescription>

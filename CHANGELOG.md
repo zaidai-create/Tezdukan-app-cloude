@@ -6,6 +6,15 @@ All notable changes, newest first. Dates are Asia/Karachi.
 
 ### Phase 1 — Foundation (in progress)
 
+- Fixes found by the new screenshot and journey tests:
+  - The Ctrl+K command palette crashed on open; it now works. Typing a page name and pressing
+    Enter goes to that page, and a question goes to Munshi.
+  - Tapping Sign in before the page has loaded can no longer put the password in the URL.
+  - The role switcher opens as a side panel on desktop.
+  - Booker and rider cards no longer repeat their role.
+
+  Password reset is covered end to end, and the screenshots now include every signed-in shell.
+  (2026-10-26)
 - The Phase 1 database is merged:
   - 90 tables, all with row-level security, plus identity RPCs and storage buckets with their
     policies.

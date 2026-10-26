@@ -48,7 +48,11 @@ async function RoleHomeContent({ role }: { role: AppRole }) {
             <p className="flex items-center gap-1.5 text-sm text-muted">
               <Icon aria-hidden className="size-4" />
               {t(`roles.${role}`)}
-              {isMemberRole(context.memberRole) ? ` · ${t(`members.${context.memberRole}`)}` : null}
+              {/* "Distributor · Manager" adds something; "Rider · Rider" would not. */}
+              {isMemberRole(context.memberRole) &&
+              t(`members.${context.memberRole}`) !== t(`roles.${role}`)
+                ? ` · ${t(`members.${context.memberRole}`)}`
+                : null}
             </p>
           </div>
           {context.status === "approved" ? (

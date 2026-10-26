@@ -113,6 +113,13 @@ section. Format: **decision** — reason (date).
   (admin, dukandar, distributor, booker, rider), so a demo opens on that role's home. The two
   multi-role users start as customers; parallel end-to-end runs use one each. (2026-10-26)
 
+- **Forms that carry a password or phone number use `method="post"`** — a tap before hydration
+  falls back to a native submit, and a GET would put the password in the URL, browser history and
+  server logs. A POST to the page just renders it again. (2026-10-26)
+- **In the command palette, pages outrank "Ask Munshi"** — Munshi is always offered, last, so
+  Enter opens a matching page and only a question (nothing matches) goes to Munshi.
+  (2026-10-26)
+
 ## Offline and PWA
 
 - **The service worker is bundled at build time** — `/serwist/sw.js` is a prerendered route

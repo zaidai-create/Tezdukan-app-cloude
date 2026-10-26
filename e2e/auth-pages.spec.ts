@@ -139,3 +139,17 @@ test.describe("with reduced motion", () => {
     await expect(wordmark).toHaveCSS("opacity", "1");
   });
 });
+
+test("a tap before the page has loaded its scripts never puts the password in the URL", async ({
+  page,
+}) => {
+  // Without the app's JavaScript the form is visible but not hydrated, as on a slow phone.
+  await page.route("**/_next/static/chunks/**/*.js", (route) => route.abort());
+  await page.goto("/login");
+  await page.getByLabel(auth.phoneLabel).fill("03001234567");
+  await page.getByLabel(auth.passwordLabel, { exact: true }).fill("secret-password");
+  await page.getByRole("button", { name: auth.signIn }).click();
+  await page.waitForLoadState("load");
+  expect(page.url()).not.toContain("secret-password");
+  expect(page.url()).not.toContain("password=");
+});

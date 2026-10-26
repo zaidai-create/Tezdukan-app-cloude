@@ -35,7 +35,8 @@ function CommandDialog({
       >
         <DialogTitle className="sr-only">{title}</DialogTitle>
         <DialogDescription className="sr-only">{description}</DialogDescription>
-        {children}
+        {/* cmdk's input, list and items read the store this root provides. */}
+        <Command>{children}</Command>
       </DialogContent>
     </Dialog>
   );

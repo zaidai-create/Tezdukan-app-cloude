@@ -75,18 +75,6 @@ function CommandPalette({ items, open, onOpenChange }: CommandPaletteProps) {
       />
       <CommandList>
         <CommandEmpty>{t("command.empty")}</CommandEmpty>
-        {query.trim().length > 1 ? (
-          <CommandGroup heading={t("nav.munshi")}>
-            <CommandItem
-              value={`munshi ${query}`}
-              onSelect={() => run(() => openMunshi({ draft: query.trim() }))}
-            >
-              <Mic aria-hidden className="text-primary-strong" />
-              <span className="truncate">{t("command.askMunshi", { query: query.trim() })}</span>
-              <CommandShortcut>↵</CommandShortcut>
-            </CommandItem>
-          </CommandGroup>
-        ) : null}
         <CommandGroup heading={t("command.goTo")}>
           {items.map((item) => {
             const Icon = navIcons[item.icon];
@@ -127,6 +115,21 @@ function CommandPalette({ items, open, onOpenChange }: CommandPaletteProps) {
             </CommandItem>
           ))}
         </CommandGroup>
+        {/* Asking Munshi is the fallback: always offered, never outranks a matching page, and
+            the only choice (so Enter asks) when the text is a question rather than a page. */}
+        {query.trim().length > 1 ? (
+          <CommandGroup heading={t("nav.munshi")} forceMount>
+            <CommandItem
+              value="ask-munshi"
+              forceMount
+              onSelect={() => run(() => openMunshi({ draft: query.trim() }))}
+            >
+              <Mic aria-hidden className="text-primary-strong" />
+              <span className="truncate">{t("command.askMunshi", { query: query.trim() })}</span>
+              <CommandShortcut>↵</CommandShortcut>
+            </CommandItem>
+          </CommandGroup>
+        ) : null}
       </CommandList>
     </CommandDialog>
   );
