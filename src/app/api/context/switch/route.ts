@@ -28,7 +28,8 @@ export async function GET(request: NextRequest) {
   const supabase = await getSupabaseServerClient();
   const { error } = await supabase.rpc("switch_active_context", {
     p_role: role,
-    p_context_id: context,
+    // The parameter defaults to null in SQL; the generated type spells that as optional.
+    p_context_id: context ?? undefined,
   });
   if (error) return NextResponse.redirect(new URL("/", origin));
 

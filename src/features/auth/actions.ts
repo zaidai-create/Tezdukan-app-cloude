@@ -38,7 +38,8 @@ export async function switchContextAction(
   const supabase = await getSupabaseServerClient();
   const { error } = await supabase.rpc("switch_active_context", {
     p_role: parsed.data.role,
-    p_context_id: parsed.data.contextId,
+    // The parameter defaults to null in SQL; the generated type spells that as optional.
+    p_context_id: parsed.data.contextId ?? undefined,
   });
   if (error) return { ok: false, error: error.code === "42501" ? "not_allowed" : "failed" };
 

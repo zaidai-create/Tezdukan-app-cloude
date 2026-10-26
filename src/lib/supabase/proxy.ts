@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import type { NextRequest, NextResponse } from "next/server";
 import { publicEnv } from "@/lib/env";
+import type { Database } from "./database.types";
 
 /**
  * Refreshes the Supabase session for this request and writes refreshed cookies (plus the
@@ -9,7 +10,7 @@ import { publicEnv } from "@/lib/env";
  */
 export async function refreshSession(request: NextRequest, response: NextResponse) {
   let cacheHeaders: Record<string, string> = {};
-  const supabase = createServerClient(
+  const supabase = createServerClient<Database>(
     publicEnv.NEXT_PUBLIC_SUPABASE_URL,
     publicEnv.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
     {

@@ -21,7 +21,7 @@
     "db:status": "supabase status",
     "db:reset": "supabase db reset",
     "db:test": "supabase test db",
-    "db:lint": "supabase db lint --level warning",
+    "db:lint": "supabase db lint --level warning --schema public,private",
     "db:types": "supabase gen types typescript --local --schema public > src/lib/supabase/database.types.ts && prettier --write src/lib/supabase/database.types.ts",
     "db:migration": "supabase migration new",
     "seed": "tsx --env-file-if-exists=.env.local scripts/seed.ts",

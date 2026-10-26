@@ -4,6 +4,9 @@ begin;
 \ir helpers/setup.psql
 select plan(9);
 
+-- The local database may already hold the demo seed; count relative to it.
+create temp table registry_baseline as select count(*) as n from public.seed_registry;
+
 -- Seed rows, registered in insertion order (parents first), like scripts/seed.ts does.
 select tests.create_user('seed_owner', '+923110005555', 'Seed Owner');
 insert into public.seed_registry (table_name, row_id) values ('auth.users', tests.id('seed_owner'));
@@ -31,7 +34,11 @@ insert into public.brands (name, slug) values ('Real Brand', 'real-brand') retur
 -- Real data that depends on a seed row blocks the reset (and nothing is deleted).
 insert into public.master_products (name, category_id) values ('Real Product', tests.id('seed_cat')) returning tests.remember('real_product', id);
 select throws_ok($$ select public.seed_reset() $$, '23503', null, 'seed_reset refuses to break real data that references seed rows');
-select is((select count(*) from public.seed_registry), 9::bigint, 'a refused reset leaves the registry untouched');
+select is(
+  (select count(*) from public.seed_registry),
+  (select n + 9 from registry_baseline),
+  'a refused reset leaves the registry untouched'
+);
 delete from public.master_products where id = tests.id('real_product');
 
 select lives_ok($$ select public.seed_reset() $$, 'seed_reset runs');
