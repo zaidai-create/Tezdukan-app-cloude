@@ -6,6 +6,11 @@ All notable changes, newest first. Dates are Asia/Karachi.
 
 ### Phase 1 — Foundation (in progress)
 
+- End-to-end tests for the public screens at 390×844 and 1440×900, with WCAG 2.1 AA checks
+  (axe) in English and Urdu, and `pnpm screenshots` for design review. (2026-10-26)
+- Offline: pages not yet visited now show the offline page instead of a browser error, the
+  service worker is built once at build time, and signing out clears cached screens.
+  (2026-10-26)
 - The owner's official logo, traced to vectors. It drives the in-app mark and wordmark, the
   favicon and the PWA icons; vector exports of the lockup and mark are in `docs/brand/`. The
   awning motif now uses the logo's amber and orange stripes. (2026-10-26)
