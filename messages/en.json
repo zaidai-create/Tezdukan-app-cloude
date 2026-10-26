@@ -1,6 +1,292 @@
 {
+  "meta": {
+    "appName": "TezDukan",
+    "title": "TezDukan: stock, billing and khata for your dukan",
+    "description": "Order stock from distributors in minutes and run your whole shop: billing, inventory, khata and reports."
+  },
   "brand": {
     "name": "TezDukan",
     "tagline": "Apni Dukan. Ab Aapke Ghar Tak."
+  },
+  "common": {
+    "close": "Close",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "retry": "Try again",
+    "undo": "Undo",
+    "back": "Back",
+    "next": "Next",
+    "continue": "Continue",
+    "done": "Done",
+    "search": "Search",
+    "seeAll": "See all",
+    "add": "Add",
+    "remove": "Remove",
+    "optional": "Optional",
+    "sandbox": "Sandbox",
+    "readAloud": "Read aloud",
+    "stopReading": "Stop reading",
+    "skipToContent": "Skip to content",
+    "loading": "Loading",
+    "signOut": "Sign out",
+    "menu": "Menu",
+    "settings": "Settings"
+  },
+  "nav": {
+    "primary": "Main navigation",
+    "home": "Home",
+    "categories": "Categories",
+    "munshi": "Munshi",
+    "munshiHint": "Munshi: tap to type or talk, hold to start talking",
+    "orders": "Orders",
+    "dukan": "Dukan",
+    "account": "Account",
+    "dashboard": "Dashboard",
+    "beat": "Beat",
+    "today": "Today",
+    "trips": "Trips",
+    "settlement": "Settlement",
+    "overview": "Overview",
+    "verifications": "Verifications",
+    "expand": "Expand sidebar",
+    "collapse": "Collapse sidebar",
+    "openMenu": "Open menu",
+    "groups": {
+      "main": "Menu",
+      "account": "You"
+    }
+  },
+  "roles": {
+    "customer": "Customer",
+    "dukandar": "Dukandar",
+    "distributor": "Distributor",
+    "booker": "Order booker",
+    "rider": "Rider",
+    "admin": "Admin",
+    "switchRole": "Switch role",
+    "switchTitle": "Use TezDukan as",
+    "switchDescription": "Switching keeps you signed in.",
+    "current": "Current",
+    "awaitingApproval": "Awaiting approval",
+    "rejected": "Not approved",
+    "switched": "Now using TezDukan as {role}",
+    "switchFailed": "Could not switch. Please try again."
+  },
+  "members": {
+    "owner": "Owner",
+    "manager": "Manager",
+    "cashier": "Cashier",
+    "staff": "Staff",
+    "accountant": "Accountant",
+    "warehouse": "Warehouse",
+    "booker": "Order booker",
+    "rider": "Rider"
+  },
+  "auth": {
+    "panelTitle": "Order stock fast. Run your whole dukan from one app.",
+    "panelPoint1": "Order from distributors in minutes, with clear margins and schemes.",
+    "panelPoint2": "Billing, stock and khata that work even without internet.",
+    "panelPoint3": "Ask Munshi in Urdu, Roman Urdu or English.",
+    "panelFooter": "Made for the dukans of Hyderabad.",
+    "loginTitle": "Sign in",
+    "loginSubtitle": "Use your mobile number and password.",
+    "phoneLabel": "Mobile number",
+    "phonePlaceholder": "300 1234567",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Your password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "signIn": "Sign in",
+    "signingIn": "Signing in…",
+    "noAccount": "New to TezDukan?",
+    "createAccount": "Create account",
+    "forgotPassword": "Forgot password?",
+    "signupTitle": "Create your account",
+    "signupSubtitle": "It takes a minute. We will send a code to your mobile.",
+    "nameLabel": "Your name",
+    "namePlaceholder": "e.g. Ahmed Ali",
+    "newPasswordLabel": "Choose a password",
+    "newPasswordHint": "At least 8 characters.",
+    "signUp": "Create account",
+    "haveAccount": "Already have an account?",
+    "termsNote": "By continuing you agree to TezDukan's Terms of Use and Privacy Policy.",
+    "verifyTitle": "Enter the code",
+    "verifySubtitle": "We sent a 6-digit code to {phone}.",
+    "codeLabel": "6-digit code",
+    "verify": "Verify",
+    "verifying": "Checking…",
+    "resend": "Send the code again",
+    "resendIn": "Send again in {seconds, number}s",
+    "codeSent": "A new code is on its way.",
+    "changeNumber": "Change number",
+    "sandbox": "Sandbox",
+    "sandboxSmsTitle": "Sandbox SMS",
+    "sandboxSmsBody": "SMS sending is not set up yet, so the code is shown here instead of being texted.",
+    "sandboxCodeLabel": "Code:",
+    "sandboxUnavailable": "The code will appear here in a moment. If it does not, tap Send the code again.",
+    "forgotTitle": "Reset your password",
+    "forgotSubtitle": "We will send a code to your mobile number.",
+    "sendCode": "Send code",
+    "backToSignIn": "Back to sign in",
+    "newPasswordTitle": "Set a new password",
+    "updatePassword": "Save new password",
+    "passwordUpdated": "Password updated. You are signed in.",
+    "forgotSandboxTitle": "SMS is not set up yet",
+    "forgotSandboxBody": "We cannot send reset codes yet. Ask the TezDukan team and they will reset your password.",
+    "contactSupport": "Message TezDukan support",
+    "errors": {
+      "invalidCredentials": "Mobile number or password is wrong.",
+      "phoneTaken": "This number already has an account.",
+      "invalidCode": "That code is wrong or has expired.",
+      "tooManyRequests": "Too many tries. Please wait a minute and try again.",
+      "phoneNotConfirmed": "This number is not verified yet. We sent you a new code.",
+      "weakPassword": "Choose a stronger password (at least 8 characters).",
+      "smsFailed": "We could not send the SMS. Please try again.",
+      "generic": "Something went wrong. Please try again.",
+      "network": "No internet connection. Check your network and try again."
+    }
+  },
+  "validation": {
+    "phoneRequired": "Enter your mobile number.",
+    "phoneInvalid": "Enter a valid Pakistani mobile number, like 0300 1234567.",
+    "passwordRequired": "Enter your password.",
+    "passwordShort": "Use at least 8 characters.",
+    "passwordLong": "Use 72 characters or fewer.",
+    "nameShort": "Enter your full name.",
+    "nameLong": "Name is too long.",
+    "codeInvalid": "Enter the 6-digit code."
+  },
+  "states": {
+    "errorTitle": "Something went wrong",
+    "errorBody": "We could not load this. Check your connection and try again.",
+    "offlineTitle": "You are offline",
+    "offlineBody": "This needs the internet. It will load as soon as you are back online.",
+    "offlineBanner": "No internet. Your work is saved and will sync when you are back online.",
+    "retry": "Try again",
+    "notFoundTitle": "Page not found",
+    "notFoundBody": "This page does not exist or has moved.",
+    "goHome": "Go to home"
+  },
+  "offlinePage": {
+    "title": "You are offline",
+    "body": "TezDukan cannot reach the internet right now. Pages you opened recently still work, and anything you save will sync later.",
+    "retry": "Try again"
+  },
+  "product": {
+    "add": "ADD",
+    "addNamed": "Add {name} to cart",
+    "increase": "One more {name}",
+    "decrease": "One less {name}",
+    "quantityInCart": "{count, number} in cart",
+    "notifyMe": "Notify me",
+    "notifyRequested": "We'll notify",
+    "outOfStock": "Out of stock",
+    "percentOff": "{percent, number}% OFF",
+    "marginBadge": "Margin {percent, number}% · {amount}/pc",
+    "mrp": "MRP",
+    "unit": "Pack size",
+    "unitConversion": "1 {unit} = {count, number} pcs",
+    "openDetails": "Details of {name}"
+  },
+  "cart": {
+    "summary": "{count, plural, one {# item} other {# items}} · {total}",
+    "youSave": "You save {amount}",
+    "viewCart": "View cart"
+  },
+  "settings": {
+    "language": "Language",
+    "languageHint": "The app changes language straight away.",
+    "appearance": "Appearance",
+    "darkMode": "Dark mode",
+    "darkModeHint": "Easier on the eyes at night.",
+    "lightMode": "Light mode",
+    "matchDevice": "Match phone setting",
+    "matchDeviceHint": "Follow your phone's light or dark mode."
+  },
+  "account": {
+    "yourRoles": "Your roles"
+  },
+  "command": {
+    "title": "Search and commands",
+    "description": "Jump to a page, change settings or ask Munshi.",
+    "placeholder": "Search or ask Munshi…",
+    "empty": "Nothing found. Press Enter to ask Munshi.",
+    "askMunshi": "Ask Munshi: {query}",
+    "goTo": "Go to"
+  },
+  "munshi": {
+    "title": "Munshi",
+    "subtitle": "Ask by voice or type in Urdu, Roman Urdu or English.",
+    "greeting": "Assalam-o-Alaikum! I am Munshi. Tell me what you need.",
+    "tryThese": "Try saying:",
+    "suggestions": {
+      "customer": {
+        "s1": "Mere paas wali dukanein dikhao",
+        "s2": "Mera pichla order kahan hai?",
+        "s3": "Doodh aur double roti mangwa do"
+      },
+      "dukandar": {
+        "s1": "Aaj ki sale kitni hui?",
+        "s2": "Kaunsi cheezein khatam hone wali hain?",
+        "s3": "Pichla order dobara mangwa do"
+      },
+      "distributor": {
+        "s1": "Aaj ke pending orders dikhao",
+        "s2": "Kis dukan ka payment 30 din se zyada pending hai?",
+        "s3": "Is hafte ke top 10 SKU batao"
+      },
+      "booker": {
+        "s1": "Aaj ki beat ki dukanein dikhao",
+        "s2": "Kis dukan se payment lena hai?",
+        "s3": "Bismillah Store ka order banao"
+      },
+      "rider": {
+        "s1": "Agla stop kaunsa hai?",
+        "s2": "Aaj kitna cash collect hua?",
+        "s3": "Trip ka route dikhao"
+      },
+      "admin": {
+        "s1": "Kitni dukanein approval ka intezar kar rahi hain?",
+        "s2": "Aaj ka GMV kitna hai?",
+        "s3": "Naye distributors dikhao"
+      }
+    },
+    "thinking": "Munshi is thinking…",
+    "listening": "Listening…",
+    "speakNow": "Speak now",
+    "cancel": "Cancel",
+    "done": "Done",
+    "inputLabel": "Message to Munshi",
+    "placeholder": "Type or tap the mic…",
+    "talk": "Talk to Munshi",
+    "send": "Send",
+    "sandbox": "Sandbox",
+    "notConfigured": "Munshi needs an AI key before it can answer. Everything else in TezDukan works as normal.",
+    "unavailable": "Munshi is not available right now. Please use the app screens, everything works as normal.",
+    "offline": "You are offline. Munshi needs the internet; your screens still work.",
+    "micDenied": "Microphone is blocked. Allow it in your browser settings, or type instead."
+  },
+  "pwa": {
+    "installTitle": "Install TezDukan",
+    "installBody": "Open it like an app, even on slow internet.",
+    "install": "Install",
+    "notNow": "Not now",
+    "iosHint": "Tap Share, then Add to Home Screen."
+  },
+  "home": {
+    "greeting": "Assalam-o-Alaikum",
+    "greetingNamed": "Assalam-o-Alaikum, {name}",
+    "statusActive": "Active",
+    "subtitle": {
+      "customer": "Groceries from dukans near you.",
+      "dukandar": "Your stock, billing and khata in one place.",
+      "distributor": "Your orders, retailers and collections.",
+      "booker": "Your beat for today.",
+      "rider": "Your deliveries for today.",
+      "admin": "TezDukan platform overview."
+    }
   }
 }

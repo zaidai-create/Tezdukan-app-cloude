@@ -1,0 +1,96 @@
+import {
+  Bike,
+  ClipboardList,
+  type LucideIcon,
+  Route,
+  ShieldCheck,
+  ShoppingBag,
+  Store,
+} from "lucide-react";
+import type { AppRole } from "@/lib/auth/roles";
+
+/**
+ * Navigation per role. Only routes that exist are listed: each later phase adds its items
+ * here as the screens ship, so there is never a link to a page that isn't built.
+ * Labels are keys in the `nav` message namespace.
+ */
+export type NavLabel =
+  | "home"
+  | "categories"
+  | "orders"
+  | "dukan"
+  | "account"
+  | "dashboard"
+  | "beat"
+  | "today"
+  | "trips"
+  | "settlement"
+  | "overview"
+  | "verifications";
+
+/** Icon names, resolved to Lucide components in client code (components cannot be passed
+ * from the server shell to client components as props). */
+export type NavIcon = "home" | "account" | "dashboard" | "beat" | "today" | "admin";
+
+export type NavItem = { href: string; label: NavLabel; icon: NavIcon; exact?: boolean };
+export type NavGroup = { label: "main" | "account"; items: NavItem[] };
+
+/** Mobile bottom nav: up to four tabs; the raised Munshi button sits in the middle. */
+export const mobileTabs: Partial<Record<AppRole, NavItem[]>> = {
+  customer: [
+    { href: "/", label: "home", icon: "home", exact: true },
+    { href: "/account", label: "account", icon: "account" },
+  ],
+  dukandar: [
+    { href: "/dukan", label: "home", icon: "home", exact: true },
+    { href: "/dukan/account", label: "account", icon: "account" },
+  ],
+  booker: [
+    { href: "/booker", label: "beat", icon: "beat", exact: true },
+    { href: "/booker/account", label: "account", icon: "account" },
+  ],
+  rider: [
+    { href: "/rider", label: "today", icon: "today", exact: true },
+    { href: "/rider/account", label: "account", icon: "account" },
+  ],
+};
+
+/** Desktop sidebar groups for desktop-first roles (and dukandar on large screens). */
+export const sidebarGroups: Partial<Record<AppRole, NavGroup[]>> = {
+  distributor: [
+    {
+      label: "main",
+      items: [{ href: "/distributor", label: "dashboard", icon: "dashboard", exact: true }],
+    },
+    {
+      label: "account",
+      items: [{ href: "/distributor/account", label: "account", icon: "account" }],
+    },
+  ],
+  admin: [
+    {
+      label: "main",
+      items: [{ href: "/admin", label: "overview", icon: "admin", exact: true }],
+    },
+    { label: "account", items: [{ href: "/admin/account", label: "account", icon: "account" }] },
+  ],
+  dukandar: [
+    { label: "main", items: [{ href: "/dukan", label: "home", icon: "home", exact: true }] },
+    { label: "account", items: [{ href: "/dukan/account", label: "account", icon: "account" }] },
+  ],
+};
+
+/** Icon shown for each role in the role switcher. */
+export const roleIcon: Record<AppRole, LucideIcon> = {
+  customer: ShoppingBag,
+  dukandar: Store,
+  distributor: ClipboardList,
+  booker: Route,
+  rider: Bike,
+  admin: ShieldCheck,
+};
+
+export function isActive(pathname: string, item: Pick<NavItem, "href" | "exact">): boolean {
+  if (item.exact) return pathname === item.href;
+  return pathname === item.href || pathname.startsWith(`${item.href}/`);
+}

@@ -56,3 +56,6 @@ next-env.d.ts
 # generated
 /public/sw.js
 /messages/*.d.json.ts
+
+# Claude Code agent worktrees
+/.claude/worktrees/

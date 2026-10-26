@@ -46,6 +46,45 @@ section. Format: **decision** — reason (date).
 - **Prices stay `Rs 1,250` with Latin digits in every locale** — the spec fixes the format, and
   Pakistani shopkeepers read prices in Latin digits even in Urdu UI. (2026-10-25)
 
+## Design
+
+- **The owner's logo is the brand source; it was traced to vectors** — the official artwork
+  (`docs/brand/tezdukan-logo.png`) was traced into SVG paths per colour layer and kept in one
+  module, `src/lib/brand/logo-art.ts`, which feeds the in-app logo and `scripts/gen-icons.ts`
+  (favicon, PWA and Apple icons). Vector exports of the full lockup and the mark sit next to the
+  original. The mark keeps the logo's own colours, flat mint plus its two shaded gradients (the
+  flag's fold and the awning). It appears on its black rounded tile (`LogoMark`, like the app
+  icon) or bare on black surfaces only. The lettering is traced too, so the wordmark matches
+  the logo without loading another font weight. On light surfaces "Dukan" uses a deeper shade
+  of the logo's mint (`--wordmark-dukan`, 3.5:1 on white); the logo's own mint is 1.7:1 there.
+  Brand artwork is not mirrored in RTL. (2026-10-26)
+- **The awning motif uses the logo's amber and orange stripes**, with the orange stripes hanging
+  shorter as they do in the logo. Earlier builds used amber and white. (2026-10-26)
+- **Spec brand colours stay; AA-safe shades are derived for text and fills** — white on the spec
+  green `#0A8F5A` is 4.13:1, below AA for body text. Filled buttons in light mode use `--action`
+  (`#07704A`, 6.1:1), and `--danger-ink`, `--awning-ink` and `--border-strong` (3:1 non-text)
+  cover the other gaps. In dark mode, text on mint and amber fills is dark. The brand tokens
+  themselves are unchanged. (2026-10-25)
+- **Theme from a `td_theme` cookie applied by a tiny inline script, without next-themes** — the
+  root layout stays static under Cache Components (no request read on the server), the first
+  paint already has the right theme, and the preference syncs to the profile. Light is the
+  default; "Match device" is an option. (2026-10-25)
+- **Bottom sheet built on Radix Dialog with Motion** — Radix gives focus trapping, Escape and
+  ARIA, matching every other dialog; Motion, already used for the cart spring, gives the sheet
+  spring and drag-to-dismiss. Dragging starts only from the handle, so long lists inside a sheet
+  scroll normally. (2026-10-25)
+
+## App shell
+
+- **Each role has its own account page** (`/dukan/account`, `/rider/account`, …) so the page
+  keeps that role's navigation; `accountPath(role)` builds the link. (2026-10-25)
+- **Navigation lists only routes that exist** — each phase adds its items as its screens ship,
+  so there is never a link to an unbuilt page. (2026-10-25)
+- **Munshi before Phase 5** — the mic button, sheet, voice capture and the Ctrl+K hand-off all
+  work. `/api/munshi` answers 503 `ai_not_configured` when no AI key is set (the sheet shows a
+  labelled Sandbox notice) and `agent_unavailable` until the agent ships in Phase 5. It never
+  pretends to answer. (2026-10-25)
+
 ## Backend
 
 - **Develop against a local Supabase stack (Docker) — the existing hosted project is not

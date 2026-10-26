@@ -6,4 +6,29 @@ All notable changes, newest first. Dates are Asia/Karachi.
 
 ### Phase 1 — Foundation (in progress)
 
+- The owner's official logo, traced to vectors. It drives the in-app mark and wordmark, the
+  favicon and the PWA icons; vector exports of the lockup and mark are in `docs/brand/`. The
+  awning motif now uses the logo's amber and orange stripes. (2026-10-26)
+- PWA: web manifest, icons, Serwist service worker with an offline fallback page, and an install
+  prompt from the second visit.
+- Munshi entry points: the raised mic in the bottom nav (tap to open, hold to talk), a desktop
+  button, the Munshi sheet with suggestions per role, and "Ask Munshi" from Ctrl+K. Answers say
+  plainly that Munshi is not available yet (Phase 5).
+- Role shells for customer, dukandar, distributor, order booker, rider and admin: bottom nav,
+  collapsible desktop sidebar, top bar with a Ctrl+K command palette, a role switcher that
+  needs no logout, and an account page (profile, roles, language, theme, sign out).
+- Auth screens: sign in with phone and password, sign up with SMS code verification (a
+  labelled Sandbox panel shows the code when no SMS provider is set), and forgot/reset
+  password. The proxy refreshes the session and routes each role to its home.
+- Languages: English, Urdu (right to left), Roman Urdu, and Sindhi (hidden for now, falls back
+  to Urdu). The choice is kept in a cookie and the profile; messages are typed.
+- Design system: light and dark tokens checked for WCAG AA, the component library, commerce
+  components (price, product image, ADD-to-stepper, product card, cart bar, category tile),
+  designed loading, empty, error and offline states, and a live catalogue at
+  `/dev/design-system` with dark and RTL toggles.
+- Money, phone and date helpers (integer paisa and `Rs 1,250`, E.164 phones shown as
+  `0300 1234567`, DD/MM/YYYY in Asia/Karachi) with unit tests.
+- Tooling: Next.js 16.4 (Cache Components), strict TypeScript, ESLint rules that reject emoji,
+  raw colours and hard-coded UI text, Prettier, Vitest, Playwright at 390×844 and 1440×900, and
+  a local Supabase stack.
 - Plan, working rules and decision log (`PLAN.md`, `CLAUDE.md`, `DECISIONS.md`).

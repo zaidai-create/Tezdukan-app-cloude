@@ -25,6 +25,8 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   experimental: {
     useOffline: true,
+    // Requests outside any locale (unknown files, API paths) get a branded 404.
+    globalNotFound: true,
   },
   turbopack: {
     rules: {
