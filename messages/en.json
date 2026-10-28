@@ -61,7 +61,8 @@
     "cart": "Cart",
     "badgeCount": "{count, plural, one {# item} other {# items}}",
     "ledger": "Khata",
-    "distributors": "Distributors"
+    "distributors": "Distributors",
+    "chat": "Chat"
   },
   "roles": {
     "customer": "Customer",
@@ -521,7 +522,17 @@
       "slot": "Delivery slot",
       "paymentLabel": "Payment",
       "orderNumber": "Order {number}",
-      "share": "Share on WhatsApp"
+      "share": "Share on WhatsApp",
+      "confirmAsked": "{org} asks you to confirm this order",
+      "confirmBig": "Big order: confirm it so {org} can ship",
+      "confirmBody": "Check the items and the total of {total}. If it's right, confirm and it will be packed.",
+      "confirmButton": "Yes, confirm order",
+      "confirmDone": "Order confirmed. {org} has been told.",
+      "confirmedByYou": "You confirmed this order {time}.",
+      "contact": "Talk to {org}",
+      "call": "Call",
+      "whatsapp": "WhatsApp",
+      "chat": "Chat"
     },
     "ledger": {
       "title": "Distributor khata",
@@ -631,6 +642,176 @@
       "enabled": "Phone notifications are on",
       "disabled": "Phone notifications are off",
       "failed": "Couldn't turn on notifications. Try again."
+    }
+  },
+  "distributor": {
+    "dashboard": {
+      "greeting": "Assalam-o-Alaikum, {name}",
+      "subtitle": "Here is today at {org}.",
+      "needsCall": "{count, plural, one {# big order needs a call} other {# big orders need a call}}",
+      "needsCallHint": "Confirm with the dukandar before you ship.",
+      "review": "Review",
+      "todayOrders": "Orders today",
+      "newOrders": "New, waiting",
+      "toDispatch": "To dispatch",
+      "outForDelivery": "Out for delivery",
+      "deliveredToday": "Delivered today",
+      "receivable": "To collect",
+      "overdue": "Overdue",
+      "activeShops": "Active dukans",
+      "activeShopsHint": "Last 30 days",
+      "sales7d": "Orders, last 7 days",
+      "sales7dTotal": "{total} in {count, plural, one {# order} other {# orders}}",
+      "topShops": "Top dukans this month",
+      "noTopShops": "No orders in the last 30 days yet.",
+      "latest": "New orders",
+      "seeAll": "See all orders",
+      "noNew": "No new orders right now.",
+      "noNewHint": "New orders appear here with a chime as soon as a dukan orders.",
+      "ordersCount": "{count, plural, one {# order} other {# orders}}"
+    },
+    "inbox": {
+      "title": "Orders",
+      "searchLabel": "Search orders",
+      "searchPlaceholder": "Order number, dukan or phone",
+      "tabs": {
+        "new": "New",
+        "active": "In progress",
+        "done": "Done"
+      },
+      "items": "{count, plural, one {# item} other {# items}}",
+      "emptyNew": "No new orders",
+      "emptyActive": "Nothing in progress",
+      "emptyDone": "No finished orders yet",
+      "emptyHint": "Orders from dukans show up here the moment they are placed.",
+      "noResults": "No orders match “{query}”.",
+      "callToConfirm": "Call to confirm",
+      "confirmedByShop": "Dukandar confirmed",
+      "confirmedOnCall": "Confirmed on call",
+      "firstOrder": "First order"
+    },
+    "order": {
+      "title": "Order {number}",
+      "back": "Back to orders",
+      "placedAt": "Placed {time}",
+      "placedBy": "By {name}",
+      "slot": "Delivery",
+      "payment": "Payment",
+      "notes": "Dukandar's note",
+      "items": "Items",
+      "free": "+{count, number} free",
+      "shortStock": "Short by {count, number} in stock",
+      "deliveredOf": "Delivered {count, number} of {total, number}",
+      "subtotal": "Subtotal",
+      "schemeDiscount": "Scheme discount",
+      "deliveryFee": "Delivery",
+      "total": "Total",
+      "paid": "Paid",
+      "due": "Due",
+      "invoice": "Invoice {number}",
+      "dueDate": "Due by {date}",
+      "timeline": "History",
+      "cancelled": "Cancelled: {reason}",
+      "shop": {
+        "title": "Dukan",
+        "owner": "Owner",
+        "call": "Call",
+        "whatsapp": "WhatsApp",
+        "chat": "Chat",
+        "map": "Map",
+        "since": "On TezDukan since {date}",
+        "orders": "{orders, plural, one {# order} other {# orders}} · {delivered, number} delivered",
+        "creditLimit": "Credit limit",
+        "balance": "Balance",
+        "available": "Available",
+        "overdue": "Overdue",
+        "accountStatus": {
+          "active": "Active",
+          "on_hold": "On hold",
+          "blocked": "Blocked",
+          "none": "New"
+        },
+        "tier": {
+          "silver": "Silver",
+          "gold": "Gold",
+          "platinum": "Platinum"
+        }
+      },
+      "confirm": {
+        "title": "Big order: confirm before you ship",
+        "body": "Orders of {threshold} or more need a word with the dukandar first. Call them, or ask them to confirm in the app.",
+        "reasons": {
+          "high_value": "Above {threshold}",
+          "first_order": "First order from this dukan"
+        },
+        "callNow": "Call {name}",
+        "askInApp": "Ask in app",
+        "asked": "Asked {time}. Waiting for the dukandar.",
+        "askedToast": "We asked the dukandar to confirm.",
+        "shopConfirmed": "{name} confirmed this order in the app {time}.",
+        "phoneConfirmed": "Confirmed on a call {time}.",
+        "checkbox": "I spoke to {name} and they confirmed this order",
+        "firstOrderNote": "First order from this dukan: worth a quick call."
+      },
+      "actions": {
+        "confirm": "Confirm order",
+        "reject": "Reject",
+        "pack": "Mark packed",
+        "dispatch": "Send for delivery",
+        "deliver": "Deliver",
+        "cancel": "Cancel order",
+        "confirmed": "Order confirmed",
+        "packed": "Marked packed",
+        "dispatched": "On its way. The dukandar was told.",
+        "shortages": "Short on stock: {items}"
+      },
+      "reject": {
+        "title": "Reject this order?",
+        "cancelTitle": "Cancel this order?",
+        "body": "The dukandar is told right away, with your reason.",
+        "reasonLabel": "Reason",
+        "reasons": {
+          "stock": "Out of stock",
+          "area": "We don't deliver there",
+          "credit": "Credit limit reached",
+          "closed": "Dukan unreachable",
+          "other": "Other"
+        },
+        "otherPlaceholder": "Tell the dukandar why",
+        "submit": "Reject order",
+        "submitCancel": "Cancel order",
+        "done": "Order rejected. The dukandar was told."
+      },
+      "deliver": {
+        "title": "Deliver order {number}",
+        "otpLabel": "Delivery code from the dukandar",
+        "otpHint": "The dukandar sees this 4-digit code in their app.",
+        "cash": "Cash collected",
+        "cashHint": "Due on this order: {due}",
+        "editQuantities": "Some items short?",
+        "doneEditing": "Done",
+        "delivered": "Delivered",
+        "submit": "Confirm delivery",
+        "success": "Delivered. Invoice {invoice} added to the khata.",
+        "otpInvalid": "Wrong code. {count, plural, one {# try left} other {# tries left}}.",
+        "otpLocked": "Too many wrong codes. Ask the dukandar to call you."
+      }
+    },
+    "errors": {
+      "not_allowed": "You don't have permission for this.",
+      "order_not_found": "This order isn't available.",
+      "confirmation_required": "Confirm with the dukandar first: call them or ask in the app.",
+      "invalid_transition": "This order has already moved on. Refresh to see its latest status.",
+      "too_soon": "You asked a few minutes ago. Give the dukandar a moment.",
+      "cannot_cancel": "This order can no longer be cancelled.",
+      "reason_required": "Please give a reason.",
+      "invalid_quantity": "Check the delivered quantities.",
+      "nothing_delivered": "Nothing was delivered. Cancel the order instead.",
+      "cash_exceeds_due": "Cash is more than the amount due.",
+      "otp_invalid": "Enter the 4-digit delivery code.",
+      "otp_locked": "Too many wrong codes. Ask the dukandar to call you.",
+      "generic": "Something went wrong. Please try again.",
+      "offline": "You're offline. Try again when you're connected."
     }
   }
 }

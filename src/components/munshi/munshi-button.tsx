@@ -27,7 +27,7 @@ function MunshiButton({ className }: { className?: string }) {
       type="button"
       aria-label={t("munshiHint")}
       className={cn(
-        "relative flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-primary-soft ps-2.5 pe-3.5 text-sm font-semibold text-primary-strong transition-transform duration-150 select-none after:absolute after:inset-x-0 after:-inset-y-1 active:scale-95",
+        "relative flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-primary-soft ps-2.5 pe-3.5 text-sm font-semibold text-primary-strong transition-transform duration-150 select-none after:absolute after:inset-x-0 after:-inset-y-1 active:scale-95 max-[399px]:px-1.5",
         className,
       )}
       onPointerDown={() => {
@@ -50,7 +50,8 @@ function MunshiButton({ className }: { className?: string }) {
       <span className="flex size-7 items-center justify-center rounded-full bg-action text-on-action">
         <Mic aria-hidden className="size-4" />
       </span>
-      {t("munshi")}
+      {/* Narrow phones keep the mic only, so the shop name in the header stays readable. */}
+      <span className="max-[399px]:hidden">{t("munshi")}</span>
     </button>
   );
 }

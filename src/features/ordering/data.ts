@@ -125,7 +125,7 @@ export async function getCategoryBySlug(slug: string) {
 }
 
 const ORDER_COLUMNS =
-  "id, order_number, org_id, status, payment_method, payment_status, total_paisa, ordered_total_paisa, subtotal_paisa, scheme_discount_paisa, delivery_fee_paisa, paid_paisa, delivery_slot_start, delivery_slot_end, created_at, delivered_at, cancel_reason, rating, notes, source, placed_by_name, organizations(name, logo_path)";
+  "id, order_number, org_id, status, payment_method, payment_status, total_paisa, ordered_total_paisa, subtotal_paisa, scheme_discount_paisa, delivery_fee_paisa, paid_paisa, delivery_slot_start, delivery_slot_end, created_at, delivered_at, cancel_reason, rating, notes, source, placed_by_name, needs_confirmation, shop_confirm_requested_at, shop_confirmed_at, organizations(name, logo_path, phone)";
 
 export const openStatuses: OrderStatus[] = ["new", "confirmed", "picking", "packed", "dispatched"];
 

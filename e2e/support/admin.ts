@@ -89,3 +89,57 @@ export async function clearCarts(userId: string) {
   const { error } = await adminClient().from("carts").delete().eq("user_id", userId);
   if (error) throw error;
 }
+
+/**
+ * Signs in as a test dukandar and places one order with Indus Traders big enough to need a
+ * confirmation (over Rs 25,000 of Tapal Danedar), straight through the RPCs. Returns the order.
+ */
+export async function placeBigOrder(e164: string, password: string, shopId: string) {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const publishable = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  if (!url || !publishable) throw new Error("E2E needs the Supabase URL and publishable key");
+  const client = createClient(url, publishable, { auth: { persistSession: false } });
+  const signIn = await client.auth.signInWithPassword({ phone: e164, password });
+  if (signIn.error) throw signIn.error;
+
+  const admin = adminClient();
+  const org = await admin.from("organizations").select("id").eq("name", "Indus Traders").single();
+  if (org.error) throw org.error;
+  const product = await admin
+    .from("distributor_products")
+    .select("id, trade_price_paisa, pack_units(id, base_qty)")
+    .eq("org_id", org.data.id)
+    .ilike("name", "%Tapal Danedar%")
+    .limit(1)
+    .single();
+  if (product.error) throw product.error;
+  const unit = [...product.data.pack_units].sort((a, b) => a.base_qty - b.base_qty)[0];
+  if (!unit) throw new Error("Tapal Danedar has no pack units");
+  const quantity = Math.ceil(2_500_000 / (product.data.trade_price_paisa * unit.base_qty));
+
+  const cart = await client.rpc("set_cart_item", {
+    p_shop_id: shopId,
+    p_distributor_product_id: product.data.id,
+    p_pack_unit_id: unit.id,
+    p_quantity: quantity,
+  });
+  if (cart.error) throw cart.error;
+  const slots = await client.rpc("delivery_slots", {
+    p_shop_id: shopId,
+    p_org_id: org.data.id,
+    p_days: 2,
+  });
+  if (slots.error) throw slots.error;
+  const slot = (slots.data as { slot_start: string; slot_end: string }[])[0];
+  if (!slot) throw new Error("Indus Traders has no delivery slot");
+  const placed = await client.rpc("place_order", {
+    p_shop_id: shopId,
+    p_client_request_id: crypto.randomUUID(),
+    p_payment_method: "cod",
+    p_slots: { [org.data.id]: { start: slot.slot_start, end: slot.slot_end } },
+  });
+  if (placed.error) throw placed.error;
+  const order = (placed.data as { orders: { id: string; order_number: string }[] }).orders[0];
+  if (!order) throw new Error("No order was placed");
+  return order;
+}

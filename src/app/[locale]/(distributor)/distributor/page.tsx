@@ -1,5 +1,5 @@
-import { RoleHome } from "@/features/home/role-home";
+import { DistributorDashboard } from "@/features/distributor/dashboard/dashboard-page";
 
 export default function Page() {
-  return <RoleHome role="distributor" />;
+  return <DistributorDashboard />;
 }

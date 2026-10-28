@@ -138,3 +138,14 @@ export async function requestReturn(
     data: { returnNumber: z.object({ return_number: z.string() }).parse(data).return_number },
   };
 }
+
+/** The dukandar confirms a (big) order so the distributor can ship it. */
+export async function confirmOrderAsShop(orderId: string): Promise<ActionResult<null>> {
+  if (!z.uuid().safeParse(orderId).success) return { ok: false, error: "order_not_found" };
+  const supabase = await getSupabaseServerClient();
+  const { error } = await supabase.rpc("confirm_order_as_shop", { p_order_id: orderId });
+  if (error) return fail(error);
+  refresh();
+  after(flushPushOutboxQuietly);
+  return { ok: true, data: null };
+}

@@ -300,7 +300,12 @@ export const orderRowSchema = z.object({
   notes: z.string().nullable(),
   source: z.string(),
   placed_by_name: z.string().nullable(),
-  organizations: z.object({ name: z.string(), logo_path: z.string().nullable() }).nullable(),
+  needs_confirmation: z.boolean(),
+  shop_confirm_requested_at: timestamp.nullable(),
+  shop_confirmed_at: timestamp.nullable(),
+  organizations: z
+    .object({ name: z.string(), logo_path: z.string().nullable(), phone: z.string().nullable() })
+    .nullable(),
 });
 export type OrderRow = z.infer<typeof orderRowSchema>;
 

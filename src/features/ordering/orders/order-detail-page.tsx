@@ -6,7 +6,9 @@ import {
   Check,
   Gift,
   KeyRound,
+  MessageCircle,
   MessageSquareText,
+  Phone,
   Store,
   UserRound,
   X,
@@ -21,12 +23,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Link } from "@/i18n/navigation";
 import { formatDateTime, formatTime } from "@/lib/format";
+import { telHref, whatsappHref } from "@/lib/contact";
 import { formatRs } from "@/lib/money";
 import { getOrder, requireDukan } from "../data";
 import { storageUrl } from "../images";
 import { deliveryDay, localName, ltr, slotWindow } from "../labels";
 import type { OrderStatus, StatusHistoryRow } from "../schemas";
 import { OrderActions } from "./order-actions";
+import { ShopConfirm } from "./shop-confirm";
 import { isOpen, progressSteps, statusTone } from "./status";
 
 type Props = { params: Promise<{ id: string }> };
@@ -69,6 +73,11 @@ async function OrderContent({ params }: Props) {
   const reached = progressSteps.filter((step) => times.has(step));
   const current = reached.at(-1);
   const restated = order.ordered_total_paisa !== order.total_paisa;
+  const orgPhone = telHref(order.organizations?.phone);
+  const orgWhatsapp = whatsappHref(
+    order.organizations?.phone,
+    t("order.orderNumber", { number: order.order_number }),
+  );
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 px-4 py-5">
@@ -93,6 +102,16 @@ async function OrderContent({ params }: Props) {
           </p>
         </div>
       </header>
+
+      {order.status === "new" && (order.needs_confirmation || order.shop_confirm_requested_at) ? (
+        <ShopConfirm
+          orderId={order.id}
+          orgName={order.organizations?.name ?? ""}
+          totalPaisa={order.total_paisa}
+          requestedAt={order.shop_confirm_requested_at}
+          confirmedAt={order.shop_confirmed_at}
+        />
+      ) : null}
 
       {otp && isOpen(order.status) ? (
         <section className="sheen flex items-center gap-4 rounded-xl bg-forest p-4 text-on-forest shadow-raised inset-shadow-edge">
@@ -169,6 +188,34 @@ async function OrderContent({ params }: Props) {
           </ol>
         )}
       </section>
+
+      {orgPhone ? (
+        <section className="flex flex-col gap-2">
+          <h2 className="text-sm font-semibold text-muted">
+            {t("order.contact", { org: order.organizations?.name ?? "" })}
+          </h2>
+          <div className="flex gap-2">
+            <a
+              href={orgPhone}
+              className="flex h-12 flex-1 items-center justify-center gap-2 rounded-md bg-surface text-sm font-semibold text-ink shadow-card"
+            >
+              <Phone aria-hidden className="size-5 text-primary-strong" />
+              {t("order.call")}
+            </a>
+            {orgWhatsapp ? (
+              <a
+                href={orgWhatsapp}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex h-12 flex-1 items-center justify-center gap-2 rounded-md bg-surface text-sm font-semibold text-ink shadow-card"
+              >
+                <MessageCircle aria-hidden className="size-5 text-primary-strong" />
+                {t("order.whatsapp")}
+              </a>
+            ) : null}
+          </div>
+        </section>
+      ) : null}
 
       <section className="num grid gap-3 rounded-lg border border-border/70 bg-surface p-4 text-sm shadow-card sm:grid-cols-2">
         {order.delivery_slot_start && order.delivery_slot_end ? (

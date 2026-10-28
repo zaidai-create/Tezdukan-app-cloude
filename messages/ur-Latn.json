@@ -61,7 +61,8 @@
     "cart": "Cart",
     "badgeCount": "{count, plural, one {# cheez} other {# cheezain}}",
     "ledger": "Khata",
-    "distributors": "Distributors"
+    "distributors": "Distributors",
+    "chat": "Chat"
   },
   "roles": {
     "customer": "Gaahak",
@@ -523,7 +524,17 @@
       "slot": "Delivery ka waqt",
       "paymentLabel": "Adaigi",
       "orderNumber": "Order {number}",
-      "share": "WhatsApp par bhejein"
+      "share": "WhatsApp par bhejein",
+      "confirmAsked": "{org} aap se ye order confirm karne ka keh raha hai",
+      "confirmBig": "Bara order: confirm karein taake {org} maal bhej sake",
+      "confirmBody": "Items aur {total} ka total check karein. Theek ho to confirm karein, phir ye pack ho jayega.",
+      "confirmButton": "Ji, order confirm karein",
+      "confirmDone": "Order confirm ho gaya. {org} ko bata diya.",
+      "confirmedByYou": "Aap ne {time} ye order confirm kiya.",
+      "contact": "{org} se baat karein",
+      "call": "Call",
+      "whatsapp": "WhatsApp",
+      "chat": "Chat"
     },
     "ledger": {
       "title": "Distributor khata",
@@ -631,6 +642,176 @@
       "enabled": "Phone notifications on ho gayin",
       "disabled": "Phone notifications band ho gayin",
       "failed": "Notifications on nahi ho sakin. Dobara koshish karein."
+    }
+  },
+  "distributor": {
+    "dashboard": {
+      "greeting": "Assalam-o-Alaikum, {name}",
+      "subtitle": "{org} mein aaj ka haal.",
+      "needsCall": "{count, plural, one {# bare order par call zaroori hai} other {# bare orders par call zaroori hai}}",
+      "needsCallHint": "Maal bhejne se pehle dukandar se confirm karein.",
+      "review": "Dekhein",
+      "todayOrders": "Aaj ke order",
+      "newOrders": "Naye, intezar mein",
+      "toDispatch": "Bhejne hain",
+      "outForDelivery": "Delivery par",
+      "deliveredToday": "Aaj deliver",
+      "receivable": "Wasooli baqi",
+      "overdue": "Late",
+      "activeShops": "Active dukanein",
+      "activeShopsHint": "Pichle 30 din",
+      "sales7d": "Order, pichle 7 din",
+      "sales7dTotal": "{total}, {count, plural, one {# order} other {# orders}}",
+      "topShops": "Is mahine ki bari dukanein",
+      "noTopShops": "Pichle 30 din mein abhi koi order nahi.",
+      "latest": "Naye order",
+      "seeAll": "Sab order dekhein",
+      "noNew": "Abhi koi naya order nahi.",
+      "noNewHint": "Dukan order karte hi naya order ghanti ke saath yahan aa jayega.",
+      "ordersCount": "{count, plural, one {# order} other {# orders}}"
+    },
+    "inbox": {
+      "title": "Orders",
+      "searchLabel": "Order dhoondein",
+      "searchPlaceholder": "Order number, dukan ya phone",
+      "tabs": {
+        "new": "Naye",
+        "active": "Jaari",
+        "done": "Mukammal"
+      },
+      "items": "{count, plural, one {# item} other {# items}}",
+      "emptyNew": "Koi naya order nahi",
+      "emptyActive": "Koi order jaari nahi",
+      "emptyDone": "Abhi koi mukammal order nahi",
+      "emptyHint": "Dukanon ke order lagte hi yahan nazar aate hain.",
+      "noResults": "“{query}” se koi order nahi mila.",
+      "callToConfirm": "Call kar ke confirm karein",
+      "confirmedByShop": "Dukandar ne confirm kiya",
+      "confirmedOnCall": "Call par confirm",
+      "firstOrder": "Pehla order"
+    },
+    "order": {
+      "title": "Order {number}",
+      "back": "Orders par wapas",
+      "placedAt": "{time} lagaya gaya",
+      "placedBy": "{name} ne",
+      "slot": "Delivery",
+      "payment": "Payment",
+      "notes": "Dukandar ka note",
+      "items": "Items",
+      "free": "+{count, number} muft",
+      "shortStock": "Stock mein {count, number} kam",
+      "deliveredOf": "{total, number} mein se {count, number} deliver",
+      "subtotal": "Subtotal",
+      "schemeDiscount": "Scheme discount",
+      "deliveryFee": "Delivery",
+      "total": "Total",
+      "paid": "Ada shuda",
+      "due": "Baqi",
+      "invoice": "Invoice {number}",
+      "dueDate": "{date} tak payment",
+      "timeline": "History",
+      "cancelled": "Cancel: {reason}",
+      "shop": {
+        "title": "Dukan",
+        "owner": "Malik",
+        "call": "Call",
+        "whatsapp": "WhatsApp",
+        "chat": "Chat",
+        "map": "Naqsha",
+        "since": "{date} se TezDukan par",
+        "orders": "{orders, plural, one {# order} other {# orders}} · {delivered, number} deliver",
+        "creditLimit": "Udhaar had",
+        "balance": "Baqaya",
+        "available": "Dastiyab",
+        "overdue": "Late",
+        "accountStatus": {
+          "active": "Active",
+          "on_hold": "Hold par",
+          "blocked": "Band",
+          "none": "Naya"
+        },
+        "tier": {
+          "silver": "Silver",
+          "gold": "Gold",
+          "platinum": "Platinum"
+        }
+      },
+      "confirm": {
+        "title": "Bara order: bhejne se pehle confirm karein",
+        "body": "{threshold} ya us se bare order par pehle dukandar se baat zaroori hai. Call karein, ya app mein confirm karne ka kahein.",
+        "reasons": {
+          "high_value": "{threshold} se zyada",
+          "first_order": "Is dukan ka pehla order"
+        },
+        "callNow": "{name} ko call karein",
+        "askInApp": "App mein poochein",
+        "asked": "{time} poocha. Dukandar ka intezar hai.",
+        "askedToast": "Dukandar se confirm karne ka keh diya.",
+        "shopConfirmed": "{name} ne {time} app mein ye order confirm kiya.",
+        "phoneConfirmed": "{time} call par confirm hua.",
+        "checkbox": "Meri {name} se baat ho gayi, unhon ne order confirm kiya",
+        "firstOrderNote": "Is dukan ka pehla order hai: ek call kar lein."
+      },
+      "actions": {
+        "confirm": "Order confirm karein",
+        "reject": "Reject",
+        "pack": "Pack ho gaya",
+        "dispatch": "Delivery ke liye bhejein",
+        "deliver": "Deliver karein",
+        "cancel": "Order cancel karein",
+        "confirmed": "Order confirm ho gaya",
+        "packed": "Pack ho gaya",
+        "dispatched": "Raste mein hai. Dukandar ko bata diya.",
+        "shortages": "Stock kam hai: {items}"
+      },
+      "reject": {
+        "title": "Ye order reject karein?",
+        "cancelTitle": "Ye order cancel karein?",
+        "body": "Dukandar ko wajah ke saath foran bata diya jayega.",
+        "reasonLabel": "Wajah",
+        "reasons": {
+          "stock": "Stock khatam",
+          "area": "Is ilaqe mein delivery nahi",
+          "credit": "Udhaar ki had poori",
+          "closed": "Dukan se rabta nahi",
+          "other": "Koi aur"
+        },
+        "otherPlaceholder": "Dukandar ko wajah batayein",
+        "submit": "Order reject karein",
+        "submitCancel": "Order cancel karein",
+        "done": "Order reject ho gaya. Dukandar ko bata diya."
+      },
+      "deliver": {
+        "title": "Order {number} deliver karein",
+        "otpLabel": "Dukandar ka delivery code",
+        "otpHint": "Dukandar ko ye 4 digit ka code app mein nazar aata hai.",
+        "cash": "Wasool shuda cash",
+        "cashHint": "Is order par baqi: {due}",
+        "editQuantities": "Kuch items kam hain?",
+        "doneEditing": "Theek hai",
+        "delivered": "Deliver",
+        "submit": "Delivery confirm karein",
+        "success": "Deliver ho gaya. Invoice {invoice} khate mein darj.",
+        "otpInvalid": "Code ghalat hai. {count, plural, one {# koshish baqi} other {# koshishein baqi}}.",
+        "otpLocked": "Bohat baar ghalat code. Dukandar se call karne ka kahein."
+      }
+    },
+    "errors": {
+      "not_allowed": "Aap ko is ki ijazat nahi.",
+      "order_not_found": "Ye order dastiyab nahi.",
+      "confirmation_required": "Pehle dukandar se confirm karein: call karein ya app mein poochein.",
+      "invalid_transition": "Ye order aage barh chuka hai. Taza haalat dekhne ke liye refresh karein.",
+      "too_soon": "Aap ne abhi poocha tha. Dukandar ko thora waqt dein.",
+      "cannot_cancel": "Ye order ab cancel nahi ho sakta.",
+      "reason_required": "Wajah likhein.",
+      "invalid_quantity": "Deliver shuda tadaad check karein.",
+      "nothing_delivered": "Kuch deliver nahi hua. Order cancel karein.",
+      "cash_exceeds_due": "Cash baqi raqam se zyada hai.",
+      "otp_invalid": "4 digit ka delivery code likhein.",
+      "otp_locked": "Bohat baar ghalat code. Dukandar se call karne ka kahein.",
+      "generic": "Kuch ghalat ho gaya. Dobara koshish karein.",
+      "offline": "Aap offline hain. Internet aane par dobara koshish karein."
     }
   }
 }

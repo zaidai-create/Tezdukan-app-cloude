@@ -22,6 +22,7 @@ export type NavLabel =
   | "dukan"
   | "ledger"
   | "distributors"
+  | "chat"
   | "account"
   | "dashboard"
   | "beat"
@@ -40,6 +41,7 @@ export type NavIcon =
   | "orders"
   | "dukan"
   | "ledger"
+  | "chat"
   | "account"
   | "dashboard"
   | "beat"
@@ -70,6 +72,12 @@ export const mobileTabs: Partial<Record<AppRole, NavItem[]>> = {
     { href: "/rider", label: "today", icon: "today", exact: true },
     { href: "/rider/account", label: "account", icon: "account" },
   ],
+  // Distributors run the portal from a phone as often as from a desk.
+  distributor: [
+    { href: "/distributor", label: "home", icon: "home", exact: true },
+    { href: "/distributor/orders", label: "orders", icon: "orders" },
+    { href: "/distributor/account", label: "account", icon: "account" },
+  ],
 };
 
 /** Desktop sidebar groups for desktop-first roles (and dukandar on large screens). */
@@ -77,7 +85,10 @@ export const sidebarGroups: Partial<Record<AppRole, NavGroup[]>> = {
   distributor: [
     {
       label: "main",
-      items: [{ href: "/distributor", label: "dashboard", icon: "dashboard", exact: true }],
+      items: [
+        { href: "/distributor", label: "dashboard", icon: "dashboard", exact: true },
+        { href: "/distributor/orders", label: "orders", icon: "orders" },
+      ],
     },
     {
       label: "account",

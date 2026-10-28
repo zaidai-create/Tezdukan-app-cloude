@@ -61,7 +61,8 @@
     "cart": "کارٹ",
     "badgeCount": "{count, plural, one {# چیز} other {# چیزیں}}",
     "ledger": "کھاتہ",
-    "distributors": "ڈسٹری بیوٹرز"
+    "distributors": "ڈسٹری بیوٹرز",
+    "chat": "چیٹ"
   },
   "roles": {
     "customer": "گاہک",
@@ -523,7 +524,17 @@
       "slot": "ڈیلیوری کا وقت",
       "paymentLabel": "ادائیگی",
       "orderNumber": "آرڈر {number}",
-      "share": "واٹس ایپ پر بھیجیں"
+      "share": "واٹس ایپ پر بھیجیں",
+      "confirmAsked": "{org} آپ سے یہ آرڈر کنفرم کرنے کا کہہ رہا ہے",
+      "confirmBig": "بڑا آرڈر: کنفرم کریں تاکہ {org} مال بھیج سکے",
+      "confirmBody": "آئٹم اور {total} کا ٹوٹل چیک کریں۔ ٹھیک ہو تو کنفرم کریں، پھر یہ پیک ہو جائے گا۔",
+      "confirmButton": "جی، آرڈر کنفرم کریں",
+      "confirmDone": "آرڈر کنفرم ہو گیا۔ {org} کو بتا دیا۔",
+      "confirmedByYou": "آپ نے {time} یہ آرڈر کنفرم کیا۔",
+      "contact": "{org} سے بات کریں",
+      "call": "کال",
+      "whatsapp": "واٹس ایپ",
+      "chat": "چیٹ"
     },
     "ledger": {
       "title": "ڈسٹری بیوٹر کھاتہ",
@@ -631,6 +642,176 @@
       "enabled": "فون پر اطلاعات آن ہو گئیں",
       "disabled": "فون پر اطلاعات بند ہو گئیں",
       "failed": "اطلاعات آن نہیں ہو سکیں۔ دوبارہ کوشش کریں۔"
+    }
+  },
+  "distributor": {
+    "dashboard": {
+      "greeting": "السلام علیکم، {name}",
+      "subtitle": "{org} میں آج کا حال۔",
+      "needsCall": "{count, plural, one {# بڑے آرڈر پر کال ضروری ہے} other {# بڑے آرڈرز پر کال ضروری ہے}}",
+      "needsCallHint": "مال بھیجنے سے پہلے دکاندار سے کنفرم کریں۔",
+      "review": "دیکھیں",
+      "todayOrders": "آج کے آرڈر",
+      "newOrders": "نئے، انتظار میں",
+      "toDispatch": "بھیجنے ہیں",
+      "outForDelivery": "ڈیلیوری پر",
+      "deliveredToday": "آج ڈیلیور",
+      "receivable": "وصولی باقی",
+      "overdue": "تاخیر شدہ",
+      "activeShops": "فعال دکانیں",
+      "activeShopsHint": "پچھلے 30 دن",
+      "sales7d": "آرڈر، پچھلے 7 دن",
+      "sales7dTotal": "{total}، {count, plural, one {# آرڈر} other {# آرڈر}}",
+      "topShops": "اس مہینے کی بڑی دکانیں",
+      "noTopShops": "پچھلے 30 دن میں ابھی کوئی آرڈر نہیں۔",
+      "latest": "نئے آرڈر",
+      "seeAll": "سب آرڈر دیکھیں",
+      "noNew": "ابھی کوئی نیا آرڈر نہیں۔",
+      "noNewHint": "دکان آرڈر کرتے ہی نیا آرڈر گھنٹی کے ساتھ یہاں آ جائے گا۔",
+      "ordersCount": "{count, plural, one {# آرڈر} other {# آرڈر}}"
+    },
+    "inbox": {
+      "title": "آرڈر",
+      "searchLabel": "آرڈر تلاش کریں",
+      "searchPlaceholder": "آرڈر نمبر، دکان یا فون",
+      "tabs": {
+        "new": "نئے",
+        "active": "جاری",
+        "done": "مکمل"
+      },
+      "items": "{count, plural, one {# آئٹم} other {# آئٹم}}",
+      "emptyNew": "کوئی نیا آرڈر نہیں",
+      "emptyActive": "کوئی آرڈر جاری نہیں",
+      "emptyDone": "ابھی کوئی مکمل آرڈر نہیں",
+      "emptyHint": "دکانوں کے آرڈر لگتے ہی یہاں نظر آتے ہیں۔",
+      "noResults": "“{query}” سے کوئی آرڈر نہیں ملا۔",
+      "callToConfirm": "کال کر کے کنفرم کریں",
+      "confirmedByShop": "دکاندار نے کنفرم کیا",
+      "confirmedOnCall": "کال پر کنفرم",
+      "firstOrder": "پہلا آرڈر"
+    },
+    "order": {
+      "title": "آرڈر {number}",
+      "back": "آرڈرز پر واپس",
+      "placedAt": "{time} لگایا گیا",
+      "placedBy": "{name} نے",
+      "slot": "ڈیلیوری",
+      "payment": "ادائیگی",
+      "notes": "دکاندار کا نوٹ",
+      "items": "آئٹم",
+      "free": "+{count, number} مفت",
+      "shortStock": "اسٹاک میں {count, number} کم",
+      "deliveredOf": "{total, number} میں سے {count, number} ڈیلیور",
+      "subtotal": "ٹوٹل (ڈسکاؤنٹ سے پہلے)",
+      "schemeDiscount": "اسکیم ڈسکاؤنٹ",
+      "deliveryFee": "ڈیلیوری",
+      "total": "کُل",
+      "paid": "ادا شدہ",
+      "due": "باقی",
+      "invoice": "انوائس {number}",
+      "dueDate": "{date} تک ادائیگی",
+      "timeline": "تاریخچہ",
+      "cancelled": "منسوخ: {reason}",
+      "shop": {
+        "title": "دکان",
+        "owner": "مالک",
+        "call": "کال",
+        "whatsapp": "واٹس ایپ",
+        "chat": "چیٹ",
+        "map": "نقشہ",
+        "since": "{date} سے TezDukan پر",
+        "orders": "{orders, plural, one {# آرڈر} other {# آرڈر}} · {delivered, number} ڈیلیور",
+        "creditLimit": "ادھار حد",
+        "balance": "بقایا",
+        "available": "دستیاب",
+        "overdue": "تاخیر شدہ",
+        "accountStatus": {
+          "active": "فعال",
+          "on_hold": "روکا ہوا",
+          "blocked": "بند",
+          "none": "نیا"
+        },
+        "tier": {
+          "silver": "سلور",
+          "gold": "گولڈ",
+          "platinum": "پلاٹینم"
+        }
+      },
+      "confirm": {
+        "title": "بڑا آرڈر: بھیجنے سے پہلے کنفرم کریں",
+        "body": "{threshold} یا اس سے بڑے آرڈر پر پہلے دکاندار سے بات ضروری ہے۔ کال کریں، یا ایپ میں کنفرم کرنے کا کہیں۔",
+        "reasons": {
+          "high_value": "{threshold} سے زیادہ",
+          "first_order": "اس دکان کا پہلا آرڈر"
+        },
+        "callNow": "{name} کو کال کریں",
+        "askInApp": "ایپ میں پوچھیں",
+        "asked": "{time} پوچھا۔ دکاندار کا انتظار ہے۔",
+        "askedToast": "دکاندار سے کنفرم کرنے کا کہہ دیا۔",
+        "shopConfirmed": "{name} نے {time} ایپ میں یہ آرڈر کنفرم کیا۔",
+        "phoneConfirmed": "{time} کال پر کنفرم ہوا۔",
+        "checkbox": "میری {name} سے بات ہو گئی، انہوں نے آرڈر کنفرم کیا",
+        "firstOrderNote": "اس دکان کا پہلا آرڈر ہے: ایک کال کر لیں۔"
+      },
+      "actions": {
+        "confirm": "آرڈر کنفرم کریں",
+        "reject": "رد کریں",
+        "pack": "پیک ہو گیا",
+        "dispatch": "ڈیلیوری کے لیے بھیجیں",
+        "deliver": "ڈیلیور کریں",
+        "cancel": "آرڈر منسوخ کریں",
+        "confirmed": "آرڈر کنفرم ہو گیا",
+        "packed": "پیک ہو گیا",
+        "dispatched": "راستے میں ہے۔ دکاندار کو بتا دیا۔",
+        "shortages": "اسٹاک کم ہے: {items}"
+      },
+      "reject": {
+        "title": "یہ آرڈر رد کریں؟",
+        "cancelTitle": "یہ آرڈر منسوخ کریں؟",
+        "body": "دکاندار کو وجہ کے ساتھ فوراً بتا دیا جائے گا۔",
+        "reasonLabel": "وجہ",
+        "reasons": {
+          "stock": "اسٹاک ختم",
+          "area": "اس علاقے میں ڈیلیوری نہیں",
+          "credit": "ادھار کی حد پوری",
+          "closed": "دکان سے رابطہ نہیں",
+          "other": "کوئی اور"
+        },
+        "otherPlaceholder": "دکاندار کو وجہ بتائیں",
+        "submit": "آرڈر رد کریں",
+        "submitCancel": "آرڈر منسوخ کریں",
+        "done": "آرڈر رد ہو گیا۔ دکاندار کو بتا دیا۔"
+      },
+      "deliver": {
+        "title": "آرڈر {number} ڈیلیور کریں",
+        "otpLabel": "دکاندار کا ڈیلیوری کوڈ",
+        "otpHint": "دکاندار کو یہ 4 ہندسوں کا کوڈ ایپ میں نظر آتا ہے۔",
+        "cash": "وصول شدہ نقد",
+        "cashHint": "اس آرڈر پر باقی: {due}",
+        "editQuantities": "کچھ آئٹم کم ہیں؟",
+        "doneEditing": "ٹھیک ہے",
+        "delivered": "ڈیلیور",
+        "submit": "ڈیلیوری کنفرم کریں",
+        "success": "ڈیلیور ہو گیا۔ انوائس {invoice} کھاتے میں درج۔",
+        "otpInvalid": "کوڈ غلط ہے۔ {count, plural, one {# کوشش باقی} other {# کوششیں باقی}}۔",
+        "otpLocked": "بہت بار غلط کوڈ۔ دکاندار سے کال کرنے کا کہیں۔"
+      }
+    },
+    "errors": {
+      "not_allowed": "آپ کو اس کی اجازت نہیں۔",
+      "order_not_found": "یہ آرڈر دستیاب نہیں۔",
+      "confirmation_required": "پہلے دکاندار سے کنفرم کریں: کال کریں یا ایپ میں پوچھیں۔",
+      "invalid_transition": "یہ آرڈر آگے بڑھ چکا ہے۔ تازہ حالت دیکھنے کے لیے ریفریش کریں۔",
+      "too_soon": "آپ نے ابھی پوچھا تھا۔ دکاندار کو تھوڑا وقت دیں۔",
+      "cannot_cancel": "یہ آرڈر اب منسوخ نہیں ہو سکتا۔",
+      "reason_required": "وجہ لکھیں۔",
+      "invalid_quantity": "ڈیلیور شدہ تعداد چیک کریں۔",
+      "nothing_delivered": "کچھ ڈیلیور نہیں ہوا۔ آرڈر منسوخ کریں۔",
+      "cash_exceeds_due": "نقد رقم باقی رقم سے زیادہ ہے۔",
+      "otp_invalid": "4 ہندسوں کا ڈیلیوری کوڈ لکھیں۔",
+      "otp_locked": "بہت بار غلط کوڈ۔ دکاندار سے کال کرنے کا کہیں۔",
+      "generic": "کچھ غلط ہو گیا۔ دوبارہ کوشش کریں۔",
+      "offline": "آپ آف لائن ہیں۔ انٹرنیٹ آنے پر دوبارہ کوشش کریں۔"
     }
   }
 }
