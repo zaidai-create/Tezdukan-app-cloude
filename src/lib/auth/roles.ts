@@ -45,8 +45,12 @@ export function roleForPath(pathname: string): AppRole | null {
   return null;
 }
 
+/** Set once the welcome posters have been seen, so later launches open on sign-in. */
+export const WELCOMED_COOKIE = "td_welcomed";
+
 /** Pages that never need a session. */
 const publicPrefixes = [
+  "/welcome",
   "/login",
   "/signup",
   "/verify",
@@ -69,7 +73,7 @@ export function isPublicPath(pathname: string): boolean {
 
 /** Auth screens that a signed-in person should be sent away from. */
 export function isAuthPath(pathname: string): boolean {
-  return ["/login", "/signup", "/verify"].some((prefix) => hasPrefix(pathname, prefix));
+  return ["/welcome", "/login", "/signup", "/verify"].some((prefix) => hasPrefix(pathname, prefix));
 }
 
 /** The active context: which role, and for which shop or distributor. */

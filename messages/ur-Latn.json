@@ -154,7 +154,12 @@
       "smsFailed": "SMS nahi bheja ja saka. Dobara koshish karein.",
       "generic": "Kuch ghalat ho gaya. Dobara koshish karein.",
       "network": "Internet nahi hai. Network dekh kar dobara koshish karein."
-    }
+    },
+    "google": "Google se jaari rakhein",
+    "orPhone": "ya mobile number se",
+    "googleSandboxTitle": "Google se sign in abhi on nahi",
+    "googleSandboxBody": "TezDukan ka Google account jurte hi ye on ho jayega. Tab tak mobile number se sign in karein.",
+    "googleFailed": "Google se sign in nahi hua. Dobara koshish karein ya mobile number istemal karein."
   },
   "validation": {
     "phoneRequired": "Apna mobile number likhein.",
@@ -893,6 +898,31 @@
     "queue": {
       "title": "Support chats",
       "empty": "Abhi koi support chat nahi"
+    }
+  },
+  "welcome": {
+    "title": "Khush aamdeed",
+    "skip": "Chhorein",
+    "next": "Aage",
+    "getStarted": "Shuru karein",
+    "haveAccount": "Mera account pehle se hai",
+    "slideOf": "{total, number} mein se {current, number}",
+    "slides": {
+      "doorstep": {
+        "title": "Hum sauda aap ki dukan tak pahunchate hain",
+        "body": "Hyderabad ke distributors se maal mangwayein. Agle din aap ki dukan par.",
+        "alt": "Delivery rider saude ka thaila uthaye hue"
+      },
+      "distributors": {
+        "title": "Trade rate aur schemes, ek saath",
+        "body": "Rate milayein, har cheez par apna munafa dekhein, aur chand tap mein order karein.",
+        "alt": "Distributor ke godown mein ladi hui gaari"
+      },
+      "products": {
+        "title": "Khata, order aur chat ek app mein",
+        "body": "Baqaya janein, har delivery live dekhein, ya Munshi ko bas bata dein kya chahiye.",
+        "alt": "Counter par Tapal Danedar chai aur Dalda cooking oil"
+      }
     }
   }
 }

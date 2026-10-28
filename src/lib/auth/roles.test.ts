@@ -21,6 +21,7 @@ describe("roleForPath", () => {
 describe("public and auth paths", () => {
   it("knows which pages need no session", () => {
     expect(isPublicPath("/login")).toBe(true);
+    expect(isPublicPath("/welcome")).toBe(true);
     expect(isPublicPath("/s/tezdukan")).toBe(true);
     expect(isPublicPath("/dev/design-system")).toBe(true);
     expect(isPublicPath("/")).toBe(false);
@@ -30,6 +31,7 @@ describe("public and auth paths", () => {
 
   it("knows auth screens", () => {
     expect(isAuthPath("/signup")).toBe(true);
+    expect(isAuthPath("/welcome")).toBe(true);
     expect(isAuthPath("/forgot-password")).toBe(false);
   });
 });

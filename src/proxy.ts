@@ -1,7 +1,14 @@
 import createIntlMiddleware from "next-intl/middleware";
 import { NextResponse, type NextRequest } from "next/server";
 import { routing } from "@/i18n/routing";
-import { CONTEXT_COOKIE, isAuthPath, isPublicPath, parseContext, roleHome } from "@/lib/auth/roles";
+import {
+  CONTEXT_COOKIE,
+  isAuthPath,
+  isPublicPath,
+  parseContext,
+  roleHome,
+  WELCOMED_COOKIE,
+} from "@/lib/auth/roles";
 import { refreshSession } from "@/lib/supabase/proxy";
 
 const handleI18n = createIntlMiddleware(routing);
@@ -35,6 +42,8 @@ export default async function proxy(request: NextRequest) {
 
   if (!claims) {
     if (isPublicPath(pathname)) return response;
+    // First launch on this device: the welcome posters before sign-in.
+    if (pathname === "/" && !request.cookies.has(WELCOMED_COOKIE)) return redirect("/welcome");
     return redirect("/login", pathname === "/" ? undefined : { next: `${pathname}${search}` });
   }
 

@@ -20,6 +20,7 @@ import { signUpAction } from "../session-actions";
 import { useFormError } from "../use-form-error";
 import { signupSchema, type SignupValues } from "../schemas";
 import { FormAlert } from "./form-alert";
+import { GoogleButton } from "./google-button";
 import { PasswordInput } from "./password-input";
 import { PhoneInput } from "./phone-input";
 
@@ -57,6 +58,9 @@ function SignupForm() {
 
   return (
     <Form {...form}>
+      <div className="mb-5 flex flex-col gap-4">
+        <GoogleButton />
+      </div>
       {/* POST: a tap before the page has hydrated must not put
           the password in the URL. */}
       <form method="post" onSubmit={onSubmit} noValidate className="flex flex-col gap-5">

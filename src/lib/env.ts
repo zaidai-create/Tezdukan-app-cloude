@@ -15,6 +15,8 @@ const publicSchema = z.object({
     .optional(),
   /** Web Push application server key. Without it phone notifications run in Sandbox. */
   NEXT_PUBLIC_VAPID_PUBLIC_KEY: z.string().min(80).optional(),
+  /** "on" once the Google provider is configured in Supabase Auth; Sandbox notice otherwise. */
+  NEXT_PUBLIC_GOOGLE_SIGN_IN: z.enum(["on", "off"]).default("off"),
 });
 
 export const publicEnv = publicSchema.parse({
@@ -24,4 +26,5 @@ export const publicEnv = publicSchema.parse({
   NEXT_PUBLIC_APP_ENV: process.env.NEXT_PUBLIC_APP_ENV || undefined,
   NEXT_PUBLIC_SUPPORT_WHATSAPP: process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP || undefined,
   NEXT_PUBLIC_VAPID_PUBLIC_KEY: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || undefined,
+  NEXT_PUBLIC_GOOGLE_SIGN_IN: process.env.NEXT_PUBLIC_GOOGLE_SIGN_IN || undefined,
 });

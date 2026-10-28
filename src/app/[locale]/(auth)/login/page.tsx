@@ -24,6 +24,11 @@ export default async function LoginPage({ searchParams }: PageProps<"/[locale]/l
 async function LoginFormWithNext({
   searchParams,
 }: Pick<PageProps<"/[locale]/login">, "searchParams">) {
-  const { next } = await searchParams;
-  return <LoginForm next={typeof next === "string" ? next : undefined} />;
+  const { next, oauth } = await searchParams;
+  return (
+    <LoginForm
+      next={typeof next === "string" ? next : undefined}
+      oauthFailed={oauth === "failed"}
+    />
+  );
 }

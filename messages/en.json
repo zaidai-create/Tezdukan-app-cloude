@@ -154,7 +154,12 @@
       "smsFailed": "We could not send the SMS. Please try again.",
       "generic": "Something went wrong. Please try again.",
       "network": "No internet connection. Check your network and try again."
-    }
+    },
+    "google": "Continue with Google",
+    "orPhone": "or use your mobile number",
+    "googleSandboxTitle": "Google sign-in is not switched on yet",
+    "googleSandboxBody": "It turns on once TezDukan's Google account is connected. Until then, sign in with your mobile number.",
+    "googleFailed": "Google sign-in didn't work. Please try again or use your mobile number."
   },
   "validation": {
     "phoneRequired": "Enter your mobile number.",
@@ -893,6 +898,31 @@
     "queue": {
       "title": "Support chats",
       "empty": "No support chats yet"
+    }
+  },
+  "welcome": {
+    "title": "Welcome",
+    "skip": "Skip",
+    "next": "Next",
+    "getStarted": "Get started",
+    "haveAccount": "I already have an account",
+    "slideOf": "{current, number} of {total, number}",
+    "slides": {
+      "doorstep": {
+        "title": "We deliver grocery to your doorstep",
+        "body": "Order stock from Hyderabad's distributors. It reaches your dukan the next day.",
+        "alt": "A delivery rider holding a bag of groceries"
+      },
+      "distributors": {
+        "title": "Trade prices and schemes, side by side",
+        "body": "Compare rates, see your profit on every product, and order in a few taps.",
+        "alt": "A loaded delivery van in a distributor's warehouse"
+      },
+      "products": {
+        "title": "Khata, orders and chat in one app",
+        "body": "Know what you owe, follow every delivery live, or just tell Munshi what you need.",
+        "alt": "Tapal Danedar tea and Dalda cooking oil on a counter"
+      }
     }
   }
 }

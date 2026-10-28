@@ -1,15 +1,15 @@
 "use server";
 
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { z } from "zod";
 import { isLocale } from "@/i18n/locales";
 import { LOCALE_COOKIE } from "@/i18n/routing";
 import { normalizePkMobile } from "@/lib/phone";
-import { CONTEXT_COOKIE, appRoles, roleHome, serializeContext } from "@/lib/auth/roles";
 import { safeNextPath } from "@/lib/auth/safe-next";
 import { getSupabaseAdminClient, hasAdminClient } from "@/lib/supabase/admin";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { authErrorKey, type AuthErrorKey } from "./errors";
+import { completeSignIn } from "./complete-sign-in";
 import { isSandboxSms, sandboxRevealAllowed } from "./sms-sandbox";
 import {
   forgotSchema,
@@ -27,63 +27,7 @@ import {
 
 export type AuthResult<T = object> = ({ ok: true } & T) | { ok: false; error: AuthErrorKey };
 
-const ONE_YEAR = 60 * 60 * 24 * 365;
 const OTP_WINDOW_MS = 10 * 60 * 1000;
-
-const landingSchema = z.object({
-  active_role: z.enum(appRoles),
-  active_shop_id: z.uuid().nullable(),
-  active_org_id: z.uuid().nullable(),
-  locale: z.string().nullable(),
-});
-
-/**
- * After any successful sign-in: restore the person's last active role into the context
- * cookie and reconcile the language (a language picked on this device wins and is saved;
- * otherwise the profile's language is applied). Returns where to land.
- */
-async function completeSignIn(next?: string): Promise<string> {
-  const supabase = await getSupabaseServerClient();
-  const { data: auth } = await supabase.auth.getClaims();
-  const userId = auth?.claims?.sub;
-  if (!userId) return "/login";
-
-  const { data } = await supabase
-    .from("profiles")
-    .select("active_role, active_shop_id, active_org_id, locale")
-    .eq("id", userId)
-    .single();
-  const profile = landingSchema.safeParse(data);
-  const cookieStore = await cookies();
-
-  const role = profile.success ? profile.data.active_role : "customer";
-  const contextId = profile.success
-    ? role === "dukandar"
-      ? profile.data.active_shop_id
-      : ["distributor", "booker", "rider"].includes(role)
-        ? profile.data.active_org_id
-        : null
-    : null;
-  cookieStore.set(CONTEXT_COOKIE, serializeContext({ role, contextId }), {
-    path: "/",
-    maxAge: ONE_YEAR,
-    sameSite: "lax",
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-  });
-
-  const deviceLocale = cookieStore.get(LOCALE_COOKIE)?.value;
-  const profileLocale = profile.success ? profile.data.locale : null;
-  if (deviceLocale && isLocale(deviceLocale)) {
-    if (deviceLocale !== profileLocale) {
-      await supabase.from("profiles").update({ locale: deviceLocale }).eq("id", userId);
-    }
-  } else if (profileLocale && isLocale(profileLocale)) {
-    cookieStore.set(LOCALE_COOKIE, profileLocale, { path: "/", maxAge: ONE_YEAR, sameSite: "lax" });
-  }
-
-  return safeNextPath(next, roleHome[role]);
-}
 
 export async function signInAction(
   values: LoginValues,
@@ -226,4 +170,24 @@ export async function sandboxOtpAction(
     .maybeSingle();
   const row = outboxRowSchema.safeParse(data);
   return { sandbox, code: row.success ? row.data.payload.otp : null };
+}
+
+/**
+ * Starts "Continue with Google": Supabase returns Google's consent URL (with a PKCE verifier
+ * stored in a cookie); the browser goes there and comes back to /api/auth/callback.
+ */
+export async function googleSignInAction(next?: string): Promise<AuthResult<{ url: string }>> {
+  const headerStore = await headers();
+  const host = headerStore.get("x-forwarded-host") ?? headerStore.get("host");
+  const proto = headerStore.get("x-forwarded-proto") ?? "https";
+  if (!host) return { ok: false, error: "generic" };
+  const callback = new URL(`${proto}://${host}/api/auth/callback`);
+  callback.searchParams.set("next", safeNextPath(next, "/"));
+  const supabase = await getSupabaseServerClient();
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: { redirectTo: callback.toString(), skipBrowserRedirect: true },
+  });
+  if (error || !data.url) return { ok: false, error: error ? authErrorKey(error) : "generic" };
+  return { ok: true, url: data.url };
 }
