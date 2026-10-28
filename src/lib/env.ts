@@ -13,6 +13,8 @@ const publicSchema = z.object({
     .string()
     .regex(/^\+92\d{10}$/)
     .optional(),
+  /** Web Push application server key. Without it phone notifications run in Sandbox. */
+  NEXT_PUBLIC_VAPID_PUBLIC_KEY: z.string().min(80).optional(),
 });
 
 export const publicEnv = publicSchema.parse({
@@ -21,4 +23,5 @@ export const publicEnv = publicSchema.parse({
   NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || undefined,
   NEXT_PUBLIC_APP_ENV: process.env.NEXT_PUBLIC_APP_ENV || undefined,
   NEXT_PUBLIC_SUPPORT_WHATSAPP: process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP || undefined,
+  NEXT_PUBLIC_VAPID_PUBLIC_KEY: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || undefined,
 });

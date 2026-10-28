@@ -596,5 +596,41 @@
       "return_exceeds_delivered": "Jitna pohancha us se zyada ka claim nahi ho sakta.",
       "order_not_found": "Order nahi mila."
     }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "unread": "{count, plural, one {# nayi} other {# nayi}}",
+    "markAllRead": "Sab parh liye",
+    "empty": "Abhi koi notification nahi",
+    "emptyHint": "Naye order, delivery aur messages yahan nazar aayenge.",
+    "error": "Notifications load nahi ho sakin.",
+    "view": "Dekhein",
+    "events": {
+      "orderCreated": "Naya order {number}",
+      "orderCancelled": "Order {number} cancel ho gaya",
+      "orderConfirmed": "Order {number} confirm ho gaya",
+      "orderConfirmedBody": "{org} aap ka order tayyar kar raha hai.",
+      "orderDispatched": "Order {number} raste mein hai",
+      "orderDispatchedBody": "Rider ke liye delivery code tayyar rakhein.",
+      "orderDelivered": "Order {number} pahunch gaya",
+      "orderDeliveredBody": "Invoice {invoice} · {total}",
+      "confirmRequested": "Order {number} confirm karein",
+      "confirmRequestedBody": "{org} · {total}. Confirm karne ke liye tap karein.",
+      "shopConfirmed": "{shop} ne {number} confirm kar diya",
+      "shopConfirmedBody": "Ab aap maal bhej sakte hain."
+    },
+    "push": {
+      "title": "Phone par notifications",
+      "hint": "Naye order aur messages phone ki home screen par paayein, app band ho tab bhi.",
+      "enable": "On karein",
+      "disable": "Band karein",
+      "on": "Is phone par on hai",
+      "blocked": "Browser settings mein band hain. TezDukan ke liye notifications allow karein.",
+      "unsupported": "Ye browser phone notifications nahi dikha sakta. Menu se app install karein.",
+      "sandbox": "Sandbox: push keys lagne tak alerts sirf app ke andar dikhenge.",
+      "enabled": "Phone notifications on ho gayin",
+      "disabled": "Phone notifications band ho gayin",
+      "failed": "Notifications on nahi ho sakin. Dobara koshish karein."
+    }
   }
 }

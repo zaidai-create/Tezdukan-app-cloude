@@ -85,9 +85,8 @@ const runtimeCaching: RuntimeCaching[] = [
 ];
 
 /**
- * TezDukan service worker: the precached app shell and offline page, plus the runtime rules
- * above. Push notifications and background sync of the offline queues are added with those
- * features.
+ * TezDukan service worker: the precached app shell and offline page, the runtime rules above,
+ * and Web Push. Background sync of the offline queues is added with that feature.
  */
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
@@ -106,3 +105,68 @@ const serwist = new Serwist({
 });
 
 serwist.addEventListeners();
+
+type PushMessage = { title: string; body?: string; link?: string; tag?: string };
+
+function readPush(event: PushEvent): PushMessage | null {
+  try {
+    const data: unknown = event.data?.json();
+    if (data && typeof data === "object" && "title" in data && typeof data.title === "string") {
+      const record = data as Record<string, unknown>;
+      return {
+        title: data.title,
+        body: typeof record.body === "string" ? record.body : undefined,
+        link: typeof record.link === "string" && record.link.startsWith("/") ? record.link : "/",
+        tag: typeof record.tag === "string" ? record.tag : undefined,
+      };
+    }
+  } catch {
+    // Not JSON: nothing we sent.
+  }
+  return null;
+}
+
+// A push while the app is open and in front is already shown in-app (Realtime toast), so the
+// phone only gets a notification when TezDukan is in the background or closed.
+self.addEventListener("push", (event) => {
+  const message = readPush(event);
+  if (!message) return;
+  event.waitUntil(
+    (async () => {
+      const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+      if (windows.some((client) => client.visibilityState === "visible" && client.focused)) return;
+      await self.registration.showNotification(message.title, {
+        body: message.body,
+        icon: "/icons/icon-192.png",
+        badge: "/icons/icon-192.png",
+        tag: message.tag,
+        data: { link: message.link },
+      });
+    })(),
+  );
+});
+
+// Tapping a notification opens the screen it is about, reusing an open TezDukan window.
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const data: unknown = event.notification.data;
+  const link =
+    data && typeof data === "object" && "link" in data && typeof data.link === "string"
+      ? data.link
+      : "/";
+  event.waitUntil(
+    (async () => {
+      const url = new URL(link, self.location.origin).href;
+      const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+      const existing = windows.find(
+        (client) => new URL(client.url).origin === self.location.origin,
+      );
+      if (existing) {
+        await existing.focus();
+        await existing.navigate(url);
+        return;
+      }
+      await self.clients.openWindow(url);
+    })(),
+  );
+});

@@ -7,6 +7,8 @@ import { useCallback, useState } from "react";
 import { LogoMark } from "@/components/brand/logo";
 import { Kbd } from "@/components/ui/kbd";
 import { Sheet, SheetBody, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { NotificationBell } from "@/features/notifications/components/notification-bell";
+import { scopeOf } from "@/features/notifications/schemas";
 import type { ShellSession } from "@/lib/auth/session-types";
 import { CommandPalette, useCommandShortcut } from "./command-palette";
 import { ContextButton } from "./context-button";
@@ -63,6 +65,7 @@ function TopBar({
           <Kbd>K</Kbd>
         </span>
       </button>
+      <NotificationBell scope={scopeOf(session)} />
       <UserMenu session={session} />
       <CommandPalette items={items} open={paletteOpen} onOpenChange={setPaletteOpen} />
       <Sheet open={menuOpen} onOpenChange={setMenuOpen}>

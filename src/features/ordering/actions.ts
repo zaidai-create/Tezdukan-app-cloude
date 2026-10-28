@@ -1,7 +1,9 @@
 "use server";
 
 import { refresh } from "next/cache";
+import { after } from "next/server";
 import { z } from "zod";
+import { flushPushOutboxQuietly } from "@/features/notifications/dispatch";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { orderingErrorKey, type OrderingErrorKey } from "./errors";
 import {
@@ -50,6 +52,8 @@ export async function placeOrder(
   });
   if (error) return fail(error);
   refresh();
+  // The distributor (or dukan) was notified: send the phone push after the response.
+  after(flushPushOutboxQuietly);
   return { ok: true, data: placeOrderResultSchema.parse(data) };
 }
 
@@ -65,6 +69,7 @@ export async function cancelOrder(input: z.input<typeof cancelInput>): Promise<A
   });
   if (error) return fail(error);
   refresh();
+  after(flushPushOutboxQuietly);
   return { ok: true, data: null };
 }
 
@@ -127,6 +132,7 @@ export async function requestReturn(
   });
   if (error) return fail(error);
   refresh();
+  after(flushPushOutboxQuietly);
   return {
     ok: true,
     data: { returnNumber: z.object({ return_number: z.string() }).parse(data).return_number },

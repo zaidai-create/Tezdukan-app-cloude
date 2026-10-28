@@ -596,5 +596,41 @@
     },
     "searchFor": "Search “{name}”",
     "pieces": "{count, number} pcs"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "unread": "{count, plural, one {# new} other {# new}}",
+    "markAllRead": "Mark all read",
+    "empty": "No notifications yet",
+    "emptyHint": "New orders, deliveries and messages show up here.",
+    "error": "Couldn't load notifications.",
+    "view": "View",
+    "events": {
+      "orderCreated": "New order {number}",
+      "orderCancelled": "Order {number} cancelled",
+      "orderConfirmed": "Order {number} confirmed",
+      "orderConfirmedBody": "{org} is preparing your order.",
+      "orderDispatched": "Order {number} is on the way",
+      "orderDispatchedBody": "Keep your delivery code ready for the rider.",
+      "orderDelivered": "Order {number} delivered",
+      "orderDeliveredBody": "Invoice {invoice} · {total}",
+      "confirmRequested": "Please confirm order {number}",
+      "confirmRequestedBody": "{org} · {total}. Tap to confirm.",
+      "shopConfirmed": "{shop} confirmed {number}",
+      "shopConfirmedBody": "You can ship it now."
+    },
+    "push": {
+      "title": "Phone notifications",
+      "hint": "Get new orders and messages on your home screen, even when the app is closed.",
+      "enable": "Turn on",
+      "disable": "Turn off",
+      "on": "On for this phone",
+      "blocked": "Blocked in your browser settings. Allow notifications for TezDukan to turn them on.",
+      "unsupported": "This browser can't show phone notifications. Install the app from the menu to get them.",
+      "sandbox": "Sandbox: alerts show inside the app only until push keys are set.",
+      "enabled": "Phone notifications are on",
+      "disabled": "Phone notifications are off",
+      "failed": "Couldn't turn on notifications. Try again."
+    }
   }
 }

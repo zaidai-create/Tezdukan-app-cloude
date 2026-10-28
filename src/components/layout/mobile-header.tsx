@@ -1,11 +1,16 @@
 import { cn } from "cn";
 import type * as React from "react";
 import { MunshiButton } from "@/components/munshi/munshi-button";
+import { NotificationBell } from "@/features/notifications/components/notification-bell";
+import { scopeOf } from "@/features/notifications/schemas";
 import type { ShellSession } from "@/lib/auth/session-types";
 import { ContextButton } from "./context-button";
 import { UserMenu } from "./user-menu";
 
-/** Sticky, frosted mobile header: active shop/role (tap to switch), Munshi and the user menu. */
+/**
+ * Sticky, frosted mobile header: active shop/role (tap to switch), Munshi, notifications and
+ * the user menu.
+ */
 function MobileHeader({
   session,
   children,
@@ -23,6 +28,7 @@ function MobileHeader({
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-2 px-4">
         <ContextButton session={session} className="min-w-0 flex-1" />
         <MunshiButton />
+        <NotificationBell scope={scopeOf(session)} />
         <UserMenu session={session} />
       </div>
       {children}

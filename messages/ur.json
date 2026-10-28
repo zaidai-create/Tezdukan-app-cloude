@@ -596,5 +596,41 @@
       "return_exceeds_delivered": "جتنا پہنچا اس سے زیادہ کا کلیم نہیں ہو سکتا۔",
       "order_not_found": "آرڈر نہیں ملا۔"
     }
+  },
+  "notifications": {
+    "title": "اطلاعات",
+    "unread": "{count, plural, one {# نئی} other {# نئی}}",
+    "markAllRead": "سب پڑھ لیں",
+    "empty": "ابھی کوئی اطلاع نہیں",
+    "emptyHint": "نئے آرڈر، ڈیلیوری اور پیغامات یہاں نظر آئیں گے۔",
+    "error": "اطلاعات لوڈ نہیں ہو سکیں۔",
+    "view": "دیکھیں",
+    "events": {
+      "orderCreated": "نیا آرڈر {number}",
+      "orderCancelled": "آرڈر {number} منسوخ",
+      "orderConfirmed": "آرڈر {number} کنفرم",
+      "orderConfirmedBody": "{org} آپ کا آرڈر تیار کر رہا ہے۔",
+      "orderDispatched": "آرڈر {number} راستے میں ہے",
+      "orderDispatchedBody": "رائیڈر کے لیے ڈیلیوری کوڈ تیار رکھیں۔",
+      "orderDelivered": "آرڈر {number} پہنچ گیا",
+      "orderDeliveredBody": "انوائس {invoice} · {total}",
+      "confirmRequested": "آرڈر {number} کنفرم کریں",
+      "confirmRequestedBody": "{org} · {total}۔ کنفرم کرنے کے لیے ٹیپ کریں۔",
+      "shopConfirmed": "{shop} نے {number} کنفرم کر دیا",
+      "shopConfirmedBody": "اب آپ مال بھیج سکتے ہیں۔"
+    },
+    "push": {
+      "title": "فون پر اطلاعات",
+      "hint": "نئے آرڈر اور پیغامات فون کی ہوم اسکرین پر پائیں، ایپ بند ہو تب بھی۔",
+      "enable": "آن کریں",
+      "disable": "بند کریں",
+      "on": "اس فون پر آن ہے",
+      "blocked": "براؤزر کی سیٹنگ میں بند ہیں۔ TezDukan کے لیے اطلاعات کی اجازت دیں۔",
+      "unsupported": "یہ براؤزر فون پر اطلاعات نہیں دکھا سکتا۔ مینو سے ایپ انسٹال کریں۔",
+      "sandbox": "Sandbox: پش کیز لگنے تک اطلاعات صرف ایپ کے اندر دکھیں گی۔",
+      "enabled": "فون پر اطلاعات آن ہو گئیں",
+      "disabled": "فون پر اطلاعات بند ہو گئیں",
+      "failed": "اطلاعات آن نہیں ہو سکیں۔ دوبارہ کوشش کریں۔"
+    }
   }
 }
