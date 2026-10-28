@@ -8336,6 +8336,16 @@ export type Database = {
         Returns: string;
       };
       order_delivery_code: { Args: { p_order_id: string }; Returns: string };
+      org_catalog: {
+        Args: {
+          p_filter?: string;
+          p_limit?: number;
+          p_offset?: number;
+          p_org_id: string;
+          p_query?: string;
+        };
+        Returns: Json;
+      };
       org_dashboard: { Args: { p_org_id: string }; Returns: Json };
       org_order_detail: { Args: { p_order_id: string }; Returns: Json };
       org_order_inbox: {
@@ -8669,6 +8679,7 @@ export type Database = {
           isSetofReturn: false;
         };
       };
+      save_distributor_product: { Args: { p_org_id: string; p_product: Json }; Returns: string };
       search_catalog: {
         Args: { p_limit?: number; p_query: string; p_shop_id: string };
         Returns: Database["public"]["CompositeTypes"]["catalog_item"][];
@@ -8679,6 +8690,7 @@ export type Database = {
           isSetofReturn: true;
         };
       };
+      search_master_products: { Args: { p_limit?: number; p_query: string }; Returns: Json };
       seed_reset: { Args: Record<PropertyKey, never>; Returns: Json };
       send_chat_message: {
         Args: {

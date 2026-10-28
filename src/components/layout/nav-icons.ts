@@ -1,5 +1,6 @@
 import {
   Bike,
+  Boxes,
   CircleUserRound,
   House,
   LayoutDashboard,
@@ -25,6 +26,7 @@ export const navIcons: Record<NavIcon, LucideIcon> = {
   ledger: Wallet,
   chat: MessageCircle,
   support: LifeBuoy,
+  catalog: Boxes,
   account: CircleUserRound,
   dashboard: LayoutDashboard,
   beat: MapPinned,

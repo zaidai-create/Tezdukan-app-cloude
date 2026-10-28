@@ -7,7 +7,7 @@ import { z } from "zod";
  */
 const aiEnvSchema = z.object({
   AI_PROVIDER: z.enum(["anthropic", "gemini"]).default("anthropic"),
-  AI_MODEL_AGENT: z.string().min(1).default("claude-sonnet-5-5"),
+  AI_MODEL_AGENT: z.string().min(1).default("claude-opus-5-5"),
   AI_MODEL_FAST: z.string().min(1).default("claude-haiku-5-5"),
   ANTHROPIC_API_KEY: z.string().optional(),
   GEMINI_API_KEY: z.string().optional(),

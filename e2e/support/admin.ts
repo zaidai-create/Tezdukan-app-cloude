@@ -143,3 +143,12 @@ export async function placeBigOrder(e164: string, password: string, shopId: stri
   if (!order) throw new Error("No order was placed");
   return order;
 }
+
+/** Removes products a catalog test added (saved without stock, so nothing references them). */
+export async function deleteOrgProductsNamed(prefix: string) {
+  const { error } = await adminClient()
+    .from("distributor_products")
+    .delete()
+    .like("name", `${prefix}%`);
+  if (error) throw error;
+}

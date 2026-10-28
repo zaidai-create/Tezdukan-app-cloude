@@ -4,6 +4,45 @@ All notable changes, newest first. Dates are Asia/Karachi.
 
 ## Unreleased
 
+### Distributor portal, chat and notifications (2026-10-29)
+
+- Distributor catalog:
+  - Products with search, filters (selling, out of stock, hidden), stock and margin.
+  - A show/hide switch with Undo.
+  - An add and edit form:
+    - Munshi fills it from one line ("Tapal Danedar 950g, carton 12, rate 1750, MRP 1950")
+      or from a photo of the pack.
+    - Products can be copied from the TezDukan master catalog, with a photo upload.
+    - Saving keeps the piece and carton packs in step and can receive opening stock into a
+      batch.
+  - Without an AI key, Munshi reads the line with a built-in parser and says "Sandbox".
+- Distributor orders:
+  - A dashboard with today's numbers, 7-day sales and top shops.
+  - An order inbox.
+  - Order pages with the shop's phone, WhatsApp, chat and map.
+  - Confirm, pack, dispatch and deliver, with the delivery code, cash collected and short
+    lines.
+  - Big orders (Rs 20,000 and up by default) and first orders need a phone confirmation
+    before they can ship. The distributor can also ask the dukan to confirm in the app.
+  - Delivery posts the invoice, khata entries and cash payment in one step.
+- Chat:
+  - Dukan and distributor chat live.
+  - Shops and customers can open support chat with an instant reply.
+  - The admin support queue.
+  - Unread badges and quick replies.
+- Notifications:
+  - A bell with the latest updates.
+  - Live toasts, plus a chime for new orders.
+  - Phone notifications through Web Push, with a Sandbox mode when no keys are set.
+- Dukandar:
+  - A profit calculator on the product sheet.
+  - Expected profit at MRP in the cart.
+  - Call, WhatsApp and chat buttons on order pages.
+- First launch:
+  - A splash and three welcome slides.
+  - Continue with Google on sign-in and sign-up, shown as Sandbox until enabled.
+- 87 new database tests (400 in total).
+
 ### Phase 2 — Dukandar ordering (in progress)
 
 - Dukandar ordering screens (2026-10-28):

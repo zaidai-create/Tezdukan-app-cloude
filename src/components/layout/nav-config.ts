@@ -24,6 +24,7 @@ export type NavLabel =
   | "distributors"
   | "chat"
   | "support"
+  | "catalog"
   | "account"
   | "dashboard"
   | "beat"
@@ -44,6 +45,7 @@ export type NavIcon =
   | "ledger"
   | "chat"
   | "support"
+  | "catalog"
   | "account"
   | "dashboard"
   | "beat"
@@ -78,6 +80,7 @@ export const mobileTabs: Partial<Record<AppRole, NavItem[]>> = {
   distributor: [
     { href: "/distributor", label: "home", icon: "home", exact: true },
     { href: "/distributor/orders", label: "orders", icon: "orders" },
+    { href: "/distributor/catalog", label: "catalog", icon: "catalog" },
     { href: "/distributor/chat", label: "chat", icon: "chat" },
     { href: "/distributor/account", label: "account", icon: "account" },
   ],
@@ -91,6 +94,7 @@ export const sidebarGroups: Partial<Record<AppRole, NavGroup[]>> = {
       items: [
         { href: "/distributor", label: "dashboard", icon: "dashboard", exact: true },
         { href: "/distributor/orders", label: "orders", icon: "orders" },
+        { href: "/distributor/catalog", label: "catalog", icon: "catalog" },
         { href: "/distributor/chat", label: "chat", icon: "chat" },
       ],
     },
