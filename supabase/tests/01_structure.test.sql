@@ -171,8 +171,8 @@ select is_empty(
 
 select set_eq(
   $$ select tablename::text from pg_publication_tables where pubname = 'supabase_realtime' and schemaname = 'public' $$,
-  array['orders', 'order_status_history', 'notifications'],
-  'realtime publishes orders, order events and notifications'
+  array['orders', 'order_status_history', 'notifications', 'conversations', 'chat_messages'],
+  'realtime publishes orders, order events, notifications and chat'
 );
 
 select ok(

@@ -1187,6 +1187,82 @@ export type Database = {
           },
         ];
       };
+      chat_messages: {
+        Row: {
+          body: string;
+          conversation_id: string;
+          created_at: string;
+          created_by: string | null;
+          id: string;
+          order_id: string | null;
+          sender_id: string | null;
+          sender_name: string | null;
+          sender_side: Database["public"]["Enums"]["chat_side"];
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          body: string;
+          conversation_id: string;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          order_id?: string | null;
+          sender_id?: string | null;
+          sender_name?: string | null;
+          sender_side: Database["public"]["Enums"]["chat_side"];
+          updated_at?: string;
+        };
+        Update: {
+          body?: string;
+          conversation_id?: string;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          order_id?: string | null;
+          sender_id?: string | null;
+          sender_name?: string | null;
+          sender_side?: Database["public"]["Enums"]["chat_side"];
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_conversation_id_fkey";
+            columns: ["conversation_id"];
+            isOneToOne: false;
+            referencedRelation: "conversations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "chat_messages_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "chat_messages_order_id_fkey";
+            columns: ["order_id"];
+            isOneToOne: false;
+            referencedRelation: "open_invoices";
+            referencedColumns: ["order_id"];
+          },
+          {
+            foreignKeyName: "chat_messages_order_id_fkey";
+            columns: ["order_id"];
+            isOneToOne: false;
+            referencedRelation: "orders";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "chat_messages_sender_id_fkey";
+            columns: ["sender_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       content_pages: {
         Row: {
           body_md: string;
@@ -1232,6 +1308,134 @@ export type Database = {
           {
             foreignKeyName: "content_pages_created_by_fkey";
             columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      conversation_reads: {
+        Row: {
+          conversation_id: string;
+          created_at: string;
+          created_by: string | null;
+          id: string;
+          last_read_at: string;
+          updated_at: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          conversation_id: string;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          last_read_at?: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          conversation_id?: string;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          last_read_at?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "conversation_reads_conversation_id_fkey";
+            columns: ["conversation_id"];
+            isOneToOne: false;
+            referencedRelation: "conversations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "conversation_reads_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "conversation_reads_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      conversations: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          id: string;
+          kind: Database["public"]["Enums"]["conversation_kind"];
+          last_message_at: string | null;
+          last_message_preview: string | null;
+          last_sender_side: Database["public"]["Enums"]["chat_side"] | null;
+          org_id: string | null;
+          shop_id: string | null;
+          status: string;
+          updated_at: string;
+          user_id: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          kind: Database["public"]["Enums"]["conversation_kind"];
+          last_message_at?: string | null;
+          last_message_preview?: string | null;
+          last_sender_side?: Database["public"]["Enums"]["chat_side"] | null;
+          org_id?: string | null;
+          shop_id?: string | null;
+          status?: string;
+          updated_at?: string;
+          user_id?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          kind?: Database["public"]["Enums"]["conversation_kind"];
+          last_message_at?: string | null;
+          last_message_preview?: string | null;
+          last_sender_side?: Database["public"]["Enums"]["chat_side"] | null;
+          org_id?: string | null;
+          shop_id?: string | null;
+          status?: string;
+          updated_at?: string;
+          user_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "conversations_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "conversations_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "conversations_shop_id_fkey";
+            columns: ["shop_id"];
+            isOneToOne: false;
+            referencedRelation: "shops";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "conversations_user_id_fkey";
+            columns: ["user_id"];
             isOneToOne: false;
             referencedRelation: "profiles";
             referencedColumns: ["id"];
@@ -3084,6 +3288,7 @@ export type Database = {
           cancelled_at: string | null;
           cancelled_by: string | null;
           client_request_id: string | null;
+          confirmation_reasons: string[];
           confirmed_at: string | null;
           created_at: string;
           created_by: string | null;
@@ -3100,6 +3305,7 @@ export type Database = {
           invoice_number: string | null;
           invoice_path: string | null;
           invoiced_at: string | null;
+          needs_confirmation: boolean;
           notes: string | null;
           order_number: string;
           ordered_total_paisa: number;
@@ -3108,6 +3314,8 @@ export type Database = {
           paid_paisa: number;
           payment_method: Database["public"]["Enums"]["order_payment_method"];
           payment_status: Database["public"]["Enums"]["order_payment_status"];
+          phone_confirmed_at: string | null;
+          phone_confirmed_by: string | null;
           picking_at: string | null;
           placed_by: string | null;
           placed_by_name: string | null;
@@ -3116,6 +3324,9 @@ export type Database = {
           received_by: string | null;
           returned_at: string | null;
           scheme_discount_paisa: number;
+          shop_confirm_requested_at: string | null;
+          shop_confirmed_at: string | null;
+          shop_confirmed_by: string | null;
           shop_id: string;
           source: Database["public"]["Enums"]["order_source"];
           status: Database["public"]["Enums"]["order_status"];
@@ -3132,6 +3343,7 @@ export type Database = {
           cancelled_at?: string | null;
           cancelled_by?: string | null;
           client_request_id?: string | null;
+          confirmation_reasons?: string[];
           confirmed_at?: string | null;
           created_at?: string;
           created_by?: string | null;
@@ -3148,6 +3360,7 @@ export type Database = {
           invoice_number?: string | null;
           invoice_path?: string | null;
           invoiced_at?: string | null;
+          needs_confirmation?: boolean;
           notes?: string | null;
           order_number: string;
           ordered_total_paisa?: number;
@@ -3156,6 +3369,8 @@ export type Database = {
           paid_paisa?: number;
           payment_method: Database["public"]["Enums"]["order_payment_method"];
           payment_status?: Database["public"]["Enums"]["order_payment_status"];
+          phone_confirmed_at?: string | null;
+          phone_confirmed_by?: string | null;
           picking_at?: string | null;
           placed_by?: string | null;
           placed_by_name?: string | null;
@@ -3164,6 +3379,9 @@ export type Database = {
           received_by?: string | null;
           returned_at?: string | null;
           scheme_discount_paisa?: number;
+          shop_confirm_requested_at?: string | null;
+          shop_confirmed_at?: string | null;
+          shop_confirmed_by?: string | null;
           shop_id: string;
           source?: Database["public"]["Enums"]["order_source"];
           status?: Database["public"]["Enums"]["order_status"];
@@ -3179,6 +3397,7 @@ export type Database = {
           cancelled_at?: string | null;
           cancelled_by?: string | null;
           client_request_id?: string | null;
+          confirmation_reasons?: string[];
           confirmed_at?: string | null;
           created_at?: string;
           created_by?: string | null;
@@ -3195,6 +3414,7 @@ export type Database = {
           invoice_number?: string | null;
           invoice_path?: string | null;
           invoiced_at?: string | null;
+          needs_confirmation?: boolean;
           notes?: string | null;
           order_number?: string;
           ordered_total_paisa?: number;
@@ -3203,6 +3423,8 @@ export type Database = {
           paid_paisa?: number;
           payment_method?: Database["public"]["Enums"]["order_payment_method"];
           payment_status?: Database["public"]["Enums"]["order_payment_status"];
+          phone_confirmed_at?: string | null;
+          phone_confirmed_by?: string | null;
           picking_at?: string | null;
           placed_by?: string | null;
           placed_by_name?: string | null;
@@ -3211,6 +3433,9 @@ export type Database = {
           received_by?: string | null;
           returned_at?: string | null;
           scheme_discount_paisa?: number;
+          shop_confirm_requested_at?: string | null;
+          shop_confirmed_at?: string | null;
+          shop_confirmed_by?: string | null;
           shop_id?: string;
           source?: Database["public"]["Enums"]["order_source"];
           status?: Database["public"]["Enums"]["order_status"];
@@ -3250,6 +3475,13 @@ export type Database = {
             referencedColumns: ["id"];
           },
           {
+            foreignKeyName: "orders_phone_confirmed_by_fkey";
+            columns: ["phone_confirmed_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
             foreignKeyName: "orders_placed_by_fkey";
             columns: ["placed_by"];
             isOneToOne: false;
@@ -3259,6 +3491,13 @@ export type Database = {
           {
             foreignKeyName: "orders_received_by_fkey";
             columns: ["received_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "orders_shop_confirmed_by_fkey";
+            columns: ["shop_confirmed_by"];
             isOneToOne: false;
             referencedRelation: "profiles";
             referencedColumns: ["id"];
@@ -7950,6 +8189,7 @@ export type Database = {
           cancelled_at: string | null;
           cancelled_by: string | null;
           client_request_id: string | null;
+          confirmation_reasons: string[];
           confirmed_at: string | null;
           created_at: string;
           created_by: string | null;
@@ -7966,6 +8206,7 @@ export type Database = {
           invoice_number: string | null;
           invoice_path: string | null;
           invoiced_at: string | null;
+          needs_confirmation: boolean;
           notes: string | null;
           order_number: string;
           ordered_total_paisa: number;
@@ -7974,6 +8215,8 @@ export type Database = {
           paid_paisa: number;
           payment_method: Database["public"]["Enums"]["order_payment_method"];
           payment_status: Database["public"]["Enums"]["order_payment_status"];
+          phone_confirmed_at: string | null;
+          phone_confirmed_by: string | null;
           picking_at: string | null;
           placed_by: string | null;
           placed_by_name: string | null;
@@ -7982,6 +8225,9 @@ export type Database = {
           received_by: string | null;
           returned_at: string | null;
           scheme_discount_paisa: number;
+          shop_confirm_requested_at: string | null;
+          shop_confirmed_at: string | null;
+          shop_confirmed_by: string | null;
           shop_id: string;
           source: Database["public"]["Enums"]["order_source"];
           status: Database["public"]["Enums"]["order_status"];
@@ -8000,17 +8246,74 @@ export type Database = {
       };
       cart_summary: { Args: { p_shop_id: string }; Returns: Json };
       catalog_facets: { Args: { p_category_id?: string; p_shop_id: string }; Returns: Json };
+      chat_unread_count: { Args: { p_org_id?: string; p_shop_id?: string }; Returns: number };
       check_rate_limit: {
         Args: { p_key: string; p_max: number; p_window_s: number };
         Returns: boolean;
       };
+      claim_push_messages: {
+        Args: { p_limit?: number };
+        Returns: {
+          attempts: number;
+          body: string | null;
+          channel: Database["public"]["Enums"]["message_channel"];
+          created_at: string;
+          created_by: string | null;
+          dedupe_key: string | null;
+          error: string | null;
+          id: string;
+          kind: Database["public"]["Enums"]["message_kind"];
+          org_id: string | null;
+          payload: NonNullable<Json>;
+          provider: string | null;
+          provider_message_id: string | null;
+          scheduled_at: string;
+          sent_at: string | null;
+          shop_id: string | null;
+          status: Database["public"]["Enums"]["message_status"];
+          template: string | null;
+          to_phone: string | null;
+          to_user_id: string | null;
+          updated_at: string;
+        }[];
+        SetofOptions: {
+          from: "*";
+          to: "message_outbox";
+          isOneToOne: false;
+          isSetofReturn: true;
+        };
+      };
       clear_cart: { Args: { p_org_id?: string; p_shop_id: string }; Returns: undefined };
+      confirm_delivery: {
+        Args: {
+          p_cash_collected_paisa?: number;
+          p_lines?: Json;
+          p_order_id: string;
+          p_otp: string;
+        };
+        Returns: Json;
+      };
+      confirm_order_as_shop: { Args: { p_order_id: string }; Returns: Json };
+      conversation_detail: {
+        Args: {
+          p_as?: Database["public"]["Enums"]["chat_side"];
+          p_before?: string;
+          p_conversation_id: string;
+          p_limit?: number;
+        };
+        Returns: Json;
+      };
       delivery_slots: {
         Args: { p_days?: number; p_org_id: string; p_shop_id: string };
         Returns: {
           slot_end: string;
           slot_start: string;
         }[];
+      };
+      mark_conversation_read: { Args: { p_conversation_id: string }; Returns: undefined };
+      my_conversations: {
+        Args: { p_org_id?: string; p_shop_id?: string; p_support_queue?: boolean };
+        Returns: Json;
       };
       my_role_contexts: {
         Args: Record<PropertyKey, never>;
@@ -8024,6 +8327,27 @@ export type Database = {
         }[];
       };
       next_counter: { Args: { p_scope: string }; Returns: number };
+      open_conversation: {
+        Args: {
+          p_kind: Database["public"]["Enums"]["conversation_kind"];
+          p_org_id?: string;
+          p_shop_id?: string;
+        };
+        Returns: string;
+      };
+      order_delivery_code: { Args: { p_order_id: string }; Returns: string };
+      org_dashboard: { Args: { p_org_id: string }; Returns: Json };
+      org_order_detail: { Args: { p_order_id: string }; Returns: Json };
+      org_order_inbox: {
+        Args: {
+          p_limit?: number;
+          p_offset?: number;
+          p_org_id: string;
+          p_query?: string;
+          p_tab?: string;
+        };
+        Returns: Json;
+      };
       place_order: {
         Args: {
           p_client_request_id: string;
@@ -8096,6 +8420,10 @@ export type Database = {
           isOneToOne: true;
           isSetofReturn: false;
         };
+      };
+      register_push_subscription: {
+        Args: { p_auth: string; p_endpoint: string; p_p256dh: string; p_user_agent?: string };
+        Returns: string;
       };
       register_shop: {
         Args: {
@@ -8261,6 +8589,7 @@ export type Database = {
           isSetofReturn: false;
         };
       };
+      request_shop_confirmation: { Args: { p_order_id: string }; Returns: Json };
       resubmit_organization: {
         Args: { p_org_id: string };
         Returns: {
@@ -8351,6 +8680,15 @@ export type Database = {
         };
       };
       seed_reset: { Args: Record<PropertyKey, never>; Returns: Json };
+      send_chat_message: {
+        Args: {
+          p_as?: Database["public"]["Enums"]["chat_side"];
+          p_body: string;
+          p_conversation_id: string;
+          p_order_id?: string;
+        };
+        Returns: Json;
+      };
       set_cart_item: {
         Args: {
           p_distributor_product_id: string;
@@ -8475,6 +8813,16 @@ export type Database = {
         Args: { p_context_id?: string; p_role: Database["public"]["Enums"]["app_role"] };
         Returns: undefined;
       };
+      unregister_push_subscription: { Args: { p_endpoint: string }; Returns: undefined };
+      update_order_status: {
+        Args: {
+          p_note?: string;
+          p_order_id: string;
+          p_phone_confirmed?: boolean;
+          p_to_status: Database["public"]["Enums"]["order_status"];
+        };
+        Returns: Json;
+      };
     };
     Enums: {
       ai_action_status: "proposed" | "confirmed" | "executed" | "cancelled" | "failed" | "undone";
@@ -8492,7 +8840,9 @@ export type Database = {
       cart_item_source: "manual" | "munshi" | "parchi" | "reorder" | "booker";
       cash_book_entry_type: "opening" | "closing" | "cash_in" | "cash_out";
       cash_settlement_status: "pending" | "approved" | "disputed";
+      chat_side: "shop" | "org" | "user" | "staff" | "system";
       content_owner_type: "platform" | "org" | "shop";
+      conversation_kind: "trade" | "support";
       counterparty_type: "shop" | "shop_customer";
       credit_note_status: "issued" | "applied" | "void";
       customer_order_status:
@@ -8551,7 +8901,8 @@ export type Database = {
         | "promotion"
         | "delivery"
         | "support"
-        | "system";
+        | "system"
+        | "chat";
       order_payment_method: "cod" | "credit" | "jazzcash" | "easypaisa" | "raast" | "bank_transfer";
       order_payment_status: "unpaid" | "partially_paid" | "paid" | "refunded";
       order_source: "app" | "munshi" | "parchi" | "reorder" | "booker" | "api" | "whatsapp";
@@ -8770,7 +9121,9 @@ export const Constants = {
       cart_item_source: ["manual", "munshi", "parchi", "reorder", "booker"],
       cash_book_entry_type: ["opening", "closing", "cash_in", "cash_out"],
       cash_settlement_status: ["pending", "approved", "disputed"],
+      chat_side: ["shop", "org", "user", "staff", "system"],
       content_owner_type: ["platform", "org", "shop"],
+      conversation_kind: ["trade", "support"],
       counterparty_type: ["shop", "shop_customer"],
       credit_note_status: ["issued", "applied", "void"],
       customer_order_status: [
@@ -8832,6 +9185,7 @@ export const Constants = {
         "delivery",
         "support",
         "system",
+        "chat",
       ],
       order_payment_method: ["cod", "credit", "jazzcash", "easypaisa", "raast", "bank_transfer"],
       order_payment_status: ["unpaid", "partially_paid", "paid", "refunded"],
