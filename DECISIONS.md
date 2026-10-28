@@ -169,6 +169,28 @@ section. Format: **decision** — reason (date).
 
 ## Backend
 
+- **The hosted project is reused, wiped and set up over the Management API** — the owner
+  chose to keep `vgdwsisihixwsuuikhvp` and drop the old app's data (done: no tables, users or
+  files remain). `pnpm hosted:setup` applies the migrations over HTTPS
+  (`/database/query`, one transaction per file, recorded under the file's version so the
+  CLI agrees later), sets Auth like `config.toml`, and with `--seed` loads the demo. HTTPS
+  because cloud sandboxes and some networks block direct Postgres connections. (2026-10-29)
+- **Big orders and first orders are confirmed by phone before they ship** — set at insert by
+  a trigger (`confirm_above_paisa`, default Rs 20,000). The distributor ticks "confirmed on
+  the phone" or asks the dukan to confirm in the app; dispatch refuses until one happens.
+  Delivery needs the dukan's code, and posts the invoice, ledger and cash in one RPC.
+  (2026-10-29)
+- **Chat lives in Postgres, not WhatsApp** — conversations and messages with RLS and
+  Realtime, so support and order context stay in the app. WhatsApp and phone stay one tap
+  away (`wa.me`, `tel:`) for shopkeepers who prefer them. (2026-10-29)
+- **Push goes through the outbox** — a notification row queues a `push` message only when the
+  user has a subscription; actions flush it with `after()` and `/api/push/flush` (cron,
+  `CRON_SECRET`) catches the rest. With no live subscription left the message is cancelled,
+  not marked sent. Without VAPID keys the Sandbox sender records it. (2026-10-29)
+- **Munshi drafts products with structured output, and has a parser fallback** — the agent
+  model returns a JSON-schema draft from a line or a photo; without a key, a rule-based parser
+  reads the common shorthand ("rate 1750, MRP 1950, carton 12", "12 wala dabba") and the UI
+  says Sandbox. The distributor always reviews before saving. (2026-10-29)
 - **Develop against a local Supabase stack (Docker) — the existing hosted project is not
   touched.** The connected project (`zaidai-create's Project`, ap-south-1) contains the
   previous TezDukan app's schema and data (profiles, shops, products, orders…) whose table

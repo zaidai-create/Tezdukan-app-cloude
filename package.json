@@ -25,7 +25,8 @@
     "db:types": "supabase gen types typescript --local --schema public > src/lib/supabase/database.types.ts && prettier --write src/lib/supabase/database.types.ts",
     "db:migration": "supabase migration new",
     "seed": "tsx --env-file-if-exists=.env.local scripts/seed.ts",
-    "seed:reset": "tsx --env-file-if-exists=.env.local scripts/seed-reset.ts"
+    "seed:reset": "tsx --env-file-if-exists=.env.local scripts/seed-reset.ts",
+    "hosted:setup": "tsx scripts/hosted-setup.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.3.0",

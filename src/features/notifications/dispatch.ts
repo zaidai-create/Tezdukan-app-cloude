@@ -83,10 +83,14 @@ export async function flushPushOutbox(limit = 50): Promise<{ claimed: number }> 
 
     const sent = results.some((r) => r.status === "sent");
     const failure = results.find((r) => r.status === "failed");
+    // No live subscription (the phone unsubscribed, or every endpoint had expired): nothing
+    // was delivered and nothing should be retried, so it is cancelled rather than sent.
+    const status =
+      sender.provider === "sandbox" ? "sandbox" : sent ? "sent" : failure ? "failed" : "cancelled";
     await admin
       .from("message_outbox")
       .update({
-        status: sender.provider === "sandbox" ? "sandbox" : sent || !failure ? "sent" : "failed",
+        status,
         provider: sender.provider,
         sent_at: sent ? new Date().toISOString() : null,
         error: failure?.status === "failed" ? failure.error.slice(0, 500) : null,
