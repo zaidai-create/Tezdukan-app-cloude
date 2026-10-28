@@ -22,6 +22,7 @@ import { defaultUnit, localName, ltr, margin, schemeLabel, unitName } from "../l
 import { quantityIn, useCart, useProductDetail, useProductSheet, useSetCartItem } from "../queries";
 import type { CatalogItem, ProductDetail } from "../schemas";
 import { CatalogCard } from "./catalog-card";
+import { ProfitCalculator } from "./profit-calculator";
 
 /**
  * Product detail as a bottom sheet over the page the dukandar is browsing: photo, price per
@@ -135,6 +136,16 @@ function ProductSheetBody({ shopId, detail }: { shopId: string; detail: ProductD
             </div>
           ) : null}
         </div>
+
+        {item.mrp_paisa > 0 ? (
+          <ProfitCalculator
+            key={unit.id}
+            costPaisa={item.price_paisa}
+            mrpPaisa={item.mrp_paisa}
+            startPieces={(quantity || 1) * unit.base_qty}
+            scheme={item.scheme}
+          />
+        ) : null}
 
         {item.pack_units.length > 1 ? (
           <fieldset className="mt-4">

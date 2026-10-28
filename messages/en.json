@@ -409,7 +409,9 @@
       "checkout": "Checkout",
       "checkoutTotal": "Checkout · {total}",
       "splitNote": "{count, plural, one {# order} other {# orders}}: one per distributor",
-      "clear": "Clear cart"
+      "clear": "Clear cart",
+      "expectedProfit": "Your profit at MRP",
+      "expectedProfitHint": "If you sell everything at MRP"
     },
     "checkout": {
       "title": "Checkout",
@@ -609,7 +611,24 @@
       "order_not_found": "Order not found."
     },
     "searchFor": "Search “{name}”",
-    "pieces": "{count, number} pcs"
+    "pieces": "{count, number} pcs",
+    "profitCalc": {
+      "title": "Profit calculator",
+      "hint": "See what you earn before you order",
+      "buyAt": "You buy at",
+      "perPieceShort": "{price} / pc",
+      "sellAt": "You sell at, per piece",
+      "useMrp": "Use MRP",
+      "pieces": "Pieces",
+      "less": "Fewer pieces",
+      "more": "More pieces",
+      "freePieces": "+{count, number} free from the scheme",
+      "cost": "You pay",
+      "revenue": "You get",
+      "profit": "Your profit",
+      "perPiece": "{amount} per piece · {percent, number}% margin",
+      "loss": "Loss: this price is below your cost"
+    }
   },
   "notifications": {
     "title": "Notifications",

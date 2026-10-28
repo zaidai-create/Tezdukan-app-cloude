@@ -411,7 +411,9 @@
       "checkout": "چیک آؤٹ",
       "checkoutTotal": "چیک آؤٹ · {total}",
       "splitNote": "{count, plural, one {# آرڈر} other {# آرڈر}}: ہر ڈسٹری بیوٹر کا الگ",
-      "clear": "کارٹ خالی کریں"
+      "clear": "کارٹ خالی کریں",
+      "expectedProfit": "MRP پر آپ کا منافع",
+      "expectedProfitHint": "اگر سب کچھ MRP پر بیچیں"
     },
     "checkout": {
       "title": "چیک آؤٹ",
@@ -609,6 +611,23 @@
       "return_window_closed": "کلیم صرف ڈیلیوری کے 7 دن کے اندر ہو سکتا ہے۔",
       "return_exceeds_delivered": "جتنا پہنچا اس سے زیادہ کا کلیم نہیں ہو سکتا۔",
       "order_not_found": "آرڈر نہیں ملا۔"
+    },
+    "profitCalc": {
+      "title": "منافع کیلکولیٹر",
+      "hint": "آرڈر سے پہلے دیکھیں آپ کتنا کمائیں گے",
+      "buyAt": "آپ کی خرید",
+      "perPieceShort": "{price} / پیس",
+      "sellAt": "آپ کی فروخت، فی پیس",
+      "useMrp": "MRP لگائیں",
+      "pieces": "پیس",
+      "less": "کم پیس",
+      "more": "زیادہ پیس",
+      "freePieces": "+{count, number} اسکیم سے مفت",
+      "cost": "آپ دیں گے",
+      "revenue": "آپ کو ملیں گے",
+      "profit": "آپ کا منافع",
+      "perPiece": "{amount} فی پیس · {percent, number}% مارجن",
+      "loss": "نقصان: یہ قیمت آپ کی خرید سے کم ہے"
     }
   },
   "notifications": {

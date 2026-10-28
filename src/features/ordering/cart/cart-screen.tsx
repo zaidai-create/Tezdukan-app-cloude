@@ -10,6 +10,7 @@ import {
   Store,
   Trash2,
   Truck,
+  TrendingUp,
   Wallet,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -21,6 +22,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Link } from "@/i18n/navigation";
 import { formatRs } from "@/lib/money";
+import { cartProfit } from "../profit";
 import { categoryIcon } from "../category-style";
 import { storageUrl } from "../images";
 import { localName } from "../labels";
@@ -130,6 +132,7 @@ function LineRow({ line, shopId }: { line: CartLine; shopId: string }) {
 function GroupCard({ group, shopId }: { group: CartGroup; shopId: string }) {
   const t = useTranslations("ordering");
   const net = group.subtotal_paisa - group.scheme_discount_paisa;
+  const profit = cartProfit(group.items);
   const freeAbove = group.free_delivery_above_paisa;
   return (
     <section
@@ -216,6 +219,15 @@ function GroupCard({ group, shopId }: { group: CartGroup; shopId: string }) {
           <dt>{t("cart.total")}</dt>
           <dd>{formatRs(group.total_paisa)}</dd>
         </div>
+        {profit.profit > 0 ? (
+          <div className="mt-1 flex items-center justify-between rounded-md bg-primary-soft px-3 py-2">
+            <dt className="flex items-center gap-1.5 font-semibold text-primary-strong">
+              <TrendingUp aria-hidden className="size-4" />
+              {t("cart.expectedProfit")}
+            </dt>
+            <dd className="font-bold text-primary-strong">{formatRs(profit.profit)}</dd>
+          </div>
+        ) : null}
         {group.account_status !== "none" && group.account_status !== "blocked" ? (
           <p className="mt-1 flex items-center gap-1.5 text-xs text-muted">
             <Wallet aria-hidden className="size-3.5" />

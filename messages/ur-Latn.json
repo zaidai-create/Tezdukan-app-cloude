@@ -411,7 +411,9 @@
       "checkout": "Checkout",
       "checkoutTotal": "Checkout · {total}",
       "splitNote": "{count, plural, one {# order} other {# orders}}: har distributor ka alag",
-      "clear": "Cart khaali karein"
+      "clear": "Cart khaali karein",
+      "expectedProfit": "MRP par aap ka munafa",
+      "expectedProfitHint": "Agar sab kuch MRP par bechein"
     },
     "checkout": {
       "title": "Checkout",
@@ -609,6 +611,23 @@
       "return_window_closed": "Claim sirf delivery ke 7 din ke andar ho sakta hai.",
       "return_exceeds_delivered": "Jitna pohancha us se zyada ka claim nahi ho sakta.",
       "order_not_found": "Order nahi mila."
+    },
+    "profitCalc": {
+      "title": "Munafa calculator",
+      "hint": "Order se pehle dekhein aap kitna kamayenge",
+      "buyAt": "Aap ki khareed",
+      "perPieceShort": "{price} / piece",
+      "sellAt": "Aap ki farokht, fi piece",
+      "useMrp": "MRP lagayein",
+      "pieces": "Pieces",
+      "less": "Kam pieces",
+      "more": "Zyada pieces",
+      "freePieces": "+{count, number} scheme se muft",
+      "cost": "Aap denge",
+      "revenue": "Aap ko milenge",
+      "profit": "Aap ka munafa",
+      "perPiece": "{amount} fi piece · {percent, number}% margin",
+      "loss": "Nuqsan: ye qeemat aap ki khareed se kam hai"
     }
   },
   "notifications": {
