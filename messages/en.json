@@ -62,7 +62,8 @@
     "badgeCount": "{count, plural, one {# item} other {# items}}",
     "ledger": "Khata",
     "distributors": "Distributors",
-    "chat": "Chat"
+    "chat": "Chat",
+    "support": "Support"
   },
   "roles": {
     "customer": "Customer",
@@ -213,7 +214,9 @@
     "matchDeviceHint": "Follow your phone's light or dark mode."
   },
   "account": {
-    "yourRoles": "Your roles"
+    "yourRoles": "Your roles",
+    "help": "Help & support",
+    "helpHint": "Chat with the TezDukan team"
   },
   "command": {
     "title": "Search and commands",
@@ -812,6 +815,65 @@
       "otp_locked": "Too many wrong codes. Ask the dukandar to call you.",
       "generic": "Something went wrong. Please try again.",
       "offline": "You're offline. Try again when you're connected."
+    }
+  },
+  "chat": {
+    "title": "Chat",
+    "open": "Messages",
+    "unread": "{count, plural, one {# unread message} other {# unread messages}}",
+    "support": "TezDukan Support",
+    "supportHint": "Questions, problems with an order, or help with the app",
+    "supportReplyTime": "Usually replies within 15 minutes, 9 am to 9 pm",
+    "startTitle": "Message a distributor",
+    "startHint": "Ask about stock, rates or your delivery.",
+    "empty": "No chats yet",
+    "emptyHint": "Message a distributor about stock, rates or a delivery.",
+    "emptyDistributor": "Dukans that message you show up here.",
+    "you": "You",
+    "noMessages": "Say Assalam-o-Alaikum to start the chat.",
+    "placeholder": "Write a message",
+    "send": "Send",
+    "sending": "Sending",
+    "failed": "Not sent. Tap to retry.",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "earlier": "Load earlier messages",
+    "aboutOrder": "About order {number}",
+    "call": "Call",
+    "whatsapp": "WhatsApp",
+    "back": "Back to chats",
+    "autoReply": "Thanks for writing to TezDukan. Our team usually replies within 15 minutes between 9 am and 9 pm. For anything urgent, use the WhatsApp button above.",
+    "quick": {
+      "shop": {
+        "r1": "When will my order arrive?",
+        "r2": "Please send today's rate list",
+        "r3": "Is this in stock?",
+        "r4": "I've made the payment"
+      },
+      "org": {
+        "r1": "Your order is ready",
+        "r2": "Delivery tomorrow morning",
+        "r3": "This item is out of stock right now",
+        "r4": "Thank you!"
+      },
+      "support": {
+        "r1": "My order is late",
+        "r2": "I have a payment problem",
+        "r3": "I need help with the app"
+      }
+    },
+    "errors": {
+      "message_empty": "Write a message first.",
+      "message_too_long": "That message is too long.",
+      "rate_limited": "Slow down a little and try again.",
+      "conversation_not_found": "This chat isn't available.",
+      "not_allowed": "You can't chat here.",
+      "generic": "Couldn't send. Please try again.",
+      "offline": "You're offline. It will need sending again."
+    },
+    "queue": {
+      "title": "Support chats",
+      "empty": "No support chats yet"
     }
   }
 }

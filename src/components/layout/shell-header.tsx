@@ -1,4 +1,5 @@
 import { connection } from "next/server";
+import { ChatUnreadSync } from "@/features/chat/unread";
 import { NotificationsLive } from "@/features/notifications/components/notifications-live";
 import { scopeOf } from "@/features/notifications/schemas";
 import { roleHome, type AppRole } from "@/lib/auth/roles";
@@ -12,7 +13,14 @@ async function ShellHeader({ role, desktopFirst }: { role: AppRole; desktopFirst
   await connection();
   const session = await requireRole(role, roleHome[role]);
   const groups = sidebarGroups[role] ?? [];
-  const live = <NotificationsLive scope={scopeOf(session)} />;
+  const context = session.activeContextId ?? undefined;
+  const live = (
+    <>
+      <NotificationsLive scope={scopeOf(session)} />
+      {role === "dukandar" ? <ChatUnreadSync shopId={context} /> : null}
+      {role === "distributor" ? <ChatUnreadSync orgId={context} /> : null}
+    </>
+  );
   if (desktopFirst)
     return (
       <>

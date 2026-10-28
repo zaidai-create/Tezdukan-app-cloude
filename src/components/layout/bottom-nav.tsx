@@ -3,6 +3,7 @@
 import { cn } from "cn";
 import { LayoutGroup, motion, useReducedMotion } from "motion/react";
 import { useTranslations } from "next-intl";
+import { useChatUnread } from "@/features/chat/unread";
 import { useCartCount } from "@/features/ordering/queries";
 import { Link, usePathname } from "@/i18n/navigation";
 import { haptic } from "@/lib/haptics";
@@ -40,6 +41,7 @@ function BottomNavView({
   const t = useTranslations("nav");
   const reduceMotion = useReducedMotion();
   const cartCount = useCartCount((s) => s.count);
+  const chatUnread = useChatUnread((s) => s.count);
 
   return (
     <nav
@@ -58,7 +60,9 @@ function BottomNavView({
             const active = pathname !== null && isActive(pathname, item);
             const Icon = navIcons[item.icon];
             const label = t(item.label);
-            const badge = badges?.[item.href] ?? (item.icon === "cart" ? cartCount : 0);
+            const badge =
+              badges?.[item.href] ??
+              (item.icon === "cart" ? cartCount : item.icon === "chat" ? chatUnread : 0);
             return (
               <li key={item.href} className={cn("flex", active ? "shrink-0" : "flex-1")}>
                 <Link

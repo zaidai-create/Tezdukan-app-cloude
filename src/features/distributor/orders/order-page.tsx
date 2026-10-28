@@ -148,6 +148,7 @@ async function OrderContent({ params }: Props) {
           </div>
           <ShopContact
             shop={shop}
+            chatHref={`/distributor/chat/with/${shop.id}`}
             whatsappText={tOrdering("order.orderNumber", { number: order.order_number })}
           />
           <dl className="num grid grid-cols-2 gap-x-4 gap-y-2 rounded-md bg-subtle p-3 text-sm sm:grid-cols-4">

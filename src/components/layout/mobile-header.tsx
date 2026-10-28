@@ -1,6 +1,7 @@
 import { cn } from "cn";
 import type * as React from "react";
 import { MunshiButton } from "@/components/munshi/munshi-button";
+import { ChatHeaderButton } from "@/features/chat/unread";
 import { NotificationBell } from "@/features/notifications/components/notification-bell";
 import { scopeOf } from "@/features/notifications/schemas";
 import type { ShellSession } from "@/lib/auth/session-types";
@@ -25,9 +26,10 @@ function MobileHeader({
     <header
       className={cn("material pt-safe sticky top-0 z-30 border-b border-border/70", className)}
     >
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-2 px-4">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-1.5 px-4">
         <ContextButton session={session} className="min-w-0 flex-1" />
         <MunshiButton />
+        {session.activeRole === "dukandar" ? <ChatHeaderButton href="/dukan/chat" /> : null}
         <NotificationBell scope={scopeOf(session)} />
         <UserMenu session={session} />
       </div>

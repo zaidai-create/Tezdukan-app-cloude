@@ -23,6 +23,7 @@ export type NavLabel =
   | "ledger"
   | "distributors"
   | "chat"
+  | "support"
   | "account"
   | "dashboard"
   | "beat"
@@ -42,6 +43,7 @@ export type NavIcon =
   | "dukan"
   | "ledger"
   | "chat"
+  | "support"
   | "account"
   | "dashboard"
   | "beat"
@@ -76,6 +78,7 @@ export const mobileTabs: Partial<Record<AppRole, NavItem[]>> = {
   distributor: [
     { href: "/distributor", label: "home", icon: "home", exact: true },
     { href: "/distributor/orders", label: "orders", icon: "orders" },
+    { href: "/distributor/chat", label: "chat", icon: "chat" },
     { href: "/distributor/account", label: "account", icon: "account" },
   ],
 };
@@ -88,6 +91,7 @@ export const sidebarGroups: Partial<Record<AppRole, NavGroup[]>> = {
       items: [
         { href: "/distributor", label: "dashboard", icon: "dashboard", exact: true },
         { href: "/distributor/orders", label: "orders", icon: "orders" },
+        { href: "/distributor/chat", label: "chat", icon: "chat" },
       ],
     },
     {
@@ -98,7 +102,10 @@ export const sidebarGroups: Partial<Record<AppRole, NavGroup[]>> = {
   admin: [
     {
       label: "main",
-      items: [{ href: "/admin", label: "overview", icon: "admin", exact: true }],
+      items: [
+        { href: "/admin", label: "overview", icon: "admin", exact: true },
+        { href: "/admin/support", label: "support", icon: "support" },
+      ],
     },
     { label: "account", items: [{ href: "/admin/account", label: "account", icon: "account" }] },
   ],
@@ -112,6 +119,7 @@ export const sidebarGroups: Partial<Record<AppRole, NavGroup[]>> = {
         { href: "/dukan/orders", label: "orders", icon: "orders" },
         { href: "/dukan/ledger", label: "ledger", icon: "ledger" },
         { href: "/dukan/distributors", label: "distributors", icon: "dukan" },
+        { href: "/dukan/chat", label: "chat", icon: "chat" },
       ],
     },
     { label: "account", items: [{ href: "/dukan/account", label: "account", icon: "account" }] },

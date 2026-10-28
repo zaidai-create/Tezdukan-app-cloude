@@ -8,6 +8,7 @@ import {
   KeyRound,
   MessageCircle,
   MessageSquareText,
+  MessagesSquare,
   Phone,
   Store,
   UserRound,
@@ -202,6 +203,13 @@ async function OrderContent({ params }: Props) {
               <Phone aria-hidden className="size-5 text-primary-strong" />
               {t("order.call")}
             </a>
+            <Link
+              href={`/dukan/chat/with/${order.org_id}`}
+              className="flex h-12 flex-1 items-center justify-center gap-2 rounded-md bg-surface text-sm font-semibold text-ink shadow-card"
+            >
+              <MessagesSquare aria-hidden className="size-5 text-primary-strong" />
+              {t("order.chat")}
+            </Link>
             {orgWhatsapp ? (
               <a
                 href={orgWhatsapp}

@@ -1,6 +1,6 @@
 "use client";
 
-import { LogOut, Repeat } from "lucide-react";
+import { ChevronRight, LifeBuoy, LogOut, Repeat } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { RoleSwitcherSheet } from "@/components/layout/role-switcher";
@@ -12,6 +12,8 @@ import { Switch } from "@/components/ui/switch";
 import { saveThemeAction } from "@/features/auth/actions";
 import { useSignOut } from "@/features/auth/use-sign-out";
 import { LanguageChips } from "@/features/auth/components/language-chips";
+import { PushToggle } from "@/features/notifications/components/push-toggle";
+import { Link } from "@/i18n/navigation";
 import { activeContextOf, type ShellSession } from "@/lib/auth/session-types";
 import { formatPkMobile } from "@/lib/phone";
 import { useTheme } from "@/lib/theme/use-theme";
@@ -141,6 +143,28 @@ function AccountView({ session }: { session: ShellSession }) {
           }
         />
       </Card>
+
+      <PushToggle />
+
+      <Link
+        href={
+          session.activeRole === "dukandar"
+            ? "/dukan/chat/support"
+            : session.activeRole === "distributor"
+              ? "/distributor/chat/support"
+              : "/account/support"
+        }
+        className="flex items-center gap-3 rounded-lg border border-border bg-surface p-4 shadow-card"
+      >
+        <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary-strong">
+          <LifeBuoy aria-hidden className="size-5" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block font-semibold text-ink">{t("account.help")}</span>
+          <span className="block text-sm text-muted">{t("account.helpHint")}</span>
+        </span>
+        <ChevronRight aria-hidden className="size-5 text-muted rtl:-scale-x-100" />
+      </Link>
 
       <Button variant="danger-soft" size="lg" block loading={signingOut} onClick={signOut}>
         {signingOut ? null : <LogOut aria-hidden />}

@@ -62,7 +62,8 @@
     "badgeCount": "{count, plural, one {# cheez} other {# cheezain}}",
     "ledger": "Khata",
     "distributors": "Distributors",
-    "chat": "Chat"
+    "chat": "Chat",
+    "support": "Support"
   },
   "roles": {
     "customer": "Gaahak",
@@ -213,7 +214,9 @@
     "matchDeviceHint": "Phone ka light ya dark mode apnayein."
   },
   "account": {
-    "yourRoles": "Aapke roles"
+    "yourRoles": "Aapke roles",
+    "help": "Madad aur support",
+    "helpHint": "TezDukan team se chat karein"
   },
   "command": {
     "title": "Talaash aur commands",
@@ -812,6 +815,65 @@
       "otp_locked": "Bohat baar ghalat code. Dukandar se call karne ka kahein.",
       "generic": "Kuch ghalat ho gaya. Dobara koshish karein.",
       "offline": "Aap offline hain. Internet aane par dobara koshish karein."
+    }
+  },
+  "chat": {
+    "title": "Chat",
+    "open": "Messages",
+    "unread": "{count, plural, one {# naya message} other {# naye messages}}",
+    "support": "TezDukan Support",
+    "supportHint": "Sawal, order ka masla, ya app mein madad",
+    "supportReplyTime": "Aam taur par 15 minute mein jawab, subah 9 se raat 9 baje tak",
+    "startTitle": "Distributor ko message bhejein",
+    "startHint": "Stock, rate ya delivery ke baare mein poochein.",
+    "empty": "Abhi koi chat nahi",
+    "emptyHint": "Stock, rate ya delivery ke baare mein distributor ko message bhejein.",
+    "emptyDistributor": "Jo dukanein aap ko message bhejengi wo yahan nazar aayengi.",
+    "you": "Aap",
+    "noMessages": "Chat shuru karne ke liye Assalam-o-Alaikum kahein.",
+    "placeholder": "Message likhein",
+    "send": "Bhejein",
+    "sending": "Bhej rahe hain",
+    "failed": "Nahi gaya. Dobara bhejne ke liye tap karein.",
+    "today": "Aaj",
+    "yesterday": "Kal",
+    "earlier": "Purane messages dekhein",
+    "aboutOrder": "Order {number} ke baare mein",
+    "call": "Call",
+    "whatsapp": "WhatsApp",
+    "back": "Chats par wapas",
+    "autoReply": "TezDukan ko likhne ka shukriya. Hamari team subah 9 se raat 9 baje ke dauran aam taur par 15 minute mein jawab deti hai. Jaldi ho to upar WhatsApp button istemal karein.",
+    "quick": {
+      "shop": {
+        "r1": "Order kab tak aayega?",
+        "r2": "Aaj ka rate list bhej dein",
+        "r3": "Stock available hai?",
+        "r4": "Payment kar di hai"
+      },
+      "org": {
+        "r1": "Aap ka order tayyar hai",
+        "r2": "Kal subah delivery hogi",
+        "r3": "Ye item abhi stock mein nahi",
+        "r4": "Shukriya!"
+      },
+      "support": {
+        "r1": "Order late hai",
+        "r2": "Payment ka masla hai",
+        "r3": "App mein madad chahiye"
+      }
+    },
+    "errors": {
+      "message_empty": "Pehle message likhein.",
+      "message_too_long": "Message bohat lamba hai.",
+      "rate_limited": "Thora ruk kar dobara koshish karein.",
+      "conversation_not_found": "Ye chat dastiyab nahi.",
+      "not_allowed": "Aap yahan chat nahi kar sakte.",
+      "generic": "Message nahi gaya. Dobara koshish karein.",
+      "offline": "Aap offline hain. Message dobara bhejna hoga."
+    },
+    "queue": {
+      "title": "Support chats",
+      "empty": "Abhi koi support chat nahi"
     }
   }
 }
