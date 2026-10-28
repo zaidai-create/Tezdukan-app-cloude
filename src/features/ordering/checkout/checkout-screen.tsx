@@ -8,6 +8,7 @@ import { useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { EmptyState } from "@/components/states/empty-state";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { StickyActionBar } from "@/components/ui/sticky-action-bar";
 import { Textarea } from "@/components/ui/textarea";
 import { Link, useRouter } from "@/i18n/navigation";
 import { haptic } from "@/lib/haptics";
@@ -279,7 +280,7 @@ function CheckoutScreen({ shopId, shop }: { shopId: string; shop: Shop }) {
         </div>
       </section>
 
-      <div className="material sticky bottom-[calc(var(--bottom-nav-space)+10px)] z-30 rounded-2xl p-1.5 shadow-float lg:bottom-6">
+      <StickyActionBar>
         <Button
           size="lg"
           block
@@ -294,7 +295,7 @@ function CheckoutScreen({ shopId, shop }: { shopId: string; shop: Shop }) {
               : t("checkout.place", { total: formatRs(cart.total_paisa) })}
           </span>
         </Button>
-      </div>
+      </StickyActionBar>
     </div>
   );
 }

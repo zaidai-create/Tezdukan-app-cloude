@@ -286,7 +286,7 @@ async function OrderContent({ params }: Props) {
                   className="size-14 shrink-0 rounded-md"
                 />
                 <div className="min-w-0 flex-1">
-                  <p className="line-clamp-2 text-sm font-semibold text-ink">{name}</p>
+                  <p className="line-clamp-2 text-sm font-semibold text-pretty text-ink">{name}</p>
                   <p className="num text-xs text-muted">
                     {item.quantity} × {item.pack_label} · {formatRs(item.unit_price_paisa)}
                   </p>

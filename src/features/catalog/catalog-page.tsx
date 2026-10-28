@@ -145,7 +145,9 @@ async function CatalogContent({ searchParams }: Props) {
                     className={cn("size-14 shrink-0 rounded-md", !item.is_active && "opacity-50")}
                   />
                   <span className="min-w-0 flex-1">
-                    <span className="line-clamp-2 text-sm font-semibold text-ink">{item.name}</span>
+                    <span className="line-clamp-2 text-sm font-semibold text-pretty text-ink">
+                      {item.name}
+                    </span>
                     <span className="num block text-sm text-ink">
                       {t("perPiece", { price: formatRs(item.trade_price_paisa) })}
                       {margin !== null ? (

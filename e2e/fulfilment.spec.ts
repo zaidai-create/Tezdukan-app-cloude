@@ -39,10 +39,13 @@ async function toast(page: Page, text: string | RegExp) {
 }
 
 test.describe("distributor fulfilment", () => {
-  const phone = throwawayNumber();
+  // Made in beforeAll: Playwright can run it again in the same worker, and a user with orders
+  // is never fully deleted, so each run needs its own number.
+  let phone = "";
   let order: { id: string; order_number: string };
 
   test.beforeAll(async () => {
+    phone = throwawayNumber();
     const { shopId } = await createDukandar(toE164(phone), PASSWORD, "Usman Ghani");
     order = await placeBigOrder(toE164(phone), PASSWORD, shopId);
   });

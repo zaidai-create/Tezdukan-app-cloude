@@ -20,6 +20,7 @@ import { EmptyState } from "@/components/states/empty-state";
 import { ErrorState } from "@/components/states/error-state";
 import { buttonVariants } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { StickyActionBar } from "@/components/ui/sticky-action-bar";
 import { Link } from "@/i18n/navigation";
 import { formatRs } from "@/lib/money";
 import { cartProfit } from "../profit";
@@ -78,7 +79,7 @@ function LineRow({ line, shopId }: { line: CartLine; shopId: string }) {
         className="size-16 shrink-0 rounded-md"
       />
       <div className="min-w-0 flex-1">
-        <p className="line-clamp-2 text-sm leading-5 font-semibold text-ink">{name}</p>
+        <p className="line-clamp-2 text-sm leading-5 font-semibold text-pretty text-ink">{name}</p>
         <p className="num text-xs text-muted">
           {line.pack_label} · {formatRs(line.unit_price_paisa)}
         </p>
@@ -278,7 +279,7 @@ function CartScreen({ shopId }: { shopId: string }) {
         <GroupCard key={group.org_id} group={group} shopId={shopId} />
       ))}
 
-      <div className="material sticky bottom-[calc(var(--bottom-nav-space)+10px)] z-30 rounded-2xl p-1.5 shadow-float lg:bottom-6">
+      <StickyActionBar>
         <Link
           href="/dukan/checkout"
           aria-disabled={blocked || undefined}
@@ -294,7 +295,7 @@ function CartScreen({ shopId }: { shopId: string }) {
           </span>
           <ArrowRight aria-hidden className="size-6 rtl:-scale-x-100" />
         </Link>
-      </div>
+      </StickyActionBar>
     </div>
   );
 }

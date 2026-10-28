@@ -28,6 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { StickyActionBar } from "@/components/ui/sticky-action-bar";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { storageUrl } from "@/features/ordering/images";
@@ -626,7 +627,7 @@ export function ProductForm({
         </label>
       </section>
 
-      <div className="material sticky bottom-[calc(var(--bottom-nav-space)+10px)] z-30 rounded-2xl p-1.5 shadow-float lg:bottom-6">
+      <StickyActionBar>
         <Button
           size="lg"
           block
@@ -637,7 +638,7 @@ export function ProductForm({
           <Check aria-hidden />
           {t("save")}
         </Button>
-      </div>
+      </StickyActionBar>
     </div>
   );
 }

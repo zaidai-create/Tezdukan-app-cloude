@@ -147,6 +147,8 @@ test.describe("password reset", () => {
 test("Ctrl+K opens the command palette and jumps to a page", async ({ page }) => {
   await signIn(page, "0300 0000002");
   await expect(page).toHaveURL(/\/dukan$/);
+  // The shortcut listener attaches on hydration; a key pressed before it is simply lost.
+  await page.waitForLoadState("networkidle");
   await page.keyboard.press("Control+k");
   const palette = page.getByRole("dialog", { name: messages.en.command.title });
   await expect(palette).toBeVisible();
@@ -158,6 +160,8 @@ test("Ctrl+K opens the command palette and jumps to a page", async ({ page }) =>
 test("a question typed into the palette goes to Munshi", async ({ page }) => {
   await signIn(page, "0300 0000002");
   await expect(page).toHaveURL(/\/dukan$/);
+  // The shortcut listener attaches on hydration; a key pressed before it is simply lost.
+  await page.waitForLoadState("networkidle");
   await page.keyboard.press("Control+k");
   await page
     .getByRole("dialog", { name: messages.en.command.title })

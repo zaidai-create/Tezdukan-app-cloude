@@ -5,7 +5,7 @@ import { Toaster as Sonner } from "sonner";
 import { useTheme } from "@/lib/theme/use-theme";
 
 /**
- * Toasts sit above the bottom nav and cart bar on mobile. Reversible actions pass an
+ * Toasts sit above the bottom nav and cart bar on mobile, and above a screen's action bar. Reversible actions pass an
  * `action: { label: t("common.undo"), onClick }` so people can take them back.
  */
 function Toaster({ dir }: { dir: "ltr" | "rtl" }) {
@@ -15,8 +15,12 @@ function Toaster({ dir }: { dir: "ltr" | "rtl" }) {
       theme={resolved}
       dir={dir}
       position="bottom-center"
-      offset={24}
-      mobileOffset={{ bottom: "calc(var(--bottom-nav-height) + 72px + var(--safe-bottom))" }}
+      // --toast-lift comes from a StickyActionBar on screen: toasts rise above it.
+      offset={{ bottom: "max(24px, var(--toast-lift, 0px))" }}
+      mobileOffset={{
+        bottom:
+          "max(calc(var(--bottom-nav-height) + 72px + var(--safe-bottom)), var(--toast-lift, 0px))",
+      }}
       visibleToasts={3}
       gap={8}
       icons={{

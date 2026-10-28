@@ -35,9 +35,12 @@ test.beforeEach(async ({ context, baseURL }) => {
 });
 
 test.describe("ordering", () => {
-  const phone = throwawayNumber();
+  // Made in beforeAll: Playwright can run it again in the same worker, and a user with orders
+  // is never fully deleted, so each run needs its own number.
+  let phone = "";
 
   test.beforeAll(async () => {
+    phone = throwawayNumber();
     await createDukandar(toE164(phone), PASSWORD, "Bilal Ahmed");
   });
 

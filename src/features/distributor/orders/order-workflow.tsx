@@ -30,6 +30,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { StickyActionBar } from "@/components/ui/sticky-action-bar";
 import { Textarea } from "@/components/ui/textarea";
 import { useRelativeTime } from "@/hooks/use-relative-time";
 import { haptic } from "@/lib/haptics";
@@ -521,7 +522,7 @@ export function OrderActionBar() {
 
   return (
     <>
-      <div className="material sticky bottom-[calc(var(--bottom-nav-space)+10px)] z-30 flex flex-col gap-1.5 rounded-2xl p-1.5 shadow-float lg:bottom-6">
+      <StickyActionBar className="flex flex-col gap-1.5">
         {order.status === "new" ? (
           canManage ? (
             <div className="flex gap-1.5">
@@ -587,7 +588,7 @@ export function OrderActionBar() {
             </div>
           </>
         ) : null}
-      </div>
+      </StickyActionBar>
 
       <RejectSheet order={order} open={rejectOpen} onOpenChange={setRejectOpen} />
       <DeliverSheet order={order} items={items} open={deliverOpen} onOpenChange={setDeliverOpen} />

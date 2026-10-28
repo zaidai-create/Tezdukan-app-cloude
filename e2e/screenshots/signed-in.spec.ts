@@ -3,9 +3,10 @@ import { messages } from "../support/messages";
 
 /**
  * Screenshots of the signed-in shells for design review (`pnpm screenshots`): every role's home,
- * the account page, the role switcher and the Munshi sheet. Needs the demo seed (`pnpm seed`).
+ * the account page, the role switcher, the Munshi sheet, notifications, chat and the distributor
+ * portal. Needs the demo seed (`pnpm seed`).
  */
-const { auth, roles, nav } = messages.en;
+const { auth, roles, nav, notifications } = messages.en;
 const ur = messages.ur;
 const DEMO_PASSWORD = "TezDukan-Demo-1";
 
@@ -93,4 +94,53 @@ test("Munshi sheet (en)", async ({ page, baseURL }, testInfo) => {
   await munshi.first().click();
   await expect(page.getByRole("dialog", { name: nav.munshi })).toBeVisible();
   await capture(page, "munshi-en", testInfo.project.name.replace("screenshots-", ""));
+});
+
+test("notifications (en)", async ({ page, baseURL }, testInfo) => {
+  await signIn(page, baseURL, "0300 0000002", english);
+  await page
+    .getByRole("button", { name: notifications.title })
+    .filter({ visible: true })
+    .first()
+    .click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  await capture(page, "notifications-en", testInfo.project.name.replace("screenshots-", ""));
+});
+
+test("dukan chat list (en)", async ({ page, baseURL }, testInfo) => {
+  await signIn(page, baseURL, "0300 0000002", english);
+  await page.goto("/dukan/chat");
+  await capture(page, "dukan-chat-en", testInfo.project.name.replace("screenshots-", ""));
+});
+
+const distributorScreens = [
+  { name: "distributor-orders", path: "/distributor/orders" },
+  { name: "distributor-catalog", path: "/distributor/catalog" },
+  { name: "distributor-catalog-new", path: "/distributor/catalog/new" },
+  { name: "distributor-chat", path: "/distributor/chat" },
+];
+
+for (const screen of distributorScreens) {
+  for (const variant of screen.name === "distributor-catalog" ? variants : [english]) {
+    test(`${screen.name} (${variant.id})`, async ({ page, baseURL }, testInfo) => {
+      await signIn(page, baseURL, "0300 0000003", variant);
+      await page.goto(screen.path);
+      await capture(
+        page,
+        `${screen.name}-${variant.id}`,
+        testInfo.project.name.replace("screenshots-", ""),
+      );
+    });
+  }
+}
+
+test("distributor order (en)", async ({ page, baseURL }, testInfo) => {
+  await signIn(page, baseURL, "0300 0000003", english);
+  await page.goto("/distributor/orders?tab=done");
+  await page
+    .getByRole("link", { name: /TD-\d+/ })
+    .first()
+    .click();
+  await expect(page).toHaveURL(/\/distributor\/orders\/[0-9a-f-]+$/);
+  await capture(page, "distributor-order-en", testInfo.project.name.replace("screenshots-", ""));
 });

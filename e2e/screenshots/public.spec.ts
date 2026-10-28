@@ -10,6 +10,8 @@ const screens = [
   { name: "verify", path: "/verify?phone=%2B923001234567&mode=signup" },
   { name: "forgot-password", path: "/forgot-password" },
   { name: "offline", path: "/~offline" },
+  // First launch: the splash hands over to the first slide.
+  { name: "welcome", path: "/welcome", settle: 2000 },
   { name: "design-system", path: "/dev/design-system", fullPage: true },
 ];
 
@@ -31,6 +33,7 @@ for (const variant of variants) {
       );
       await page.goto(screen.path);
       await page.evaluate(() => document.fonts.ready);
+      if (screen.settle) await page.waitForTimeout(screen.settle);
       // Capture the finished screen: the logo reveal and rises jump to their end state.
       await page.emulateMedia({ reducedMotion: "reduce" });
       const viewport = testInfo.project.name.replace("screenshots-", "");

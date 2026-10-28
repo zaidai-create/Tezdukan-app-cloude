@@ -277,77 +277,79 @@ export function ChatThread({
         {messages.length === 0 ? (
           <p className="mx-auto my-10 max-w-64 text-center text-muted">{t("noMessages")}</p>
         ) : null}
-        <ol className="flex flex-col gap-1">
-          {messages.map((message, index) => {
-            const previous = messages[index - 1];
-            const newDay =
-              !previous ||
-              dayKey.format(new Date(previous.created_at)) !==
-                dayKey.format(new Date(message.created_at));
-            const mine = message.sender_side === mySide;
-            const system = message.sender_side === "system";
-            const code = SYSTEM_CODES[message.body as keyof typeof SYSTEM_CODES];
-            return (
-              <li key={message.id} className="flex flex-col">
-                {newDay ? (
-                  <span className="my-3 self-center rounded-full bg-subtle px-3 py-1 text-xs font-semibold text-muted">
-                    {dayLabel(message.created_at)}
-                  </span>
-                ) : null}
-                {system ? (
-                  <p className="my-2 flex items-start gap-2 self-center rounded-lg bg-awning-soft px-3 py-2 text-sm text-ink">
-                    <LifeBuoy aria-hidden className="mt-0.5 size-4 shrink-0 text-awning-ink" />
-                    {code ? t(code) : message.body}
-                  </p>
-                ) : (
-                  <div
-                    className={cn(
-                      "flex max-w-[82%] flex-col gap-1 px-3.5 py-2 text-[15px] leading-snug shadow-card",
-                      mine
-                        ? "ms-auto rounded-2xl rounded-ee-md bg-action text-on-action"
-                        : "me-auto rounded-2xl rounded-es-md border border-border/70 bg-surface text-ink",
-                      message.state === "failed" && "opacity-70",
-                    )}
-                  >
-                    {message.order_id && message.order_number && orderBasePath ? (
-                      <Link
-                        href={`${orderBasePath}/${message.order_id}`}
-                        className={cn(
-                          "num flex items-center gap-1.5 text-xs font-semibold underline-offset-2 hover:underline",
-                          mine ? "text-on-action/90" : "text-primary-strong",
-                        )}
-                      >
-                        <Package aria-hidden className="size-3.5" />
-                        {t("aboutOrder", { number: message.order_number })}
-                      </Link>
-                    ) : null}
-                    <p className="break-words whitespace-pre-wrap">{message.body}</p>
-                    <span
+        <div role="log" aria-label={t("open")}>
+          <ol className="flex flex-col gap-1">
+            {messages.map((message, index) => {
+              const previous = messages[index - 1];
+              const newDay =
+                !previous ||
+                dayKey.format(new Date(previous.created_at)) !==
+                  dayKey.format(new Date(message.created_at));
+              const mine = message.sender_side === mySide;
+              const system = message.sender_side === "system";
+              const code = SYSTEM_CODES[message.body as keyof typeof SYSTEM_CODES];
+              return (
+                <li key={message.id} className="flex flex-col">
+                  {newDay ? (
+                    <span className="my-3 self-center rounded-full bg-subtle px-3 py-1 text-xs font-semibold text-muted">
+                      {dayLabel(message.created_at)}
+                    </span>
+                  ) : null}
+                  {system ? (
+                    <p className="my-2 flex items-start gap-2 self-center rounded-lg bg-awning-soft px-3 py-2 text-sm text-ink">
+                      <LifeBuoy aria-hidden className="mt-0.5 size-4 shrink-0 text-awning-ink" />
+                      {code ? t(code) : message.body}
+                    </p>
+                  ) : (
+                    <div
                       className={cn(
-                        "num self-end text-[11px]",
-                        mine ? "text-on-action/75" : "text-muted",
+                        "flex max-w-[82%] flex-col gap-1 px-3.5 py-2 text-[15px] leading-snug shadow-card",
+                        mine
+                          ? "ms-auto rounded-2xl rounded-ee-md bg-action text-on-action"
+                          : "me-auto rounded-2xl rounded-es-md border border-border/70 bg-surface text-ink",
+                        message.state === "failed" && "opacity-70",
                       )}
                     >
-                      {message.state === "sending"
-                        ? t("sending")
-                        : `⁦${formatTime(message.created_at)}⁩`}
-                    </span>
-                  </div>
-                )}
-                {message.state === "failed" ? (
-                  <button
-                    type="button"
-                    onClick={() => void send(message.body, message.id)}
-                    className="ms-auto mt-1 flex items-center gap-1 text-xs font-semibold text-danger-ink"
-                  >
-                    <RotateCw aria-hidden className="size-3.5" />
-                    {t("failed")}
-                  </button>
-                ) : null}
-              </li>
-            );
-          })}
-        </ol>
+                      {message.order_id && message.order_number && orderBasePath ? (
+                        <Link
+                          href={`${orderBasePath}/${message.order_id}`}
+                          className={cn(
+                            "num flex items-center gap-1.5 text-xs font-semibold underline-offset-2 hover:underline",
+                            mine ? "text-on-action/90" : "text-primary-strong",
+                          )}
+                        >
+                          <Package aria-hidden className="size-3.5" />
+                          {t("aboutOrder", { number: message.order_number })}
+                        </Link>
+                      ) : null}
+                      <p className="break-words whitespace-pre-wrap">{message.body}</p>
+                      <span
+                        className={cn(
+                          "num self-end text-[11px]",
+                          mine ? "text-on-action/75" : "text-muted",
+                        )}
+                      >
+                        {message.state === "sending"
+                          ? t("sending")
+                          : `⁦${formatTime(message.created_at)}⁩`}
+                      </span>
+                    </div>
+                  )}
+                  {message.state === "failed" ? (
+                    <button
+                      type="button"
+                      onClick={() => void send(message.body, message.id)}
+                      className="ms-auto mt-1 flex items-center gap-1 text-xs font-semibold text-danger-ink"
+                    >
+                      <RotateCw aria-hidden className="size-3.5" />
+                      {t("failed")}
+                    </button>
+                  ) : null}
+                </li>
+              );
+            })}
+          </ol>
+        </div>
         <div ref={endRef} />
       </div>
 

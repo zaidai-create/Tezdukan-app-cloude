@@ -26,9 +26,12 @@ async function signedIn(browser: Browser, baseURL: string, phone: string, passwo
 }
 
 test.describe("chat", () => {
-  const phone = throwawayNumber();
+  // Made in beforeAll: Playwright can run it again in the same worker, and a user with orders
+  // is never fully deleted, so each run needs its own number.
+  let phone = "";
 
   test.beforeAll(async () => {
+    phone = throwawayNumber();
     await createDukandar(toE164(phone), PASSWORD, "Kamran Kiryana");
   });
 
@@ -51,18 +54,20 @@ test.describe("chat", () => {
     });
     await dukandar.getByLabel(chat.placeholder).fill(question);
     await dukandar.getByRole("button", { name: chat.send, exact: true }).click();
-    await expect(dukandar.getByText(question)).toBeVisible();
+    await expect(dukandar.getByRole("log").getByText(question)).toBeVisible();
 
     await distributor.goto(`${base}/distributor/chat`);
     const row = distributor.getByRole("link").filter({ hasText: question });
     await expect(row).toContainText("Kamran Kiryana Store");
     await row.click();
-    await expect(distributor.getByText(question)).toBeVisible();
+    await expect(distributor.getByRole("log").getByText(question)).toBeVisible();
     await expectAccessible(distributor);
     await distributor.getByRole("button", { name: chat.quick.org.r2 }).click();
 
     // The reply reaches the dukan's open chat without a reload.
-    await expect(dukandar.getByText(chat.quick.org.r2)).toBeVisible({ timeout: 15_000 });
+    await expect(dukandar.getByRole("log").getByText(chat.quick.org.r2)).toBeVisible({
+      timeout: 15_000,
+    });
 
     await distributor.context().close();
     await dukandar.context().close();
@@ -77,7 +82,9 @@ test.describe("chat", () => {
       timeout: 15_000,
     });
     await dukandar.getByRole("button", { name: chat.quick.support.r1 }).click();
-    await expect(dukandar.getByText(chat.autoReply)).toBeVisible({ timeout: 15_000 });
+    await expect(dukandar.getByRole("log").getByText(chat.autoReply)).toBeVisible({
+      timeout: 15_000,
+    });
     await dukandar.context().close();
   });
 });

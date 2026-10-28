@@ -96,7 +96,7 @@ function CatalogCard({
           <button
             type="button"
             onClick={() => openSheet(item.distributor_product_id)}
-            className="line-clamp-2 text-start"
+            className="line-clamp-2 text-start text-pretty"
           >
             {name}
           </button>

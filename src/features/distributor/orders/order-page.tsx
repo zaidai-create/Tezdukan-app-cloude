@@ -130,9 +130,13 @@ async function OrderContent({ params }: Props) {
             <div className="min-w-0 flex-1">
               <h2 className="truncate font-heading text-lg font-bold text-ink">{shop.name}</h2>
               <p className="text-sm text-muted">
-                {[shop.owner_name, phone ? formatPkMobile(phone) : null]
-                  .filter(Boolean)
-                  .join(" · ")}
+                {shop.owner_name}
+                {shop.owner_name && phone ? " · " : null}
+                {phone ? (
+                  <bdi dir="ltr" className="num whitespace-nowrap">
+                    {formatPkMobile(phone)}
+                  </bdi>
+                ) : null}
               </p>
               <p className="text-sm text-muted">
                 {shop.area_name && !shop.address_line?.includes(shop.area_name)

@@ -1,12 +1,13 @@
 import { cn } from "cn";
-import { MapPin, MessageCircle, Phone } from "lucide-react";
+import { MapPin, MessageCircle, MessageSquareShare, Phone } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { mapsHref, telHref, whatsappHref } from "@/lib/contact";
 import type { ShopCard } from "../schemas";
 
+// Icon over label in equal columns: four actions fit a phone without squeezing a label out.
 const action =
-  "flex h-12 min-w-0 flex-1 items-center justify-center gap-2 rounded-md text-sm font-semibold transition-colors";
+  "flex h-16 min-w-0 flex-col items-center justify-center gap-1 rounded-md px-1 text-sm font-semibold transition-colors";
 
 /** Call, WhatsApp, chat and map buttons for a dukan: the distributor's one-tap contact row. */
 export async function ShopContact({
@@ -26,7 +27,7 @@ export async function ShopContact({
   const map = mapsHref(shop.lat, shop.lng);
 
   return (
-    <div className={cn("flex gap-2", className)}>
+    <div className={cn("grid auto-cols-fr grid-flow-col gap-2", className)}>
       {tel ? (
         <a
           href={tel}
@@ -43,7 +44,7 @@ export async function ShopContact({
           rel="noopener noreferrer"
           className={cn(action, "bg-primary-soft text-primary-strong hover:bg-subtle")}
         >
-          <MessageCircle aria-hidden className="size-5" />
+          <MessageSquareShare aria-hidden className="size-5" />
           {t("whatsapp")}
         </a>
       ) : null}
@@ -58,7 +59,7 @@ export async function ShopContact({
           href={map}
           target="_blank"
           rel="noopener noreferrer"
-          className={cn(action, "max-w-24 bg-subtle text-ink hover:bg-subtle-strong")}
+          className={cn(action, "bg-subtle text-ink hover:bg-subtle-strong")}
         >
           <MapPin aria-hidden className="size-5" />
           {t("map")}
