@@ -183,6 +183,26 @@ section. Format: **decision** — reason (date).
 - **Public reads through `security definer` RPCs** — storefront and nearby-dukan queries must
   never expose cost prices, phone numbers or owner details; RPCs return explicit safe columns
   while base tables stay member-only. (2026-10-25)
+- **One pricing path for the cart and the order** — `private.price_cart` prices the cart
+  (tier, then area, then trade price; schemes; delivery fee; minimums; credit) and returns the
+  cart summary; `place_order` orders exactly that summary and snapshots it. What the dukandar
+  sees is what is ordered, and scheme maths lives in one SQL function. (2026-10-28)
+- **Stock is enforced per distributor** (`settings.enforce_stock`, default true): a distributor
+  that keeps stock records blocks orders beyond stock; one that allows backorders (Indus
+  Traders in the seed) still shows "out of stock" but accepts the order. A distributor with no
+  stock records at all counts everything as in stock. (2026-10-28)
+- **Next-day delivery slots** — two-hour windows 10:00-18:00 on the distributor's delivery
+  days, from tomorrow (or the day after past its cutoff). Same-day quick delivery belongs to the
+  customer app in Phase 4. (2026-10-28)
+- **A first order opens a retailer account with zero credit** — the distributor sees the shop
+  in its retailer list straight away; credit stays its own decision (credit.manage). Bookers
+  only see and order from their own distributor. (2026-10-28)
+- **Order numbers `TD-000123` from one platform-wide counter** — short enough to read out on
+  the phone, unique across distributors. The seed's history uses TD-000101..108 and moves the
+  counter past them. (2026-10-28)
+- **Product photos for the demo come from the owner's Stitch designs** — cropped WebP files in
+  `scripts/seed-images/`, uploaded to the `product-images` bucket under `seed/` by `pnpm seed`.
+  Real distributor photos replace them later. (2026-10-28)
 - **Name snapshots on cross-tenant records** (`placed_by_name`, `changed_by_name`) — a
   distributor needs to see who placed an order without read access to other tenants' profiles.
   (2026-10-25)

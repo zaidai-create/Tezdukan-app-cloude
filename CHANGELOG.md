@@ -4,6 +4,21 @@ All notable changes, newest first. Dates are Asia/Karachi.
 
 ## Unreleased
 
+### Phase 2 — Dukandar ordering (in progress)
+
+- Ordering backend (2026-10-28):
+  - Search by name, typo, Urdu or Roman Urdu, or barcode; browse by category, brand or
+    distributor with sorting and filters; product detail with other distributors' offers and
+    what is bought together; one home feed call.
+  - A server cart priced for the shop (tier, area or trade price, schemes, delivery fee, minimum
+    order, credit) and split by distributor, and a checkout that orders every distributor at
+    once or none, safely retried.
+  - Cancel, reorder, rate and return claims, and the distributor ledger with aging.
+  - 68 new database tests (313 in total).
+- Demo data: Mehran Distributors as a second distributor, stock at both warehouses, key-account
+  prices, three home banners, product and category photos from the Stitch designs, and eight
+  TezDukan orders over three weeks with invoices, a payment and a credit note.
+
 ### Design refresh (2026-10-28)
 
 - New look from the owner's Stitch designs, made more Apple-like: deep emerald actions, saffron

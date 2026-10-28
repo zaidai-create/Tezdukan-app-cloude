@@ -10,7 +10,8 @@
  *   because verified product barcodes are not available yet.
  * - One live dukan named "TezDukan" that serves all of Hyderabad, with stock built from the catalog.
  * - Demo users for local development (one per role plus a multi-role user).
- * Image paths are left null on purpose: the UI shows branded initials until real photos exist.
+ * Product, category and banner photos come from the owner's Stitch designs (scripts/seed-images,
+ * uploaded to the product-images bucket under seed/); everything else shows the branded fallback.
  * Every id is deterministic (UUID v5), so re-running the seed is idempotent.
  */
 import { createHash } from "node:crypto";
@@ -202,6 +203,32 @@ export const serviceAreas: SeedRow<"service_areas">[] = [
 // Categories and brands
 // ------------------------------------------------------------------------------------------------
 
+/** Indus Traders' key-account price tier (its rows are in scripts/seed-ordering.ts). */
+export const KEY_ACCOUNT_TIER_ID = seedId("price-tier:indus-traders:key-account");
+
+/** Folder in the product-images bucket that holds the seed photos (from scripts/seed-images). */
+export const SEED_IMAGE_DIR = "seed";
+/** Categories and products that have a photo in scripts/seed-images. */
+const categoryImages: readonly string[] = [
+  "tea-coffee",
+  "dairy",
+  "cooking-oil-ghee",
+  "atta-rice-sugar",
+  "spices-salt",
+  "snacks",
+  "beverages",
+  "detergents",
+  "soaps",
+];
+const productImages: readonly string[] = [
+  "tapal-danedar-950g",
+  "dalda-oil-1l",
+  "dalda-oil-5l",
+  "shan-biryani-50g",
+  "olpers-1l",
+  "surf-excel-1kg",
+];
+
 const categoryDefs = [
   ["tea-coffee", "Tea & Coffee", "چائے اور کافی", "awning"],
   ["dairy", "Dairy", "دودھ اور ڈیری", "mint"],
@@ -218,7 +245,7 @@ const categoryDefs = [
   ["oral-care", "Oral Care", "دانتوں کی حفاظت", "awning"],
 ] as const;
 
-type CategoryKey = (typeof categoryDefs)[number][0];
+export type CategoryKey = (typeof categoryDefs)[number][0];
 export const categoryId = (key: CategoryKey): string => seedId(`category:${key}`);
 
 export const categories: SeedRow<"categories">[] = categoryDefs.map(
@@ -228,7 +255,7 @@ export const categories: SeedRow<"categories">[] = categoryDefs.map(
     name,
     name_ur: nameUr,
     slug,
-    image_path: null,
+    image_path: categoryImages.includes(slug) ? `${SEED_IMAGE_DIR}/categories/${slug}.webp` : null,
     tint,
     sort_order: index + 1,
     is_active: true,
@@ -295,7 +322,7 @@ export const brands: SeedRow<"brands">[] = brandDefs.map(
 // Products
 // ------------------------------------------------------------------------------------------------
 
-interface ProductDef {
+export interface ProductDef {
   key: string;
   category: CategoryKey;
   brand: BrandKey | null;
@@ -317,7 +344,7 @@ interface ProductDef {
   moq?: number;
 }
 
-const productDefs: ProductDef[] = [
+export const productDefs: ProductDef[] = [
   // Tea & Coffee
   {
     key: "tapal-danedar-950g",
@@ -1104,10 +1131,10 @@ const productDefs: ProductDef[] = [
   },
 ];
 
-type ProductKey = (typeof productDefs)[number]["key"];
+export type ProductKey = (typeof productDefs)[number]["key"];
 
 export const masterProductId = (key: ProductKey): string => seedId(`master-product:${key}`);
-const distributorProductId = (key: ProductKey): string =>
+export const distributorProductId = (key: ProductKey): string =>
   seedId(`distributor-product:indus-traders:${key}`);
 
 const productBarcode = (def: ProductDef): string => {
@@ -1118,7 +1145,7 @@ const productBarcode = (def: ProductDef): string => {
   );
 };
 
-const findProduct = (key: string): ProductDef => {
+export const findProduct = (key: string): ProductDef => {
   const def = productDefs.find((p) => p.key === key);
   if (!def) throw new Error(`Unknown seed product ${key}`);
   return def;
@@ -1138,7 +1165,7 @@ export const masterProducts: SeedRow<"master_products">[] = productDefs.map((def
   units_per_carton: def.carton,
   mrp_paisa: rs(def.mrp),
   description: null,
-  image_path: null,
+  image_path: productImages.includes(def.key) ? `${SEED_IMAGE_DIR}/products/${def.key}.webp` : null,
   is_active: true,
 }));
 
@@ -1310,7 +1337,7 @@ export const featureFlags: SeedRow<"feature_flags">[] = [
 // ------------------------------------------------------------------------------------------------
 
 export const ORG_ID = seedId("org:indus-traders");
-const WAREHOUSE_ID = seedId("warehouse:indus-traders:main");
+export const WAREHOUSE_ID = seedId("warehouse:indus-traders:main");
 
 export const organizations: SeedRow<"organizations">[] = [
   {
@@ -1766,7 +1793,7 @@ export const buildRetailerAccounts = (withDemoUsers: boolean): SeedRow<"retailer
     id: seedId("retailer-account:indus-traders:tezdukan"),
     org_id: ORG_ID,
     shop_id: SHOP_ID,
-    price_tier_id: null,
+    price_tier_id: KEY_ACCOUNT_TIER_ID,
     segment: "Key account",
     credit_limit_paisa: rs(250000),
     payment_terms_days: 15,

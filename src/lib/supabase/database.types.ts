@@ -7923,9 +7923,94 @@ export type Database = {
           isSetofReturn: false;
         };
       };
+      browse_catalog: {
+        Args: {
+          p_brand_id?: string;
+          p_category_id?: string;
+          p_filters?: Json;
+          p_limit?: number;
+          p_offset?: number;
+          p_org_id?: string;
+          p_shop_id: string;
+          p_sort?: string;
+        };
+        Returns: Database["public"]["CompositeTypes"]["catalog_item"][];
+        SetofOptions: {
+          from: "*";
+          to: "catalog_item";
+          isOneToOne: false;
+          isSetofReturn: true;
+        };
+      };
+      cancel_order: {
+        Args: { p_order_id: string; p_reason: string };
+        Returns: {
+          booker_id: string | null;
+          cancel_reason: string | null;
+          cancelled_at: string | null;
+          cancelled_by: string | null;
+          client_request_id: string | null;
+          confirmed_at: string | null;
+          created_at: string;
+          created_by: string | null;
+          deleted_at: string | null;
+          delivered_at: string | null;
+          delivery_address: Json | null;
+          delivery_fee_paisa: number;
+          delivery_slot_end: string | null;
+          delivery_slot_start: string | null;
+          discount_paisa: number;
+          dispatched_at: string | null;
+          due_date: string | null;
+          id: string;
+          invoice_number: string | null;
+          invoice_path: string | null;
+          invoiced_at: string | null;
+          notes: string | null;
+          order_number: string;
+          ordered_total_paisa: number;
+          org_id: string;
+          packed_at: string | null;
+          paid_paisa: number;
+          payment_method: Database["public"]["Enums"]["order_payment_method"];
+          payment_status: Database["public"]["Enums"]["order_payment_status"];
+          picking_at: string | null;
+          placed_by: string | null;
+          placed_by_name: string | null;
+          rating: number | null;
+          received_at: string | null;
+          received_by: string | null;
+          returned_at: string | null;
+          scheme_discount_paisa: number;
+          shop_id: string;
+          source: Database["public"]["Enums"]["order_source"];
+          status: Database["public"]["Enums"]["order_status"];
+          subtotal_paisa: number;
+          total_paisa: number;
+          trip_id: string | null;
+          updated_at: string;
+          warehouse_id: string | null;
+        };
+        SetofOptions: {
+          from: "*";
+          to: "orders";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      cart_summary: { Args: { p_shop_id: string }; Returns: Json };
+      catalog_facets: { Args: { p_category_id?: string; p_shop_id: string }; Returns: Json };
       check_rate_limit: {
         Args: { p_key: string; p_max: number; p_window_s: number };
         Returns: boolean;
+      };
+      clear_cart: { Args: { p_org_id?: string; p_shop_id: string }; Returns: undefined };
+      delivery_slots: {
+        Args: { p_days?: number; p_org_id: string; p_shop_id: string };
+        Returns: {
+          slot_end: string;
+          slot_start: string;
+        }[];
       };
       my_role_contexts: {
         Args: Record<PropertyKey, never>;
@@ -7939,6 +8024,25 @@ export type Database = {
         }[];
       };
       next_counter: { Args: { p_scope: string }; Returns: number };
+      place_order: {
+        Args: {
+          p_client_request_id: string;
+          p_notes?: string;
+          p_org_ids?: string[];
+          p_payment_method: Database["public"]["Enums"]["order_payment_method"];
+          p_shop_id: string;
+          p_slots: Json;
+        };
+        Returns: Json;
+      };
+      product_detail: {
+        Args: { p_distributor_product_id: string; p_shop_id: string };
+        Returns: Json;
+      };
+      rate_order: {
+        Args: { p_comment?: string; p_order_id: string; p_rating: number };
+        Returns: undefined;
+      };
       register_organization: {
         Args: {
           p_address_line: string;
@@ -8125,6 +8229,38 @@ export type Database = {
           isSetofReturn: false;
         };
       };
+      reorder: { Args: { p_order_id: string }; Returns: Json };
+      request_return: {
+        Args: { p_items: Json; p_notes?: string; p_order_id: string; p_photo_paths?: string[] };
+        Returns: {
+          claim_total_paisa: number;
+          created_at: string;
+          created_by: string | null;
+          credit_note_id: string | null;
+          credited_at: string | null;
+          id: string;
+          notes: string | null;
+          order_id: string;
+          org_id: string;
+          photo_paths: string[];
+          reason: Database["public"]["Enums"]["return_reason"];
+          received_at: string | null;
+          requested_by: string | null;
+          return_number: string;
+          review_note: string | null;
+          reviewed_at: string | null;
+          reviewed_by: string | null;
+          shop_id: string;
+          status: Database["public"]["Enums"]["return_status"];
+          updated_at: string;
+        };
+        SetofOptions: {
+          from: "*";
+          to: "returns";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
       resubmit_organization: {
         Args: { p_org_id: string };
         Returns: {
@@ -8204,7 +8340,27 @@ export type Database = {
           isSetofReturn: false;
         };
       };
+      search_catalog: {
+        Args: { p_limit?: number; p_query: string; p_shop_id: string };
+        Returns: Database["public"]["CompositeTypes"]["catalog_item"][];
+        SetofOptions: {
+          from: "*";
+          to: "catalog_item";
+          isOneToOne: false;
+          isSetofReturn: true;
+        };
+      };
       seed_reset: { Args: Record<PropertyKey, never>; Returns: Json };
+      set_cart_item: {
+        Args: {
+          p_distributor_product_id: string;
+          p_pack_unit_id: string;
+          p_quantity: number;
+          p_shop_id: string;
+          p_source?: Database["public"]["Enums"]["cart_item_source"];
+        };
+        Returns: Json;
+      };
       set_organization_status: {
         Args: {
           p_org_id: string;
@@ -8291,6 +8447,29 @@ export type Database = {
           isOneToOne: true;
           isSetofReturn: false;
         };
+      };
+      shop_distributors: {
+        Args: { p_shop_id: string };
+        Returns: {
+          account_status: string;
+          area_name: string;
+          balance_paisa: number;
+          credit_limit_paisa: number;
+          delivery_fee_paisa: number;
+          free_delivery_above_paisa: number;
+          logo_path: string;
+          min_order_paisa: number;
+          name: string;
+          org_id: string;
+          product_count: number;
+          rating: number;
+          rating_count: number;
+        }[];
+      };
+      shop_home_feed: { Args: { p_shop_id: string }; Returns: Json };
+      shop_ledger: {
+        Args: { p_from?: string; p_org_id: string; p_shop_id: string; p_to?: string };
+        Returns: Json;
       };
       switch_active_context: {
         Args: { p_context_id?: string; p_role: Database["public"]["Enums"]["app_role"] };
@@ -8445,7 +8624,29 @@ export type Database = {
       webhook_delivery_status: "pending" | "succeeded" | "failed";
     };
     CompositeTypes: {
-      [_ in never]: never;
+      catalog_item: {
+        distributor_product_id: string | null;
+        org_id: string | null;
+        org_name: string | null;
+        master_product_id: string | null;
+        name: string | null;
+        name_ur: string | null;
+        brand_id: string | null;
+        brand_name: string | null;
+        brand_slug: string | null;
+        category_id: string | null;
+        category_slug: string | null;
+        pack_size_label: string | null;
+        image_path: string | null;
+        mrp_paisa: number | null;
+        price_paisa: number | null;
+        moq_base_qty: number | null;
+        pack_units: Json | null;
+        scheme: Json | null;
+        in_stock: boolean | null;
+        available_base_qty: number | null;
+        rank: number | null;
+      };
     };
   };
 };
