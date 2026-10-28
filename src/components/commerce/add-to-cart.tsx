@@ -23,8 +23,8 @@ type AddToCartProps = {
 const spring = { type: "spring", stiffness: 520, damping: 32, mass: 0.7 } as const;
 
 /**
- * The green outlined ADD button that morphs into a − qty + stepper. Width is fixed so the
- * card never reflows; the morph is a spring on the background and a crossfade of the content.
+ * The green outlined ADD pill that morphs into a − qty + stepper. Width is fixed so the card
+ * never reflows; the morph is a spring on the background and a crossfade of the content.
  */
 function AddToCart({
   quantity,
@@ -53,8 +53,9 @@ function AddToCart({
       data-slot="add-to-cart"
       data-state={added ? "added" : "empty"}
       className={cn(
-        "relative isolate inline-flex shrink-0 items-stretch overflow-hidden rounded-md",
-        size === "md" ? "h-9 w-[84px]" : "h-12 w-32",
+        "relative isolate inline-flex shrink-0 items-stretch overflow-hidden rounded-full",
+        size === "md" ? "h-10 w-[88px]" : "h-12 w-36",
+        added && "sheen shadow-glow inset-shadow-edge",
         "after:absolute after:inset-x-0 after:-inset-y-1.5 after:-z-10",
         className,
       )}

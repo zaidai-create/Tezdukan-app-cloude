@@ -3,7 +3,7 @@
 import { cn } from "cn";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useSyncExternalStore } from "react";
+import { Suspense, useSyncExternalStore } from "react";
 import { Logo, LogoMark } from "@/components/brand/logo";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Link, usePathname } from "@/i18n/navigation";
@@ -42,17 +42,24 @@ function useCollapsed() {
   return { collapsed, toggle: () => writeCollapsed(!collapsed) };
 }
 
-function SidebarNav({
-  groups,
-  collapsed = false,
-  onNavigate,
-}: {
+type SidebarNavProps = {
   groups: NavGroup[];
   collapsed?: boolean;
   onNavigate?: () => void;
-}) {
+};
+
+function SidebarNav(props: SidebarNavProps) {
+  return <SidebarNavView {...props} pathname={usePathname()} />;
+}
+
+/** The links for a known path; with no path (dynamic routes, before it is known) none is lit. */
+function SidebarNavView({
+  groups,
+  collapsed = false,
+  onNavigate,
+  pathname,
+}: SidebarNavProps & { pathname: string | null }) {
   const t = useTranslations("nav");
-  const pathname = usePathname();
   return (
     <nav aria-label={t("primary")} className="flex flex-col gap-5">
       {groups.map((group) => (
@@ -63,7 +70,7 @@ function SidebarNav({
             </p>
           )}
           {group.items.map((item) => {
-            const active = isActive(pathname, item);
+            const active = pathname !== null && isActive(pathname, item);
             const Icon = navIcons[item.icon];
             const link = (
               <Link
@@ -127,7 +134,11 @@ function Sidebar({
         </Link>
       </div>
       <div className="flex-1 overflow-y-auto px-3 py-2">
-        <SidebarNav groups={groups} collapsed={collapsed} />
+        <Suspense
+          fallback={<SidebarNavView groups={groups} collapsed={collapsed} pathname={null} />}
+        >
+          <SidebarNav groups={groups} collapsed={collapsed} />
+        </Suspense>
       </div>
       {footer && !collapsed ? <div className="border-t border-border p-3">{footer}</div> : null}
       <button

@@ -3,6 +3,7 @@
 import { cn } from "cn";
 import { LayoutGroup, motion, useReducedMotion } from "motion/react";
 import { useTranslations } from "next-intl";
+import { useCartCount } from "@/features/ordering/queries";
 import { Link, usePathname } from "@/i18n/navigation";
 import { haptic } from "@/lib/haptics";
 import { isActive, type NavItem } from "./nav-config";
@@ -15,19 +16,30 @@ const pillSpring = { type: "spring", stiffness: 480, damping: 38, mass: 0.8 } as
  * and label; the pill slides to the tapped tab on a spring. Other tabs show the icon only,
  * with the label kept for screen readers and long-press tooltips.
  */
-function BottomNav({
-  items,
-  badges,
-  className,
-}: {
+type BottomNavProps = {
   items: NavItem[];
   /** Small count on a tab icon, keyed by href (the cart's item count). */
   badges?: Partial<Record<string, number>>;
   className?: string;
-}) {
+};
+
+function BottomNav(props: BottomNavProps) {
+  return <BottomNavView {...props} pathname={usePathname()} />;
+}
+
+/**
+ * The dock for a known path. On dynamic routes the path is request data, so the shell renders
+ * this with no path (no tab lit) as the Suspense fallback until the real path is known.
+ */
+function BottomNavView({
+  items,
+  badges,
+  className,
+  pathname,
+}: BottomNavProps & { pathname: string | null }) {
   const t = useTranslations("nav");
-  const pathname = usePathname();
   const reduceMotion = useReducedMotion();
+  const cartCount = useCartCount((s) => s.count);
 
   return (
     <nav
@@ -43,10 +55,10 @@ function BottomNav({
           className="material pointer-events-auto mx-auto flex h-(--bottom-nav-height) max-w-md items-center justify-between gap-1 rounded-full border border-material-edge px-2 shadow-float"
         >
           {items.map((item) => {
-            const active = isActive(pathname, item);
+            const active = pathname !== null && isActive(pathname, item);
             const Icon = navIcons[item.icon];
             const label = t(item.label);
-            const badge = badges?.[item.href] ?? 0;
+            const badge = badges?.[item.href] ?? (item.icon === "cart" ? cartCount : 0);
             return (
               <li key={item.href} className={cn("flex", active ? "shrink-0" : "flex-1")}>
                 <Link
@@ -104,4 +116,4 @@ function BottomNav({
   );
 }
 
-export { BottomNav };
+export { BottomNav, BottomNavView };

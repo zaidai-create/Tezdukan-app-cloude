@@ -6,7 +6,7 @@ import { MunshiSheet } from "@/components/munshi/munshi-sheet";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
 import { OfflineBanner } from "@/components/states/offline-banner";
 import type { AppRole } from "@/lib/auth/roles";
-import { BottomNav } from "./bottom-nav";
+import { BottomNav, BottomNavView } from "./bottom-nav";
 import { MobileHeaderSkeleton } from "./mobile-header";
 import { mobileTabs, sidebarGroups } from "./nav-config";
 import { ShellHeader } from "./shell-header";
@@ -48,9 +48,24 @@ async function AppShell({ role, children }: { role: AppRole; children: ReactNode
           {children}
         </main>
       </div>
-      {tabs ? <BottomNav items={tabs} className={groups ? "lg:hidden" : undefined} /> : null}
+      {tabs ? (
+        // The lit tab depends on the path, which is request data on dynamic routes.
+        <Suspense
+          fallback={
+            <BottomNavView
+              items={tabs}
+              pathname={null}
+              className={groups ? "lg:hidden" : undefined}
+            />
+          }
+        >
+          <BottomNav items={tabs} className={groups ? "lg:hidden" : undefined} />
+        </Suspense>
+      ) : null}
       <MunshiFab className={tabs ? (groups ? "hidden lg:flex" : "hidden") : undefined} />
-      <MunshiSheet role={role} />
+      <Suspense fallback={null}>
+        <MunshiSheet role={role} />
+      </Suspense>
       <InstallPrompt />
     </div>
   );

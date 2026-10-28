@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   ShoppingBasket,
   Store,
+  Wallet,
 } from "lucide-react";
 import type { NavIcon } from "./nav-config";
 
@@ -19,6 +20,7 @@ export const navIcons: Record<NavIcon, LucideIcon> = {
   cart: ShoppingBasket,
   orders: Package,
   dukan: Store,
+  ledger: Wallet,
   account: CircleUserRound,
   dashboard: LayoutDashboard,
   beat: MapPinned,

@@ -28,10 +28,10 @@ const greeting = (name: string) => home.greetingNamed.replace("{name}", name);
 test("a dukandar lands on the dukan home and stays signed in", async ({ page }) => {
   await signIn(page, "0300 0000002");
   await expect(page).toHaveURL(/\/dukan$/);
-  await expect(page.getByRole("heading", { name: greeting("Ahmed") })).toBeVisible();
+  await expect(page.getByText(greeting("Ahmed"))).toBeVisible();
   await page.reload();
   await expect(page).toHaveURL(/\/dukan$/);
-  await expect(page.getByRole("heading", { name: greeting("Ahmed") })).toBeVisible();
+  await expect(page.getByText(greeting("Ahmed"))).toBeVisible();
 });
 
 test("a distributor lands on the distributor dashboard", async ({ page }) => {

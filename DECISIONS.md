@@ -134,6 +134,20 @@ section. Format: **decision** — reason (date).
   Enter opens a matching page and only a question (nothing matches) goes to Munshi.
   (2026-10-26)
 
+- **Product detail is a bottom sheet over the page being browsed**, opened from any card and
+  filled by the `product_detail` RPC, rather than an intercepting route: the dukandar never
+  loses their place in a long list, and one sheet serves home, search and categories. A
+  shareable product page can follow when WhatsApp sharing lands. (2026-10-28)
+- **Cart changes go straight from the browser to `set_cart_item`**, one at a time per cart
+  (TanStack Query mutation scope), with the step shown at once and the newest server answer
+  winning. A removed line gets an Undo toast. Pages hand their server-read cart to the client
+  cache, so steppers and the cart bar are right on first paint. (2026-10-28)
+- **Urdu screens show Urdu product names** (from `name_ur`), with dates, times and codes kept
+  left to right inside Urdu sentences by Unicode isolates. (2026-10-28)
+- **Ordering journeys in tests use a fresh dukan per run** (`createDukandar` in
+  `e2e/support/admin.ts`), so parallel viewports never share a cart; orders they place are
+  cancelled and stay, like any financial record. (2026-10-28)
+
 ## Offline and PWA
 
 - **The service worker is bundled at build time** — `/serwist/sw.js` is a prerendered route

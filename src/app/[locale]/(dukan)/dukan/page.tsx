@@ -1,5 +1,5 @@
-import { RoleHome } from "@/features/home/role-home";
+import { DukanHome } from "@/features/ordering/home/dukan-home";
 
 export default function Page() {
-  return <RoleHome role="dukandar" />;
+  return <DukanHome />;
 }

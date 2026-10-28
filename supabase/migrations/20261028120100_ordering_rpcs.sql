@@ -350,7 +350,7 @@ $$;
 -- ---------------------------------------------------------------------------------------------
 -- shop_home_feed(shop): everything the dukandar home shows in one round trip.
 --   order_again  this shop's most recent and frequent products
---   deals        products with a live scheme, then the biggest MRP margin
+--   deals        products with a live scheme, then the biggest MRP margin (photos first)
 --   trending     most ordered in the shop's zone (14 days), then its city, then the rest
 --   categories   top-level categories with products this shop can order
 --   brands       top brands by product count
@@ -409,13 +409,16 @@ begin
           ) x
       ), '[]'::jsonb),
       'deals', coalesce((
-        select jsonb_agg(to_jsonb(x) - 'margin' order by (x.scheme is not null) desc, x.margin desc, x.name)
+        select jsonb_agg(
+                 to_jsonb(x) - 'margin'
+                 order by (x.scheme is not null) desc, (x.image_path is not null) desc, x.margin desc, x.name
+               )
           from (
             select c.*,
                    case when c.mrp_paisa > 0 then (c.mrp_paisa - c.price_paisa)::numeric / c.mrp_paisa else 0 end as margin
               from cat c
              where c.in_stock
-             order by (c.scheme is not null) desc, margin desc, (c.image_path is not null) desc, c.name
+             order by (c.scheme is not null) desc, (c.image_path is not null) desc, margin desc, c.name
              limit 12
           ) x
       ), '[]'::jsonb),
@@ -503,7 +506,7 @@ $$;
 --    credit_limit_paisa, credit_available_paisa, min_order_paisa, delivery_fee_paisa,
 --    free_delivery_above_paisa, subtotal_paisa, scheme_discount_paisa, delivery_charge_paisa,
 --    total_paisa, meets_minimum, short_by_paisa, next_slots: [{start, end}],
---    items: [{cart_item_id, item, pack_unit_id, pack_label, base_qty_per_unit, quantity,
+--    items: [{cart_item_id, distributor_product_id, item, pack_unit_id, pack_label, base_qty_per_unit, quantity,
 --             piece_price_paisa, unit_price_paisa, line_discount_paisa, line_total_paisa,
 --             free_base_qty, scheme_applied, problems}]}]}
 -- Groups are ordered by subtotal, largest first.

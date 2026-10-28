@@ -35,3 +35,57 @@ export async function createConfirmedUser(e164: string, password: string, fullNa
   });
   if (error) throw error;
 }
+
+/**
+ * A fresh dukandar with an approved shop in Latifabad Unit 6, acting as that dukan. Ordering
+ * journeys use one per run, so parallel viewports never share a cart or an order list.
+ */
+export async function createDukandar(e164: string, password: string, fullName: string) {
+  const admin = adminClient();
+  const { data: created, error } = await admin.auth.admin.createUser({
+    phone: e164.replace(/^\+/, ""),
+    password,
+    phone_confirm: true,
+    user_metadata: { full_name: fullName, locale: "en" },
+  });
+  if (error) throw error;
+  const userId = created.user.id;
+  const area = await admin
+    .from("service_areas")
+    .select("id")
+    .eq("slug", "latifabad-unit-6")
+    .single();
+  if (area.error) throw area.error;
+  const shop = await admin
+    .from("shops")
+    .insert({
+      owner_id: userId,
+      name: `${fullName} Store`,
+      slug: `e2e-${e164.slice(-7)}-${Date.now().toString(36)}`,
+      phone: e164,
+      address_line: "Shop 3, Test Market, Latifabad Unit 6, Hyderabad",
+      area_id: area.data.id,
+      lat: 25.3735,
+      lng: 68.3875,
+      status: "approved",
+    })
+    .select("id")
+    .single();
+  if (shop.error) throw shop.error;
+  const staff = await admin
+    .from("shop_staff")
+    .insert({ shop_id: shop.data.id, user_id: userId, role: "owner", status: "active" });
+  if (staff.error) throw staff.error;
+  const profile = await admin
+    .from("profiles")
+    .update({ active_role: "dukandar", active_shop_id: shop.data.id })
+    .eq("id", userId);
+  if (profile.error) throw profile.error;
+  return { userId, shopId: shop.data.id };
+}
+
+/** Empties every cart a user holds (screenshot runs leave no stock in a test dukan's cart). */
+export async function clearCarts(userId: string) {
+  const { error } = await adminClient().from("carts").delete().eq("user_id", userId);
+  if (error) throw error;
+}

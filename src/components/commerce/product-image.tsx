@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "cn";
+import type { LucideIcon } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { initialsOf, tintFor } from "@/components/ui/avatar";
@@ -14,6 +15,9 @@ type ProductImageProps = {
   className?: string;
   /** Category tiles sit on a tint; product images sit on white. */
   surface?: "white" | "none";
+  /** Without a photo: the product's category icon and a caption (brand) instead of initials. */
+  fallbackIcon?: LucideIcon;
+  fallbackCaption?: string;
 };
 
 // Neutral 4x4 placeholder shown while the real image streams in.
@@ -21,7 +25,7 @@ const BLUR =
   "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCA0IDQnPjxyZWN0IHdpZHRoPSc0JyBoZWlnaHQ9JzQnIGZpbGw9JyNlZWYzZjAnLz48L3N2Zz4=";
 
 /**
- * Square product photo on white, object-contain, lazy, AVIF/WebP via next/image. If there is
+ * Square product photo on a soft surface, object-contain, lazy, AVIF/WebP via next/image. If there is
  * no image or it fails to load, a branded tile with the product initials takes its place —
  * never a broken-image icon.
  */
@@ -32,6 +36,8 @@ function ProductImage({
   priority = false,
   className,
   surface = "white",
+  fallbackIcon: FallbackIcon,
+  fallbackCaption,
 }: ProductImageProps) {
   const [failed, setFailed] = useState(false);
   const showFallback = !src || failed;
@@ -49,11 +55,22 @@ function ProductImage({
           aria-label={alt}
           role="img"
           className={cn(
-            "flex size-full items-center justify-center font-heading text-3xl font-bold tracking-tight",
+            "flex size-full flex-col items-center justify-center gap-1.5 font-heading font-bold tracking-tight",
             tintFor(alt),
           )}
         >
-          {initialsOf(alt)}
+          {FallbackIcon ? (
+            <>
+              <span className="flex size-14 items-center justify-center rounded-full bg-surface/70 shadow-card">
+                <FallbackIcon aria-hidden className="size-7" />
+              </span>
+              {fallbackCaption ? (
+                <span className="max-w-[85%] truncate text-sm">{fallbackCaption}</span>
+              ) : null}
+            </>
+          ) : (
+            <span className="text-3xl">{initialsOf(alt)}</span>
+          )}
         </div>
       ) : (
         <Image
@@ -64,7 +81,7 @@ function ProductImage({
           priority={priority}
           placeholder="blur"
           blurDataURL={BLUR}
-          className="object-contain p-2"
+          className="object-contain"
           onError={() => setFailed(true)}
         />
       )}

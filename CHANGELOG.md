@@ -6,6 +6,24 @@ All notable changes, newest first. Dates are Asia/Karachi.
 
 ### Phase 2 — Dukandar ordering (in progress)
 
+- Dukandar ordering screens (2026-10-28):
+  - Home: tomorrow's delivery window, a search bar with rotating examples and Munshi's mic,
+    offer banners, 3D category tiles, order again, deals, selling fast nearby, top brands, the
+    distributor khata total and your distributors.
+  - Categories, distributor pages and instant search (typos, Urdu, Roman Urdu, barcodes) with
+    sort and filter chips; a product sheet with pack sizes, profit, schemes, other
+    distributors' prices and what is bought together.
+  - A cart split by distributor with minimum-order and free-delivery progress, scheme savings
+    and free goods; checkout with delivery slots, cash or khata, and a note; an order placed
+    screen.
+  - My orders (active and past), order pages with the delivery code, a live progress timeline,
+    reorder, cancel, rating and damage or shortage claims.
+  - Distributor khata: what you owe each distributor, credit left, age of dues and the full
+    statement.
+  - The nav dock now has Home, Categories, Cart (with its count), Orders and Account.
+  - Every screen in English, Urdu (right to left) and Roman Urdu, with loading, empty and error
+    states; new end-to-end journeys and screenshots (158 browser tests pass).
+
 - Ordering backend (2026-10-28):
   - Search by name, typo, Urdu or Roman Urdu, or barcode; browse by category, brand or
     distributor with sorting and filters; product detail with other distributors' offers and

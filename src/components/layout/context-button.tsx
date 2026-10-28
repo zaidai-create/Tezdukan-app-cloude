@@ -24,7 +24,6 @@ function ContextButton({ session, className }: { session: ShellSession; classNam
         type="button"
         onClick={() => canSwitch && setOpen(true)}
         disabled={!canSwitch}
-        aria-label={canSwitch ? t("switchRole") : undefined}
         className={cn(
           "flex min-h-12 min-w-0 items-center gap-2.5 rounded-md px-1 text-start disabled:cursor-default",
           canSwitch && "hover:bg-subtle",
@@ -51,6 +50,7 @@ function ContextButton({ session, className }: { session: ShellSession; classNam
             <span className="truncate text-xs text-muted">{t(session.activeRole)}</span>
           ) : null}
         </span>
+        {canSwitch ? <span className="sr-only">{t("switchRole")}</span> : null}
       </button>
       {canSwitch ? (
         <RoleSwitcherSheet session={session} open={open} onOpenChange={setOpen} />

@@ -32,7 +32,8 @@ Docker detached so it outlives the shell (`setsid nohup dockerd > /tmp/dockerd.l
 Studio: `supabase start -x studio,logflare,vector,supavisor,imgproxy`. Demo logins (password
 `TezDukan-Demo-1`): `+923000000001` admin, `…02` dukandar, `…03` distributor, `…04` booker,
 `…05` rider, `…06` customer, `…07` and `…08` multi-role. If a CSS change does not show in
-`pnpm dev`, delete `.next/dev` (Turbopack's dev cache) and restart.
+`pnpm dev`, delete `.next/dev` (Turbopack's dev cache) and restart; if new Tailwind classes are
+missing from a production build, delete `.next` and build again.
 Local keys go in `.env.local` (see `.env.example`; values from `pnpm db:status`).
 
 Before every commit: `pnpm typecheck && pnpm lint && pnpm test` (and `pnpm db:test` if SQL

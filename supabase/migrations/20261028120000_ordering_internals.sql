@@ -488,6 +488,7 @@ as $$
            jsonb_agg(
              jsonb_build_object(
                'cart_item_id', f.cart_item_id,
+               'distributor_product_id', f.distributor_product_id,
                'item', case when f.orderable then to_jsonb(f.item) end,
                'pack_unit_id', f.pack_unit_id,
                'pack_label', f.pack_label,

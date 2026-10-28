@@ -876,8 +876,9 @@ export function buildOrderHistory(): OrderHistory {
       total_paisa: total,
       ordered_total_paisa: orderedTotal,
       paid_paisa: paid,
-      delivery_slot_start: step(23),
-      delivery_slot_end: step(25),
+      // The slot the shop chose: 10 am to 12 noon on the day after the order (Karachi time).
+      delivery_slot_start: pktAt(h.placed[0] - 1, 10).toISOString(),
+      delivery_slot_end: pktAt(h.placed[0] - 1, 12).toISOString(),
       delivery_address: {
         shop_name: "TezDukan",
         line1: "Shop 12, Main Road, Latifabad Unit 6, Hyderabad",

@@ -44,14 +44,12 @@ function UserMenu({ session }: { session: ShellSession }) {
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger
-          className="relative rounded-full after:absolute after:-inset-1"
-          aria-label={t("common.menu")}
-        >
+        <DropdownMenuTrigger className="relative rounded-full after:absolute after:-inset-1">
           <Avatar className="size-10">
             {session.avatarUrl ? <AvatarImage src={session.avatarUrl} alt="" /> : null}
-            <AvatarFallback name={name} />
+            <AvatarFallback name={name} aria-hidden />
           </Avatar>
+          <span className="sr-only">{t("common.menu")}</span>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-72">
           <DropdownMenuLabel className="flex flex-col gap-0.5 px-3 py-2 text-sm font-normal">

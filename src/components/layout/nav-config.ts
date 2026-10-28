@@ -20,6 +20,8 @@ export type NavLabel =
   | "cart"
   | "orders"
   | "dukan"
+  | "ledger"
+  | "distributors"
   | "account"
   | "dashboard"
   | "beat"
@@ -37,6 +39,7 @@ export type NavIcon =
   | "cart"
   | "orders"
   | "dukan"
+  | "ledger"
   | "account"
   | "dashboard"
   | "beat"
@@ -54,6 +57,9 @@ export const mobileTabs: Partial<Record<AppRole, NavItem[]>> = {
   ],
   dukandar: [
     { href: "/dukan", label: "home", icon: "home", exact: true },
+    { href: "/dukan/categories", label: "categories", icon: "categories" },
+    { href: "/dukan/cart", label: "cart", icon: "cart" },
+    { href: "/dukan/orders", label: "orders", icon: "orders" },
     { href: "/dukan/account", label: "account", icon: "account" },
   ],
   booker: [
@@ -86,7 +92,17 @@ export const sidebarGroups: Partial<Record<AppRole, NavGroup[]>> = {
     { label: "account", items: [{ href: "/admin/account", label: "account", icon: "account" }] },
   ],
   dukandar: [
-    { label: "main", items: [{ href: "/dukan", label: "home", icon: "home", exact: true }] },
+    {
+      label: "main",
+      items: [
+        { href: "/dukan", label: "home", icon: "home", exact: true },
+        { href: "/dukan/categories", label: "categories", icon: "categories" },
+        { href: "/dukan/cart", label: "cart", icon: "cart" },
+        { href: "/dukan/orders", label: "orders", icon: "orders" },
+        { href: "/dukan/ledger", label: "ledger", icon: "ledger" },
+        { href: "/dukan/distributors", label: "distributors", icon: "dukan" },
+      ],
+    },
     { label: "account", items: [{ href: "/dukan/account", label: "account", icon: "account" }] },
   ],
 };
