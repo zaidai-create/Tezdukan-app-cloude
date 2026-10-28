@@ -93,10 +93,24 @@ section. Format: **decision** — reason (date).
   understood, and a check appears once the number is complete. The cursor stays after the
   digit just typed. (2026-10-26)
 
+- **The owner's Stitch design system is the visual reference** (`docs/design/stitch/`): deep
+  emerald `#0B5D3B` for actions (white text 8:1, so no separate AA shade is needed), saffron
+  for offers and speed, coral red `#E11D48` for urgency, a warm canvas and a deep pine dark
+  mode. The logo keeps its own mint and awning colours. Depth follows Apple's layered style:
+  brand-tinted ambient shadows, top-lit filled controls and larger, softer corners (12/18/22/28
+  px). It replaces the spec's first palette (`#0A8F5A`). (2026-10-28)
+- **Frosted material only on bars** — the nav dock and sticky headers blur what scrolls under
+  them; cards stay solid. Without backdrop-filter support, or with "reduce transparency", the
+  bars fall back to a solid surface. (2026-10-28)
 ## App shell
 
 - **Each role has its own account page** (`/dukan/account`, `/rider/account`, …) so the page
   keeps that role's navigation; `accountPath(role)` builds the link. (2026-10-25)
+- **The mobile tab bar is a floating dock, as in the owner's reference picture** — a frosted
+  capsule above the screen edge; the current tab is a filled pill with icon and label that
+  slides between tabs on a spring, and the other tabs show icons only (labels stay for screen
+  readers and as tooltips). Munshi moved from a raised centre mic to a "Munshi" button in the
+  mobile header (tap to open, hold to talk), so the dock keeps five plain tabs. (2026-10-28)
 - **Navigation lists only routes that exist** — each phase adds its items as its screens ship,
   so there is never a link to an unbuilt page. (2026-10-25)
 - **Munshi before Phase 5** — the mic button, sheet, voice capture and the Ctrl+K hand-off all

@@ -1,10 +1,11 @@
 import { cn } from "cn";
 import type * as React from "react";
+import { MunshiButton } from "@/components/munshi/munshi-button";
 import type { ShellSession } from "@/lib/auth/session-types";
 import { ContextButton } from "./context-button";
 import { UserMenu } from "./user-menu";
 
-/** Sticky mobile header: active shop/role (tap to switch) and the user menu. */
+/** Sticky, frosted mobile header: active shop/role (tap to switch), Munshi and the user menu. */
 function MobileHeader({
   session,
   children,
@@ -17,10 +18,11 @@ function MobileHeader({
 }) {
   return (
     <header
-      className={cn("pt-safe sticky top-0 z-30 border-b border-border bg-surface", className)}
+      className={cn("material pt-safe sticky top-0 z-30 border-b border-border/70", className)}
     >
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-2 px-4">
         <ContextButton session={session} className="min-w-0 flex-1" />
+        <MunshiButton />
         <UserMenu session={session} />
       </div>
       {children}
@@ -30,7 +32,7 @@ function MobileHeader({
 
 function MobileHeaderSkeleton() {
   return (
-    <div className="pt-safe sticky top-0 z-30 border-b border-border bg-surface">
+    <div className="pt-safe sticky top-0 z-30 border-b border-border/70 bg-surface">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4">
         <div className="flex items-center gap-2.5">
           <div className="skeleton size-10 rounded-md" />
@@ -39,7 +41,10 @@ function MobileHeaderSkeleton() {
             <div className="skeleton h-3 w-16 rounded-sm" />
           </div>
         </div>
-        <div className="skeleton size-10 rounded-full" />
+        <div className="flex items-center gap-2">
+          <div className="skeleton h-10 w-24 rounded-full" />
+          <div className="skeleton size-10 rounded-full" />
+        </div>
       </div>
     </div>
   );

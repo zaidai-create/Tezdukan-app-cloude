@@ -97,8 +97,11 @@ changed). After a phase: also `pnpm test:e2e` and `pnpm screenshots`, then revie
 - Type: headings Plus Jakarta Sans 600/700; body and numbers Inter (`tabular-nums` for prices
   and tables); Urdu/Sindhi UI in Noto Naskh Arabic; Noto Nastaliq Urdu only for large display
   headings. Scale 12/14/16/18/20/24/30/36. Body never below 14px on mobile.
-- 4px grid. Radius: 10px buttons/inputs, 14px cards, 24px bottom sheets. Soft, low shadows.
-  Minimum touch target 48×48.
+- 4px grid. Radius: 12px buttons/inputs, 18px cards, 22px banners, 28px bottom sheets;
+  capsule controls (steppers, chips, the nav dock) are fully rounded. Minimum touch target 48×48.
+- Depth is Apple-style and layered: `shadow-card` < `shadow-raised` < `shadow-float`. Filled
+  primary controls are top-lit (`sheen inset-shadow-edge shadow-glow`). The owner's Stitch
+  design system (`docs/design/stitch/DESIGN.md`) is the visual reference; improve on it.
 - Icons: Lucide only, one stroke width (1.75). **Never emoji** anywhere.
 - Images: real photos only. Product images square on white, `object-contain`. Use
   `<ProductImage>` (blur placeholder, lazy, AVIF/WebP, branded initials fallback — never a
@@ -106,8 +109,9 @@ changed). After a phase: also `pnpm test:e2e` and `pnpm screenshots`, then revie
 - Signature motifs, at most one per screen: the **awning edge** (storefront headers,
   onboarding, order success, empty states) and the **speed lines** (loaders, order placed,
   Munshi listening).
-- Must not look AI-generated: no purple gradients, no glassmorphism, no blobs, no cards inside
-  cards, consistent spacing, real short copy for Pakistani shopkeepers.
+- Must not look AI-generated: no purple gradients, no blobs, no cards inside cards, consistent
+  spacing, real short copy for Pakistani shopkeepers. Frosted `material` is for bars only (the
+  nav dock, sticky headers), never for cards.
 - Motion 150–250 ms ease-out; spring for ADD→stepper and the cart bar; respect
   `prefers-reduced-motion`.
 - Every screen has designed loading (skeletons, never full-screen spinners), empty (awning +

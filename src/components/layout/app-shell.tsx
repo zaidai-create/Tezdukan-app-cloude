@@ -42,7 +42,7 @@ async function AppShell({ role, children }: { role: AppRole; children: ReactNode
           id="main"
           className={cn(
             "flex-1",
-            tabs ? "pb-[calc(var(--bottom-nav-height)+var(--safe-bottom)+24px)] lg:pb-10" : "pb-24",
+            tabs ? "pb-[calc(var(--bottom-nav-space)+24px)] lg:pb-10" : "pb-24",
           )}
         >
           {children}

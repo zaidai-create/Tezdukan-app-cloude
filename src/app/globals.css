@@ -6,49 +6,58 @@
 
 /*
  * TezDukan design tokens.
- * Brand tokens come straight from the spec (section 3). Derived tokens exist so text always
- * meets WCAG 2.2 AA: filled buttons use --action (white text >= 6:1 in light mode), red and
- * amber text use the *-ink shades, and form-field outlines use --border-strong (>= 3:1).
+ * The palette follows the owner's Stitch design system (docs/design/stitch/DESIGN.md): deep
+ * emerald for actions, saffron for offers and speed, coral red for urgency, a warm canvas, and
+ * the logo's own mint and awning colours. Derived tokens keep text at WCAG 2.2 AA: filled
+ * buttons use --action (white text 8:1 in light mode), red and amber text use the *-ink
+ * shades, and form-field outlines use --border-strong (>= 3:1).
  * Components only ever reference these variables, never raw colours.
  */
 :root {
   color-scheme: light;
 
   /* Brand */
-  --primary: #0a8f5a;
-  --primary-strong: #07704a;
+  --primary: #0b5d3b;
+  --primary-strong: #0b5d3b;
   --mint: #2ed3a3;
-  --awning: #ffb627;
+  --awning: #ffb020;
   --awning-deep: #ff7a1a;
-  --ink: #0f1a15;
-  --muted: #5b6b64;
-  --canvas: #f5f8f6;
+  --ink: #111614;
+  --muted: #5c6862;
+  --canvas: #f6f8f5;
   --surface: #ffffff;
-  --border: #e3eae6;
-  --danger: #e5484d;
+  --border: #e4ebe7;
+  --danger: #e11d48;
 
   /* Derived */
-  --border-strong: #7c8e86;
-  --action: #07704a;
-  --action-hover: #065c3d;
+  --border-strong: #7a8a83;
+  --action: #0b5d3b;
+  --action-hover: #094c30;
   --on-action: #ffffff;
-  --danger-ink: #bd3537;
+  --danger-ink: #be123c;
   --on-danger: #ffffff;
   --awning-ink: #8a5a00;
-  --on-awning: #0f1a15;
-  --primary-soft: #e7f4ee;
+  --on-awning: #111614;
+  --primary-soft: #e8f1ec;
   --mint-soft: #e3f8f1;
   --awning-soft: #fff4dc;
-  --danger-soft: #fdecec;
-  --subtle: #eef3f0;
-  --subtle-strong: #e3eae6;
-  --overlay: rgb(10 15 13 / 0.5);
-  --ring: #07704a;
-  --wordmark-tez: #0f1a15;
+  --danger-soft: #ffe4e9;
+  --subtle: #f0f3ef;
+  --subtle-strong: #e4ebe7;
+  --overlay: rgb(14 21 18 / 0.55);
+  --ring: #0b5d3b;
+  --wordmark-tez: #111614;
   --wordmark-dukan: #009b76;
-  --image-surface: #ffffff;
+  --image-surface: #f3f5f1;
   --brand-panel: #0a0f0d;
   --on-brand-panel: #ffffff;
+  /* Dark forest: express badges and the hero banner. */
+  --forest: #0e3324;
+  --on-forest: #ffffff;
+
+  /* Materials: translucent bars that blur what scrolls under them (nav dock, sticky header). */
+  --material: rgb(255 255 255 / 0.74);
+  --material-edge: rgb(255 255 255 / 0.7);
 
   /* Category tile tints (soft, photo-friendly) */
   --tint-green: #e6f4ec;
@@ -59,27 +68,39 @@
   --tint-sky: #e4eff6;
 
   /* Charts (Phase 3 dataviz builds on these) */
-  --chart-1: #0a8f5a;
-  --chart-2: #ffb627;
+  --chart-1: #0b5d3b;
+  --chart-2: #ffb020;
   --chart-3: #2b7bb9;
   --chart-4: #ff7a1a;
-  --chart-5: #5b6b64;
+  --chart-5: #5c6862;
 
-  /* Elevation: soft, low shadows */
-  --elevation-card: 0 1px 2px rgb(15 26 21 / 0.04), 0 1px 3px rgb(15 26 21 / 0.06);
-  --elevation-raised: 0 2px 6px rgb(15 26 21 / 0.06), 0 8px 20px rgb(15 26 21 / 0.08);
-  --elevation-sheet: 0 -8px 32px rgb(15 26 21 / 0.12);
+  /*
+   * Elevation: layered ambient shadows tinted with the brand green, so surfaces read as lifted
+   * paper rather than grey boxes. Card < raised (steppers, banners) < float (the nav dock).
+   */
+  --elevation-card: 0 1px 2px rgb(17 22 20 / 0.04), 0 6px 16px -6px rgb(11 93 59 / 0.1);
+  --elevation-raised: 0 2px 4px rgb(17 22 20 / 0.04), 0 12px 28px -8px rgb(11 93 59 / 0.2);
+  --elevation-float: 0 1px 2px rgb(17 22 20 / 0.06), 0 18px 40px -12px rgb(17 22 20 / 0.24);
+  --elevation-sheet: 0 -12px 32px rgb(17 22 20 / 0.12);
+  /* Coloured glow under a filled pill (the active nav tab, the cart bar). */
+  --elevation-glow: 0 8px 18px -6px rgb(11 93 59 / 0.55);
+  /* Top-lit sheen and edge on filled controls: the "3D" press surface. */
+  --sheen: linear-gradient(180deg, rgb(255 255 255 / 0.18), rgb(255 255 255 / 0) 60%);
+  --edge-light: inset 0 1px 0 rgb(255 255 255 / 0.22);
 
-  /* Layout */
-  --bottom-nav-height: 4.25rem;
+  /* Layout: the floating nav dock and the gap it leaves above the screen edge. */
+  --bottom-nav-height: 4rem;
+  --bottom-nav-gap: 0.75rem;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-top: env(safe-area-inset-top, 0px);
+  /* Space content must leave clear at the bottom of a screen with the nav dock. */
+  --bottom-nav-space: calc(var(--bottom-nav-height) + var(--bottom-nav-gap) + var(--safe-bottom));
 }
 
 .dark {
   color-scheme: dark;
 
-  /* Brand (dark values from the spec) */
+  /* Brand (dark: deep pine canvas, mint actions) */
   --primary: #2ed3a3;
   --primary-strong: #5fe3bc;
   --mint: #2ed3a3;
@@ -87,31 +108,36 @@
   --awning-deep: #ff8f3d;
   --ink: #e8f0ec;
   --muted: #93a39c;
-  --canvas: #0a0f0d;
-  --surface: #121a17;
-  --border: #22302a;
-  --danger: #ff6369;
+  --canvas: #0e1512;
+  --surface: #16211c;
+  --border: #24312b;
+  --danger: #fb7185;
 
   /* Derived */
   --border-strong: #5b6f65;
   --action: #2ed3a3;
   --action-hover: #5fe3bc;
   --on-action: #04150e;
-  --danger-ink: #ff6369;
-  --on-danger: #0a0f0d;
+  --danger-ink: #fb7185;
+  --on-danger: #0e1512;
   --awning-ink: #ffc24d;
-  --on-awning: #0f1a15;
-  --primary-soft: #0f2a20;
+  --on-awning: #111614;
+  --primary-soft: #11291f;
   --mint-soft: #0e2a22;
   --awning-soft: #2a2110;
-  --danger-soft: #2c1517;
-  --subtle: #18221e;
-  --subtle-strong: #22302a;
+  --danger-soft: #2f1219;
+  --subtle: #1b2722;
+  --subtle-strong: #24312b;
   --overlay: rgb(0 0 0 / 0.6);
   --ring: #2ed3a3;
   --wordmark-tez: #ffffff;
   --wordmark-dukan: #02e3ac;
   --image-surface: #e9eeeb;
+  --forest: #0b2a1d;
+  --on-forest: #ffffff;
+
+  --material: rgb(22 33 28 / 0.76);
+  --material-edge: rgb(255 255 255 / 0.08);
 
   --tint-green: #14231c;
   --tint-amber: #2a2312;
@@ -128,7 +154,11 @@
 
   --elevation-card: 0 1px 2px rgb(0 0 0 / 0.4);
   --elevation-raised: 0 4px 16px rgb(0 0 0 / 0.45);
+  --elevation-float: 0 1px 2px rgb(0 0 0 / 0.5), 0 18px 40px -12px rgb(0 0 0 / 0.7);
   --elevation-sheet: 0 -8px 32px rgb(0 0 0 / 0.55);
+  --elevation-glow: 0 8px 18px -6px rgb(46 211 163 / 0.45);
+  --sheen: linear-gradient(180deg, rgb(255 255 255 / 0.22), rgb(255 255 255 / 0) 60%);
+  --edge-light: inset 0 1px 0 rgb(255 255 255 / 0.3);
 }
 
 @theme inline {
@@ -162,6 +192,10 @@
   --color-image-surface: var(--image-surface);
   --color-brand-panel: var(--brand-panel);
   --color-on-brand-panel: var(--on-brand-panel);
+  --color-forest: var(--forest);
+  --color-on-forest: var(--on-forest);
+  --color-material: var(--material);
+  --color-material-edge: var(--material-edge);
   --color-ring: var(--ring);
   --color-tint-green: var(--tint-green);
   --color-tint-amber: var(--tint-amber);
@@ -216,18 +250,22 @@
   --text-4xl: 2.25rem;
   --text-4xl--line-height: var(--leading-4xl);
 
-  /* Radius: controls = md (10px), cards = lg (14px), bottom sheets = 2xl (24px) */
+  /* Radius: controls = md (12px), cards = lg (18px), banners = xl (22px), sheets = 2xl (28px).
+     Capsule controls (steppers, chips, the nav dock) are rounded-full. */
   --radius-xs: 4px;
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-  --radius-xl: 18px;
-  --radius-2xl: 24px;
-  --radius-3xl: 28px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 22px;
+  --radius-2xl: 28px;
+  --radius-3xl: 32px;
 
   --shadow-card: var(--elevation-card);
   --shadow-raised: var(--elevation-raised);
+  --shadow-float: var(--elevation-float);
   --shadow-sheet: var(--elevation-sheet);
+  --shadow-glow: var(--elevation-glow);
+  --inset-shadow-edge: var(--edge-light);
 
   /* Motion: 150–250 ms, ease-out */
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
@@ -470,6 +508,28 @@
   }
   .pt-safe {
     padding-top: var(--safe-top);
+  }
+  /* Frosted bar: the nav dock and sticky headers. Falls back to an opaque surface where
+     backdrop blur is unsupported or the user asked for less transparency. */
+  .material {
+    background-color: var(--material);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(20px) saturate(180%);
+  }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .material {
+      background-color: var(--surface);
+    }
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    .material {
+      background-color: var(--surface);
+    }
+  }
+  /* Top-lit filled surface (primary buttons, the active tab, the cart bar). Pair with
+     `inset-shadow-edge` for the lit top edge; outer shadows still compose with it. */
+  .sheen {
+    background-image: var(--sheen);
   }
   .scrollbar-none {
     scrollbar-width: none;

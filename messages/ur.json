@@ -57,7 +57,9 @@
     "groups": {
       "main": "مینو",
       "account": "آپ"
-    }
+    },
+    "cart": "کارٹ",
+    "badgeCount": "{count, plural, one {# چیز} other {# چیزیں}}"
   },
   "roles": {
     "customer": "گاہک",

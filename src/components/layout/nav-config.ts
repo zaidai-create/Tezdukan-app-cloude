@@ -17,6 +17,7 @@ import type { AppRole } from "@/lib/auth/roles";
 export type NavLabel =
   | "home"
   | "categories"
+  | "cart"
   | "orders"
   | "dukan"
   | "account"
@@ -30,12 +31,22 @@ export type NavLabel =
 
 /** Icon names, resolved to Lucide components in client code (components cannot be passed
  * from the server shell to client components as props). */
-export type NavIcon = "home" | "account" | "dashboard" | "beat" | "today" | "admin";
+export type NavIcon =
+  | "home"
+  | "categories"
+  | "cart"
+  | "orders"
+  | "dukan"
+  | "account"
+  | "dashboard"
+  | "beat"
+  | "today"
+  | "admin";
 
 export type NavItem = { href: string; label: NavLabel; icon: NavIcon; exact?: boolean };
 export type NavGroup = { label: "main" | "account"; items: NavItem[] };
 
-/** Mobile bottom nav: up to four tabs; the raised Munshi button sits in the middle. */
+/** Mobile bottom nav (the floating dock): up to five tabs. Munshi lives in the header. */
 export const mobileTabs: Partial<Record<AppRole, NavItem[]>> = {
   customer: [
     { href: "/", label: "home", icon: "home", exact: true },

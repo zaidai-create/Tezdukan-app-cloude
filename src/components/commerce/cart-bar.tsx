@@ -39,7 +39,7 @@ function CartBar({
           className={cn(
             "fixed inset-x-0 z-40 mx-auto w-full max-w-xl px-3",
             aboveBottomNav
-              ? "bottom-[calc(var(--bottom-nav-height)+var(--safe-bottom)+8px)] lg:bottom-6"
+              ? "bottom-[calc(var(--bottom-nav-space)+10px)] lg:bottom-6"
               : "bottom-[calc(var(--safe-bottom)+12px)]",
             className,
           )}

@@ -14,7 +14,8 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        primary: "bg-action text-on-action hover:bg-action-hover",
+        primary:
+          "sheen bg-action text-on-action shadow-glow inset-shadow-edge hover:bg-action-hover",
         secondary: "border border-border-strong bg-surface text-ink hover:bg-subtle",
         outline:
           "border-[1.5px] border-primary bg-surface text-primary-strong hover:bg-primary-soft",

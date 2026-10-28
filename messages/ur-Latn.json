@@ -57,7 +57,9 @@
     "groups": {
       "main": "Menu",
       "account": "Aap"
-    }
+    },
+    "cart": "Cart",
+    "badgeCount": "{count, plural, one {# cheez} other {# cheezain}}"
   },
   "roles": {
     "customer": "Gaahak",

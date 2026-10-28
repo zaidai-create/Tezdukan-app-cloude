@@ -28,7 +28,6 @@ import { CartBar } from "@/components/commerce/cart-bar";
 import { Price } from "@/components/commerce/price";
 import { ProductCard, type ProductCardData } from "@/components/commerce/product-card";
 import { BottomNav } from "@/components/layout/bottom-nav";
-import { mobileTabs } from "@/components/layout/nav-config";
 import { EmptyState } from "@/components/states/empty-state";
 import { ErrorState } from "@/components/states/error-state";
 import {
@@ -712,15 +711,24 @@ export function DesignSystem() {
         <Section
           id="navigation"
           title="Navigation"
-          description="Mobile bottom nav with the raised Munshi mic; tabs; segmented controls."
+          description="The floating nav dock: the current tab is a filled pill with its label; tabs; segmented controls."
         >
           <div className="grid gap-8 lg:grid-cols-2">
             <div className="relative h-[220px] [transform:translateZ(0)] overflow-hidden rounded-2xl border border-border bg-canvas">
-              <p className="p-4 text-sm text-muted">
-                Bottom nav (Munshi: tap to type or talk, hold to talk)
-              </p>
+              <p className="p-4 text-sm text-muted">Bottom nav dock (tap a tab: the pill slides)</p>
               <BottomNav
-                items={[...(mobileTabs.dukandar ?? []), ...(mobileTabs.customer ?? [])].slice(0, 4)}
+                items={[
+                  { href: "/dev/design-system", label: "home", icon: "home", exact: true },
+                  {
+                    href: "/dev/design-system/categories",
+                    label: "categories",
+                    icon: "categories",
+                  },
+                  { href: "/dev/design-system/cart", label: "cart", icon: "cart" },
+                  { href: "/dev/design-system/orders", label: "orders", icon: "orders" },
+                  { href: "/dev/design-system/account", label: "account", icon: "account" },
+                ]}
+                badges={{ "/dev/design-system/cart": 3 }}
                 className="absolute"
               />
             </div>

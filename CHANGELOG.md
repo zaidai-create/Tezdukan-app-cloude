@@ -4,6 +4,16 @@ All notable changes, newest first. Dates are Asia/Karachi.
 
 ## Unreleased
 
+### Design refresh (2026-10-28)
+
+- New look from the owner's Stitch designs, made more Apple-like: deep emerald actions, saffron
+  offers, coral urgency, a warm canvas, layered soft shadows, top-lit 3D buttons and rounder
+  corners, in light and dark.
+- The bottom navigation is now a floating, frosted dock like the owner's picture: the open tab
+  is a green pill with its name that slides on a spring; the others show icons. The cart tab
+  shows how many items are in the cart.
+- Munshi moved into the mobile header (tap to open, hold to talk).
+
 ### Phase 1 — Foundation (in progress)
 
 - Fixes found by the new screenshot and journey tests:

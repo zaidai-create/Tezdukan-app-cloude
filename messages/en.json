@@ -57,7 +57,9 @@
     "groups": {
       "main": "Menu",
       "account": "You"
-    }
+    },
+    "cart": "Cart",
+    "badgeCount": "{count, plural, one {# item} other {# items}}"
   },
   "roles": {
     "customer": "Customer",
