@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "pk.tezdukan.app",
+      "sha256_cert_fingerprints": [
+        "7C:D1:CE:34:F3:AE:16:1A:BA:72:0E:61:FD:9B:F5:3B:A2:7B:E6:D8:5D:1C:A3:EA:68:D0:AD:E2:07:6A:53:74"
+      ]
+    }
+  }
+]
