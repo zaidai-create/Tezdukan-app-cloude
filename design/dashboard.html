@@ -1,0 +1,1375 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Qayam Traders Dashboard</title>
+<meta name="description" content="Design prototype: role-aware dashboard and fast New Bill flow for Qayam Traders ERP.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ---------- Design tokens (light) ---------- */
+:root{
+  color-scheme:light;
+  --bg:#f1f5fb;--card:#ffffff;--card-2:#f6f8fc;--tx:#0f1b2d;--tx-2:#3d4e67;--mu:#66768d;--bd:#e3e9f2;--bd-2:#d2dae6;
+  --nav:#0d1a2d;--nav-2:#12263f;--nav-tx:#b8c7dd;
+  --ac:#2563eb;--ac-2:#12a9b8;--ac-soft:rgba(37,99,235,.10);--ac-tx:#1d4ed8;
+  --s1:#2a78d6;--s2:#eb6834;--grid:#e9eef5;--axis:#c9d3e1;--spark:#a9b8cc;--other:#b9c4d3;
+  --good:#0ca30c;--warn:#fab219;--serious:#ec835a;--crit:#d03b3b;--good-tx:#006300;--bad-tx:#b42318;
+  --o1:#86b6ef;--o2:#5598e7;--o3:#2a78d6;--o4:#184f95;--o1-tx:#0b0b0b;--o2-tx:#fff;--o3-tx:#fff;--o4-tx:#fff;
+  --shadow:0 1px 2px rgba(15,30,60,.05),0 18px 40px -22px rgba(15,30,60,.30);
+  --r:18px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0a1220;--card:#111b2c;--card-2:#152238;--tx:#e7eef8;--tx-2:#b9c6d8;--mu:#8a9ab1;--bd:#203049;--bd-2:#2a3c58;
+    --nav:#060d18;--nav-2:#0c1a2e;--ac:#3b82f6;--ac-soft:rgba(59,130,246,.16);--ac-tx:#8ab4ff;
+    --s1:#3987e5;--s2:#d95926;--grid:#1b2940;--axis:#2c3d57;--spark:#4d6080;--other:#3a4b66;
+    --good-tx:#0ca30c;--bad-tx:#ff8a80;
+    --o1:#184f95;--o2:#256abf;--o3:#3987e5;--o4:#86b6ef;--o1-tx:#fff;--o2-tx:#fff;--o3-tx:#fff;--o4-tx:#0b0b0b;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 18px 40px -22px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0a1220;--card:#111b2c;--card-2:#152238;--tx:#e7eef8;--tx-2:#b9c6d8;--mu:#8a9ab1;--bd:#203049;--bd-2:#2a3c58;
+  --nav:#060d18;--nav-2:#0c1a2e;--ac:#3b82f6;--ac-soft:rgba(59,130,246,.16);--ac-tx:#8ab4ff;
+  --s1:#3987e5;--s2:#d95926;--grid:#1b2940;--axis:#2c3d57;--spark:#4d6080;--other:#3a4b66;
+  --good-tx:#0ca30c;--bad-tx:#ff8a80;
+  --o1:#184f95;--o2:#256abf;--o3:#3987e5;--o4:#86b6ef;--o1-tx:#fff;--o2-tx:#fff;--o3-tx:#fff;--o4-tx:#0b0b0b;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 18px 40px -22px rgba(0,0,0,.7);
+}
+
+/* ---------- Base ---------- */
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--tx);font:15px/1.45 'Source Sans 3',system-ui,-apple-system,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+button,input,select{font:inherit;color:inherit}
+svg.i{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+:focus-visible{outline:2px solid var(--ac);outline-offset:2px;border-radius:8px}
+.mu{color:var(--mu)}.tx2{color:var(--tx-2)}
+.num{font-variant-numeric:tabular-nums}
+kbd{font:600 11px/1 'Source Sans 3',system-ui,sans-serif;border:1px solid var(--bd-2);border-bottom-width:2px;border-radius:6px;padding:3px 6px;color:var(--mu);background:var(--card)}
+
+/* ---------- Shell ---------- */
+.app{display:grid;grid-template-columns:260px minmax(0,1fr);min-height:100vh}
+.side{position:sticky;top:0;height:100vh;overflow:auto;background:linear-gradient(180deg,var(--nav),var(--nav-2));color:var(--nav-tx);display:flex;flex-direction:column;padding:12px;z-index:40}
+.brand{display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:16px;background:linear-gradient(135deg,#2563eb,#12a9b8);color:#fff;box-shadow:0 14px 26px -16px #2563eb}
+.brand b{font-size:17px;display:block;line-height:1.2}.brand small{opacity:.85;font-size:12px}
+.nav{margin-top:12px;display:flex;flex-direction:column;gap:2px;position:relative}
+.nav a{display:flex;align-items:center;gap:12px;height:40px;padding:0 12px;border-radius:12px;color:inherit;text-decoration:none;cursor:pointer;position:relative;z-index:1;transition:color .2s,background .2s;font-weight:500}
+.nav a:hover{background:rgba(255,255,255,.06);color:#fff}
+.nav a.on{color:#fff}
+.nav .ind{position:absolute;left:0;right:0;top:0;height:40px;border-radius:12px;background:linear-gradient(90deg,#3b82f6,#2563eb);box-shadow:0 10px 22px -10px #3b82f6;transition:transform .45s cubic-bezier(.2,.9,.2,1),opacity .2s;z-index:0;pointer-events:none}
+.nav .sec{font-size:11px;letter-spacing:.09em;text-transform:uppercase;opacity:.5;padding:14px 12px 4px;font-weight:600}
+.nav .tag{margin-left:auto;font-size:10.5px;border-radius:999px;padding:1px 8px;font-weight:600}
+.tag.k{border:1px solid rgba(255,255,255,.22);border-radius:6px;padding:0 6px;opacity:.8}
+.tag.soon{background:rgba(18,169,184,.22);color:#7fe3ec}
+.side-foot{margin-top:auto;padding-top:14px;display:flex;flex-direction:column;gap:10px}
+.box{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:10px}
+.box .lbl{font-size:11px;letter-spacing:.06em;text-transform:uppercase;opacity:.6;margin-bottom:6px;font-weight:600}
+.seg-ctl{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:rgba(0,0,0,.25);padding:4px;border-radius:10px}
+.seg-ctl button{border:0;background:none;border-radius:8px;padding:6px 4px;font-size:12.5px;cursor:pointer;color:var(--nav-tx);font-weight:600;transition:background .2s,color .2s}
+.seg-ctl button.on{background:#fff;color:#0f1b2d}
+.side .link{display:flex;gap:8px;align-items:center;background:none;border:0;color:var(--nav-tx);cursor:pointer;padding:4px 0;font-size:13.5px}
+.side .link:hover{color:#fff}
+
+.main{min-width:0;display:flex;flex-direction:column}
+.top{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:10px;padding:12px 28px;background:color-mix(in srgb,var(--bg) 80%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid transparent;transition:border-color .2s}
+.top.scrolled{border-bottom-color:var(--bd)}
+.menu-btn{display:none}
+.search{flex:1;min-width:0;max-width:480px;display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:0 12px;height:42px;color:var(--mu);cursor:pointer;transition:border-color .2s,box-shadow .2s;text-align:left}
+.search:hover{border-color:var(--bd-2);box-shadow:0 6px 18px -12px rgba(15,30,60,.4)}
+.search span{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ibtn{width:42px;height:42px;display:grid;place-items:center;border-radius:12px;border:1px solid var(--bd);background:var(--card);color:var(--tx-2);cursor:pointer;position:relative;transition:transform .15s,border-color .2s}
+.ibtn:hover{border-color:var(--bd-2)}.ibtn:active{transform:scale(.95)}
+.ibtn .dot{position:absolute;top:9px;right:10px;width:8px;height:8px;border-radius:50%;background:var(--crit);box-shadow:0 0 0 2px var(--card)}
+.spacer{flex:1}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:12px;height:42px;padding:0 16px;font-weight:600;cursor:pointer;background:var(--ac);color:#fff;box-shadow:0 10px 20px -12px var(--ac);transition:transform .15s,box-shadow .2s,background .2s;white-space:nowrap}
+.btn:hover{box-shadow:0 14px 26px -12px var(--ac)}
+.btn:active{transform:scale(.97)}
+.btn.ghost{background:var(--card);color:var(--tx);border:1px solid var(--bd);box-shadow:none}
+.btn.ghost:hover{border-color:var(--bd-2)}
+.btn.sm{height:34px;padding:0 12px;border-radius:10px;font-size:14px}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.avatar{display:flex;align-items:center;gap:10px;padding:4px 10px 4px 4px;border-radius:14px;border:1px solid var(--bd);background:var(--card)}
+.avatar i{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(135deg,#2563eb,#12a9b8);color:#fff;font-style:normal;font-weight:700}
+.avatar b{display:block;font-size:14px;line-height:1.1}.avatar small{color:var(--mu);font-size:12px}
+.view{padding:6px 28px 48px;max-width:1560px;width:100%}
+
+/* ---------- Hero ---------- */
+.hero{position:relative;overflow:hidden;border-radius:24px;padding:26px 28px;color:#fff;background:#0f2a52;isolation:isolate;display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;box-shadow:0 28px 48px -30px #1d4ed8}
+.hero:before{content:'';position:absolute;inset:-45%;z-index:-2;background:radial-gradient(38% 48% at 22% 30%,#2563eb 0,transparent 62%),radial-gradient(34% 44% at 80% 18%,#12a9b8 0,transparent 62%),radial-gradient(40% 50% at 62% 92%,#4338ca 0,transparent 62%);filter:blur(8px);animation:aurora 20s ease-in-out infinite alternate}
+.hero:after{content:'';position:absolute;inset:0;z-index:-1;background-image:linear-gradient(rgba(255,255,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.07) 1px,transparent 1px);background-size:30px 30px;-webkit-mask-image:radial-gradient(ellipse at 85% 0,#000 0,transparent 65%);mask-image:radial-gradient(ellipse at 85% 0,#000 0,transparent 65%)}
+@keyframes aurora{0%{transform:translate(0,0) rotate(0)}50%{transform:translate(5%,-4%) rotate(9deg)}100%{transform:translate(-4%,5%) rotate(-7deg)}}
+.hero .kick{display:inline-flex;align-items:center;gap:8px;font-size:13px;opacity:.9;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.16);padding:4px 10px;border-radius:999px}
+.hero h1{margin:12px 0 6px;font-size:30px;line-height:1.15;font-weight:700;letter-spacing:-.01em}
+.hero p{margin:0;opacity:.88;max-width:680px}
+.hero .acts{display:flex;gap:8px;flex-wrap:wrap}
+.glass{display:inline-flex;align-items:center;gap:8px;height:42px;padding:0 14px;border-radius:12px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.12);color:#fff;font-weight:600;cursor:pointer;backdrop-filter:blur(6px);transition:background .2s,transform .15s}
+.glass:hover{background:rgba(255,255,255,.22)}.glass:active{transform:scale(.97)}
+.glass.pri{background:#fff;color:#0f2a52;border-color:#fff;box-shadow:0 12px 26px -12px rgba(0,0,0,.5)}
+.glass.pri:hover{background:#eef4ff}
+.glass kbd{background:rgba(15,42,82,.08);color:inherit;border-color:rgba(15,42,82,.2)}
+.glass:disabled{opacity:.6;cursor:not-allowed}
+.stale{display:inline-flex;gap:6px;align-items:center;margin-top:10px;background:rgba(250,178,25,.18);border:1px solid rgba(250,178,25,.45);color:#ffe6a8;padding:4px 10px;border-radius:999px;font-size:13px}
+
+/* ---------- Filter row ---------- */
+.filters{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:18px 0 2px;position:relative;z-index:15}
+.range{position:relative}
+.range-btn{display:inline-flex;align-items:center;gap:10px;height:40px;padding:0 14px;border-radius:12px;border:1px solid var(--bd);background:var(--card);cursor:pointer;font-weight:600}
+.range-btn:hover{border-color:var(--bd-2)}
+.menu{position:absolute;top:46px;left:0;width:280px;background:var(--card);border:1px solid var(--bd);border-radius:14px;box-shadow:0 24px 50px -20px rgba(10,20,40,.45);padding:6px;z-index:25;transform-origin:top left;animation:pop .18s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes pop{from{opacity:0;transform:scale(.96) translateY(-4px)}}
+.menu button.row{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;padding:9px 10px;border-radius:9px;cursor:pointer;text-align:left}
+.menu button.row:hover{background:var(--ac-soft)}
+.menu .chk{width:16px;height:16px;display:grid;place-items:center}
+.menu .chk svg{width:16px;height:16px;stroke-width:3;color:var(--ac)}
+.menu .row.sel{font-weight:700}
+.menu .foot{border-top:1px solid var(--bd);margin-top:6px;padding:10px 6px 4px;display:grid;grid-template-columns:1fr 1fr auto;gap:6px;align-items:end}
+.menu .foot label{font-size:12px;color:var(--mu)}
+.menu .foot input{width:100%;height:34px;border:1px solid var(--bd);border-radius:8px;background:var(--card-2);padding:0 6px}
+.chip{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px;border-radius:999px;border:1px solid var(--bd);background:var(--card);font-size:13px;color:var(--tx-2)}
+.chip.ok svg{color:var(--good)}.chip.warn svg{color:#c98500}
+
+/* ---------- Grid & cards ---------- */
+.grid{display:grid;gap:16px;margin-top:16px}
+.g-kpi{grid-template-columns:repeat(3,minmax(0,1fr))}.g-kpi.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (min-width:1700px){.g-kpi{grid-template-columns:repeat(6,minmax(0,1fr))}}
+.g-21{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
+.g-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g-11{grid-template-columns:repeat(2,minmax(0,1fr))}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);box-shadow:var(--shadow);padding:18px;min-width:0;position:relative}
+.ch{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:14px}
+.ch h3{margin:0;font-size:16px;font-weight:700}
+.ch .sub{color:var(--mu);font-size:13px;margin-top:2px}
+.ch .tools{display:flex;gap:6px;align-items:center}
+.tbtn{width:32px;height:32px;border-radius:9px;border:1px solid var(--bd);background:var(--card);display:grid;place-items:center;color:var(--mu);cursor:pointer}
+.tbtn:hover{color:var(--tx);border-color:var(--bd-2)}.tbtn.on{color:var(--ac);border-color:var(--ac);background:var(--ac-soft)}
+.tbtn svg{width:16px;height:16px}
+.reveal{animation:up .7s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0)*55ms)}
+@keyframes up{from{opacity:0;transform:translateY(14px) scale(.985)}}
+.t3{transition:transform .2s ease-out,box-shadow .25s;transform-style:preserve-3d}
+.t3:hover{box-shadow:0 2px 4px rgba(15,30,60,.06),0 26px 44px -22px rgba(15,30,60,.38)}
+.dim{opacity:.5;transition:opacity .2s}
+
+/* KPI tile */
+.kpi{display:flex;flex-direction:column;gap:6px;overflow:hidden}
+.kpi:before{content:'';position:absolute;inset:0 0 auto 0;height:3px;background:linear-gradient(90deg,var(--kc,#2563eb),transparent 80%);opacity:.9}
+.kpi-h{display:flex;align-items:center;gap:10px;color:var(--tx-2);font-weight:600;font-size:14px}
+.kpi-ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--kc,#2563eb) 14%,transparent);color:var(--kc,#2563eb)}
+.kpi-ic svg{width:18px;height:18px}
+.kpi .val{font-size:27px;font-weight:700;letter-spacing:-.01em;line-height:1.15;margin-top:4px}
+.kpi-f{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mu);min-height:28px;white-space:nowrap}
+.kpi-f .spark{margin-left:auto}
+.delta{display:inline-flex;align-items:center;gap:3px;font-weight:700}
+.delta svg{width:14px;height:14px;stroke-width:2.4}
+.delta.good{color:var(--good-tx)}.delta.bad{color:var(--bad-tx)}.delta.flat{color:var(--mu)}
+.lock{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;color:var(--mu);background:var(--card-2);border:1px solid var(--bd);padding:1px 7px;border-radius:999px;margin-left:auto;font-weight:600}
+.lock svg{width:12px;height:12px}
+
+/* Charts */
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--tx-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{display:inline-block}
+.lk{width:16px;height:2px;border-radius:2px}.rk-key{width:10px;height:10px;border-radius:3px}
+.k-s1{background:var(--s1)}.k-s2{background:var(--s2)}
+.chart{position:relative;width:100%;outline:none}
+.chart svg{display:block;width:100%;overflow:visible}
+.chart .gl{stroke:var(--grid);stroke-width:1}
+.chart .base{stroke:var(--axis);stroke-width:1}
+.chart .ax{fill:var(--mu);font-size:11.5px;font-variant-numeric:tabular-nums}
+.chart .ln{fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.chart .ln.s1{stroke:var(--s1)}.chart .ln.s2{stroke:var(--s2)}
+.chart .ar{fill:var(--s1);opacity:.10}
+.chart .end{stroke:var(--card);stroke-width:2}
+.chart .end.s1{fill:var(--s1)}.chart .end.s2{fill:var(--s2)}
+.chart .elab{fill:var(--tx);font-size:12px;font-weight:700}
+.chart .xh{stroke:var(--tx-2);stroke-width:1;opacity:.35}
+.chart .hit{fill:transparent;cursor:crosshair}
+.chart .hd{stroke:var(--card);stroke-width:2}
+.chart .hd.s1{fill:var(--s1)}.chart .hd.s2{fill:var(--s2)}
+.draw{transition:stroke-dashoffset 1.3s cubic-bezier(.4,0,.2,1)}
+.fadein{animation:fadein 1s ease .5s both}@keyframes fadein{from{opacity:0}}
+.tbl{width:100%;border-collapse:collapse;font-size:14px}
+.tbl th,.tbl td{padding:9px 10px;border-bottom:1px solid var(--bd);text-align:left;white-space:nowrap}
+.tbl th{font-size:12.5px;color:var(--mu);font-weight:600;background:var(--card-2)}
+.tbl td.n,.tbl th.n{text-align:right;font-variant-numeric:tabular-nums}
+.tbl tbody tr{transition:background .15s}
+.tbl tbody tr:hover td{background:var(--ac-soft)}
+.scroll{overflow-x:auto;margin:0 -18px;padding:0 18px}
+
+/* Ranked bars */
+.rk{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;padding:7px 0;cursor:default;outline:none;border-radius:8px}
+.rk:focus-visible{outline:2px solid var(--ac);outline-offset:3px}
+.rk-n{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;font-size:14px}
+.rk-n small{font-weight:400;color:var(--mu);margin-left:6px}
+.rk-v{font-weight:700;font-size:14px;text-align:right}
+.rk-t{grid-column:1/-1;height:10px}
+.rk-t i{display:block;height:10px;width:0;background:var(--s1);border-radius:0 4px 4px 0;transition:width .9s cubic-bezier(.2,.8,.2,1),filter .15s}
+.rk-t i.oth{background:var(--other)}
+.rk.go .rk-t i{width:var(--w)}
+.rk:hover .rk-t i,.rk:focus .rk-t i{filter:brightness(1.12)}
+.note{display:flex;gap:10px;align-items:flex-start;margin-top:12px;padding:10px 12px;border-radius:12px;background:var(--card-2);border:1px solid var(--bd);font-size:13.5px;color:var(--tx-2)}
+.note svg{color:var(--ac);margin-top:1px}
+
+/* Segmented bar */
+.segbar{display:flex;gap:2px;height:28px;margin:6px 0 12px}
+.sg{min-width:0;border-radius:4px;display:flex;align-items:center;padding:0 8px;font-size:12.5px;font-weight:700;cursor:default;outline:none;transform-origin:left;animation:grow .9s cubic-bezier(.2,.8,.2,1) both}
+.sg:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.sg span{white-space:nowrap}
+.sg.o1{background:var(--o1);color:var(--o1-tx)}.sg.o2{background:var(--o2);color:var(--o2-tx)}.sg.o3{background:var(--o3);color:var(--o3-tx)}.sg.o4{background:var(--o4);color:var(--o4-tx)}
+.sg:hover{filter:brightness(1.1)}
+@keyframes grow{from{transform:scaleX(0)}}
+.k-o1{background:var(--o1)}.k-o2{background:var(--o2)}.k-o3{background:var(--o3)}.k-o4{background:var(--o4)}
+.lst{display:flex;flex-direction:column}
+.li{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--bd)}
+.li:last-child{border-bottom:0}
+.li .grow{flex:1;min-width:0}
+.li .grow b{display:block;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.li .grow small{color:var(--mu);font-size:12.5px}
+.li .amt{font-weight:700;text-align:right;white-space:nowrap}
+.li .amt small{display:block;font-weight:400;color:var(--mu);font-size:12px}
+.av{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;flex:none;font-weight:700;font-size:13px;background:var(--ac-soft);color:var(--ac-tx)}
+
+/* Alerts */
+.al{display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--bd)}
+.al:last-child{border-bottom:0}
+.al .sev{flex:none;display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;padding:3px 8px;border-radius:999px;margin-top:1px;min-width:78px}
+.al .sev svg{width:13px;height:13px;stroke-width:2.4}
+.sev.crit{background:color-mix(in srgb,var(--crit) 14%,transparent);color:var(--crit)}
+.sev.serious{background:color-mix(in srgb,var(--serious) 18%,transparent);color:#c2410c}
+.sev.warn{background:color-mix(in srgb,var(--warn) 22%,transparent);color:#8a5a00}
+.sev.info{background:var(--ac-soft);color:var(--ac-tx)}
+:root[data-theme="dark"] .sev.serious{color:#ffb08f}:root[data-theme="dark"] .sev.warn{color:#ffd166}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .sev.serious{color:#ffb08f}:root:not([data-theme="light"]) .sev.warn{color:#ffd166}}
+.al b{display:block;font-size:14px}.al small{color:var(--mu);font-size:13px}
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:2px 9px;border-radius:999px}
+.badge svg{width:12px;height:12px;stroke-width:2.6}
+.badge.paid{background:color-mix(in srgb,var(--good) 14%,transparent);color:var(--good-tx)}
+.badge.part{background:color-mix(in srgb,var(--warn) 22%,transparent);color:#8a5a00}
+.badge.due{background:color-mix(in srgb,var(--crit) 12%,transparent);color:var(--crit)}
+.badge.na{background:var(--card-2);color:var(--mu);border:1px solid var(--bd)}
+
+/* Insights */
+.ins{display:flex;flex-direction:column;gap:10px}
+.insight{display:flex;gap:12px;padding:12px;border-radius:14px;background:linear-gradient(135deg,color-mix(in srgb,var(--ac) 7%,var(--card)),var(--card));border:1px solid var(--bd);transition:transform .2s,border-color .2s}
+.insight:hover{transform:translateX(3px);border-color:var(--bd-2)}
+.insight .ic{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;flex:none;background:var(--ac-soft);color:var(--ac-tx)}
+.insight .ic svg{width:17px;height:17px}
+.insight b{display:block;font-size:14px}.insight small{color:var(--mu);font-size:13px}
+.ai-pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;color:#fff;background:linear-gradient(90deg,#2563eb,#12a9b8,#4338ca,#2563eb);background-size:300% 100%;animation:shine 6s linear infinite}
+.ai-pill svg{width:13px;height:13px}
+@keyframes shine{to{background-position:300% 0}}
+
+/* FBR */
+.steps{display:flex;flex-direction:column;gap:2px;margin-top:4px}
+.step{display:flex;gap:10px;align-items:center;padding:7px 0;font-size:14px}
+.step i{width:22px;height:22px;border-radius:50%;border:2px dashed var(--bd-2);display:grid;place-items:center;font-style:normal;font-size:11px;color:var(--mu);font-weight:700;flex:none}
+.meter{height:8px;border-radius:999px;background:color-mix(in srgb,var(--s1) 16%,transparent);overflow:hidden;margin-top:6px}
+.meter i{display:block;height:100%;border-radius:999px;background:var(--s1);width:0;transition:width 1s cubic-bezier(.2,.8,.2,1) .3s}
+.ready{display:grid;grid-template-columns:1fr auto;gap:2px 10px;font-size:13.5px;margin-top:12px}
+.ready span{color:var(--tx-2)}
+
+/* Placeholder page */
+.empty{text-align:center;padding:60px 20px}
+.empty .ic{width:64px;height:64px;border-radius:20px;margin:0 auto 14px;display:grid;place-items:center;background:var(--ac-soft);color:var(--ac-tx)}
+.empty .ic svg{width:28px;height:28px}
+.empty h2{margin:0 0 6px}
+
+/* Skeleton */
+.sk{border-radius:12px;background:linear-gradient(90deg,var(--card-2) 25%,color-mix(in srgb,var(--card-2) 50%,var(--bd)) 50%,var(--card-2) 75%);background-size:200% 100%;animation:shim 1.1s linear infinite}
+@keyframes shim{to{background-position:-200% 0}}
+
+/* Tooltip */
+.tip{position:fixed;left:0;top:0;pointer-events:none;z-index:200;background:var(--card);color:var(--tx);border:1px solid var(--bd);border-radius:12px;box-shadow:0 16px 36px -14px rgba(5,15,35,.45);padding:9px 11px;font-size:13px;min-width:150px;opacity:0;transform:translateY(4px);transition:opacity .12s,transform .12s}
+.tip.on{opacity:1;transform:none}
+.tip .tt{color:var(--mu);font-size:12px;margin-bottom:4px;font-weight:600}
+.tip .tr{display:flex;align-items:center;gap:8px;padding:2px 0}
+.tip .tr b{font-variant-numeric:tabular-nums}
+.tip .tr span{color:var(--mu);margin-left:auto;padding-left:10px}
+.tip .key{width:12px;height:2px;border-radius:2px;flex:none}
+.tip .key.box{height:10px;width:10px;border-radius:3px}
+
+/* Toast */
+.toasts{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);display:flex;flex-direction:column;gap:8px;z-index:300;align-items:center}
+.toast{background:#0f1b2d;color:#fff;padding:10px 16px;border-radius:12px;box-shadow:0 14px 30px -12px rgba(0,0,0,.5);display:flex;gap:10px;align-items:center;font-size:14px;animation:tin .35s cubic-bezier(.2,.9,.3,1.3)}
+.toast svg{color:#5eead4}
+.toast.out{animation:tout .25s ease forwards}
+@keyframes tin{from{opacity:0;transform:translateY(12px) scale(.96)}}
+@keyframes tout{to{opacity:0;transform:translateY(8px)}}
+
+/* Command palette */
+.overlay{position:fixed;inset:0;background:rgba(5,12,24,.5);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);z-index:150;display:none;animation:fade .2s}
+.overlay.open{display:block}
+@keyframes fade{from{opacity:0}}
+.cmdk{position:fixed;top:12vh;left:50%;transform:translateX(-50%);width:min(620px,calc(100% - 32px));background:var(--card);border:1px solid var(--bd);border-radius:18px;box-shadow:0 40px 80px -30px rgba(0,0,0,.6);z-index:160;display:none;overflow:hidden;animation:pop .2s cubic-bezier(.2,.9,.3,1.2)}
+.cmdk.open{display:block}
+.cmdk .q{display:flex;gap:10px;align-items:center;padding:14px 16px;border-bottom:1px solid var(--bd)}
+.cmdk .q input{flex:1;border:0;background:none;outline:none;font-size:17px}
+.cmdk .res{max-height:52vh;overflow:auto;padding:6px}
+.cmdk .grp{font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--mu);padding:10px 10px 4px;font-weight:700}
+.cmdk .it{display:flex;gap:10px;align-items:center;padding:9px 10px;border-radius:10px;cursor:pointer}
+.cmdk .it.on{background:var(--ac-soft)}
+.cmdk .it small{margin-left:auto;color:var(--mu)}
+
+/* ---------- New Bill drawer ---------- */
+.drawer{position:fixed;inset:0;z-index:100;display:none}
+.drawer.open{display:block}
+.drawer .scrim{position:absolute;inset:0;background:rgba(5,12,24,.5);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);animation:fade .25s}
+.panel{position:absolute;top:0;right:0;bottom:0;width:min(1040px,100%);background:var(--bg);box-shadow:-30px 0 60px -30px rgba(0,0,0,.55);display:flex;flex-direction:column;animation:slide .5s cubic-bezier(.16,1,.3,1)}
+.drawer.closing .panel{animation:slideout .3s cubic-bezier(.4,0,1,1) forwards}
+.drawer.closing .scrim{animation:fade .3s reverse forwards}
+@keyframes slide{from{transform:translateX(60px);opacity:0}}
+@keyframes slideout{to{transform:translateX(60px);opacity:0}}
+.ph{display:flex;align-items:center;gap:14px;padding:16px 22px;border-bottom:1px solid var(--bd);background:var(--card)}
+.ph h2{margin:0;font-size:20px}
+.ph .no{font-variant-numeric:tabular-nums;color:var(--mu);font-size:13px}
+.pb{flex:1;overflow:auto;padding:18px 22px;display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:18px;align-items:start}
+.fld{display:block;font-size:13px;color:var(--mu);font-weight:600;margin-bottom:12px;position:relative}
+.inp{display:flex;align-items:center;gap:10px;height:46px;border:1.5px solid var(--bd);border-radius:12px;background:var(--card);padding:0 12px;margin-top:5px;transition:border-color .15s,box-shadow .15s}
+.inp:focus-within{border-color:var(--ac);box-shadow:0 0 0 4px var(--ac-soft)}
+.inp input{flex:1;border:0;background:none;outline:none;font-size:15.5px;min-width:0;color:var(--tx)}
+.inp svg{color:var(--mu)}
+.opts{position:absolute;left:0;right:0;top:100%;margin-top:6px;background:var(--card);border:1px solid var(--bd);border-radius:14px;box-shadow:0 24px 50px -20px rgba(10,20,40,.45);padding:6px;z-index:20;max-height:320px;overflow:auto;animation:pop .15s ease}
+.opt{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;cursor:pointer;color:var(--tx);font-weight:400}
+.opt.on{background:var(--ac-soft)}
+.opt .grow{flex:1;min-width:0}.opt b{display:block;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.opt small{color:var(--mu);font-size:12.5px}
+.opt .r{text-align:right;font-size:13px;white-space:nowrap}
+.opt.empty{color:var(--mu);cursor:default}
+.cinfo{display:flex;gap:12px;align-items:center;padding:12px;border-radius:14px;background:var(--card);border:1px solid var(--bd);margin:-2px 0 14px;animation:up .35s ease}
+.cinfo .grow{flex:1;min-width:0}
+.cinfo b{display:block}.cinfo small{color:var(--mu)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:-4px 0 12px}
+.chipbtn{border:1px dashed var(--bd-2);background:var(--card);border-radius:999px;padding:4px 10px;font-size:13px;cursor:pointer;color:var(--tx-2)}
+.chipbtn:hover{border-style:solid;border-color:var(--ac);color:var(--ac-tx)}
+.lines{background:var(--card);border:1px solid var(--bd);border-radius:16px;overflow:hidden}
+.lh,.lr{display:grid;grid-template-columns:minmax(0,1fr) 132px 112px 120px 36px;gap:10px;align-items:center;padding:10px 14px}
+.lh{font-size:12px;color:var(--mu);font-weight:700;text-transform:uppercase;letter-spacing:.05em;background:var(--card-2);border-bottom:1px solid var(--bd)}
+.lr{border-bottom:1px solid var(--bd);animation:rowin .35s cubic-bezier(.2,.8,.2,1)}
+.lr:last-child{border-bottom:0}
+@keyframes rowin{from{opacity:0;transform:translateY(-6px);background:var(--ac-soft)}}
+.lr .pn b{display:block;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lr .pn small{font-size:12px;color:var(--mu)}
+.lr .pn small.w{color:var(--crit);font-weight:600}
+.qty{display:flex;align-items:center;border:1.5px solid var(--bd);border-radius:10px;overflow:hidden;background:var(--card)}
+.qty:focus-within{border-color:var(--ac)}
+.qty button{width:34px;height:36px;border:0;background:var(--card-2);cursor:pointer;display:grid;place-items:center;color:var(--tx-2)}
+.qty button:hover{color:var(--ac)}
+.qty button svg{width:15px;height:15px}
+.qty input{width:100%;border:0;text-align:center;outline:none;background:none;height:36px;font-weight:700;min-width:0}
+.rate{height:38px;border:1.5px solid var(--bd);border-radius:10px;background:var(--card);padding:0 8px;text-align:right;width:100%;outline:none;font-variant-numeric:tabular-nums}
+.rate:focus{border-color:var(--ac)}
+.lr .amt{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.xbtn{width:32px;height:32px;border:0;border-radius:9px;background:none;color:var(--mu);cursor:pointer;display:grid;place-items:center}
+.xbtn:hover{background:color-mix(in srgb,var(--crit) 12%,transparent);color:var(--crit)}
+.noitems{padding:34px 16px;text-align:center;color:var(--mu)}
+.noitems svg{width:30px;height:30px;color:var(--bd-2);margin-bottom:6px}
+.sum{position:sticky;top:0;background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:18px;box-shadow:var(--shadow)}
+.sum h3{margin:0 0 10px;font-size:16px}
+.srow{display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-size:14.5px;font-variant-numeric:tabular-nums}
+.srow span{color:var(--tx-2)}
+.srow input{width:120px;height:34px;border:1.5px solid var(--bd);border-radius:9px;background:var(--card-2);text-align:right;padding:0 8px;outline:none}
+.srow input:focus{border-color:var(--ac)}
+.total{display:flex;justify-content:space-between;align-items:baseline;margin:8px 0 12px;padding-top:12px;border-top:1px dashed var(--bd-2)}
+.total span{font-weight:700}
+.total b{font-size:30px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 0;font-size:14px;color:var(--tx-2)}
+.sw{width:40px;height:24px;border-radius:999px;background:var(--bd-2);position:relative;border:0;cursor:pointer;transition:background .2s;flex:none}
+.sw:after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .25s cubic-bezier(.2,.9,.3,1.3)}
+.sw[aria-checked="true"]{background:var(--ac)}.sw[aria-checked="true"]:after{transform:translateX(16px)}
+.pay{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;background:var(--card-2);border:1px solid var(--bd);padding:4px;border-radius:12px;margin:6px 0 10px}
+.pay button{border:0;background:none;border-radius:9px;padding:7px 2px;font-size:13px;font-weight:600;cursor:pointer;color:var(--tx-2);transition:background .2s,color .2s}
+.pay button.on{background:var(--card);color:var(--ac-tx);box-shadow:0 2px 8px -3px rgba(15,30,60,.35)}
+.berr{color:var(--crit);font-size:13.5px;min-height:20px;margin:4px 0}
+.shake{animation:sh .4s}
+@keyframes sh{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.bacts{display:grid;gap:8px;margin-top:6px}
+.bacts .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.hint{font-size:12px;color:var(--mu);text-align:center;margin-top:8px}
+.tw{font-size:12px;color:var(--mu)}
+/* success */
+.done{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;align-items:start;animation:up .5s ease}
+.okmark{width:76px;height:76px;margin-bottom:12px}
+.okmark circle{fill:none;stroke:var(--good);stroke-width:3;stroke-dasharray:240;stroke-dashoffset:240;animation:dash .7s ease forwards}
+.okmark path{fill:none;stroke:var(--good);stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:60;stroke-dashoffset:60;animation:dash .45s ease .55s forwards}
+@keyframes dash{to{stroke-dashoffset:0}}
+.receipt{background:#fff;color:#111;border-radius:6px;padding:16px 14px;font:12.5px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;box-shadow:0 20px 40px -20px rgba(0,0,0,.45);position:relative}
+.receipt:after{content:'';position:absolute;left:0;right:0;bottom:-8px;height:8px;background:linear-gradient(-45deg,transparent 5px,#fff 0) 0 0/10px 8px,linear-gradient(45deg,transparent 5px,#fff 0) 0 0/10px 8px}
+.receipt .c{text-align:center}.receipt hr{border:0;border-top:1px dashed #999;margin:8px 0}
+.receipt .r{display:flex;justify-content:space-between;gap:8px}
+.receipt .qr{width:88px;height:88px;border:1.5px dashed #888;margin:8px auto 4px;display:grid;place-items:center;text-align:center;font-size:10px;color:#666;padding:4px}
+
+/* Mobile bottom bar */
+.bbar{display:none}
+.mfoot{display:none}
+.scrim-side{display:none}
+
+@media (max-width:1180px){.g-3{grid-template-columns:repeat(2,minmax(0,1fr))}.g-21{grid-template-columns:1fr}.g-kpi.four{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:980px){.pb{grid-template-columns:1fr}.sum{position:static}.done{grid-template-columns:1fr}}
+@media (max-width:860px){
+  .app{grid-template-columns:1fr}
+  .side{position:fixed;left:0;top:0;bottom:0;width:276px;transform:translateX(-102%);transition:transform .35s cubic-bezier(.2,.9,.2,1)}
+  .side.open{transform:none;box-shadow:30px 0 60px -20px rgba(0,0,0,.5)}
+  .scrim-side.open{display:block;position:fixed;inset:0;background:rgba(5,12,24,.45);z-index:35;animation:fade .2s}
+  .menu-btn{display:grid}
+  .top{padding:10px 16px}
+  .hide-m{display:none!important}
+  .lock{font-size:0;gap:0;padding:2px 5px}.lock svg{width:12px;height:12px}
+  .kpi-h{font-size:13px;align-items:flex-start}
+  .mfoot{display:flex;align-items:center;gap:12px;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:var(--card);border-top:1px solid var(--bd);box-shadow:0 -10px 30px -18px rgba(0,0,0,.4)}
+  .mfoot div{flex:1}.mfoot small{display:block;color:var(--mu);font-size:12px}.mfoot b{font-size:20px;font-variant-numeric:tabular-nums}
+  .search{height:42px}
+  .search kbd{display:none}
+  .view{padding:4px 16px 110px}
+  .hero{padding:20px;border-radius:20px}.hero h1{font-size:24px}
+  .g-3,.g-11{grid-template-columns:1fr}
+  .g-kpi,.g-kpi.four{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .kpi-f>span:nth-child(2){display:none}
+  .kpi .val{font-size:21px}.kpi .spark{display:none}
+  .card{padding:16px}
+  .bbar{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:45;background:color-mix(in srgb,var(--card) 92%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--bd);padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
+  .bbar button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;color:var(--mu);cursor:pointer;padding:4px 0;font-weight:600}
+  .bbar button.on{color:var(--ac-tx)}
+  .bbar .fab{width:52px;height:52px;border-radius:16px;margin:-22px auto 0;background:linear-gradient(135deg,#2563eb,#12a9b8);color:#fff;display:grid;place-items:center;box-shadow:0 14px 26px -10px #2563eb}
+  .bbar .fab svg{width:24px;height:24px}
+  .pb{padding:14px}
+  .ph{padding:12px 14px}
+  .lh{display:none}
+  .lr{grid-template-columns:minmax(0,1fr) 36px;grid-template-areas:"pn x" "q r" "a a";row-gap:8px}
+  .lr .pn{grid-area:pn}.lr .qty{grid-area:q}.lr .rate{grid-area:r}.lr .amt{grid-area:a;text-align:left}.lr .xbtn{grid-area:x}
+  .lr{grid-template-columns:1fr 1fr 36px;grid-template-areas:"pn pn x" "q r r" "a a a"}
+  .avatar div{display:none}
+}
+@media (prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
+::view-transition-old(root),::view-transition-new(root){animation:none;mix-blend-mode:normal}
+::view-transition-new(root){animation:vt .6s cubic-bezier(.4,0,.2,1)}
+@keyframes vt{from{clip-path:circle(0 at var(--vx,90%) var(--vy,4%))}to{clip-path:circle(150vmax at var(--vx,90%) var(--vy,4%))}}
+@media print{.side,.top,.bbar,.filters,.hero .acts{display:none}.app{display:block}.card{box-shadow:none;break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side" id="side" aria-label="Main navigation">
+    <div class="brand">
+      <svg width="38" height="38" viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="11" fill="rgba(255,255,255,.18)"/><path d="M20 8c5.2 6.2 8.3 9.8 8.3 14.4a8.3 8.3 0 01-16.6 0C11.7 17.8 14.8 14.2 20 8z" fill="#fff"/><path d="M16.5 22.5a3.6 3.6 0 003.5 3.6" stroke="#2563eb" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+      <div><b id="coName">Qayam Traders</b><small>Dairy distribution ERP</small></div>
+    </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-foot">
+      <div class="box">
+        <div class="lbl">Preview as</div>
+        <div class="seg-ctl" id="roleCtl" role="radiogroup" aria-label="Preview dashboard as role">
+          <button data-role="admin" role="radio">Admin</button>
+          <button data-role="accountant" role="radio">Accountant</button>
+          <button data-role="worker" role="radio">Salesman</button>
+        </div>
+      </div>
+      <div class="box">
+        <div class="lbl">Data source</div>
+        <div id="srcLbl" style="font-size:13.5px;color:#fff;font-weight:600">Demo data</div>
+        <button class="link" data-act="load"><svg class="i" viewBox="0 0 24 24"><use href="#i-upload"/></svg>Load my qayam-data.json</button>
+        <button class="link" data-act="demo" id="demoBtn" hidden><svg class="i" viewBox="0 0 24 24"><use href="#i-refresh"/></svg>Back to demo data</button>
+        <input type="file" id="file" accept=".json,application/json" hidden>
+      </div>
+    </div>
+  </aside>
+  <div class="scrim-side" id="sideScrim"></div>
+  <div class="main">
+    <header class="top" id="top">
+      <button class="ibtn menu-btn" data-act="menu" aria-label="Open menu"><svg class="i" viewBox="0 0 24 24"><use href="#i-menu"/></svg></button>
+      <button class="search" data-act="cmdk" aria-label="Search (Ctrl+K)"><svg class="i" viewBox="0 0 24 24"><use href="#i-search"/></svg><span>Search customers, products, bills...</span><kbd>Ctrl K</kbd></button>
+      <div class="spacer"></div>
+      <button class="btn hide-m" data-act="bill"><svg class="i" viewBox="0 0 24 24"><use href="#i-plus"/></svg>New Bill <kbd style="background:rgba(255,255,255,.18);color:#fff;border-color:rgba(255,255,255,.35)">F2</kbd></button>
+      <button class="ibtn" data-act="theme" aria-label="Switch light or dark theme"><svg class="i" viewBox="0 0 24 24" id="themeIc"><use href="#i-moon"/></svg></button>
+      <button class="ibtn hide-m" data-act="alerts" aria-label="Alerts"><svg class="i" viewBox="0 0 24 24"><use href="#i-bell"/></svg><span class="dot" id="bellDot" hidden></span></button>
+      <div class="avatar"><i id="avI">ZK</i><div><b id="avName">Zaid Khan</b><small id="avRole">Admin</small></div></div>
+    </header>
+    <main class="view" id="view" tabindex="-1"></main>
+  </div>
+</div>
+
+<nav class="bbar" id="bbar" aria-label="Quick navigation">
+  <button data-go="dash" class="on"><svg class="i" viewBox="0 0 24 24"><use href="#i-dash"/></svg>Home</button>
+  <button data-go="customers"><svg class="i" viewBox="0 0 24 24"><use href="#i-users"/></svg>Customers</button>
+  <button data-act="bill" aria-label="New Bill"><span class="fab"><svg class="i" viewBox="0 0 24 24"><use href="#i-plus"/></svg></span></button>
+  <button data-go="stock"><svg class="i" viewBox="0 0 24 24"><use href="#i-package"/></svg>Stock</button>
+  <button data-act="menu"><svg class="i" viewBox="0 0 24 24"><use href="#i-menu"/></svg>More</button>
+</nav>
+
+<div class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="New Bill">
+  <div class="scrim" data-act="closebill"></div>
+  <div class="panel" id="panel"></div>
+</div>
+<div class="overlay" id="ov" data-act="closecmdk"></div>
+<div class="cmdk" id="cmdk" role="dialog" aria-label="Search">
+  <div class="q"><svg class="i" viewBox="0 0 24 24"><use href="#i-search"/></svg><input id="cq" placeholder="Type a page, customer or product..." autocomplete="off"><kbd>Esc</kbd></div>
+  <div class="res" id="cres"></div>
+</div>
+<div class="tip" id="tip" role="status" aria-live="polite"></div>
+<div class="toasts" id="toasts"></div>
+
+<!-- Icon sprite (Lucide-style strokes) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-dash" viewBox="0 0 24 24"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></symbol>
+  <symbol id="i-receipt" viewBox="0 0 24 24"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/></symbol>
+  <symbol id="i-cart" viewBox="0 0 24 24"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></symbol>
+  <symbol id="i-cash" viewBox="0 0 24 24"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+  <symbol id="i-package" viewBox="0 0 24 24"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"/><path d="m7.5 4.27 9 5.15"/></symbol>
+  <symbol id="i-truck" viewBox="0 0 24 24"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></symbol>
+  <symbol id="i-bank" viewBox="0 0 24 24"><path d="M3 22h18"/><path d="M6 18v-7"/><path d="M10 18v-7"/><path d="M14 18v-7"/><path d="M18 18v-7"/><path d="M12 2 20 7H4z"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M9.94 15.5A2 2 0 0 0 8.5 14.06l-6.14-1.58a.5.5 0 0 1 0-.96L8.5 9.94A2 2 0 0 0 9.94 8.5l1.58-6.14a.5.5 0 0 1 .96 0L14.06 8.5A2 2 0 0 0 15.5 9.94l6.14 1.58a.5.5 0 0 1 0 .96L15.5 14.06a2 2 0 0 0-1.44 1.44l-1.58 6.14a.5.5 0 0 1-.96 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2m-7.07-17.07 1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol>
+  <symbol id="i-wallet" viewBox="0 0 24 24"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="M22 7 13.5 15.5 8.5 10.5 2 17"/><path d="M16 7h6v6"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M22 17 13.5 8.5 8.5 13.5 2 7"/><path d="M16 17h6v-6"/></symbol>
+  <symbol id="i-tri" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-checkc" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+  <symbol id="i-printer" viewBox="0 0 24 24"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 12h16M4 6h16M4 18h16"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M8 16H3v5"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></symbol>
+  <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></symbol>
+  <symbol id="i-db" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></symbol>
+  <symbol id="i-table" viewBox="0 0 24 24"><path d="M12 3v18"/><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18M3 15h18"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 5-5.54 10.19-7.4 11.8a1 1 0 0 1-1.2 0C9.54 20.19 4 15 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M16 13H8M16 17H8M10 9H8"/></symbol>
+</svg>
+
+<script>
+(() => {
+'use strict';
+/* Real data is injected here only in a private local preview build. The repo copy ships with demo data. */
+const EMBED = null;
+
+/* ================= helpers ================= */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const TZ = 'Asia/Karachi';
+const TODAY = new Intl.DateTimeFormat('en-CA', {timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit'}).format(new Date());
+const HOUR = +new Intl.DateTimeFormat('en-GB', {timeZone: TZ, hour: '2-digit', hour12: false}).format(new Date());
+const d2n = s => Date.UTC(+s.slice(0, 4), +s.slice(5, 7) - 1, +s.slice(8, 10)) / 864e5;
+const n2d = n => new Date(n * 864e5).toISOString().slice(0, 10);
+const addD = (s, k) => n2d(d2n(s) + k);
+const between = (a, b) => d2n(b) - d2n(a);
+const mStart = s => s.slice(0, 8) + '01';
+const addM = (s, k) => { let y = +s.slice(0, 4), m = +s.slice(5, 7) - 1 + k; y += Math.floor(m / 12); m = ((m % 12) + 12) % 12; return `${y}-${String(m + 1).padStart(2, '0')}-01`; };
+const fyStart = s => { const y = +s.slice(0, 4), m = +s.slice(5, 7); return `${m >= 7 ? y : y - 1}-07-01`; };
+const fyLabel = s => { const y = +fyStart(s).slice(0, 4); return `${y}-${String((y + 1) % 100).padStart(2, '0')}`; };
+const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const fd = s => `${+s.slice(8, 10)} ${MON[+s.slice(5, 7) - 1]} ${s.slice(0, 4)}`;
+const fdShort = s => `${+s.slice(8, 10)} ${MON[+s.slice(5, 7) - 1]}`;
+const fm = s => `${MON[+s.slice(5, 7) - 1]} ${s.slice(2, 4)}`;
+const NF0 = new Intl.NumberFormat('en-US', {maximumFractionDigits: 0});
+const NF2 = new Intl.NumberFormat('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+const r2 = n => Math.round(n * 100) / 100;
+const trim = (x, d) => String(+x.toFixed(d));
+const rs = n => (n < 0 ? '-' : '') + 'Rs ' + NF0.format(Math.abs(Math.round(n)));
+const rs2 = n => (n < 0 ? '-' : '') + 'Rs ' + NF2.format(Math.abs(n));
+const unitOf = n => { const a = Math.abs(n); return a >= 1e7 ? 'cr' : a >= 1e5 ? 'lakh' : ''; };
+const cmp = (n, u = unitOf(n)) => { const a = Math.abs(n), s = n < 0 ? '-' : ''; if (u === 'cr') return `${s}Rs ${trim(a / 1e7, 2)} crore`; if (u === 'lakh') return `${s}Rs ${trim(a / 1e5, a >= 1e6 ? 1 : 2)} lakh`; return `${s}Rs ${NF0.format(Math.round(a))}`; };
+const axisF = v => v === 0 ? '0' : Math.abs(v) >= 1e7 ? trim(v / 1e7, 1) + ' Cr' : Math.abs(v) >= 1e5 ? trim(v / 1e5, 1) + 'L' : Math.abs(v) >= 1e3 ? trim(v / 1e3, 0) + 'K' : String(Math.round(v));
+const pct = x => `${trim(x * 100, Math.abs(x) < 0.1 ? 1 : 0)}%`;
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
+const ic = (n, cls = 'i') => `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-${n}"/></svg>`;
+/* Old software stored names in CAPITALS: show them in Title Case, keep short codes (HYD, SNT, KG) as they are. */
+const KEEP = new Set(['BAF','HBL','ABL','UBL','MCB','NBP','BAHL','DHA','KHI','HYD','SNT','ZA','PC','NTN','STRN','KG','GM','LTD.']);
+const nice = s => { s = String(s || '').trim(); if (s !== s.toUpperCase()) return s; return s.toLowerCase().replace(/[a-z0-9.&'/-]+/g, w => { const up = w.toUpperCase(); if (KEEP.has(up)) return up; if (/^[^aeiou]{1,3}$/i.test(w.replace(/[^a-z]/gi, '')) && /[a-z]/i.test(w)) return up; return w[0].toUpperCase() + w.slice(1); }); };
+const splitName = s => { const t = nice(s), i = t.indexOf('('); return i > 2 ? [t.slice(0, i).trim(), t.slice(i).replace(/^\(|\)$/g, '').replace(/\s*\(\s*/g, ', ').replace(/\)/g, '')] : [t, '']; };
+const okPhone = p => String(p || '').replace(/\D/g, '').length >= 10;
+const initials = s => nice(s).split(/\s+/).filter(w => /^[a-z]/i.test(w)).slice(0, 2).map(w => w[0].toUpperCase()).join('') || '?';
+
+/* ================= demo data (fictional, same shape as qayam-data.json) ================= */
+function demoData() {
+  let seed = 20251;
+  const rnd = () => (seed = seed * 16807 % 2147483647) / 2147483647, ri = n => Math.floor(rnd() * n), pick = a => a[ri(a.length)];
+  const coa = [['1000','Cash in Hand','A','Cash & Bank'],['1010','Meezan Bank - Current','A','Cash & Bank'],['1020','HBL - Business Account','A','Cash & Bank'],['1200','Accounts Receivable (Customers)','A','Receivables'],['1300','Inventory - Stock in Trade','A','Inventory'],['1500','Delivery Vehicles','A','Fixed Assets'],['2000','Accounts Payable (Vendors)','B','Payables'],['2200','Sales Tax Payable','B','Taxes Payable'],['3000','Owner Capital','E','Capital'],['4000','Sales','C','Revenue'],['4100','Other Income','C','Revenue'],['5000','Cost of Goods Sold','D','Cost of Sales'],['5100','Freight & Cold Chain','D','Operating Expenses'],['5200','Salaries & Wages','D','Operating Expenses'],['5300','Rent & Utilities','D','Operating Expenses'],['5400','Vehicle Fuel & Repairs','D','Operating Expenses'],['5500','Spoilage & Expiry','D','Operating Expenses']];
+  const P = [['Pure Butter 1kg','Butter',1700,2000,40],['Butter Blend 1kg','Butter',1100,1450,30],['Premium Butter 1kg','Butter',1150,1350,120],['Cooking Butter 500g','Butter',730,800,30],['Cheddar Block 2kg','Cheese',2600,3050,10],['Mozzarella 2kg','Cheese',2300,2750,12],['Fresh Cream 1L','Cream',610,720,24],['Classic Mayonnaise (1 crtn = 4 pouch of 4 kg)','Sauces',1630,1800,15],['Real Mayonnaise (1 crtn = 4 pouch of 4 kg)','Sauces',3110,3000,6]]
+    .map((r, i) => ({id: i + 1, name: r[0], cat: r[1], unit: 'pc', cost: r[2], price: r[3], stock: 0, batch: '-', exp: '2027-06-30', min: r[4]}));
+  const C = [['Al-Noor Bakers','Hyderabad','0300-1110001',7],['City Grand Hotel','Karachi','0300-1110002',2.5],['Lucky Sweets & Bakers','Hyderabad','',2],['Mehran Restaurant','Jamshoro','0300-1110004',1.5],['Shalimar Dairy','Hyderabad','',1.5],['Royal Pizza Co.','Karachi','0300-1110006',1.4],['Indus Cafe','Kotri','',1],['Green Valley Mart','Hyderabad','',1],['Karachi Grill House','Karachi','0300-1110009',1],['Sindh Caterers','Hyderabad','',.8],['Pak Sweets','Tando Adam','',.8],['Hilltop Restaurant','Hyderabad','',.7],['Cash Sales Customers','Hyderabad','',1.6],['Model Town Store','Hyderabad','',.6]]
+    .map((r, i) => ({id: i + 1, name: r[0], city: r[1], phone: r[2], ntn: '', limit: 0, w: r[3]}));
+  const V = [['Fresh Dairy Foods','Nawabshah'],['Prime Cheese Industries','Lahore'],['Classic Foods (Pvt) Ltd','Karachi'],['Cold Chain Logistics','Karachi']].map((r, i) => ({id: i + 1, name: r[0], city: r[1], phone: '', ntn: '', limit: 0}));
+  const J = [], I = [], B = [], pend = [];
+  const PF = {'Cash Payment': 'CPV', 'Cash Receipt': 'CRV', 'Bank Payment': 'BPV', 'Bank Receipt': 'BRV'};
+  let jn = 1, sn = 1, pn = 1, cash = 250000;
+  const add = (date, type, dr, cr, amt, note, pa) => { amt = r2(amt); if (amt > 0) J.push(Object.assign({no: (PF[type] || 'JV') + jn++, date, type, dr, cr, amt, note}, pa ? {pa} : {})); };
+  const start = '2025-07-01', end = addD(TODAY, -1);
+  add(start, 'Journal', '1010', '3000', 4500000, 'Opening bank balance');
+  add(start, 'Journal', '1000', '3000', 250000, 'Opening cash');
+  add(start, 'Journal', '1500', '3000', 1200000, 'Delivery van');
+  const stock = Object.fromEntries(P.map(p => [p.id, 0]));
+  const WS = C.reduce((a, c) => a + c.w, 0);
+  const pickC = () => { let x = rnd() * WS; for (const c of C) { x -= c.w; if (x <= 0) return c; } return C[0]; };
+  const buy = (date, p, q) => {
+    const v = p.cat === 'Sauces' ? V[2] : p.cat === 'Cheese' ? V[1] : V[0], amt = q * p.cost, b = {no: 'P-' + pn++, date, v: v.id, l: [{p: p.id, q, c: p.cost}], paid: 0, h: 1};
+    B.push(b); add(date, 'Purchase Entry', '1300', '2000', amt, `Purchase ${q} x ${p.name} @ ${p.cost}`, 'V' + v.id); stock[p.id] += q;
+    const pd = addD(date, 3 + ri(15)); pend.push({date: pd, run: () => { add(pd, 'Bank Payment', '2000', rnd() < .6 ? '1010' : '1020', amt, `Payment to ${v.name}`, 'V' + v.id); b.paid = amt; }});
+  };
+  for (let dn = d2n(start); dn <= d2n(end); dn++) {
+    const date = n2d(dn), dow = new Date(dn * 864e5).getUTCDay(), dd = +date.slice(8, 10);
+    for (let k = pend.length - 1; k >= 0; k--) if (pend[k].date === date) { pend[k].run(); pend.splice(k, 1); }
+    if (dow === 0) continue;
+    const g = Math.min(1, .35 + (dn - d2n(start)) / 380);
+    const n = (rnd() < .8 * g ? 1 : 0) + (rnd() < .55 * g ? 1 : 0) + (rnd() < .25 ? 1 : 0);
+    for (let s = 0; s < n; s++) {
+      const c = pickC(), big = c.w >= 5, used = new Set(), lines = [];
+      for (let k = 0; k < 1 + ri(big ? 2 : 3); k++) {
+        const p = big && k === 0 ? P[2] : pick(P); if (used.has(p.id)) continue; used.add(p.id);
+        const q = big ? 60 + ri(90) : 2 + ri(p.cat === 'Sauces' ? 6 : 20);
+        if (stock[p.id] < q) buy(date, p, Math.max(q * 3, 60 + ri(200)));
+        lines.push({p: p.id, q, pr: Math.round(p.price * (.94 + rnd() * .06) / 10) * 10}); stock[p.id] -= q;
+      }
+      if (!lines.length) continue;
+      const tot = lines.reduce((a, l) => a + l.q * l.pr, 0), cogs = lines.reduce((a, l) => a + l.q * P[l.p - 1].cost, 0);
+      const inv = {no: 'S-' + sn++, date, c: c.id, l: lines, st: 'Confirmed', paid: 0, cogs: 0, h: 1}; I.push(inv);
+      add(date, 'Sale Entry', '1200', '4000', tot, `Sale ${inv.no} to ${c.name}`, 'C' + c.id);
+      add(date, 'Sale Entry', '5000', '1300', cogs, `Cost of sale ${inv.no}`);
+      const r = rnd();
+      if (c.w === 1.6 || r < .25) { add(date, 'Cash Receipt', '1000', '1200', tot, `Cash received ${inv.no}`, 'C' + c.id); inv.paid = tot; cash += tot; }
+      else if (r < .97) { const pd = addD(date, 4 + ri(big ? 30 : 35)), split = rnd() < .15, parts = split ? [[pd, Math.round(tot / 2)], [addD(pd, 10 + ri(20)), tot - Math.round(tot / 2)]] : [[pd, tot]];
+        for (const [dt, amt] of parts) pend.push({date: dt, run: () => { const bank = rnd() < .55; add(dt, bank ? 'Bank Receipt' : 'Cash Receipt', bank ? pick(['1010','1020']) : '1000', '1200', amt, `Received from ${c.name}`, 'C' + c.id); inv.paid += amt; if (!bank) cash += amt; }}); }
+    }
+    if (dd === 1) { add(date, 'Cash Payment', '5300', '1000', 45000, 'Godown rent & electricity'); cash -= 45000; }
+    if (dd === 5) add(date, 'Bank Payment', '5200', '1010', 130000 + ri(20000), 'Staff salaries');
+    if (dow === 6) { const f = 6000 + ri(5000), fr = 3000 + ri(4000); add(date, 'Cash Payment', '5400', '1000', f, 'Van fuel'); add(date, 'Cash Payment', '5100', '1000', fr, 'Cold-chain freight'); cash -= f + fr; }
+    if (cash > 300000) { const dep = Math.round((cash - 120000) / 1000) * 1000, bk = dn % 2 ? '1010' : '1020'; add(date, 'Journal', bk, '1000', dep, 'Cash deposited in bank'); cash -= dep; }
+  }
+  P.forEach(p => { p.stock = stock[p.id]; });
+  return {co: 'Qayam Traders', coa, P, C: C.map(({w, ...c}) => c), V, I, B, J, K: [], T: [{name: 'Qayam Traders', addr: 'Hyderabad, Sindh', phone: '0300-0000000', ntn: '', strn: '', tax: 0, foot: 'Thank you for your business.'}]};
+}
+
+/* ================= data model ================= */
+function prep(raw) {
+  const D = {raw};
+  D.coa = raw.coa.map(a => ({code: a[0], name: a[1], type: a[2], group: a[3]}));
+  D.acc = Object.fromEntries(D.coa.map(a => [a.code, a]));
+  D.cash = D.coa.filter(a => a.group === 'Cash & Bank').map(a => a.code);
+  D.cashSet = new Set(D.cash);
+  D.cos = new Set(D.coa.filter(a => a.group === 'Cost of Sales' || a.code === '5000').map(a => a.code));
+  D.J = raw.J.slice().sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
+  D.I = raw.I.slice().sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
+  D.P = raw.P; D.C = raw.C; D.V = raw.V;
+  D.cust = Object.fromEntries(raw.C.map(c => [c.id, c]));
+  D.prod = Object.fromEntries(raw.P.map(p => [p.id, p]));
+  D.first = D.J.length ? D.J[0].date : TODAY;
+  D.last = [D.J.at(-1)?.date, D.I.at(-1)?.date].filter(Boolean).sort().at(-1) || TODAY;
+  D.T = (raw.T && raw.T[0]) || {name: raw.co || 'Qayam Traders', addr: '', phone: '', ntn: '', strn: '', tax: 0, foot: ''};
+  const rc = receivables(D, TODAY);
+  D.bal = Object.fromEntries(rc.rows.map(r => [r.id, r.bal]));
+  D.lastBill = {}; D.lastRate = {}; D.custProd = {};
+  for (const i of D.I) { D.lastBill[i.c] = i.date; for (const l of i.l) { D.lastRate[i.c + ':' + l.p] = l.pr; const k = D.custProd[i.c] = D.custProd[i.c] || {}; k[l.p] = (k[l.p] || 0) + 1; } }
+  D.salesVol = {}; for (const j of D.J) if (j.cr === '4000' && j.pa) D.salesVol[j.pa] = (D.salesVol[j.pa] || 0) + j.amt;
+  return D;
+}
+function flows(D, from, to) {
+  const f = {sales: 0, cos: 0, exp: 0, oth: 0, rec: 0, pur: 0, pay: 0, bills: 0};
+  for (const j of D.J) {
+    if (j.date < from) continue; if (j.date > to) break;
+    const a = j.amt, dr = D.acc[j.dr], cr = D.acc[j.cr];
+    if (j.cr === '4000') f.sales += a; if (j.dr === '4000') f.sales -= a;
+    if (D.cos.has(j.dr)) f.cos += a; if (D.cos.has(j.cr)) f.cos -= a;
+    if (dr && dr.type === 'D' && !D.cos.has(j.dr)) f.exp += a; if (cr && cr.type === 'D' && !D.cos.has(j.cr)) f.exp -= a;
+    if (cr && cr.type === 'C' && j.cr !== '4000') f.oth += a; if (dr && dr.type === 'C' && j.dr !== '4000') f.oth -= a;
+    if (j.cr === '1200' && D.cashSet.has(j.dr)) f.rec += a;
+    if (j.dr === '1300' && j.cr === '2000') f.pur += a; if (j.dr === '2000' && j.cr === '1300') f.pur -= a;
+    if (j.dr === '2000' && D.cashSet.has(j.cr)) f.pay += a;
+  }
+  for (const i of D.I) { if (i.date < from) continue; if (i.date > to) break; f.bills++; }
+  f.gp = f.sales - f.cos; f.np = f.gp + f.oth - f.exp;
+  return f;
+}
+function balances(D, to) { const b = {}; for (const j of D.J) { if (j.date > to) break; b[j.dr] = (b[j.dr] || 0) + j.amt; b[j.cr] = (b[j.cr] || 0) - j.amt; } return b; }
+function receivables(D, to) {
+  const deb = {}, cred = {};
+  for (const j of D.J) { if (j.date > to) break; const p = j.pa; if (!p || p[0] !== 'C') continue;
+    if (j.dr === '1200') (deb[p] = deb[p] || []).push([j.date, j.amt]);
+    if (j.cr === '1200') cred[p] = (cred[p] || 0) + j.amt; }
+  const rows = [], buckets = [0, 0, 0, 0];
+  for (const p of new Set([...Object.keys(deb), ...Object.keys(cred)])) {
+    let c = cred[p] || 0, open = 0, oldest = null;
+    for (const [d, a] of (deb[p] || [])) { const u = Math.min(a, c); c -= u; const o = a - u; if (o > .5) { open += o; if (!oldest) oldest = d; const age = between(d, to); buckets[age <= 30 ? 0 : age <= 60 ? 1 : age <= 90 ? 2 : 3] += o; } }
+    const bal = open - c;
+    if (Math.abs(bal) > .5) rows.push({pa: p, id: +p.slice(1), bal, oldest, age: oldest ? between(oldest, to) : 0});
+  }
+  rows.sort((a, b) => b.bal - a.bal);
+  return {rows, buckets};
+}
+function custSales(D, from, to) {
+  const m = {};
+  for (const j of D.J) { if (j.date < from) continue; if (j.date > to) break;
+    if (j.cr === '4000') m[j.pa || '-'] = (m[j.pa || '-'] || 0) + j.amt;
+    if (j.dr === '4000') m[j.pa || '-'] = (m[j.pa || '-'] || 0) - j.amt; }
+  return Object.entries(m).filter(e => e[1] > 0).sort((a, b) => b[1] - a[1]);
+}
+function prodSales(D, from, to) {
+  const m = {};
+  for (const i of D.I) { if (i.date < from) continue; if (i.date > to) break; for (const l of i.l) { const o = m[l.p] = m[l.p] || {v: 0, q: 0}; o.v += l.q * l.pr; o.q += l.q; } }
+  return Object.entries(m).map(([p, o]) => ({p: +p, ...o})).filter(o => o.v > 0).sort((a, b) => b.v - a.v);
+}
+function series(D, from, to) {
+  const daily = between(from, to) <= 62;
+  const keys = [];
+  if (daily) for (let d = from; d <= to; d = addD(d, 1)) keys.push(d);
+  else for (let m = mStart(from); m <= to; m = addM(m, 1)) keys.push(m.slice(0, 7));
+  const idx = Object.fromEntries(keys.map((k, i) => [k, i]));
+  const z = () => keys.map(() => 0), s = {keys, daily, sales: z(), pur: z(), gp: z(), rec: z()};
+  for (const j of D.J) { if (j.date < from) continue; if (j.date > to) break;
+    const i = idx[daily ? j.date : j.date.slice(0, 7)]; if (i === undefined) continue; const a = j.amt;
+    if (j.cr === '4000') { s.sales[i] += a; s.gp[i] += a; } if (j.dr === '4000') { s.sales[i] -= a; s.gp[i] -= a; }
+    if (D.cos.has(j.dr)) s.gp[i] -= a; if (D.cos.has(j.cr)) s.gp[i] += a;
+    if (j.dr === '1300' && j.cr === '2000') s.pur[i] += a; if (j.dr === '2000' && j.cr === '1300') s.pur[i] -= a;
+    if (j.cr === '1200' && D.cashSet.has(j.dr)) s.rec[i] += a; }
+  s.partial = false; s.dropped = null;
+  if (!daily && keys.length > 1) {
+    const lastM = keys.at(-1) + '-01', mEnd = addD(addM(lastM, 1), -1);
+    if (to < mEnd && between(lastM, to) + 1 <= 7) { s.dropped = {key: s.keys.at(-1), days: between(lastM, to) + 1, sales: s.sales.at(-1)}; for (const k of ['keys', 'sales', 'pur', 'gp', 'rec']) s[k] = s[k].slice(0, -1); }
+    const eff = to < D.last ? to : D.last, lm = s.keys.at(-1) + '-01', le = addD(addM(lm, 1), -1); /* books may stop before the period ends */
+    if (s.keys.length > 1 && eff < le && eff >= lm) s.partial = between(lm, eff) + 1;
+  }
+  return s;
+}
+/* 12 month-ends ending at `to`: flows per month and closing balances */
+function trend(D, to) {
+  const months = []; for (let k = 11; k >= 0; k--) months.push(addM(mStart(to), -k).slice(0, 7));
+  const idx = Object.fromEntries(months.map((m, i) => [m, i])), z = () => months.map(() => 0);
+  const t = {sales: z(), gp: z(), rec: z(), exp: z(), ar: z(), ap: z(), cash: z()};
+  const bal = {}; let mi = 0;
+  const snap = i => { t.ar[i] = bal['1200'] || 0; t.ap[i] = -(bal['2000'] || 0); t.cash[i] = D.cash.reduce((a, c) => a + (bal[c] || 0), 0); };
+  for (const j of D.J) { if (j.date > to) break; const m = j.date.slice(0, 7);
+    while (mi < 12 && m > months[mi]) { snap(mi); mi++; }
+    bal[j.dr] = (bal[j.dr] || 0) + j.amt; bal[j.cr] = (bal[j.cr] || 0) - j.amt;
+    const i = idx[m]; if (i === undefined) continue; const a = j.amt, dr = D.acc[j.dr], cr = D.acc[j.cr];
+    if (j.cr === '4000') { t.sales[i] += a; t.gp[i] += a; } if (j.dr === '4000') { t.sales[i] -= a; t.gp[i] -= a; }
+    if (D.cos.has(j.dr)) t.gp[i] -= a; if (D.cos.has(j.cr)) t.gp[i] += a;
+    if (j.cr === '1200' && D.cashSet.has(j.dr)) t.rec[i] += a;
+    if (dr && dr.type === 'D' && !D.cos.has(j.dr)) t.exp[i] += a; if (cr && cr.type === 'D' && !D.cos.has(j.cr)) t.exp[i] -= a; }
+  while (mi < 12) { snap(mi); mi++; }
+  return t;
+}
+
+/* ================= state ================= */
+const S = {D: null, src: 'demo', role: 'admin', range: 'fy', custom: null, page: 'dash', tableView: false};
+const ROLES = {admin: ['Zaid Khan', 'Admin', 'ZK'], accountant: ['Accountant', 'Accountant', 'AC'], worker: ['Bilal (Salesman)', 'Salesman', 'BS']};
+function presets() {
+  const t = TODAY, D = S.D;
+  return [
+    ['today', 'Today', t, t], ['yday', 'Yesterday', addD(t, -1), addD(t, -1)], ['7d', 'Last 7 days', addD(t, -6), t], ['30d', 'Last 30 days', addD(t, -29), t],
+    ['mtd', 'This month', mStart(t), t], ['lm', 'Last month', addM(mStart(t), -1), addD(mStart(t), -1)], ['3m', 'Last 3 months', addM(mStart(t), -2), t],
+    ['fy', `This year (FY ${fyLabel(t)})`, fyStart(t), t], ['lfy', `Last year (FY ${fyLabel(addD(fyStart(t), -1))})`, addM(fyStart(t), -12), addD(fyStart(t), -1)],
+    ['12m', 'Last 12 months', addM(mStart(t), -11), t], ['all', 'All time', D.first < t ? D.first : t, t]];
+}
+function curRange() {
+  if (S.range === 'custom' && S.custom) return {key: 'custom', label: `${fdShort(S.custom[0])} – ${fdShort(S.custom[1])}`, from: S.custom[0], to: S.custom[1]};
+  const p = presets().find(x => x[0] === S.range) || presets()[7];
+  return {key: p[0], label: p[1], from: p[2], to: p[3]};
+}
+function prevRange(r) { const len = between(r.from, r.to) + 1, to = addD(r.from, -1); return {from: addD(to, -(len - 1)), to, len}; }
+
+/* ================= navigation ================= */
+const NAV = {
+  admin: [['dash','Dashboard','dash'],['bill','New Bill','receipt','F2'],['#','Sales & recovery'],['sales','Sales invoices','cart'],['recovery','Recovery','cash'],['customers','Customers','users'],['#','Stock & purchases'],['stock','Inventory','package'],['purchases','Purchases','truck'],['#','Accounts'],['accounts','Vouchers & ledgers','book'],['banks','Banks & cheques','bank'],['reports','Reports','chart'],['#','Automation'],['fbr','FBR invoicing','shield'],['ai','AI assistant','sparkles','soon'],['wa','WhatsApp bot','chat','soon'],['settings','Settings & users','settings']],
+  accountant: [['dash','Dashboard','dash'],['bill','New Bill','receipt','F2'],['#','Sales & recovery'],['sales','Sales invoices','cart'],['recovery','Recovery','cash'],['customers','Customers','users'],['#','Stock & purchases'],['stock','Inventory','package'],['purchases','Purchases','truck'],['#','Accounts'],['accounts','Vouchers & ledgers','book'],['banks','Banks & cheques','bank'],['reports','Reports','chart'],['fbr','FBR invoicing','shield']],
+  worker: [['dash','My day','dash'],['bill','New Bill','receipt','F2'],['orders','My orders','cart'],['recovery','Recovery','cash'],['customers','My customers','users'],['stock','Stock available','package']]
+};
+function renderNav() {
+  const items = NAV[S.role];
+  $('#nav').innerHTML = '<div class="ind" id="ind"></div>' + items.map(n => n[0] === '#' ? `<div class="sec">${esc(n[1])}</div>`
+    : `<a data-go="${n[0]}" class="${S.page === n[0] ? 'on' : ''}" tabindex="0">${ic(n[2])}<span>${esc(n[1])}</span>${n[3] ? `<span class="tag ${n[3] === 'soon' ? 'soon' : 'k'}">${n[3] === 'soon' ? 'Soon' : n[3]}</span>` : ''}</a>`).join('');
+  moveInd();
+  const [nm, rl, av] = ROLES[S.role];
+  $('#avName').textContent = nm; $('#avRole').textContent = rl; $('#avI').textContent = av;
+  $$('#roleCtl button').forEach(b => { b.classList.toggle('on', b.dataset.role === S.role); b.setAttribute('aria-checked', b.dataset.role === S.role); });
+}
+function moveInd() {
+  const a = $(`#nav a[data-go="${S.page}"]`), ind = $('#ind'); if (!ind) return;
+  if (!a) { ind.style.opacity = 0; return; }
+  ind.style.opacity = 1; ind.style.transform = `translateY(${a.offsetTop}px)`;
+}
+function go(p) {
+  if (p === 'bill') return openBill();
+  S.page = p; $$('#nav a').forEach(a => a.classList.toggle('on', a.dataset.go === p)); moveInd();
+  $$('#bbar [data-go]').forEach(b => b.classList.toggle('on', b.dataset.go === p));
+  closeSide(); render(); window.scrollTo({top: 0, behavior: RM ? 'auto' : 'smooth'});
+}
+
+/* ================= render: dashboard ================= */
+let charts = [];
+function render() {
+  charts = [];
+  const v = $('#view');
+  if (S.page !== 'dash') { v.innerHTML = placeholder(S.page); return; }
+  if (S.role === 'worker') $('#bellDot').hidden = true;
+  v.innerHTML = S.role === 'worker' ? workerDash() : dash();
+  mount();
+}
+function placeholder(p) {
+  const all = Object.values(NAV).flat(), n = all.find(x => x[0] === p) || ['', 'This screen', 'file'];
+  return `<div class="card reveal empty" style="margin-top:16px"><div class="ic">${ic(n[2] || 'file')}</div><h2>${esc(n[1])}</h2><p class="mu" style="max-width:520px;margin:0 auto 18px">This prototype covers the <b>Dashboard</b> and the <b>New Bill</b> flow. ${esc(n[1])} is designed next, in the same style, after you approve this direction.</p><button class="btn" data-go="dash">${ic('dash')}Back to dashboard</button></div>`;
+}
+function kpiTile(o, i) {
+  const d = o.delta;
+  let dh = '';
+  if (d != null && isFinite(d)) {
+    const good = o.upGood == null ? null : (d >= 0) === o.upGood;
+    const cls = Math.abs(d) < .005 ? 'flat' : good == null ? 'flat' : good ? 'good' : 'bad';
+    dh = `<span class="delta ${cls}">${ic(d >= 0 ? 'up' : 'down')}${pct(Math.abs(d))}</span><span>vs previous</span>`;
+  } else if (o.foot) dh = `<span>${esc(o.foot)}</span>`;
+  return `<div class="card kpi reveal t3" style="--i:${i};--kc:${o.color}" ${o.tip ? `title="${esc(o.tip)}"` : ''}>
+    <div class="kpi-h"><span class="kpi-ic">${ic(o.icon)}</span>${esc(o.label)}${o.lock ? `<span class="lock" title="Only the admin sees this">${ic('lock')}Admin</span>` : ''}</div>
+    <b class="val" data-v="${o.value}" data-fmt="${o.fmt || 'rs'}">${o.fmt === 'n' ? NF0.format(o.value) : cmp(o.value)}</b>
+    <div class="kpi-f">${dh}${o.spark ? spark(o.spark) : ''}</div></div>`;
+}
+function spark(vals) {
+  const w = 110, h = 30, mx = Math.max(...vals), mn = Math.min(0, ...vals), sp = (mx - mn) || 1;
+  const pts = vals.map((v, i) => [i * (w - 6) / (vals.length - 1) + 2, h - 4 - (v - mn) / sp * (h - 8)]);
+  const last = pts.at(-1);
+  return `<svg class="spark" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true"><polyline points="${pts.map(p => p.map(x => x.toFixed(1)).join(',')).join(' ')}" fill="none" style="stroke:var(--spark)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${last[0].toFixed(1)}" cy="${last[1].toFixed(1)}" r="3.5" style="fill:var(--ac);stroke:var(--card)" stroke-width="2"/></svg>`;
+}
+function dash() {
+  const D = S.D, R = curRange(), PR = prevRange(R), admin = S.role === 'admin';
+  const f = flows(D, R.from, R.to), pf = flows(D, PR.from, PR.to), b = balances(D, R.to), pb = balances(D, PR.to);
+  const cashNow = D.cash.reduce((a, c) => a + (b[c] || 0), 0), cashPrev = D.cash.reduce((a, c) => a + (pb[c] || 0), 0);
+  const ar = b['1200'] || 0, ap = -(b['2000'] || 0), arP = pb['1200'] || 0, apP = -(pb['2000'] || 0);
+  const tr = trend(D, R.to), hasPrev = R.key !== 'all' && PR.from >= D.first;
+  const dl = (c, p) => hasPrev && Math.abs(p) > 1 ? (c - p) / Math.abs(p) : null;
+  const k = [];
+  k.push({label: 'Sales', icon: 'cart', color: '#2563eb', value: f.sales, delta: dl(f.sales, pf.sales), upGood: true, spark: tr.sales, tip: rs(f.sales)});
+  if (admin) k.push({label: 'Gross profit', icon: 'up', color: '#0d9488', value: f.gp, delta: dl(f.gp, pf.gp), upGood: true, spark: tr.gp, lock: true, tip: `${rs(f.gp)} · margin ${f.sales ? pct(f.gp / f.sales) : '–'}`});
+  k.push({label: 'Recovery received', icon: 'cash', color: '#7c3aed', value: f.rec, delta: dl(f.rec, pf.rec), upGood: true, spark: tr.rec, tip: rs(f.rec)});
+  k.push({label: 'Customers owe you', icon: 'users', color: '#ea580c', value: ar, delta: dl(ar, arP), upGood: false, spark: tr.ar, tip: `${rs(ar)} on ${fd(R.to)}`});
+  k.push(ap >= 0 ? {label: 'You owe vendors', icon: 'truck', color: '#64748b', value: ap, delta: dl(ap, apP), upGood: null, spark: tr.ap, tip: rs(ap)}
+    : {label: 'Advance with vendors', icon: 'truck', color: '#64748b', value: -ap, delta: dl(-ap, -apP), upGood: null, spark: tr.ap.map(x => -x), tip: `${rs(-ap)} paid to vendors ahead of their bills`});
+  k.push({label: 'Cash & bank', icon: 'wallet', color: '#0891b2', value: cashNow, delta: dl(cashNow, cashPrev), upGood: true, spark: tr.cash, tip: rs(cashNow)});
+  if (!admin) k.push({label: 'Expenses', icon: 'file', color: '#be123c', value: f.exp, delta: dl(f.exp, pf.exp), upGood: false, spark: tr.exp, tip: rs(f.exp)});
+
+  const stale = between(D.last, TODAY);
+  const greet = HOUR < 12 ? 'Good morning' : HOUR < 17 ? 'Good afternoon' : 'Good evening';
+  const todayF = flows(D, TODAY, TODAY);
+  const heroLine = `${R.label}: <b>${cmp(f.sales)}</b> sales${admin ? `, <b>${cmp(f.gp)}</b> gross profit` : ''}, <b>${cmp(f.rec)}</b> recovered. Today: ${todayF.bills} bill${todayF.bills === 1 ? '' : 's'}, ${cmp(todayF.rec)} received.`;
+  let h = `<section class="hero reveal" style="--i:0"><div><span class="kick">${ic('cal')}${esc(fd(TODAY))} · Asia/Karachi</span><h1>${greet}, ${esc(ROLES[S.role][0].split(' ')[0])}</h1><p>${heroLine}</p>${stale > 3 ? `<span class="stale">${ic('clock')}Last entry ${esc(fd(D.last))} — ${stale} days ago. Books may be behind.</span>` : ''}</div>
+    <div class="acts"><button class="glass pri" data-act="bill">${ic('plus')}New Bill <kbd>F2</kbd></button><button class="glass" data-go="recovery">${ic('cash')}Receive payment</button><button class="glass" data-go="purchases">${ic('truck')}Purchase</button><button class="glass" data-go="accounts">${ic('book')}Voucher</button></div></section>`;
+  h += filters(R, PR, hasPrev);
+  h += `<div class="grid g-kpi">${k.map((o, i) => kpiTile(o, i + 1)).join('')}</div>`;
+  // main chart + insights
+  h += `<div class="grid g-21"><div class="card reveal" style="--i:8"><div class="ch"><div><h3>Sales and purchases</h3><div class="sub">${(() => { const se = series(D, R.from, R.to); return (se.daily ? 'Daily' : 'Monthly') + ' · ' + esc(R.label) + (se.partial ? ` · ${fm(se.keys.at(-1) + '-01')} has only ${se.partial} days of entries (dashed)` : '') + (se.dropped ? ` · ${fm(se.dropped.key + '-01')} so far (${se.dropped.days} day${se.dropped.days > 1 ? 's' : ''}, ${cmp(se.dropped.sales)}) not plotted yet` : ''); })()}</div></div><div class="tools"><div class="legend"><span><i class="lk k-s1"></i>Sales</span><span><i class="lk k-s2"></i>Purchases</span></div><button class="tbtn ${S.tableView ? 'on' : ''}" data-act="tableview" aria-label="Show as table" title="Show as table">${ic('table')}</button></div></div><div class="chart" id="mainChart" tabindex="0" aria-label="Sales and purchases chart. Use left and right arrow keys to read values."></div></div>
+    <div class="card reveal" style="--i:9"><div class="ch"><div><h3>What needs attention</h3><div class="sub">Worked out from your books</div></div><span class="ai-pill">${ic('sparkles')}Smart</span></div><div class="ins">${insights(D, R, f).map(x => `<div class="insight"><span class="ic">${ic(x.icon)}</span><div><b>${x.t}</b><small>${x.d}</small></div></div>`).join('')}</div></div></div>`;
+  // aging, customers, products
+  const rc = receivables(D, R.to);
+  const cs = custSales(D, R.from, R.to), ps = prodSales(D, R.from, R.to);
+  h += `<div class="grid g-3">
+    <div class="card reveal" style="--i:10"><div class="ch"><div><h3>Who owes you, and since when</h3><div class="sub">${cmp(rc.rows.reduce((a, r) => a + Math.max(r.bal, 0), 0))} outstanding on ${esc(fd(R.to))}</div></div></div><div id="aging"></div><div class="lst">${rc.rows.slice(0, 5).map(r => { const c = D.cust[r.id] || {name: '?'}; return `<div class="li"><span class="av">${esc(initials(c.name))}</span><div class="grow"><b>${esc(nice(c.name))}</b><small>${r.oldest ? `Oldest unpaid bill ${r.age} days` : 'Advance'}</small></div><div class="amt">${cmp(r.bal)}</div></div>`; }).join('') || '<p class="mu">Nobody owes you anything.</p>'}</div></div>
+    <div class="card reveal" style="--i:11"><div class="ch"><div><h3>Top customers</h3><div class="sub">By sales · ${esc(R.label)}</div></div></div><div id="topC"></div></div>
+    <div class="card reveal" style="--i:12"><div class="ch"><div><h3>Top products</h3><div class="sub">By invoice value · ${esc(R.label)}</div></div></div><div id="topP"></div></div></div>`;
+  // alerts, cash, fbr
+  const al = alerts(D, rc);
+  $('#bellDot').hidden = !al.some(a => a.sev === 'crit' || a.sev === 'serious');
+  h += `<div class="grid g-3">
+    <div class="card reveal" style="--i:13"><div class="ch"><div><h3>To-do and alerts</h3><div class="sub">${al.length} item${al.length === 1 ? '' : 's'}</div></div></div>${al.slice(0, 6).map(a => `<div class="al"><span class="sev ${a.sev}">${ic({crit: 'alert', serious: 'tri', warn: 'clock', info: 'bulb'}[a.sev])}${{crit: 'Critical', serious: 'Fix soon', warn: 'Check', info: 'Tip'}[a.sev]}</span><div><b>${a.t}</b><small>${a.d}</small></div></div>`).join('')}</div>
+    <div class="card reveal" style="--i:14"><div class="ch"><div><h3>Cash and bank</h3><div class="sub">Balances on ${esc(fd(R.to))}</div></div><b>${cmp(cashNow)}</b></div><div class="lst">${D.cash.map(c => `<div class="li"><span class="av">${ic(c === '1000' ? 'wallet' : 'bank')}</span><div class="grow"><b>${esc(nice(D.acc[c].name))}</b><small>Account ${esc(c)}</small></div><div class="amt ${(b[c] || 0) < 0 ? 'neg' : ''}">${rs(b[c] || 0)}</div></div>`).join('')}</div></div>
+    ${fbrCard(D)}</div>`;
+  // recent bills
+  const inv = D.I.filter(i => i.date >= R.from && i.date <= R.to).slice(-8).reverse();
+  h += `<div class="grid"><div class="card reveal" style="--i:16"><div class="ch"><div><h3>Latest bills</h3><div class="sub">${esc(R.label)} · ${f.bills} bill${f.bills === 1 ? '' : 's'}</div></div><button class="btn ghost sm" data-go="sales">View all ${ic('arrow')}</button></div>
+    ${inv.length ? `<div class="scroll"><table class="tbl"><thead><tr><th>Bill</th><th>Date</th><th>Customer</th><th class="n">Amount</th><th class="n">Received</th><th>Payment</th><th>FBR</th></tr></thead><tbody>${inv.map(i => { const t = i.l.reduce((a, l) => a + l.q * l.pr, 0) - (i.dc || 0), p = Math.min(i.paid || 0, t); const st = p >= t - 1 ? ['paid', 'checkc', 'Paid'] : p > 0 ? ['part', 'clock', 'Part paid'] : ['due', 'alert', 'On credit']; return `<tr><td><b>${esc(i.no)}</b></td><td>${esc(fd(i.date))}</td><td>${esc(nice((D.cust[i.c] || {}).name))}</td><td class="n">${rs(t)}</td><td class="n">${rs(p)}</td><td><span class="badge ${st[0]}">${ic(st[1])}${st[2]}</span></td><td><span class="badge na">Not set up</span></td></tr>`; }).join('')}</tbody></table></div>` : `<p class="mu">No bills in this period.</p>`}</div></div>`;
+  S._ctx = {R, rc, cs, ps};
+  return h;
+}
+function filters(R, PR, hasPrev) {
+  return `<div class="filters reveal" style="--i:1"><div class="range"><button class="range-btn" data-act="range" aria-haspopup="true" aria-expanded="false">${ic('cal')}${esc(R.label)}${ic('chev')}</button></div>
+    <span class="mu">${esc(fd(R.from))} – ${esc(fd(R.to))}${hasPrev ? ` · compared with ${esc(fdShort(PR.from))} – ${esc(fd(PR.to))}` : ''}</span><span class="spacer"></span>
+    <span class="chip ${S.src === 'demo' ? '' : 'ok'}">${ic('db')}${S.src === 'demo' ? 'Demo data (fictional)' : 'Your data file · ' + S.D.J.length + ' entries'}</span></div>`;
+}
+function insights(D, R, f) {
+  const out = [], admin = S.role === 'admin';
+  const cs = custSales(D, R.from, R.to), tot = cs.reduce((a, e) => a + e[1], 0);
+  if (cs.length && tot > 0 && cs[0][1] / tot > .35) { const c = D.cust[+cs[0][0].slice(1)] || {name: 'Walk-in'}; const owe = D.bal[c.id] || 0, arTot = Object.values(D.bal).reduce((a, x) => a + Math.max(x, 0), 0);
+    out.push({icon: 'users', t: `${esc(nice(c.name))} is ${pct(cs[0][1] / tot)} of your sales`, d: `One customer carries the business${owe > 0 && arTot ? ` and owes ${cmp(owe)} (${pct(owe / arTot)} of all receivables)` : ''}. A credit limit and weekly recovery plan would protect you.`}); }
+  if (admin && f.sales > 0) { const pf = flows(D, prevRange(R).from, prevRange(R).to), m = f.gp / f.sales, pm = pf.sales > 0 ? pf.gp / pf.sales : null;
+    out.push({icon: 'up', t: `Gross margin ${pct(m)}${pm != null ? ` (was ${pct(pm)})` : ''}`, d: `${cmp(f.gp)} gross profit on ${cmp(f.sales)} sales. Expenses ${cmp(f.exp)} leave ${cmp(f.np)} net.`}); }
+  const b = balances(D, TODAY), led = b['1300'] || 0, reg = D.P.reduce((a, p) => a + Math.max(p.stock, 0) * p.cost, 0);
+  if (Math.abs(led - reg) > 1000) out.push({icon: 'package', t: `Stock list and ledger differ by ${cmp(Math.abs(led - reg))}`, d: `Product list says ${cmp(reg)} of stock at cost, the inventory account says ${cmp(led)}. A physical count will settle it.`});
+  if (f.sales > 0) out.push({icon: 'cash', t: `You collected ${pct(f.rec / f.sales)} of what you sold`, d: `${cmp(f.rec)} received against ${cmp(f.sales)} of sales in this period.`});
+  const noPh = D.C.filter(c => !okPhone(c.phone)).length;
+  if (noPh) out.push({icon: 'chat', t: `${noPh} of ${D.C.length} customers have no mobile number`, d: 'Needed to send bills and payment reminders on WhatsApp.'});
+  return out.slice(0, 4);
+}
+function alerts(D, rc) {
+  const a = [], admin = S.role === 'admin';
+  D.P.filter(p => p.stock < 0).forEach(p => a.push({sev: 'crit', t: `${esc(splitName(p.name)[0])}: stock is ${NF0.format(p.stock)}`, d: 'More was sold than was bought. Check the last bills or do a stock count.'}));
+  const zero = D.P.filter(p => !(p.price > 0)); if (zero.length) a.push({sev: 'serious', t: `${zero.length} product${zero.length > 1 ? 's have' : ' has'} no sale price`, d: zero.slice(0, 3).map(p => esc(splitName(p.name)[0])).join(', ') + (zero.length > 3 ? '…' : '')});
+  if (admin) { const lo = D.P.filter(p => p.price > 0 && p.price < p.cost); lo.forEach(p => a.push({sev: 'serious', t: `${esc(splitName(p.name)[0])} sells below cost`, d: `Price ${rs(p.price)} vs cost ${rs(p.cost)}.`})); }
+  const od = rc.rows.filter(r => r.age > 60 && r.bal > 0); if (od.length) a.push({sev: 'warn', t: `${od.length} customer${od.length > 1 ? 's' : ''} unpaid for 60+ days`, d: `${cmp(od.reduce((s, r) => s + r.bal, 0))} in total. Oldest: ${esc(nice((D.cust[od.sort((x, y) => y.age - x.age)[0].id] || {}).name))}.`});
+  const low = D.P.filter(p => p.min > 0 && p.stock >= 0 && p.stock <= p.min); if (low.length) a.push({sev: 'warn', t: `${low.length} product${low.length > 1 ? 's' : ''} at reorder level`, d: low.slice(0, 3).map(p => `${esc(splitName(p.name)[0])} (${NF0.format(p.stock)})`).join(', ')});
+  const nomin = D.P.filter(p => !(p.min > 0)).length; if (nomin) a.push({sev: 'info', t: `Reorder level not set for ${nomin} products`, d: 'Set it once and the system warns you before stock runs out.'});
+  if (D.P.every(p => !p.batch || p.batch === '-')) a.push({sev: 'info', t: 'Batch and expiry are not tracked yet', d: 'Needed for FEFO dispatch and expiry claims to principal companies.'});
+  a.push({sev: 'info', t: 'FBR Digital Invoicing is not connected', d: 'Every sale must reach FBR once you are live. Setup takes 5 steps.'});
+  return a;
+}
+function fbrCard(D) {
+  const hs = D.P.filter(p => p.hs).length, ntn = D.C.filter(c => c.ntn).length;
+  return `<div class="card reveal" style="--i:15"><div class="ch"><div><h3>FBR Digital Invoicing</h3><div class="sub">Status: not connected yet</div></div><span class="badge na">${ic('shield')}Setup 0 / 5</span></div>
+    <div class="steps">${['Log in to IRIS → Digital Invoicing', 'Choose PRAL as licensed integrator', 'Whitelist the gateway server IP', 'Pass the sandbox test scenarios', 'Paste production token in Settings'].map((s, i) => `<div class="step"><i>${i + 1}</i>${s}</div>`).join('')}</div>
+    <div class="ready"><span>Products with HS code</span><b>${hs} / ${D.P.length}</b></div><div class="meter"><i style="--w:${D.P.length ? hs / D.P.length * 100 : 0}%"></i></div>
+    <div class="ready"><span>Customers with NTN / CNIC</span><b>${ntn} / ${D.C.length}</b></div><div class="meter"><i style="--w:${D.C.length ? ntn / D.C.length * 100 : 0}%"></i></div></div>`;
+}
+function workerDash() {
+  const D = S.D, f = flows(D, TODAY, TODAY);
+  const inStock = D.P.filter(p => p.stock > 0);
+  const custs = D.C.map(c => ({c, bal: D.bal[c.id] || 0})).sort((a, b) => b.bal - a.bal);
+  const k = [
+    {label: 'Bills today', icon: 'receipt', color: '#2563eb', value: f.bills, fmt: 'n', foot: 'Your bills only'},
+    {label: 'Recovery today', icon: 'cash', color: '#7c3aed', value: f.rec, foot: 'Cash you collected'},
+    {label: 'Customers on route', icon: 'pin', color: '#ea580c', value: D.C.length, fmt: 'n', foot: 'Assigned to you'},
+    {label: 'Products in stock', icon: 'package', color: '#0891b2', value: inStock.length, fmt: 'n', foot: `of ${D.P.length} products`}];
+  let h = `<section class="hero reveal" style="--i:0"><div><span class="kick">${ic('cal')}${esc(fd(TODAY))}</span><h1>Assalam-o-Alaikum, Bilal</h1><p>Book orders, make bills and collect payments. You only see your route, stock and your own bills. Cost, profit and bank balances stay hidden.</p></div>
+    <div class="acts"><button class="glass pri" data-act="bill">${ic('plus')}New Bill</button><button class="glass" data-go="recovery">${ic('cash')}Collect payment</button></div></section>`;
+  h += `<div class="grid g-kpi four">${k.map((o, i) => kpiTile(o, i + 1)).join('')}</div>`;
+  h += `<div class="grid g-11"><div class="card reveal" style="--i:6"><div class="ch"><div><h3>My customers</h3><div class="sub">Who to visit and collect from first</div></div></div><div class="lst">${custs.slice(0, 7).map(x => `<div class="li"><span class="av">${esc(initials(x.c.name))}</span><div class="grow"><b>${esc(nice(x.c.name))}</b><small>${esc(nice(x.c.city) || 'No area set')}${D.lastBill[x.c.id] ? ` · last bill ${esc(fdShort(D.lastBill[x.c.id]))}` : ''}</small></div><div class="amt">${x.bal > 0 ? cmp(x.bal) : '<span class="badge paid">Clear</span>'}<small>${x.bal > 0 ? 'to collect' : ''}</small></div><button class="btn ghost sm" data-bill="${x.c.id}">Bill</button></div>`).join('')}</div></div>
+    <div class="card reveal" style="--i:7"><div class="ch"><div><h3>Stock available</h3><div class="sub">Quantity only · prices from your price list</div></div></div><div class="lst">${D.P.slice().sort((a, b) => b.stock - a.stock).slice(0, 8).map(p => { const [n, d] = splitName(p.name); return `<div class="li"><span class="av">${ic('package')}</span><div class="grow"><b>${esc(n)}</b><small>${esc(d || p.cat)}</small></div><div class="amt">${p.stock > 0 ? NF0.format(p.stock) + ' ' + esc(p.unit) : '<span class="badge due">Out of stock</span>'}<small>${p.price > 0 ? rs(p.price) : 'No price set'}</small></div></div>`; }).join('')}</div></div></div>`;
+  return h;
+}
+
+/* ================= mount charts & animations ================= */
+function mount() {
+  $$('.val[data-v]').forEach(countUp);
+  requestAnimationFrame(() => $$('.meter i').forEach(m => { m.style.width = m.style.getPropertyValue('--w'); }));
+  if (S.role === 'worker') { tilt(); return; }
+  const {R, rc, cs, ps} = S._ctx, D = S.D;
+  const mc = $('#mainChart');
+  if (S.tableView) mc.innerHTML = chartTable(series(D, R.from, R.to));
+  else lineChart(mc, series(D, R.from, R.to), true);
+  segBar($('#aging'), [['0–30 days', rc.buckets[0], 'o1'], ['31–60 days', rc.buckets[1], 'o2'], ['61–90 days', rc.buckets[2], 'o3'], ['90+ days', rc.buckets[3], 'o4']]);
+  const totC = cs.reduce((a, e) => a + e[1], 0);
+  const topC = cs.slice(0, 6).map(([pa, v]) => ({name: pa === '-' ? 'Walk-in / cash' : nice((D.cust[+pa.slice(1)] || {name: '?'}).name), v, share: v / totC}));
+  if (cs.length > 6) { const v = cs.slice(6).reduce((a, e) => a + e[1], 0); topC.push({name: `Others (${cs.length - 6})`, v, share: v / totC, oth: true}); }
+  ranked($('#topC'), topC, 'of sales');
+  const totP = ps.reduce((a, e) => a + e.v, 0);
+  const topP = ps.slice(0, 6).map(o => { const p = D.prod[o.p] || {name: '?', unit: ''}, [n] = splitName(p.name); return {name: n, sub: `${NF0.format(o.q)} ${p.unit}`, v: o.v, share: o.v / totP}; });
+  if (ps.length > 6) { const v = ps.slice(6).reduce((a, e) => a + e.v, 0); topP.push({name: `Others (${ps.length - 6})`, v, share: v / totP, oth: true}); }
+  ranked($('#topP'), topP, 'of product sales');
+  tilt();
+}
+function countUp(el) {
+  const v = +el.dataset.v, fmt = el.dataset.fmt, u = unitOf(v), out = x => fmt === 'n' ? NF0.format(Math.round(x)) : cmp(x, u);
+  if (RM || !v) { el.textContent = out(v); return; }
+  const t0 = performance.now(), dur = 1000;
+  const step = t => { const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3); el.textContent = out(v * e); if (k < 1) requestAnimationFrame(step); else el.textContent = out(v); };
+  requestAnimationFrame(step);
+}
+function tilt() {
+  if (!matchMedia('(hover:hover) and (pointer:fine)').matches || RM) return;
+  $$('.t3').forEach(c => {
+    c.onpointermove = e => { const r = c.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5; c.style.transform = `perspective(800px) rotateY(${x * 7}deg) rotateX(${-y * 7}deg) translateY(-2px)`; };
+    c.onpointerleave = () => { c.style.transform = ''; };
+  });
+}
+const niceMax = v => { if (v <= 0) return 1; const e = 10 ** Math.floor(Math.log10(v)), f = v / e; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * e; };
+function lineChart(host, s, animate) {
+  const W = Math.max(280, host.clientWidth), H = W < 520 ? 220 : 280, m = {l: 46, r: 14, t: 14, b: 30};
+  const n = s.keys.length, iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const SER = [{k: 'sales', name: 'Sales', cls: 's1'}, {k: 'pur', name: 'Purchases', cls: 's2'}];
+  const all = SER.flatMap(x => s[x.k]), hi = niceMax(Math.max(1, ...all)), lo = Math.min(0, ...all) < 0 ? -niceMax(-Math.min(...all)) : 0;
+  const x = i => m.l + (n <= 1 ? iw / 2 : i * iw / (n - 1)), y = v => m.t + ih - (v - lo) / (hi - lo) * ih;
+  const lbl = k => s.daily ? fdShort(k) : fm(k + '-01');
+  let g = '';
+  for (let t = 0; t <= 4; t++) { const v = lo + (hi - lo) * t / 4, yy = y(v).toFixed(1); g += `<line class="${v === 0 ? 'base' : 'gl'}" x1="${m.l}" x2="${W - m.r}" y1="${yy}" y2="${yy}"/><text class="ax" x="${m.l - 8}" y="${+yy + 4}" text-anchor="end">${axisF(v)}</text>`; }
+  const step = Math.max(1, Math.ceil(n / (W < 520 ? 4 : 8)));
+  for (let i = 0; i < n; i += step) g += `<text class="ax" x="${x(i).toFixed(1)}" y="${H - 8}" text-anchor="${n === 1 ? 'middle' : i === 0 ? 'start' : 'middle'}">${esc(lbl(s.keys[i]))}</text>`;
+  const path = arr => arr.map((v, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join('');
+  const area = `${path(s.sales)}L${x(n - 1).toFixed(1)},${y(Math.max(lo, 0)).toFixed(1)}L${x(0).toFixed(1)},${y(Math.max(lo, 0)).toFixed(1)}Z`;
+  const cut = s.partial && n > 1 ? n - 1 : n; /* last month still running: draw its segment dashed */
+  let body = `<path class="ar ${animate ? 'fadein' : ''}" d="${area}"/>` + SER.map(sr => `<path class="ln ${sr.cls}" d="${path(s[sr.k].slice(0, cut))}"/>`).join('');
+  if (cut < n) body += SER.map(sr => `<path class="ln ${sr.cls} ${animate ? 'fadein' : ''}" style="stroke-dasharray:4 5" d="M${x(n - 2).toFixed(1)},${y(s[sr.k][n - 2]).toFixed(1)}L${x(n - 1).toFixed(1)},${y(s[sr.k][n - 1]).toFixed(1)}"/>`).join('');
+  body += SER.map(sr => `<circle class="end ${sr.cls} ${animate ? 'fadein' : ''}" cx="${x(n - 1).toFixed(1)}" cy="${y(s[sr.k][n - 1]).toFixed(1)}" r="4"/>`).join('');
+  body += `<g id="xh" style="display:none"><line class="xh" y1="${m.t}" y2="${m.t + ih}"/>${SER.map(sr => `<circle class="hd ${sr.cls}" r="5"/>`).join('')}</g><rect class="hit" x="${m.l}" y="${m.t}" width="${iw}" height="${ih}"/>`;
+  host.innerHTML = `<svg viewBox="0 0 ${W} ${H}" height="${H}" role="img" aria-label="Line chart of sales and purchases">${g}${body}</svg>`;
+  if (animate && !RM) $$('.ln:not(.fadein)', host).forEach(p => { const L = p.getTotalLength(); p.style.strokeDasharray = L; p.style.strokeDashoffset = L; p.getBoundingClientRect(); p.classList.add('draw'); p.style.strokeDashoffset = 0; });
+  const xh = $('#xh', host), svg = $('svg', host);
+  let cur = n - 1;
+  const show = (i, cx, cy) => {
+    cur = i; xh.style.display = ''; const xx = x(i);
+    $('line', xh).setAttribute('x1', xx); $('line', xh).setAttribute('x2', xx);
+    $$('circle', xh).forEach((c, k) => { c.setAttribute('cx', xx); c.setAttribute('cy', y(s[SER[k].k][i])); });
+    const rows = SER.map(sr => ({v: rs(s[sr.k][i]), n: sr.name, key: 'k-' + sr.cls}));
+    if (S.role === 'admin') rows.push({v: rs(s.gp[i]), n: 'Gross profit'});
+    rows.push({v: rs(s.rec[i]), n: 'Recovery'});
+    const r = svg.getBoundingClientRect();
+    showTip(cx ?? r.left + xx * r.width / W, cy ?? r.top + y(s.sales[i]) * r.height / H, (s.daily ? fd(s.keys[i]) : fm(s.keys[i] + '-01').replace(' ', ' 20')) + (s.partial && i === n - 1 ? ` (first ${s.partial} days)` : ''), rows);
+  };
+  const hit = $('.hit', host);
+  hit.addEventListener('pointermove', e => { const r = svg.getBoundingClientRect(), px = (e.clientX - r.left) * W / r.width; const i = Math.max(0, Math.min(n - 1, Math.round((px - m.l) / (n <= 1 ? 1 : iw / (n - 1))))); show(i, e.clientX, e.clientY); });
+  hit.addEventListener('pointerleave', () => { xh.style.display = 'none'; hideTip(); });
+  host.onkeydown = e => { if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); show(Math.max(0, Math.min(n - 1, cur + (e.key === 'ArrowLeft' ? -1 : 1)))); } };
+  host.onfocus = () => show(cur); host.onblur = () => { xh.style.display = 'none'; hideTip(); };
+  charts.push(() => lineChart(host, s, false));
+}
+function chartTable(s) {
+  const lbl = k => s.daily ? fd(k) : fm(k + '-01');
+  return `<div class="scroll"><table class="tbl"><thead><tr><th>${s.daily ? 'Day' : 'Month'}</th><th class="n">Sales</th><th class="n">Purchases</th>${S.role === 'admin' ? '<th class="n">Gross profit</th>' : ''}<th class="n">Recovery</th></tr></thead><tbody>${s.keys.map((k, i) => `<tr><td>${esc(lbl(k))}</td><td class="n">${rs(s.sales[i])}</td><td class="n">${rs(s.pur[i])}</td>${S.role === 'admin' ? `<td class="n">${rs(s.gp[i])}</td>` : ''}<td class="n">${rs(s.rec[i])}</td></tr>`).join('')}</tbody></table></div>`;
+}
+function ranked(host, rows, what) {
+  if (!rows.length) { host.innerHTML = '<p class="mu">No sales in this period.</p>'; return; }
+  const max = Math.max(...rows.map(r => r.v), 1);
+  host.innerHTML = rows.map((r, i) => `<div class="rk" tabindex="0" data-i="${i}" aria-label="${esc(r.name)}: ${esc(rs(r.v))}, ${esc(pct(r.share))} ${what}"><div class="rk-n">${esc(r.name)}${r.sub ? `<small>${esc(r.sub)}</small>` : ''}</div><div class="rk-v">${cmp(r.v)}</div><div class="rk-t"><i class="${r.oth ? 'oth' : ''}" style="--w:${(r.v / max * 100).toFixed(2)}%;transition-delay:${RM ? 0 : i * 60}ms"></i></div></div>`).join('');
+  requestAnimationFrame(() => requestAnimationFrame(() => $$('.rk', host).forEach(e => e.classList.add('go'))));
+  $$('.rk', host).forEach(e => {
+    const r = rows[+e.dataset.i], tipRows = () => [{v: rs(r.v), n: r.oth ? 'Total' : 'Sales', key: r.oth ? 'box' : 'box k-s1'}, {v: pct(r.share), n: what}];
+    e.addEventListener('pointermove', ev => showTip(ev.clientX, ev.clientY, r.name, tipRows()));
+    e.addEventListener('pointerleave', hideTip);
+    e.addEventListener('focus', () => { const b = e.getBoundingClientRect(); showTip(b.right - 40, b.top, r.name, tipRows()); });
+    e.addEventListener('blur', hideTip);
+  });
+}
+function segBar(host, parts) {
+  const tot = parts.reduce((a, p) => a + p[1], 0);
+  if (tot <= 0) { host.innerHTML = '<p class="mu">No outstanding bills.</p>'; return; }
+  host.innerHTML = `<div class="segbar">${parts.filter(p => p[1] > 0).map((p, i) => `<div class="sg ${p[2]}" style="flex:${p[1]} 1 0;animation-delay:${i * 80}ms" tabindex="0" data-n="${esc(p[0])}" data-v="${p[1]}"><span>${pct(p[1] / tot)}</span></div>`).join('')}</div><div class="legend">${parts.map(p => `<span><i class="rk-key k-${p[2]}"></i>${esc(p[0])}</span>`).join('')}</div>`;
+  requestAnimationFrame(() => $$('.sg', host).forEach(sg => { const sp = $('span', sg); if (sp.scrollWidth + 14 > sg.clientWidth) sp.style.visibility = 'hidden'; }));
+  $$('.sg', host).forEach(sg => {
+    const rows = () => [{v: rs(+sg.dataset.v), n: 'unpaid', key: 'box k-' + sg.classList[1]}, {v: pct(+sg.dataset.v / tot), n: 'of receivables'}];
+    sg.addEventListener('pointermove', e => showTip(e.clientX, e.clientY, sg.dataset.n + ' old', rows()));
+    sg.addEventListener('pointerleave', hideTip);
+    sg.addEventListener('focus', () => { const b = sg.getBoundingClientRect(); showTip(b.left + b.width / 2, b.top, sg.dataset.n + ' old', rows()); });
+    sg.addEventListener('blur', hideTip);
+  });
+}
+
+/* ================= tooltip / toast ================= */
+const tip = $('#tip');
+function showTip(x, y, title, rows) {
+  tip.replaceChildren();
+  const t = document.createElement('div'); t.className = 'tt'; t.textContent = title; tip.append(t);
+  for (const r of rows) { const d = document.createElement('div'); d.className = 'tr'; if (r.key) { const k = document.createElement('i'); k.className = 'key ' + r.key; d.append(k); } const b = document.createElement('b'); b.textContent = r.v; const s = document.createElement('span'); s.textContent = r.n; d.append(b, s); tip.append(d); }
+  tip.classList.add('on');
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  let lx = x + 14, ly = y - h - 12;
+  if (lx + w > innerWidth - 8) lx = x - w - 14; if (ly < 8) ly = y + 16; if (lx < 8) lx = 8;
+  tip.style.transform = 'none'; tip.style.left = lx + 'px'; tip.style.top = ly + 'px';
+}
+function hideTip() { tip.classList.remove('on'); }
+function toast(msg, icon = 'checkc') {
+  const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = ic(icon); const s = document.createElement('span'); s.textContent = msg; t.append(s);
+  $('#toasts').append(t); setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 260); }, 2600);
+}
+
+/* ================= range menu ================= */
+function openRange(btn) {
+  closeRange();
+  const m = document.createElement('div'); m.className = 'menu'; m.id = 'rangeMenu'; m.setAttribute('role', 'menu');
+  const R = curRange();
+  m.innerHTML = presets().map(p => `<button class="row ${S.range === p[0] ? 'sel' : ''}" role="menuitemradio" aria-checked="${S.range === p[0]}" data-range="${p[0]}"><span class="chk">${S.range === p[0] ? ic('check') : ''}</span>${esc(p[1])}</button>`).join('') +
+    `<div class="foot"><label>From<input type="date" id="cf" value="${R.from}"></label><label>To<input type="date" id="ct" value="${R.to}"></label><button class="btn sm" data-act="customrange">Apply</button></div>`;
+  btn.parentNode.append(m); btn.setAttribute('aria-expanded', 'true');
+  $('.row.sel', m)?.focus();
+}
+function closeRange() { const m = $('#rangeMenu'); if (m) { m.previousElementSibling?.setAttribute('aria-expanded', 'false'); m.remove(); } }
+function setRange(key, custom) {
+  S.range = key; S.custom = custom || null; closeRange();
+  const v = $('#view'); v.classList.add('dim'); setTimeout(() => { render(); v.classList.remove('dim'); }, RM ? 0 : 120);
+}
+
+/* ================= command palette ================= */
+let CI = [], CX = 0;
+function openCmdk() { $('#ov').classList.add('open'); $('#cmdk').classList.add('open'); const q = $('#cq'); q.value = ''; cmdkDraw(); setTimeout(() => q.focus(), 10); }
+function closeCmdk() { $('#ov').classList.remove('open'); $('#cmdk').classList.remove('open'); }
+function cmdkDraw() {
+  const q = $('#cq').value.trim().toLowerCase(), D = S.D;
+  const acts = [['New Bill', 'receipt', () => openBill(), 'F2'], ['Switch light / dark theme', 'moon', () => toggleTheme()], ['Load my data file', 'upload', () => $('#file').click()]];
+  const pages = NAV[S.role].filter(n => n[0] !== '#' && n[0] !== 'bill').map(n => [n[1], n[2], () => go(n[0])]);
+  const cust = D.C.map(c => [nice(c.name), 'users', () => openBill(c.id), (D.bal[c.id] || 0) > 0 ? cmp(D.bal[c.id]) + ' due' : '']);
+  const prod = D.P.map(p => [splitName(p.name)[0], 'package', () => toast('Product card opens here in the full app', 'package'), S.role === 'worker' ? NF0.format(p.stock) + ' in stock' : rs(p.price)]);
+  const groups = [['Actions', acts], ['Pages', pages], ['Customers (opens a bill)', cust], ['Products', prod]];
+  CI = []; let h = '';
+  for (const [g, list] of groups) {
+    const hits = list.filter(x => !q || x[0].toLowerCase().includes(q)).slice(0, q ? 8 : 4); if (!hits.length) continue;
+    h += `<div class="grp">${esc(g)}</div>` + hits.map(x => { CI.push(x); return `<div class="it" data-ci="${CI.length - 1}">${ic(x[1])}<span>${esc(x[0])}</span>${x[3] ? `<small>${esc(x[3])}</small>` : ''}</div>`; }).join('');
+  }
+  CX = 0; $('#cres').innerHTML = h || '<div class="it mu">Nothing found</div>'; cmdkHl();
+}
+function cmdkHl() { $$('#cres .it[data-ci]').forEach(e => e.classList.toggle('on', +e.dataset.ci === CX)); $(`#cres .it[data-ci="${CX}"]`)?.scrollIntoView({block: 'nearest'}); }
+function cmdkRun(i) { const x = CI[i]; if (!x) return; closeCmdk(); x[2](); }
+
+/* ================= theme ================= */
+function curTheme() { return document.documentElement.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); }
+function setThemeIcon() { $('#themeIc').innerHTML = `<use href="#i-${curTheme() === 'dark' ? 'sun' : 'moon'}"/>`; }
+function toggleTheme(e) {
+  const next = curTheme() === 'dark' ? 'light' : 'dark';
+  const apply = () => { document.documentElement.dataset.theme = next; try { localStorage.setItem('qt-theme', next); } catch (_) {} setThemeIcon(); };
+  if (!document.startViewTransition || RM) return apply();
+  const r = e?.currentTarget?.getBoundingClientRect?.();
+  document.documentElement.style.setProperty('--vx', (r ? r.left + r.width / 2 : innerWidth - 60) + 'px');
+  document.documentElement.style.setProperty('--vy', (r ? r.top + r.height / 2 : 30) + 'px');
+  document.startViewTransition(apply);
+}
+
+/* ================= New Bill drawer ================= */
+const TAX = {st: 18, ft: 4}; /* preview only: real rates come from the Tax settings table with effective dates */
+let BL = null;
+function billNo() { const y = fyLabel(TODAY).replace('-', ''); return `QT-${y.slice(2, 4)}${y.slice(4, 6)}-${String(S.D.I.length + 1).padStart(6, '0')}`; }
+function openBill(custId) {
+  closeCmdk(); closeSide();
+  BL = {cust: null, lines: [], tax: (S.D.T.tax || 0) > 0, pay: 'cash', recv: 0, disc: 0, date: TODAY, done: false, no: billNo()};
+  const dr = $('#drawer'); dr.classList.remove('closing'); dr.classList.add('open'); document.body.style.overflow = 'hidden';
+  drawBill();
+  if (custId) pickCust(S.D.cust[custId]); else setTimeout(() => $('#bc')?.focus(), 60);
+}
+function closeBill() {
+  const dr = $('#drawer'); if (!dr.classList.contains('open')) return;
+  if (RM) { dr.classList.remove('open'); document.body.style.overflow = ''; return; }
+  dr.classList.add('closing'); setTimeout(() => { dr.classList.remove('open', 'closing'); document.body.style.overflow = ''; }, 280);
+}
+function drawBill() {
+  const p = $('#panel');
+  p.innerHTML = `<div class="ph"><span class="av" style="background:linear-gradient(135deg,#2563eb,#12a9b8);color:#fff">${ic('receipt')}</span><div><h2>New Bill</h2><div class="no">${esc(BL.no)} · ${esc(fd(BL.date))}</div></div><span class="spacer"></span><span class="tw hide-m"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> save · <kbd>Esc</kbd> close</span><button class="ibtn" data-act="closebill" aria-label="Close">${ic('x')}</button></div>
+  <div class="pb" id="pb">
+    <div>
+      <label class="fld">Customer<div class="inp">${ic('users')}<input id="bc" placeholder="Type shop or customer name" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="bcl"></div><div class="opts" id="bcl" role="listbox" hidden></div></label>
+      <div id="cinfo"></div>
+      <label class="fld">Add product<div class="inp">${ic('search')}<input id="bp" placeholder="Type product name, press Enter" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="bpl"></div><div class="opts" id="bpl" role="listbox" hidden></div></label>
+      <div class="chips" id="recent"></div>
+      <div class="lines"><div class="lh"><span>Product</span><span>Qty</span><span style="text-align:right">Rate</span><span style="text-align:right">Amount</span><span></span></div><div id="blines"></div></div>
+    </div>
+    <aside class="sum" id="bsum"></aside>
+  </div>
+  <div class="mfoot" id="mfoot"><div><small>Total</small><b id="mtot">Rs 0.00</b></div><button class="btn" data-act="save" data-mode="print">${ic('check')}Save bill</button></div>`;
+  combo($('#bc'), $('#bcl'), custSrc, it => pickCust(it.c));
+  combo($('#bp'), $('#bpl'), prodSrc, it => addLine(it.p));
+  drawLines(); drawSum(); drawRecent();
+}
+function custSrc(q) {
+  const D = S.D;
+  return D.C.filter(c => !q || c.name.toLowerCase().includes(q) || (c.city || '').toLowerCase().includes(q))
+    .sort((a, b) => (q && b.name.toLowerCase().startsWith(q)) - (q && a.name.toLowerCase().startsWith(q)) || (D.salesVol['C' + b.id] || 0) - (D.salesVol['C' + a.id] || 0))
+    .slice(0, 8).map(c => ({c, html: `<span class="av">${esc(initials(c.name))}</span><div class="grow"><b>${esc(nice(c.name))}</b><small>${esc(nice(c.city) || 'No area')}${D.lastBill[c.id] ? ' · last bill ' + esc(fdShort(D.lastBill[c.id])) : ''}</small></div><div class="r">${(D.bal[c.id] || 0) > 0 ? `<b>${cmp(D.bal[c.id])}</b><small>owes</small>` : '<small>clear</small>'}</div>`}));
+}
+function rateFor(pid) { const p = S.D.prod[pid]; return (BL.cust && S.D.lastRate[BL.cust.id + ':' + pid]) || p.price || 0; }
+function prodSrc(q) {
+  const D = S.D;
+  return D.P.filter(p => !q || p.name.toLowerCase().includes(q) || (p.cat || '').toLowerCase().includes(q)).slice(0, 8).map(p => {
+    const [n, d] = splitName(p.name), last = BL.cust && D.lastRate[BL.cust.id + ':' + p.id];
+    return {p, html: `<span class="av">${ic('package')}</span><div class="grow"><b>${esc(n)}</b><small>${esc(d || p.cat || '')}</small></div><div class="r"><b>${rs(rateFor(p.id))}</b><small style="display:block;color:${p.stock > 0 ? 'var(--mu)' : 'var(--crit)'}">${last ? 'last rate · ' : ''}${p.stock > 0 ? NF0.format(p.stock) + ' in stock' : 'out of stock'}</small></div>`};
+  });
+}
+function combo(input, list, src, onPick) {
+  let items = [], idx = 0;
+  const draw = () => { items = src(input.value.trim().toLowerCase()); idx = 0;
+    list.innerHTML = items.length ? items.map((it, i) => `<div class="opt ${i ? '' : 'on'}" data-i="${i}" role="option">${it.html}</div>`).join('') : '<div class="opt empty">No match. Check the spelling.</div>';
+    list.hidden = false; input.setAttribute('aria-expanded', 'true'); };
+  const hl = () => { $$('.opt', list).forEach((o, i) => o.classList.toggle('on', i === idx)); list.children[idx]?.scrollIntoView({block: 'nearest'}); };
+  const pick = it => { list.hidden = true; input.setAttribute('aria-expanded', 'false'); onPick(it); };
+  input.addEventListener('input', draw); input.addEventListener('focus', draw);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'ArrowDown') { e.preventDefault(); if (list.hidden) draw(); idx = Math.min(idx + 1, items.length - 1); hl(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); idx = Math.max(idx - 1, 0); hl(); }
+    else if (e.key === 'Enter') { if (!list.hidden && items[idx]) { e.preventDefault(); pick(items[idx]); } }
+    else if (e.key === 'Escape' && !list.hidden) { e.stopPropagation(); list.hidden = true; }
+  });
+  list.addEventListener('pointerdown', e => { const o = e.target.closest('.opt[data-i]'); if (o) { e.preventDefault(); pick(items[+o.dataset.i]); } });
+  input.addEventListener('blur', () => setTimeout(() => { list.hidden = true; input.setAttribute('aria-expanded', 'false'); }, 120));
+}
+function pickCust(c) {
+  if (!c) return; BL.cust = c; const D = S.D, bal = D.bal[c.id] || 0;
+  $('#bc').value = nice(c.name);
+  $('#cinfo').innerHTML = `<div class="cinfo"><span class="av">${esc(initials(c.name))}</span><div class="grow"><b>${esc(nice(c.name))}</b><small>${esc(nice(c.city) || 'No area set')}${okPhone(c.phone) ? ' · ' + esc(c.phone) : ' · no mobile number'}${c.ntn ? ' · NTN ' + esc(c.ntn) : ' · unregistered buyer'}</small></div><div class="amt" style="text-align:right"><b>${rs(bal)}</b><small class="mu" style="display:block">${bal > 0 ? 'already owes' : 'nothing due'}</small></div></div>`;
+  BL.lines.forEach(l => { l.rate = rateFor(l.p); }); drawLines(); drawSum(); drawRecent();
+  setTimeout(() => $('#bp')?.focus(), 30);
+}
+function drawRecent() {
+  const el = $('#recent'); if (!el) return; const D = S.D;
+  const fav = BL.cust && D.custProd[BL.cust.id] ? Object.entries(D.custProd[BL.cust.id]).sort((a, b) => b[1] - a[1]).slice(0, 4).map(e => D.prod[+e[0]]).filter(Boolean) : [];
+  el.innerHTML = fav.length ? `<span class="tw" style="align-self:center">Usually buys:</span>` + fav.map(p => `<button class="chipbtn" data-add="${p.id}">+ ${esc(splitName(p.name)[0])}</button>`).join('') : '';
+}
+function addLine(p) {
+  const ex = BL.lines.find(l => l.p === p.id);
+  if (ex) ex.q += 1; else BL.lines.push({p: p.id, q: 1, rate: rateFor(p.id)});
+  $('#bp').value = ''; drawLines(); drawSum();
+  const i = BL.lines.findIndex(l => l.p === p.id), q = $(`#q${i}`); if (q) { q.focus(); q.select(); }
+}
+function lineWarn(l) {
+  const p = S.D.prod[l.p];
+  if (l.q > Math.max(p.stock, 0)) return `Only ${NF0.format(Math.max(p.stock, 0))} in stock`;
+  if (!(l.rate > 0)) return 'Set a rate';
+  if (S.role === 'admin' && l.rate < p.cost) return `Below cost (${rs(p.cost)})`;
+  return '';
+}
+function drawLines() {
+  const el = $('#blines'); if (!el) return;
+  if (!BL.lines.length) { el.innerHTML = `<div class="noitems">${ic('package')}<div>No items yet. Search a product above and press <kbd>Enter</kbd>.</div></div>`; return; }
+  el.innerHTML = BL.lines.map((l, i) => { const p = S.D.prod[l.p], [n, d] = splitName(p.name), w = lineWarn(l);
+    return `<div class="lr" data-li="${i}"><div class="pn"><b>${esc(n)}</b><small id="w${i}" class="${w ? 'w' : ''}">${esc(w || d || (S.role === 'worker' ? '' : NF0.format(p.stock) + ' in stock'))}</small></div>
+    <div class="qty"><button data-qd="-1" aria-label="Less">${ic('minus')}</button><input id="q${i}" inputmode="decimal" value="${l.q}" aria-label="Quantity"><button data-qd="1" aria-label="More">${ic('plus')}</button></div>
+    <input class="rate" id="r${i}" inputmode="decimal" value="${l.rate}" aria-label="Rate">
+    <div class="amt" id="a${i}">${rs2(l.q * l.rate)}</div><button class="xbtn" data-rm="${i}" aria-label="Remove">${ic('x')}</button></div>`; }).join('');
+}
+function totals() {
+  const sub = r2(BL.lines.reduce((a, l) => a + (+l.q || 0) * (+l.rate || 0), 0)), disc = Math.min(Math.max(+BL.disc || 0, 0), sub), net = r2(sub - disc);
+  const st = BL.tax ? r2(net * TAX.st / 100) : 0, ft = BL.tax && BL.cust && !BL.cust.ntn ? r2(net * TAX.ft / 100) : 0, total = r2(net + st + ft);
+  const recv = BL.pay === 'credit' ? 0 : BL.pay === 'partial' ? Math.min(Math.max(+BL.recv || 0, 0), total) : total;
+  const prev = BL.cust ? (S.D.bal[BL.cust.id] || 0) : 0;
+  return {sub, disc, net, st, ft, total, recv, prev, after: r2(prev + total - recv)};
+}
+function drawSum() {
+  const el = $('#bsum'); if (!el) return; const t = totals();
+  el.innerHTML = `<h3>Bill summary</h3>
+    <div class="srow"><span>Subtotal (${BL.lines.length} item${BL.lines.length === 1 ? '' : 's'})</span><b id="tsub">${rs2(t.sub)}</b></div>
+    <div class="srow"><span>Discount</span><input id="bdisc" inputmode="decimal" value="${BL.disc || ''}" placeholder="0"></div>
+    <div class="toggle"><span>Sales tax invoice<br><small class="tw">Preview rates: ${TAX.st}% sales tax${BL.cust && !BL.cust.ntn ? `, ${TAX.ft}% further tax (unregistered)` : ''}</small></span><button class="sw" role="switch" aria-checked="${BL.tax}" data-act="tax" aria-label="Sales tax invoice"></button></div>
+    <div id="taxrows">${taxRows(t)}</div>
+    <div class="total"><span>Total</span><b id="ttot">${rs2(t.total)}</b></div>
+    <div class="tw">Payment</div>
+    <div class="pay" role="radiogroup" aria-label="Payment">${[['cash', 'Cash'], ['credit', 'Credit'], ['partial', 'Partial'], ['bank', 'Bank'], ['cheque', 'Cheque']].map(x => `<button role="radio" aria-checked="${BL.pay === x[0]}" class="${BL.pay === x[0] ? 'on' : ''}" data-pay="${x[0]}">${x[1]}</button>`).join('')}</div>
+    ${BL.pay === 'partial' ? `<div class="srow"><span>Received now</span><input id="brecv" inputmode="decimal" value="${BL.recv || ''}" placeholder="0"></div>` : ''}
+    <div class="srow"><span>Received</span><b id="trecv">${rs2(t.recv)}</b></div>
+    <div class="srow"><span>Customer balance</span><b id="tbal">${BL.cust ? `${rs(t.prev)} → ${rs(t.after)}` : '–'}</b></div>
+    <p class="berr" id="berr" role="alert"></p>
+    <div class="bacts"><button class="btn" data-act="save" data-mode="print">${ic('printer')}Save and print</button><div class="two"><button class="btn ghost" data-act="save" data-mode="wa">${ic('send')}Save + WhatsApp</button><button class="btn ghost" data-act="save" data-mode="draft">Save draft</button></div></div>
+    <p class="hint">Prototype: nothing is saved. Real app posts stock + ledger in one step and sends to FBR.</p>`;
+  const mt = $('#mtot'); if (mt) mt.textContent = rs2(t.total);
+}
+function taxRows(t) { return BL.tax ? `<div class="srow"><span>Sales tax ${TAX.st}%</span><b>${rs2(t.st)}</b></div>${t.ft ? `<div class="srow"><span>Further tax ${TAX.ft}%</span><b>${rs2(t.ft)}</b></div>` : ''}` : ''; }
+function updTotals() {
+  const t = totals();
+  BL.lines.forEach((l, i) => { const a = $('#a' + i); if (a) a.textContent = rs2((+l.q || 0) * (+l.rate || 0)); const w = $('#w' + i), m = lineWarn(l), p = S.D.prod[l.p]; if (w) { w.textContent = m || splitName(p.name)[1] || (S.role === 'worker' ? '' : NF0.format(p.stock) + ' in stock'); w.className = m ? 'w' : ''; } });
+  $('#tsub').textContent = rs2(t.sub); $('#ttot').textContent = rs2(t.total); $('#trecv').textContent = rs2(t.recv);
+  $('#tbal').textContent = BL.cust ? `${rs(t.prev)} → ${rs(t.after)}` : '–'; $('#taxrows').innerHTML = taxRows(t);
+  const mt = $('#mtot'); if (mt) mt.textContent = rs2(t.total);
+}
+function saveBill(mode) {
+  const err = $('#berr'), fail = m => { err.textContent = m; const s = $('#bsum'); s.classList.remove('shake'); void s.offsetWidth; s.classList.add('shake'); };
+  if (!BL.cust) { fail('Choose a customer first.'); $('#bc').focus(); return; }
+  const lines = BL.lines.filter(l => +l.q > 0);
+  if (!lines.length) { fail('Add at least one product.'); $('#bp').focus(); return; }
+  if (lines.some(l => !(+l.rate > 0))) return fail('Every item needs a rate above zero.');
+  const over = lines.find(l => +l.q > Math.max(S.D.prod[l.p].stock, 0));
+  if (over && mode !== 'draft') return fail(`Not enough stock: ${splitName(S.D.prod[over.p].name)[0]}. Save as draft, or fix the quantity.`);
+  const t = totals(); BL.done = true; $('#mfoot')?.remove();
+  const pb = $('#pb'), D = S.D, T = D.T, c = BL.cust;
+  pb.innerHTML = `<div class="done"><div><svg class="okmark" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="36"/><path d="M24 41l11 11 21-23"/></svg>
+    <h2 style="margin:0 0 6px">${mode === 'draft' ? 'Draft saved' : 'Bill saved'} · ${esc(BL.no)}</h2>
+    <p class="mu" style="margin:0 0 16px">${esc(nice(c.name))} · ${rs2(t.total)} · ${t.recv >= t.total ? 'paid in full' : t.recv > 0 ? rs2(t.recv) + ' received' : 'on credit'}. ${mode === 'draft' ? 'Drafts do not touch stock or the ledger.' : 'In the real app this posts stock, the ledger entry and the FBR submission together.'}</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-act="bill">${ic('plus')}Next bill</button><button class="btn ghost" data-act="printprev">${ic('printer')}Print</button><button class="btn ghost" data-act="wa">${ic('send')}WhatsApp</button><button class="btn ghost" data-act="closebill">Close</button></div>
+    ${mode === 'draft' ? '' : `<div class="note" style="margin-top:18px">${ic('shield')}<div><b>FBR status: Pending</b><br>The gateway validates and posts the invoice to FBR. The FBR invoice number and QR code print on the bill once FBR returns Valid. If FBR is down, the bill waits in a queue and retries.</div></div>`}</div>
+    <div class="receipt" aria-label="80 mm receipt preview"><div class="c"><b>${esc(T.name || 'Qayam Traders')}</b><br>${esc(T.addr || '')}<br>${esc(T.phone || '')}<br>NTN: ${esc(T.ntn || '—')}  STRN: ${esc(T.strn || '—')}</div><hr>
+    <div class="r"><span>${BL.tax ? 'Sales Tax Invoice' : 'Invoice'}</span><span>${esc(BL.no)}</span></div><div class="r"><span>Date</span><span>${esc(fd(BL.date))}</span></div><div>To: ${esc(nice(c.name))}</div>${c.ntn ? `<div>NTN: ${esc(c.ntn)}</div>` : ''}<hr>
+    ${lines.map(l => `<div>${esc(splitName(D.prod[l.p].name)[0])}</div><div class="r"><span>${NF0.format(l.q)} x ${NF2.format(l.rate)}</span><span>${NF2.format(l.q * l.rate)}</span></div>`).join('')}<hr>
+    <div class="r"><span>Subtotal</span><span>${NF2.format(t.sub)}</span></div>${t.disc ? `<div class="r"><span>Discount</span><span>-${NF2.format(t.disc)}</span></div>` : ''}${t.st ? `<div class="r"><span>Sales tax ${TAX.st}%</span><span>${NF2.format(t.st)}</span></div>` : ''}${t.ft ? `<div class="r"><span>Further tax ${TAX.ft}%</span><span>${NF2.format(t.ft)}</span></div>` : ''}
+    <div class="r"><b>TOTAL</b><b>${NF2.format(t.total)}</b></div><div class="r"><span>Received</span><span>${NF2.format(t.recv)}</span></div><hr>
+    <div class="c">FBR Invoice No: <b>pending</b></div><div class="qr">FBR logo + QR code print here after FBR Valid</div><div class="c">${esc(T.foot || 'Thank you')}</div></div></div>`;
+}
+
+/* ================= mobile side ================= */
+function openSide() { $('#side').classList.add('open'); $('#sideScrim').classList.add('open'); }
+function closeSide() { $('#side').classList.remove('open'); $('#sideScrim').classList.remove('open'); }
+
+/* ================= data loading ================= */
+function useData(raw, src) {
+  if (!raw || !['coa', 'P', 'C', 'J', 'I'].every(k => Array.isArray(raw[k]))) throw new Error('This file does not look like a Qayam Traders backup.');
+  S.D = prep(raw); S.src = src;
+  $('#coName').textContent = nice(raw.co || 'Qayam Traders');
+  $('#srcLbl').textContent = src === 'demo' ? 'Demo data (fictional)' : `Your file · ${raw.C.length} customers, ${raw.J.length} entries`;
+  $('#demoBtn').hidden = src === 'demo';
+}
+$('#file').addEventListener('change', async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try { useData(JSON.parse(await f.text()), 'file'); render(); toast('Your data is loaded. It stays on this computer.'); }
+  catch (x) { toast(x.message || 'Could not read this file', 'alert'); }
+  e.target.value = '';
+});
+
+/* ================= events ================= */
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-act],[data-go],[data-range],[data-role],[data-pay],[data-add],[data-rm],[data-qd],[data-bill],[data-ci]');
+  if (!t) { if (!e.target.closest('.range')) closeRange(); return; }
+  if (t.dataset.go) return go(t.dataset.go);
+  if (t.dataset.range) return setRange(t.dataset.range);
+  if (t.dataset.role) { S.role = t.dataset.role; S.page = 'dash'; renderNav(); render(); return; }
+  if (t.dataset.bill) return openBill(+t.dataset.bill);
+  if (t.dataset.ci) return cmdkRun(+t.dataset.ci);
+  if (t.dataset.pay) { BL.pay = t.dataset.pay; drawSum(); if (BL.pay === 'partial') $('#brecv')?.focus(); return; }
+  if (t.dataset.add) return addLine(S.D.prod[+t.dataset.add]);
+  if (t.dataset.rm) { BL.lines.splice(+t.dataset.rm, 1); drawLines(); drawSum(); return; }
+  if (t.dataset.qd) { const i = +t.closest('.lr').dataset.li, l = BL.lines[i]; l.q = Math.max(0, r2((+l.q || 0) + +t.dataset.qd)); $('#q' + i).value = l.q; updTotals(); return; }
+  switch (t.dataset.act) {
+    case 'bill': return openBill();
+    case 'closebill': return closeBill();
+    case 'cmdk': return openCmdk();
+    case 'closecmdk': return closeCmdk();
+    case 'theme': return toggleTheme(e);
+    case 'menu': return $('#side').classList.contains('open') ? closeSide() : openSide();
+    case 'range': return $('#rangeMenu') ? closeRange() : openRange(t);
+    case 'customrange': { const a = $('#cf').value, b = $('#ct').value; if (a && b && a <= b) setRange('custom', [a, b]); else toast('Pick a start date before the end date', 'alert'); return; }
+    case 'tableview': S.tableView = !S.tableView; t.classList.toggle('on', S.tableView); { const R = curRange(), mc = $('#mainChart'); if (S.tableView) mc.innerHTML = chartTable(series(S.D, R.from, R.to)); else lineChart(mc, series(S.D, R.from, R.to), true); } return;
+    case 'alerts': { const a = $('.al'); if (a) { a.closest('.card').scrollIntoView({behavior: RM ? 'auto' : 'smooth', block: 'center'}); } else toast('No alerts on this view', 'bell'); return; }
+    case 'load': return $('#file').click();
+    case 'demo': useData(EMBED_OR_DEMO(true), 'demo'); render(); toast('Back to demo data'); return;
+    case 'tax': BL.tax = !BL.tax; t.setAttribute('aria-checked', BL.tax); updTotals(); return;
+    case 'save': return saveBill(t.dataset.mode);
+    case 'printprev': return toast('Prints A4 or 80 mm thermal in the full app', 'printer');
+    case 'wa': return toast('Sends the bill PDF to the customer on WhatsApp in the full app', 'send');
+  }
+});
+document.addEventListener('input', e => {
+  const id = e.target.id; if (!BL) return;
+  if (/^q\d+$/.test(id)) { BL.lines[+id.slice(1)].q = +e.target.value || 0; updTotals(); }
+  else if (/^r\d+$/.test(id)) { BL.lines[+id.slice(1)].rate = +e.target.value || 0; updTotals(); }
+  else if (id === 'bdisc') { BL.disc = +e.target.value || 0; updTotals(); }
+  else if (id === 'brecv') { BL.recv = +e.target.value || 0; updTotals(); }
+  else if (id === 'cq') cmdkDraw();
+});
+document.addEventListener('keydown', e => {
+  const k = e.key, drawerOpen = $('#drawer').classList.contains('open'), cmdkOpen = $('#cmdk').classList.contains('open');
+  if ((e.ctrlKey || e.metaKey) && k.toLowerCase() === 'k') { e.preventDefault(); return cmdkOpen ? closeCmdk() : openCmdk(); }
+  if (k === 'F2') { e.preventDefault(); return openBill(); }
+  if (cmdkOpen) { if (k === 'Escape') closeCmdk(); else if (k === 'ArrowDown') { e.preventDefault(); CX = Math.min(CX + 1, CI.length - 1); cmdkHl(); } else if (k === 'ArrowUp') { e.preventDefault(); CX = Math.max(CX - 1, 0); cmdkHl(); } else if (k === 'Enter') { e.preventDefault(); cmdkRun(CX); } return; }
+  if (drawerOpen) {
+    if (k === 'Escape') return closeBill();
+    if (k === 'Enter' && (e.ctrlKey || e.metaKey) && !BL.done) { e.preventDefault(); return saveBill('print'); }
+    if (k === 'Enter' && /^[qr]\d+$/.test(e.target.id)) { e.preventDefault(); $('#bp').focus(); }
+    return;
+  }
+  if (k === 'Escape') { closeRange(); closeSide(); }
+  if ((k === 'Enter' || k === ' ') && e.target.matches('#nav a')) { e.preventDefault(); go(e.target.dataset.go); }
+});
+addEventListener('scroll', () => $('#top').classList.toggle('scrolled', scrollY > 4), {passive: true});
+let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { charts.forEach(f => f()); moveInd(); }, 150); });
+
+/* ================= boot ================= */
+function EMBED_OR_DEMO(forceDemo) { return !forceDemo && EMBED ? EMBED : demoData(); }
+try { const th = localStorage.getItem('qt-theme'); if (th) document.documentElement.dataset.theme = th; } catch (_) {}
+setThemeIcon();
+$('#view').innerHTML = `<div class="sk" style="height:150px;margin-top:6px"></div><div class="grid g-kpi">${'<div class="sk" style="height:118px"></div>'.repeat(6)}</div><div class="grid g-21"><div class="sk" style="height:330px"></div><div class="sk" style="height:330px"></div></div>`;
+renderNav();
+setTimeout(() => {
+  useData(EMBED_OR_DEMO(false), EMBED ? 'file' : 'demo');
+  if (EMBED) $('#srcLbl').textContent = `Your data (private preview) · ${EMBED.C.length} customers`;
+  render();
+}, RM ? 0 : 260);
+})();
+</script>
+</body>
+</html>

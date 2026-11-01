@@ -1,0 +1,19 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Real business data: never commit
+qayam-data*.json
+*.sql.gz
+*.dump
+backups/
+data/
+*-private.html
+*.local.*
+
+# Build output
+node_modules/
+dist/
+.vercel/
+.DS_Store
