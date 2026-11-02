@@ -7,19 +7,22 @@ import { AccountView } from "./account-view";
 
 function AccountSkeleton() {
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-6" aria-hidden>
-      <div className="flex items-center gap-4">
-        <Skeleton className="size-16 rounded-full" />
-        <div className="flex flex-col gap-2">
-          <Skeleton className="h-6 w-40" />
-          <Skeleton className="h-4 w-28" />
-        </div>
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 pt-8" aria-hidden>
+      <div className="flex flex-col items-center gap-3">
+        <Skeleton className="size-24 rounded-full" />
+        <Skeleton className="h-7 w-44" />
+        <Skeleton className="h-5 w-32" />
+      </div>
+      <div className="grid grid-cols-3 gap-3">
+        <Skeleton className="h-24 rounded-lg" />
+        <Skeleton className="h-24 rounded-lg" />
+        <Skeleton className="h-24 rounded-lg" />
       </div>
       <div className="rounded-lg border border-border bg-surface px-4">
         <ListRowSkeleton />
         <ListRowSkeleton />
+        <ListRowSkeleton />
       </div>
-      <Skeleton className="h-28 w-full rounded-lg" />
     </div>
   );
 }

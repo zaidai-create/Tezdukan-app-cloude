@@ -222,7 +222,36 @@
   "account": {
     "yourRoles": "Your roles",
     "help": "Help & support",
-    "helpHint": "Chat with the TezDukan team"
+    "helpHint": "Chat with the TezDukan team",
+    "tiles": {
+      "orders": "Orders",
+      "khata": "Khata",
+      "catalog": "Catalog",
+      "dukans": "Dukans",
+      "home": "Home",
+      "help": "Help"
+    },
+    "completeTitle": "Register your dukan",
+    "completeHint": "Trade prices from distributors, delivered next day",
+    "groups": {
+      "roles": "Your roles",
+      "preferences": "Preferences",
+      "support": "Support and policies",
+      "opportunities": "Grow with TezDukan"
+    },
+    "switchHint": "Tap to switch",
+    "appearanceLight": "Light",
+    "appearanceDark": "Dark",
+    "appearanceAuto": "Auto",
+    "liveChat": "Live chat",
+    "whatsappSupport": "WhatsApp support",
+    "terms": "Terms and conditions",
+    "privacy": "Privacy policy",
+    "refund": "Refund policy",
+    "registerDukan": "Register your dukan",
+    "becomeDistributor": "Become a distributor",
+    "joinRider": "Join as a delivery rider",
+    "joinRiderHint": "Talk to our team"
   },
   "command": {
     "title": "Search and commands",
@@ -1011,6 +1040,135 @@
         "product_not_found": "This product isn't available.",
         "generic": "Couldn't save. Please try again.",
         "offline": "You're offline. Try again when you're connected."
+      }
+    }
+  },
+  "onboarding": {
+    "title": "How will you use TezDukan?",
+    "subtitle": "Pick one. You can add the others later from Account.",
+    "dukan": {
+      "title": "I have a dukan",
+      "hint": "Order stock from distributors, keep khata and bills"
+    },
+    "distributor": {
+      "title": "I'm a distributor",
+      "hint": "Sell to dukans, manage orders and delivery"
+    },
+    "customer": {
+      "title": "I'm here to shop",
+      "hint": "Buy from dukans near you"
+    },
+    "form": {
+      "dukanTitle": "Register your dukan",
+      "dukanHint": "Takes a minute. Distributors see these details when you order.",
+      "distributorTitle": "Register your business",
+      "distributorHint": "Dukans in your areas will see your catalog.",
+      "dukanName": "Dukan name",
+      "dukanNamePlaceholder": "Madina General Store",
+      "businessName": "Business name",
+      "businessNamePlaceholder": "Indus Traders",
+      "phone": "Phone number",
+      "area": "Area",
+      "areaPlaceholder": "Choose your area",
+      "address": "Address",
+      "addressPlaceholder": "Shop number, market, street",
+      "location": "Use my current location",
+      "locationAdded": "Location added",
+      "locationFailed": "Couldn't get your location. Your area will be used.",
+      "servedAreas": "Areas you deliver to",
+      "servedAreasHint": "Dukans in these areas can order from you.",
+      "submitDukan": "Register dukan",
+      "submitDistributor": "Register business",
+      "successApproved": "{name} is ready. Welcome to TezDukan!",
+      "pendingTitle": "We're checking your details",
+      "pendingHint": "Usually within a day. We'll notify you when it's approved.",
+      "pendingAction": "Go to Account",
+      "back": "Back",
+      "errors": {
+        "invalid_name": "Write a name of at least 2 letters.",
+        "invalid_phone": "Enter a valid mobile number, like 0300 1234567.",
+        "address_required": "Write the address.",
+        "invalid_area": "Choose your area again.",
+        "too_many_pending_registrations": "You already have registrations waiting for approval.",
+        "generic": "Couldn't register. Please try again."
+      }
+    }
+  },
+  "customerHome": {
+    "registerTitle": "Have a dukan?",
+    "registerHint": "Order stock from Hyderabad's distributors at trade price, delivered next day.",
+    "registerAction": "Register your dukan",
+    "distributorTitle": "Are you a distributor?",
+    "distributorAction": "Register your business",
+    "nearbyTitle": "Dukans near you",
+    "nearbyEmpty": "No dukans in your area yet",
+    "nearbyEmptyHint": "Tell your local dukandar about TezDukan.",
+    "call": "Call",
+    "whatsapp": "WhatsApp",
+    "orderingSoon": "Online ordering from dukans is coming soon. Call or WhatsApp them for now."
+  },
+  "legal": {
+    "updated": "Last updated 2 November 2026",
+    "back": "Back",
+    "terms": {
+      "title": "Terms and conditions",
+      "s1": {
+        "title": "Who we are",
+        "body": "TezDukan is a platform in Hyderabad, Sindh that connects dukans with distributors and customers. By using the app you agree to these terms."
+      },
+      "s2": {
+        "title": "Your account",
+        "body": "Use your own mobile number and keep your password private. You are responsible for orders placed from your account and by staff you add."
+      },
+      "s3": {
+        "title": "Orders and prices",
+        "body": "Each distributor sets its own prices, stock and schemes. An order is confirmed when the distributor accepts it. Large orders may be confirmed by phone before dispatch."
+      },
+      "s4": {
+        "title": "Payments and khata",
+        "body": "Pay cash on delivery or on khata (credit) when your distributor allows it. Dues and payments are recorded in your statement and cannot be deleted, only reversed."
+      },
+      "s5": {
+        "title": "Fair use",
+        "body": "Do not misuse the app, post false information or try to access other people's data. We may suspend accounts that break these rules."
+      }
+    },
+    "privacy": {
+      "title": "Privacy policy",
+      "s1": {
+        "title": "What we collect",
+        "body": "Your name, mobile number, dukan or business details, location you choose to share, orders, payments and messages you send in the app."
+      },
+      "s2": {
+        "title": "Why we use it",
+        "body": "To create your account, deliver orders, keep your khata, send order updates and notifications, give support and keep the service safe."
+      },
+      "s3": {
+        "title": "Who can see it",
+        "body": "Distributors you order from see your dukan name, phone and address. We never sell your data. Service providers (hosting, SMS) process it only for us."
+      },
+      "s4": {
+        "title": "Your choices",
+        "body": "You can turn phone notifications off, change your details, or ask us to delete your account and data through Help and support in the app."
+      },
+      "s5": {
+        "title": "Security",
+        "body": "Your data is stored encrypted on secure servers, and each dukan and distributor can only see its own records."
+      }
+    },
+    "refund": {
+      "title": "Refund policy",
+      "s1": {
+        "title": "Damaged or short items",
+        "body": "Report damaged, expired or missing items from the order page within 48 hours of delivery, with a photo where possible."
+      },
+      "s2": {
+        "title": "How refunds work",
+        "body": "Approved claims are credited to your khata with your distributor, or paid back the way you paid. The distributor decides each claim."
+      },
+      "s3": {
+        "title": "Cancelled orders",
+        "body": "You can cancel an order before it is packed. If you already paid, the full amount is returned."
       }
     }
   }

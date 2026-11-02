@@ -10,3 +10,8 @@ e2e/__screenshots__
 messages/*.d.json.ts
 *.md
 .claude
+
+# Android build output
+android/.gradle
+android/build
+android/app/build

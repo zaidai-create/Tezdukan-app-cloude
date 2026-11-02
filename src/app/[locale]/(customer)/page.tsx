@@ -1,5 +1,5 @@
-import { RoleHome } from "@/features/home/role-home";
+import { CustomerHome } from "@/features/home/customer-home";
 
 export default function Page() {
-  return <RoleHome role="customer" />;
+  return <CustomerHome />;
 }

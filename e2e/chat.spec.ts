@@ -77,7 +77,7 @@ test.describe("chat", () => {
     const base = baseURL ?? "";
     const dukandar = await signedIn(browser, base, phone, PASSWORD);
     await dukandar.goto(`${base}/dukan/account`);
-    await dukandar.getByRole("link", { name: new RegExp(account.help) }).click();
+    await dukandar.getByRole("link", { name: new RegExp(account.liveChat) }).click();
     await expect(dukandar.getByRole("heading", { level: 1, name: chat.support })).toBeVisible({
       timeout: 15_000,
     });

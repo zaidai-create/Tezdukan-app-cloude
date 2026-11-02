@@ -8326,6 +8326,7 @@ export type Database = {
           status: string;
         }[];
       };
+      nearby_dukans: { Args: { p_lat?: number; p_limit?: number; p_lng?: number }; Returns: Json };
       next_counter: { Args: { p_scope: string }; Returns: number };
       open_conversation: {
         Args: {

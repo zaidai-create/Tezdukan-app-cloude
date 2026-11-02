@@ -4,6 +4,22 @@ All notable changes, newest first. Dates are Asia/Karachi.
 
 ## Unreleased
 
+### Onboarding and the new Account page (2026-11-02)
+
+- New accounts are asked "How will you use TezDukan?" (dukan, distributor or shopping)
+  instead of landing on an empty customer screen.
+- Register your dukan / Register your business from the app: name, phone, area, address and
+  current location; distributors pick the areas they deliver to. A testing flag approves
+  registrations at once (on for the live test site); otherwise they wait for an admin.
+- Customer home: nearby approved dukans with Call and WhatsApp, plus the way in for dukandars
+  and distributors.
+- Account page redesigned in an Apple-like style: profile header, quick tiles, grouped
+  settings (appearance, language, notifications), support and policies, opportunities, and
+  sign out.
+- Terms and conditions, Privacy policy and Refund policy pages.
+- Android app 0.1.1 shows the error on screen after a crash, with Try again and Open in
+  browser.
+
 ### Distributor portal, chat and notifications (2026-10-29)
 
 - Distributor catalog:

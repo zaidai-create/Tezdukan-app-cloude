@@ -222,7 +222,36 @@
   "account": {
     "yourRoles": "Aapke roles",
     "help": "Madad aur support",
-    "helpHint": "TezDukan team se chat karein"
+    "helpHint": "TezDukan team se chat karein",
+    "tiles": {
+      "orders": "Orders",
+      "khata": "Khata",
+      "catalog": "Catalog",
+      "dukans": "Dukanein",
+      "home": "Home",
+      "help": "Madad"
+    },
+    "completeTitle": "Apni dukan register karein",
+    "completeHint": "Distributors se trade rate, agle din delivery",
+    "groups": {
+      "roles": "Aap ke roles",
+      "preferences": "Settings",
+      "support": "Madad aur policies",
+      "opportunities": "TezDukan ke saath aage barhein"
+    },
+    "switchHint": "Badalne ke liye tap karein",
+    "appearanceLight": "Light",
+    "appearanceDark": "Dark",
+    "appearanceAuto": "Auto",
+    "liveChat": "Live chat",
+    "whatsappSupport": "WhatsApp support",
+    "terms": "Terms aur conditions",
+    "privacy": "Privacy policy",
+    "refund": "Refund policy",
+    "registerDukan": "Apni dukan register karein",
+    "becomeDistributor": "Distributor banein",
+    "joinRider": "Delivery rider banein",
+    "joinRiderHint": "Hamari team se baat karein"
   },
   "command": {
     "title": "Talaash aur commands",
@@ -1011,6 +1040,135 @@
         "product_not_found": "Ye product dastiyab nahi.",
         "generic": "Save nahi hua. Dobara koshish karein.",
         "offline": "Aap offline hain. Internet aane par dobara koshish karein."
+      }
+    }
+  },
+  "onboarding": {
+    "title": "Aap TezDukan kaise use karenge?",
+    "subtitle": "Ek chunein. Baaqi baad mein Account se add kar sakte hain.",
+    "dukan": {
+      "title": "Meri dukan hai",
+      "hint": "Distributors se maal mangwayein, khata aur bill rakhein"
+    },
+    "distributor": {
+      "title": "Main distributor hoon",
+      "hint": "Dukanon ko maal bechein, orders aur delivery sambhalein"
+    },
+    "customer": {
+      "title": "Sirf khareedari",
+      "hint": "Apne qareeb ki dukanon se khareedein"
+    },
+    "form": {
+      "dukanTitle": "Apni dukan register karein",
+      "dukanHint": "Ek minute lagega. Order karne par distributors ye details dekhte hain.",
+      "distributorTitle": "Apna business register karein",
+      "distributorHint": "Aap ke areas ki dukanein aap ka catalog dekhengi.",
+      "dukanName": "Dukan ka naam",
+      "dukanNamePlaceholder": "Madina General Store",
+      "businessName": "Business ka naam",
+      "businessNamePlaceholder": "Indus Traders",
+      "phone": "Phone number",
+      "area": "Area",
+      "areaPlaceholder": "Apna area chunein",
+      "address": "Pata",
+      "addressPlaceholder": "Dukan number, market, gali",
+      "location": "Meri current location lein",
+      "locationAdded": "Location add ho gayi",
+      "locationFailed": "Location nahi mili. Aap ka area use hoga.",
+      "servedAreas": "Jin areas mein delivery karte hain",
+      "servedAreasHint": "In areas ki dukanein aap se order kar sakengi.",
+      "submitDukan": "Dukan register karein",
+      "submitDistributor": "Business register karein",
+      "successApproved": "{name} tayyar hai. TezDukan mein khush aamdeed!",
+      "pendingTitle": "Hum aap ki details check kar rahe hain",
+      "pendingHint": "Aam taur par ek din mein. Approve hone par aap ko notification milegi.",
+      "pendingAction": "Account par jayein",
+      "back": "Wapas",
+      "errors": {
+        "invalid_name": "Kam az kam 2 huroof ka naam likhein.",
+        "invalid_phone": "Sahi mobile number likhein, jaise 0300 1234567.",
+        "address_required": "Pata likhein.",
+        "invalid_area": "Apna area dobara chunein.",
+        "too_many_pending_registrations": "Aap ki registrations pehle se approval ke intezar mein hain.",
+        "generic": "Register nahi ho saka. Dobara koshish karein."
+      }
+    }
+  },
+  "customerHome": {
+    "registerTitle": "Dukan hai?",
+    "registerHint": "Hyderabad ke distributors se trade rate par maal mangwayein, agle din delivery.",
+    "registerAction": "Apni dukan register karein",
+    "distributorTitle": "Distributor hain?",
+    "distributorAction": "Apna business register karein",
+    "nearbyTitle": "Aap ke qareeb dukanein",
+    "nearbyEmpty": "Abhi aap ke area mein koi dukan nahi",
+    "nearbyEmptyHint": "Apne dukandar ko TezDukan ke baare mein batayein.",
+    "call": "Call",
+    "whatsapp": "WhatsApp",
+    "orderingSoon": "Dukanon se online order jald aa raha hai. Abhi call ya WhatsApp karein."
+  },
+  "legal": {
+    "updated": "Aakhri tabdeeli 2 November 2026",
+    "back": "Wapas",
+    "terms": {
+      "title": "Terms aur conditions",
+      "s1": {
+        "title": "Hum kaun hain",
+        "body": "TezDukan Hyderabad, Sindh ka platform hai jo dukanon ko distributors aur customers se jorta hai. App use kar ke aap in terms se ittefaq karte hain."
+      },
+      "s2": {
+        "title": "Aap ka account",
+        "body": "Apna mobile number use karein aur password kisi ko na batayein. Aap ke account aur aap ke add kiye gaye staff ke orders ki zimmedari aap ki hai."
+      },
+      "s3": {
+        "title": "Orders aur qeematein",
+        "body": "Har distributor apni qeematein, stock aur schemes khud tay karta hai. Distributor ke accept karne par order pakka hota hai. Bare orders dispatch se pehle phone par confirm ho sakte hain."
+      },
+      "s4": {
+        "title": "Payment aur khata",
+        "body": "Delivery par cash ya distributor ki ijazat se khate (udhaar) par payment karein. Wajibaat aur payments aap ke statement mein darj hoti hain aur delete nahi hotin, sirf reverse ho sakti hain."
+      },
+      "s5": {
+        "title": "Sahi istemal",
+        "body": "App ka ghalat istemal, ghalat maloomat ya doosron ke data tak pohanchne ki koshish na karein. Rules torne wale accounts band ho sakte hain."
+      }
+    },
+    "privacy": {
+      "title": "Privacy policy",
+      "s1": {
+        "title": "Hum kya jama karte hain",
+        "body": "Aap ka naam, mobile number, dukan ya business ki details, aap ki share ki gayi location, orders, payments aur app mein bheje gaye messages."
+      },
+      "s2": {
+        "title": "Kyun use karte hain",
+        "body": "Account banane, order pohanchane, khata rakhne, order updates aur notifications bhejne, madad dene aur service mehfooz rakhne ke liye."
+      },
+      "s3": {
+        "title": "Kaun dekh sakta hai",
+        "body": "Jin distributors se aap order karte hain woh aap ki dukan ka naam, phone aur pata dekhte hain. Hum aap ka data kabhi nahi bechte. Hosting aur SMS companies sirf hamare liye ise use karti hain."
+      },
+      "s4": {
+        "title": "Aap ke ikhtiyarat",
+        "body": "Aap phone notifications band kar sakte hain, details badal sakte hain, ya app mein Madad ke zariye account aur data delete karwa sakte hain."
+      },
+      "s5": {
+        "title": "Hifazat",
+        "body": "Aap ka data mehfooz servers par encrypt ho kar rakha jata hai, aur har dukan aur distributor sirf apna record dekh sakta hai."
+      }
+    },
+    "refund": {
+      "title": "Refund policy",
+      "s1": {
+        "title": "Kharab ya kam maal",
+        "body": "Kharab, expire ya kam maal ki shikayat delivery ke 48 ghante ke andar order ke page se karein, ho sake to photo ke saath."
+      },
+      "s2": {
+        "title": "Refund kaise hota hai",
+        "body": "Approve shikayat ki raqam distributor ke saath aap ke khate mein jama hoti hai, ya usi tareeqe se wapas milti hai jis se aap ne payment ki. Har shikayat ka faisla distributor karta hai."
+      },
+      "s3": {
+        "title": "Cancel orders",
+        "body": "Packing se pehle order cancel kar sakte hain. Agar payment ho chuki ho to poori raqam wapas milegi."
       }
     }
   }
