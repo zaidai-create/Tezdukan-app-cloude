@@ -81,6 +81,14 @@ function ProductCard({
     ? discountPercent(unit.pricePaisa, unit.regularPricePaisa)
     : 0;
   const multiUnit = product.units.length > 1;
+  const image = (
+    <ProductImage
+      src={product.imageUrl}
+      alt={product.name}
+      priority={priorityImage}
+      className={cn(!product.inStock && "opacity-60 grayscale")}
+    />
+  );
 
   return (
     <article
@@ -93,20 +101,18 @@ function ProductCard({
       )}
     >
       <div className="relative">
-        <button
-          type="button"
-          onClick={onOpen}
-          className="block w-full rounded-md"
-          aria-label={t("openDetails", { name: product.name })}
-          tabIndex={onOpen ? 0 : -1}
-        >
-          <ProductImage
-            src={product.imageUrl}
-            alt={product.name}
-            priority={priorityImage}
-            className={cn(!product.inStock && "opacity-60 grayscale")}
-          />
-        </button>
+        {onOpen ? (
+          <button
+            type="button"
+            onClick={onOpen}
+            className="block w-full rounded-md"
+            aria-label={t("openDetails", { name: product.name })}
+          >
+            {image}
+          </button>
+        ) : (
+          image
+        )}
         {deal > 0 ? (
           <Badge variant="sale" size="sm" className="absolute start-1.5 top-1.5">
             {t("percentOff", { percent: deal })}

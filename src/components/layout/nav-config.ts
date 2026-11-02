@@ -93,6 +93,18 @@ export const mobileTabs: Partial<Record<AppRole, NavItem[]>> = {
 
 /** Desktop sidebar groups for desktop-first roles (and dukandar on large screens). */
 export const sidebarGroups: Partial<Record<AppRole, NavGroup[]>> = {
+  customer: [
+    {
+      label: "main",
+      items: [
+        { href: "/", label: "home", icon: "home", exact: true },
+        { href: "/categories", label: "categories", icon: "categories" },
+        { href: "/shops", label: "nearby", icon: "nearby" },
+        { href: "/cart", label: "cart", icon: "cart" },
+      ],
+    },
+    { label: "account", items: [{ href: "/account", label: "account", icon: "account" }] },
+  ],
   distributor: [
     {
       label: "main",

@@ -31,6 +31,8 @@ test("a shopper browses, fills the cart and orders on WhatsApp", async ({
 
   await page.goto("/shops/madina-mart", { waitUntil: "networkidle" });
   await expect(page.getByRole("heading", { level: 1, name: "Madina Mart" })).toBeVisible();
+  // Two different items clear Madina Mart's Rs 250 minimum order.
+  await page.getByRole("button", { name: /^Add/ }).first().click();
   await page.getByRole("button", { name: /^Add/ }).first().click();
   await page.getByRole("link", { name: /View cart/i }).click();
 

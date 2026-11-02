@@ -69,7 +69,10 @@ function ProductImage({
               ) : null}
             </>
           ) : (
-            <span className="text-3xl">{initialsOf(alt)}</span>
+            // Decorative: the name is already the image's label.
+            <span aria-hidden className="text-3xl">
+              {initialsOf(alt)}
+            </span>
           )}
         </div>
       ) : (
