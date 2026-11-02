@@ -394,9 +394,9 @@ export function ShopPage({ params }: { params: Promise<{ slug: string }> }) {
 
 async function CartContent() {
   await connection();
-  const session = await requireRole("customer", "/cart");
+  await requireRole("customer", "/cart");
   const shops = await getNearbyShops();
-  return <CartView shops={shops} customerName={session.fullName} customerPhone={session.phone} />;
+  return <CartView shops={shops} />;
 }
 
 export function CustomerCartPage() {

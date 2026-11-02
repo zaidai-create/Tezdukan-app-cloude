@@ -230,7 +230,8 @@
       "catalog": "Catalog",
       "dukans": "Dukans",
       "home": "Home",
-      "help": "Help"
+      "help": "Help",
+      "myOrders": "Orders"
     },
     "completeTitle": "Become a shopkeeper",
     "completeHint": "Trade prices from distributors, delivered next day",
@@ -686,7 +687,16 @@
       "confirmRequested": "Please confirm order {number}",
       "confirmRequestedBody": "{org} · {total}. Tap to confirm.",
       "shopConfirmed": "{shop} confirmed {number}",
-      "shopConfirmedBody": "You can ship it now."
+      "shopConfirmedBody": "You can ship it now.",
+      "customerOrderPlaced": "New order {number}",
+      "customerOrderPlacedBody": "{name} · {total}",
+      "customerOrderAccepted": "{shop} accepted your order",
+      "customerOrderPacked": "Your order {number} is packed",
+      "customerOrderOnTheWay": "Your order {number} is on the way",
+      "customerOrderDelivered": "Order {number} delivered",
+      "customerOrderRejected": "{shop} couldn't take your order",
+      "customerOrderCancelled": "Order {number} was cancelled",
+      "customerOrderCancelledByCustomer": "{name} cancelled order {number}"
     },
     "push": {
       "title": "Phone notifications",
@@ -1203,19 +1213,85 @@
       "belowMin": "Minimum order is {amount}. Add {short} more.",
       "address": "Delivery address",
       "addressPlaceholder": "House, street, area",
-      "orderWhatsapp": "Order on WhatsApp",
-      "noWhatsapp": "This dukan has no WhatsApp yet. Call to order.",
-      "clear": "Remove all",
-      "howItWorks": "Your order goes to the dukan on WhatsApp. They confirm it and deliver.",
-      "message": {
-        "intro": "Assalam-o-Alaikum! New order from TezDukan:",
-        "items": "Items: {amount}",
-        "delivery": "Delivery: {amount}",
-        "total": "Total: {amount}",
-        "name": "Name: {name}",
-        "address": "Address: {address}",
-        "outro": "Please confirm. Thank you!"
-      }
+      "placeOrder": "Place order · {total}",
+      "addressNeeded": "Add your delivery address to order."
+    }
+  },
+  "customerOrders": {
+    "title": "My orders",
+    "shopTitle": "Online orders",
+    "back": "Back",
+    "empty": "No orders yet",
+    "emptyHint": "Your orders from nearby dukans show here.",
+    "customer": "Customer",
+    "call": "Call",
+    "whatsapp": "WhatsApp",
+    "itemTotal": "Item total",
+    "delivery": "Delivery fee",
+    "free": "Free",
+    "total": "Total",
+    "cod": "Cash on delivery",
+    "paid": "Paid",
+    "placedTitle": "Order placed!",
+    "placedHint": "{shop} will confirm it shortly. We'll notify you at every step.",
+    "status": {
+      "placed": "Placed",
+      "accepted": "Accepted",
+      "packed": "Packed",
+      "out_for_delivery": "On the way",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled",
+      "rejected": "Rejected"
+    },
+    "tabs": {
+      "new": "New",
+      "active": "In progress",
+      "done": "Done"
+    },
+    "shopEmpty": {
+      "new": "No new orders",
+      "active": "Nothing in progress",
+      "done": "No finished orders yet"
+    },
+    "shopEmptyHint": "Orders from customers near you appear here, with a sound and a notification.",
+    "newCount": "{count, plural, =0 {No new orders} one {# new order} other {# new orders}}",
+    "shopCardHint": "Orders from customers near you",
+    "actions": {
+      "accept": "Accept order",
+      "reject": "Reject",
+      "packed": "Mark packed",
+      "outForDelivery": "Send for delivery",
+      "delivered": "Mark delivered",
+      "cancel": "Cancel order",
+      "rejectTitle": "Why can't you take this order?",
+      "confirmReject": "Reject order"
+    },
+    "reasons": {
+      "r1": "Items are out of stock",
+      "r2": "The dukan is closed",
+      "r3": "Too far to deliver"
+    },
+    "moved": {
+      "placed": "Order placed.",
+      "accepted": "Order accepted. The customer is notified.",
+      "packed": "Marked packed.",
+      "out_for_delivery": "On the way. The customer is notified.",
+      "delivered": "Delivered. Stock updated.",
+      "cancelled": "Order cancelled.",
+      "rejected": "Order rejected. The customer is notified."
+    },
+    "errors": {
+      "shop_not_taking_orders": "This dukan isn't taking orders right now.",
+      "empty_order": "Your cart is empty.",
+      "address_required": "Add your delivery address to order.",
+      "invalid_quantity": "Check the quantities.",
+      "item_unavailable": "An item is no longer available. Remove it and try again.",
+      "out_of_stock": "An item ran out of stock. Lower the quantity and try again.",
+      "below_minimum": "Add a little more to reach the dukan's minimum order.",
+      "invalid_transition": "This order has already moved on. Pull down to refresh.",
+      "not_allowed": "You can't change this order.",
+      "order_not_found": "This order isn't available.",
+      "generic": "Something went wrong. Please try again."
     }
   }
 }

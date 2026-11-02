@@ -81,7 +81,18 @@ export function NotificationsLive({ scope }: { scope: NotificationScope }) {
             if (orderId && pathname.includes(orderId)) router.refresh();
             if (pathname.endsWith("/orders") || pathname === "/distributor") router.refresh();
           }
-          if (n.data.event === "order.created") chime();
+          const customerOrderId =
+            typeof n.data.customer_order_id === "string" ? n.data.customer_order_id : null;
+          if (
+            customerOrderId &&
+            (pathname.includes(customerOrderId) ||
+              pathname.endsWith("/customer-orders") ||
+              pathname === "/dukan" ||
+              pathname === "/orders")
+          ) {
+            router.refresh();
+          }
+          if (n.data.event === "order.created" || n.data.event === "customer_order.placed") chime();
 
           const text = notificationText(t, n);
           haptic("success");

@@ -54,6 +54,34 @@ export function notificationText(
         title: t("events.shopConfirmed", { shop: str(d.shop_name), number }),
         body: t("events.shopConfirmedBody"),
       };
+    case "customer_order.placed":
+      return {
+        title: t("events.customerOrderPlaced", { number }),
+        body: t("events.customerOrderPlacedBody", {
+          name: str(d.customer_name),
+          total: formatRs(num(d.total_paisa)),
+        }),
+      };
+    case "customer_order.accepted":
+      return { title: t("events.customerOrderAccepted", { shop: str(d.shop_name) }), body: number };
+    case "customer_order.packed":
+      return { title: t("events.customerOrderPacked", { number }), body: str(d.shop_name) };
+    case "customer_order.out_for_delivery":
+      return { title: t("events.customerOrderOnTheWay", { number }), body: str(d.shop_name) };
+    case "customer_order.delivered":
+      return { title: t("events.customerOrderDelivered", { number }), body: str(d.shop_name) };
+    case "customer_order.rejected":
+      return {
+        title: t("events.customerOrderRejected", { shop: str(d.shop_name) }),
+        body: str(d.reason) || number,
+      };
+    case "customer_order.cancelled":
+      return { title: t("events.customerOrderCancelled", { number }), body: str(d.shop_name) };
+    case "customer_order.cancelled_by_customer":
+      return {
+        title: t("events.customerOrderCancelledByCustomer", { name: str(d.customer_name), number }),
+        body: null,
+      };
     default:
       return { title: n.title, body: n.body };
   }

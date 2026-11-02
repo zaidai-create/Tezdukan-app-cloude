@@ -1,0 +1,63 @@
+import "server-only";
+import { z } from "zod";
+import { getSupabaseServerClient } from "@/lib/supabase/server";
+import {
+  customerOrderSchema,
+  ITEM_COLUMNS,
+  ORDER_COLUMNS,
+  tabStatuses,
+  type CustomerOrder,
+  type InboxTab,
+} from "./schemas";
+
+/** The shopper's own orders (RLS: customer_id = auth.uid()). */
+export async function getMyCustomerOrders(userId: string): Promise<CustomerOrder[]> {
+  const supabase = await getSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("customer_orders")
+    .select(ORDER_COLUMNS)
+    .eq("customer_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(50);
+  if (error) throw new Error(error.message);
+  return z.array(customerOrderSchema).parse(data);
+}
+
+/** One order with its lines; RLS lets the customer and the dukan's order staff read it. */
+export async function getCustomerOrder(id: string): Promise<CustomerOrder | null> {
+  const supabase = await getSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("customer_orders")
+    .select(`${ORDER_COLUMNS}, ${ITEM_COLUMNS}`)
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  return data ? customerOrderSchema.parse(data) : null;
+}
+
+export async function getShopCustomerOrders(
+  shopId: string,
+  tab: InboxTab,
+): Promise<CustomerOrder[]> {
+  const supabase = await getSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("customer_orders")
+    .select(ORDER_COLUMNS)
+    .eq("shop_id", shopId)
+    .in("status", [...tabStatuses[tab]])
+    .order("created_at", { ascending: tab !== "done" })
+    .limit(100);
+  if (error) throw new Error(error.message);
+  return z.array(customerOrderSchema).parse(data);
+}
+
+export async function countNewShopOrders(shopId: string): Promise<number> {
+  const supabase = await getSupabaseServerClient();
+  const { count, error } = await supabase
+    .from("customer_orders")
+    .select("id", { count: "exact", head: true })
+    .eq("shop_id", shopId)
+    .eq("status", "placed");
+  if (error) return 0;
+  return count ?? 0;
+}

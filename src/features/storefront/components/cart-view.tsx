@@ -1,19 +1,21 @@
 "use client";
 
-import { MessageSquareShare, Phone, ShoppingBasket, Trash2 } from "lucide-react";
+import { ShoppingBasket, Wallet } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
+import { useRef, useTransition } from "react";
+import { toast } from "sonner";
 import { AddToCart } from "@/components/commerce/add-to-cart";
 import { ProductImage } from "@/components/commerce/product-image";
 import { EmptyState } from "@/components/states/empty-state";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { storageUrl } from "@/features/ordering/images";
-import { Link } from "@/i18n/navigation";
-import { telHref, whatsappHref } from "@/lib/contact";
+import { placeCustomerOrder } from "@/features/customer-orders/actions";
+import { Link, useRouter } from "@/i18n/navigation";
+import { haptic } from "@/lib/haptics";
 import { formatRs } from "@/lib/money";
-import { formatPkMobile } from "@/lib/phone";
 import { useCustomerCart, type CartLine } from "../cart-store";
 import type { NearbyShop } from "../schemas";
 
@@ -34,16 +36,8 @@ function groupByShop(lines: readonly CartLine[]): Group[] {
   return [...groups.values()];
 }
 
-/** The shopper's cart: one card per dukan with its bill, and the order goes out on WhatsApp. */
-export function CartView({
-  shops,
-  customerName,
-  customerPhone,
-}: {
-  shops: NearbyShop[];
-  customerName: string;
-  customerPhone: string | null;
-}) {
+/** The shopper's cart: one card per dukan with its bill, ordered straight to the dukan. */
+export function CartView({ shops }: { shops: NearbyShop[] }) {
   const t = useTranslations("storefront.cart");
   const locale = useLocale();
   const lines = useCustomerCart((state) => state.lines);
@@ -90,13 +84,9 @@ export function CartView({
           group={group}
           shop={shops.find((shop) => shop.id === group.shopId)}
           address={address}
-          customerName={customerName}
-          customerPhone={customerPhone}
           locale={locale}
         />
       ))}
-
-      <p className="text-center text-sm text-muted">{t("howItWorks")}</p>
     </div>
   );
 }
@@ -105,21 +95,22 @@ function ShopCartCard({
   group,
   shop,
   address,
-  customerName,
-  customerPhone,
   locale,
 }: {
   group: Group;
   shop: NearbyShop | undefined;
   address: string;
-  customerName: string;
-  customerPhone: string | null;
   locale: string;
 }) {
   const t = useTranslations("storefront.cart");
   const tShop = useTranslations("storefront");
+  const tOrders = useTranslations("customerOrders");
+  const router = useRouter();
   const setQuantity = useCustomerCart((state) => state.setQuantity);
   const clearShop = useCustomerCart((state) => state.clearShop);
+  const [placing, startPlacing] = useTransition();
+  // One id per attempt, so a retried tap never places the order twice.
+  const requestId = useRef<string>(crypto.randomUUID());
 
   const itemTotal = group.lines.reduce((sum, line) => sum + line.pricePaisa * line.quantity, 0);
   const savings = group.lines.reduce(
@@ -133,31 +124,30 @@ function ShopCartCard({
   const short = Math.max(minOrder - itemTotal, 0);
   const total = itemTotal + fee;
 
-  const message = [
-    t("message.intro"),
-    "",
-    ...group.lines.map(
-      (line, index) =>
-        `${index + 1}. ${line.name} × ${line.quantity} = ${formatRs(line.pricePaisa * line.quantity)}`,
-    ),
-    "",
-    t("message.items", { amount: formatRs(itemTotal) }),
-    t("message.delivery", { amount: fee === 0 ? t("free") : formatRs(fee) }),
-    t("message.total", { amount: formatRs(total) }),
-    "",
-    t("message.name", {
-      name: [customerName, customerPhone ? formatPkMobile(customerPhone) : null]
-        .filter(Boolean)
-        .join(", "),
-    }),
-    address.trim() ? t("message.address", { address: address.trim() }) : null,
-    "",
-    t("message.outro"),
-  ]
-    .filter((row) => row !== null)
-    .join("\n");
-  const wa = whatsappHref(shop?.whatsapp ?? shop?.phone, message);
-  const tel = telHref(shop?.phone);
+  const place = () => {
+    if (address.trim().length < 5) {
+      toast.error(t("addressNeeded"));
+      document.getElementById("cart-address")?.focus();
+      return;
+    }
+    startPlacing(async () => {
+      const result = await placeCustomerOrder({
+        shopId: group.shopId,
+        items: group.lines.map((line) => ({ inventoryId: line.id, qty: line.quantity })),
+        address: address.trim(),
+        requestId: requestId.current,
+      });
+      if (!result.ok) {
+        haptic("warning");
+        toast.error(tOrders(`errors.${result.error}`));
+        return;
+      }
+      haptic("success");
+      requestId.current = crypto.randomUUID();
+      clearShop(group.shopId);
+      router.push(`/orders/${result.data.id}?placed=1`);
+    });
+  };
 
   return (
     <section className="overflow-hidden rounded-lg border border-border/60 bg-surface shadow-card">
@@ -172,14 +162,6 @@ function ShopCartCard({
             </span>
           ) : null}
         </Link>
-        <button
-          type="button"
-          onClick={() => clearShop(group.shopId)}
-          className="inline-flex min-h-12 items-center gap-1.5 rounded-md px-2 text-sm font-semibold text-danger-ink"
-        >
-          <Trash2 aria-hidden className="size-4" />
-          {t("clear")}
-        </button>
       </header>
 
       <ul className="divide-y divide-border/70">
@@ -266,44 +248,13 @@ function ShopCartCard({
           </p>
         ) : null}
 
-        <div className="flex gap-2">
-          {wa && short === 0 ? (
-            <a
-              href={wa}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={buttonVariants({ size: "lg", className: "min-w-0 flex-1" })}
-            >
-              <MessageSquareShare aria-hidden />
-              <span className="truncate">{t("orderWhatsapp")}</span>
-            </a>
-          ) : (
-            <span
-              aria-disabled
-              className={buttonVariants({
-                size: "lg",
-                className: "pointer-events-none min-w-0 flex-1 opacity-50",
-              })}
-            >
-              <MessageSquareShare aria-hidden />
-              <span className="truncate">{t("orderWhatsapp")}</span>
-            </span>
-          )}
-          {tel ? (
-            <a
-              href={tel}
-              aria-label={tShop("call")}
-              className={buttonVariants({
-                size: "lg",
-                variant: "secondary",
-                className: "w-14 px-0",
-              })}
-            >
-              <Phone aria-hidden />
-            </a>
-          ) : null}
-        </div>
-        {!wa ? <p className="text-sm text-muted">{t("noWhatsapp")}</p> : null}
+        <p className="flex items-center gap-2 text-sm font-medium text-ink">
+          <Wallet aria-hidden className="size-4 text-primary" />
+          {tOrders("cod")}
+        </p>
+        <Button size="lg" block loading={placing} disabled={short > 0} onClick={place}>
+          <span className="num">{t("placeOrder", { total: formatRs(total) })}</span>
+        </Button>
       </div>
     </section>
   );

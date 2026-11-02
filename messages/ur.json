@@ -230,7 +230,8 @@
       "catalog": "کیٹلاگ",
       "dukans": "دکانیں",
       "home": "ہوم",
-      "help": "مدد"
+      "help": "مدد",
+      "myOrders": "آرڈرز"
     },
     "completeTitle": "دکاندار بنیں",
     "completeHint": "ڈسٹری بیوٹرز سے ٹریڈ ریٹ، اگلے دن ڈیلیوری",
@@ -686,7 +687,16 @@
       "confirmRequested": "آرڈر {number} کنفرم کریں",
       "confirmRequestedBody": "{org} · {total}۔ کنفرم کرنے کے لیے ٹیپ کریں۔",
       "shopConfirmed": "{shop} نے {number} کنفرم کر دیا",
-      "shopConfirmedBody": "اب آپ مال بھیج سکتے ہیں۔"
+      "shopConfirmedBody": "اب آپ مال بھیج سکتے ہیں۔",
+      "customerOrderPlaced": "نیا آرڈر {number}",
+      "customerOrderPlacedBody": "{name} · {total}",
+      "customerOrderAccepted": "{shop} نے آپ کا آرڈر قبول کر لیا",
+      "customerOrderPacked": "آپ کا آرڈر {number} پیک ہو گیا",
+      "customerOrderOnTheWay": "آپ کا آرڈر {number} راستے میں ہے",
+      "customerOrderDelivered": "آرڈر {number} پہنچ گیا",
+      "customerOrderRejected": "{shop} آپ کا آرڈر نہیں لے سکی",
+      "customerOrderCancelled": "آرڈر {number} منسوخ ہو گیا",
+      "customerOrderCancelledByCustomer": "{name} نے آرڈر {number} منسوخ کر دیا"
     },
     "push": {
       "title": "فون پر اطلاعات",
@@ -1203,19 +1213,85 @@
       "belowMin": "کم از کم آرڈر {amount} ہے۔ {short} اور شامل کریں۔",
       "address": "ڈیلیوری کا پتہ",
       "addressPlaceholder": "مکان، گلی، علاقہ",
-      "orderWhatsapp": "واٹس ایپ پر آرڈر کریں",
-      "noWhatsapp": "اس دکان کا واٹس ایپ نہیں۔ آرڈر کے لیے کال کریں۔",
-      "clear": "سب ہٹائیں",
-      "howItWorks": "آپ کا آرڈر واٹس ایپ پر دکان کو جاتا ہے۔ وہ کنفرم کر کے ڈیلیور کرتے ہیں۔",
-      "message": {
-        "intro": "السلام علیکم! TezDukan سے نیا آرڈر:",
-        "items": "چیزیں: {amount}",
-        "delivery": "ڈیلیوری: {amount}",
-        "total": "کل: {amount}",
-        "name": "نام: {name}",
-        "address": "پتہ: {address}",
-        "outro": "براہ کرم کنفرم کریں۔ شکریہ!"
-      }
+      "placeOrder": "آرڈر کریں · {total}",
+      "addressNeeded": "آرڈر کے لیے ڈیلیوری کا پتہ لکھیں۔"
+    }
+  },
+  "customerOrders": {
+    "title": "میرے آرڈرز",
+    "shopTitle": "آن لائن آرڈرز",
+    "back": "واپس",
+    "empty": "ابھی کوئی آرڈر نہیں",
+    "emptyHint": "قریبی دکانوں سے آپ کے آرڈر یہاں نظر آئیں گے۔",
+    "customer": "گاہک",
+    "call": "کال",
+    "whatsapp": "واٹس ایپ",
+    "itemTotal": "چیزوں کا کل",
+    "delivery": "ڈیلیوری فیس",
+    "free": "مفت",
+    "total": "کل",
+    "cod": "ڈیلیوری پر نقد ادائیگی",
+    "paid": "ادا شدہ",
+    "placedTitle": "آرڈر ہو گیا!",
+    "placedHint": "{shop} جلد کنفرم کرے گی۔ ہر قدم پر آپ کو اطلاع ملے گی۔",
+    "status": {
+      "placed": "آرڈر ہوا",
+      "accepted": "قبول",
+      "packed": "پیک",
+      "out_for_delivery": "راستے میں",
+      "delivered": "پہنچ گیا",
+      "cancelled": "منسوخ",
+      "rejected": "مسترد"
+    },
+    "tabs": {
+      "new": "نئے",
+      "active": "جاری",
+      "done": "مکمل"
+    },
+    "shopEmpty": {
+      "new": "کوئی نیا آرڈر نہیں",
+      "active": "کوئی آرڈر جاری نہیں",
+      "done": "ابھی کوئی مکمل آرڈر نہیں"
+    },
+    "shopEmptyHint": "قریبی گاہکوں کے آرڈر یہاں آواز اور اطلاع کے ساتھ آتے ہیں۔",
+    "newCount": "{count, plural, =0 {کوئی نیا آرڈر نہیں} one {# نیا آرڈر} other {# نئے آرڈر}}",
+    "shopCardHint": "قریبی گاہکوں کے آرڈر",
+    "actions": {
+      "accept": "آرڈر قبول کریں",
+      "reject": "مسترد",
+      "packed": "پیک ہو گیا",
+      "outForDelivery": "ڈیلیوری کے لیے بھیجیں",
+      "delivered": "پہنچا دیا",
+      "cancel": "آرڈر منسوخ کریں",
+      "rejectTitle": "یہ آرڈر کیوں نہیں لے سکتے؟",
+      "confirmReject": "آرڈر مسترد کریں"
+    },
+    "reasons": {
+      "r1": "سامان ختم ہے",
+      "r2": "دکان بند ہے",
+      "r3": "ڈیلیوری کے لیے بہت دور"
+    },
+    "moved": {
+      "placed": "آرڈر ہو گیا۔",
+      "accepted": "آرڈر قبول۔ گاہک کو اطلاع دے دی۔",
+      "packed": "پیک ہو گیا۔",
+      "out_for_delivery": "راستے میں۔ گاہک کو اطلاع دے دی۔",
+      "delivered": "پہنچا دیا۔ اسٹاک اپڈیٹ ہو گیا۔",
+      "cancelled": "آرڈر منسوخ۔",
+      "rejected": "آرڈر مسترد۔ گاہک کو اطلاع دے دی۔"
+    },
+    "errors": {
+      "shop_not_taking_orders": "یہ دکان ابھی آرڈر نہیں لے رہی۔",
+      "empty_order": "آپ کا کارٹ خالی ہے۔",
+      "address_required": "آرڈر کے لیے ڈیلیوری کا پتہ لکھیں۔",
+      "invalid_quantity": "تعداد چیک کریں۔",
+      "item_unavailable": "ایک چیز اب دستیاب نہیں۔ ہٹا کر دوبارہ کوشش کریں۔",
+      "out_of_stock": "ایک چیز کا اسٹاک ختم ہو گیا۔ تعداد کم کر کے دوبارہ کوشش کریں۔",
+      "below_minimum": "دکان کے کم از کم آرڈر کے لیے تھوڑا اور شامل کریں۔",
+      "invalid_transition": "یہ آرڈر آگے بڑھ چکا ہے۔ صفحہ تازہ کریں۔",
+      "not_allowed": "آپ یہ آرڈر نہیں بدل سکتے۔",
+      "order_not_found": "یہ آرڈر دستیاب نہیں۔",
+      "generic": "کچھ غلط ہو گیا۔ دوبارہ کوشش کریں۔"
     }
   }
 }

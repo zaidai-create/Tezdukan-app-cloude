@@ -184,7 +184,13 @@ function AccountView({ session }: { session: ShellSession }) {
           ]
         : role === "customer"
           ? [
-              { href: "/", icon: Store, label: t("account.tiles.dukans"), tone: "primary" },
+              {
+                href: "/orders",
+                icon: Package,
+                label: t("account.tiles.myOrders"),
+                tone: "primary",
+              },
+              { href: "/shops", icon: Store, label: t("account.tiles.dukans"), tone: "awning" },
               { href: help, icon: LifeBuoy, label: t("account.tiles.help"), tone: "neutral" },
             ]
           : [

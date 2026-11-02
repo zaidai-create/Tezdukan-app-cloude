@@ -8359,6 +8359,16 @@ export type Database = {
         };
         Returns: Json;
       };
+      place_customer_order: {
+        Args: {
+          p_address: string;
+          p_items: Json;
+          p_note?: string;
+          p_request_id?: string;
+          p_shop_id: string;
+        };
+        Returns: Json;
+      };
       place_order: {
         Args: {
           p_client_request_id: string;
@@ -8833,6 +8843,54 @@ export type Database = {
         Returns: undefined;
       };
       unregister_push_subscription: { Args: { p_endpoint: string }; Returns: undefined };
+      update_customer_order_status: {
+        Args: {
+          p_order_id: string;
+          p_reason?: string;
+          p_to: Database["public"]["Enums"]["customer_order_status"];
+        };
+        Returns: {
+          accepted_at: string | null;
+          address_id: string | null;
+          cancel_reason: string | null;
+          cancelled_at: string | null;
+          cancelled_by: string | null;
+          client_request_id: string | null;
+          created_at: string;
+          created_by: string | null;
+          customer_id: string | null;
+          customer_name: string | null;
+          customer_phone: string | null;
+          deleted_at: string | null;
+          delivered_at: string | null;
+          delivery_address: Json | null;
+          delivery_fee_paisa: number;
+          discount_paisa: number;
+          fulfilment: Database["public"]["Enums"]["fulfilment_type"];
+          id: string;
+          items_count: number;
+          notes: string | null;
+          order_number: string;
+          out_for_delivery_at: string | null;
+          packed_at: string | null;
+          payment_method: Database["public"]["Enums"]["customer_payment_method"];
+          payment_status: Database["public"]["Enums"]["order_payment_status"];
+          pos_bill_id: string | null;
+          rejected_reason: string | null;
+          shop_id: string;
+          shop_name: string;
+          status: Database["public"]["Enums"]["customer_order_status"];
+          subtotal_paisa: number;
+          total_paisa: number;
+          updated_at: string;
+        };
+        SetofOptions: {
+          from: "*";
+          to: "customer_orders";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
       update_order_status: {
         Args: {
           p_note?: string;

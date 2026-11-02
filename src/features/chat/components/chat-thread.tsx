@@ -211,7 +211,9 @@ export function ChatThread({
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col">
+    // Fills the screen between the app header and the nav dock, like a messaging app: the
+    // composer sits at the bottom and new messages gather just above it.
+    <div className="mx-auto flex min-h-[calc(100dvh-4rem-var(--bottom-nav-space)-24px)] w-full max-w-2xl flex-col lg:min-h-[calc(100dvh-6.5rem)]">
       <header className="material sticky top-16 z-20 flex items-center gap-3 border-b border-border/70 px-4 py-3">
         <Link
           href={backHref}
@@ -262,7 +264,7 @@ export function ChatThread({
         ) : null}
       </header>
 
-      <div className="flex min-h-[50dvh] flex-col gap-1 px-4 py-4">
+      <div className="flex flex-1 flex-col justify-end gap-1 px-4 py-4">
         {hasMore ? (
           <Button
             variant="ghost"

@@ -1,0 +1,320 @@
+import {
+  ArrowLeft,
+  ChevronRight,
+  MessageSquareShare,
+  PartyPopper,
+  Phone,
+  ReceiptText,
+} from "lucide-react";
+import { getTranslations } from "next-intl/server";
+import { connection } from "next/server";
+import { Suspense } from "react";
+import { cn } from "cn";
+import { EmptyState } from "@/components/states/empty-state";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Link } from "@/i18n/navigation";
+import { requireRole } from "@/lib/auth/session";
+import { telHref, whatsappHref } from "@/lib/contact";
+import { formatDateTime } from "@/lib/format";
+import { formatRs } from "@/lib/money";
+import { formatPkMobile } from "@/lib/phone";
+import { CancelOrderButton, ShopOrderActions } from "./components/order-actions";
+import { OrderProgress, OrderStatusBadge, OrderSummary } from "./components/order-parts";
+import { getCustomerOrder, getMyCustomerOrders, getShopCustomerOrders } from "./data";
+import type { CustomerOrder, InboxTab } from "./schemas";
+
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+
+function ListSkeleton() {
+  return (
+    <div className="mx-auto flex w-full max-w-3xl flex-col gap-3 px-4 py-5" aria-hidden>
+      <Skeleton className="h-8 w-48" />
+      {Array.from({ length: 4 }, (_, index) => (
+        <Skeleton key={index} className="h-24 w-full rounded-lg" />
+      ))}
+    </div>
+  );
+}
+
+function BackLink({ href, label }: { href: string; label: string }) {
+  return (
+    <Link
+      href={href}
+      aria-label={label}
+      className="flex size-12 shrink-0 items-center justify-center rounded-full bg-surface text-ink shadow-card"
+    >
+      <ArrowLeft aria-hidden className="size-5 rtl:-scale-x-100" />
+    </Link>
+  );
+}
+
+function OrderRow({ order, href, title }: { order: CustomerOrder; href: string; title: string }) {
+  return (
+    <Link
+      href={href}
+      className="flex items-center gap-3 rounded-lg border border-border/60 bg-surface p-4 shadow-card transition-transform duration-150 ease-out active:scale-[0.98]"
+    >
+      <span className="min-w-0 flex-1">
+        <span className="flex items-center gap-2">
+          <span className="truncate font-heading text-base font-semibold text-ink">{title}</span>
+          <OrderStatusBadge status={order.status} />
+        </span>
+        <span className="num block text-sm text-muted">
+          {order.order_number} · {formatDateTime(order.created_at)}
+        </span>
+        <span className="num block font-semibold text-ink">{formatRs(order.total_paisa)}</span>
+      </span>
+      <ChevronRight aria-hidden className="size-5 text-muted rtl:-scale-x-100" />
+    </Link>
+  );
+}
+
+// ------------------------------------------------------------------------------------------------
+// Customer
+// ------------------------------------------------------------------------------------------------
+
+async function MyOrdersContent() {
+  await connection();
+  const session = await requireRole("customer", "/orders");
+  const [t, orders] = await Promise.all([
+    getTranslations("customerOrders"),
+    getMyCustomerOrders(session.userId),
+  ]);
+  return (
+    <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-5">
+      <header className="flex items-center gap-3">
+        <BackLink href="/account" label={t("back")} />
+        <h1 className="font-heading text-2xl font-bold text-ink">{t("title")}</h1>
+      </header>
+      {orders.length === 0 ? (
+        <EmptyState icon={ReceiptText} title={t("empty")} description={t("emptyHint")} />
+      ) : (
+        orders.map((order) => (
+          <OrderRow
+            key={order.id}
+            order={order}
+            href={`/orders/${order.id}`}
+            title={order.shop_name}
+          />
+        ))
+      )}
+    </div>
+  );
+}
+
+export function MyOrdersPage() {
+  return (
+    <Suspense fallback={<ListSkeleton />}>
+      <MyOrdersContent />
+    </Suspense>
+  );
+}
+
+async function MyOrderContent({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: SearchParams;
+}) {
+  await connection();
+  const { id } = await params;
+  await requireRole("customer", `/orders/${id}`);
+  const [t, order, query] = await Promise.all([
+    getTranslations("customerOrders"),
+    getCustomerOrder(id),
+    searchParams,
+  ]);
+  if (!order) {
+    return (
+      <div className="mx-auto w-full max-w-3xl px-4 py-10">
+        <EmptyState icon={ReceiptText} title={t("errors.order_not_found")} />
+      </div>
+    );
+  }
+  const justPlaced = query.placed === "1" && order.status === "placed";
+  return (
+    <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-5">
+      <header className="flex items-center gap-3">
+        <BackLink href="/orders" label={t("back")} />
+        <div className="min-w-0 flex-1">
+          <h1 className="truncate font-heading text-2xl font-bold text-ink">{order.shop_name}</h1>
+          <p className="num text-sm text-muted">{order.order_number}</p>
+        </div>
+        <OrderStatusBadge status={order.status} />
+      </header>
+      {justPlaced ? (
+        <section className="flex items-center gap-3 rounded-xl bg-forest p-4 text-on-forest shadow-raised">
+          <PartyPopper aria-hidden className="size-8 shrink-0 text-mint" strokeWidth={1.75} />
+          <span>
+            <span className="block font-heading text-lg font-bold">{t("placedTitle")}</span>
+            <span className="block text-sm text-on-forest/80">
+              {t("placedHint", { shop: order.shop_name })}
+            </span>
+          </span>
+        </section>
+      ) : null}
+      <section className="rounded-lg border border-border/60 bg-surface p-4 shadow-card">
+        <OrderProgress order={order} />
+      </section>
+      <OrderSummary order={order} />
+      {order.status === "placed" ? <CancelOrderButton orderId={order.id} /> : null}
+    </div>
+  );
+}
+
+export function MyOrderPage(props: {
+  params: Promise<{ id: string }>;
+  searchParams: SearchParams;
+}) {
+  return (
+    <Suspense fallback={<ListSkeleton />}>
+      <MyOrderContent {...props} />
+    </Suspense>
+  );
+}
+
+// ------------------------------------------------------------------------------------------------
+// Dukan
+// ------------------------------------------------------------------------------------------------
+
+const tabs: InboxTab[] = ["new", "active", "done"];
+
+async function ShopOrdersContent({ searchParams }: { searchParams: SearchParams }) {
+  await connection();
+  const session = await requireRole("dukandar", "/dukan/customer-orders");
+  const shopId = session.activeContextId;
+  const params = await searchParams;
+  const tab = tabs.find((value) => value === params.tab) ?? "new";
+  const [t, orders] = await Promise.all([
+    getTranslations("customerOrders"),
+    shopId ? getShopCustomerOrders(shopId, tab) : Promise.resolve([]),
+  ]);
+  return (
+    <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-5">
+      <header className="flex items-center gap-3">
+        <BackLink href="/dukan" label={t("back")} />
+        <h1 className="font-heading text-2xl font-bold text-ink">{t("shopTitle")}</h1>
+      </header>
+      <nav
+        aria-label={t("shopTitle")}
+        className="grid grid-cols-3 gap-1 rounded-full bg-subtle p-1"
+      >
+        {tabs.map((value) => (
+          <Link
+            key={value}
+            href={
+              value === "new" ? "/dukan/customer-orders" : `/dukan/customer-orders?tab=${value}`
+            }
+            aria-current={tab === value ? "page" : undefined}
+            className={cn(
+              "flex h-11 items-center justify-center rounded-full text-sm font-semibold transition-colors",
+              tab === value ? "bg-surface text-ink shadow-card" : "text-muted",
+            )}
+          >
+            {t(`tabs.${value}`)}
+          </Link>
+        ))}
+      </nav>
+      {orders.length === 0 ? (
+        <EmptyState
+          icon={ReceiptText}
+          title={t(`shopEmpty.${tab}`)}
+          description={t("shopEmptyHint")}
+        />
+      ) : (
+        orders.map((order) => (
+          <OrderRow
+            key={order.id}
+            order={order}
+            href={`/dukan/customer-orders/${order.id}`}
+            title={order.customer_name ?? t("customer")}
+          />
+        ))
+      )}
+    </div>
+  );
+}
+
+export function ShopOrdersPage({ searchParams }: { searchParams: SearchParams }) {
+  return (
+    <Suspense fallback={<ListSkeleton />}>
+      <ShopOrdersContent searchParams={searchParams} />
+    </Suspense>
+  );
+}
+
+async function ShopOrderContent({ params }: { params: Promise<{ id: string }> }) {
+  await connection();
+  const { id } = await params;
+  await requireRole("dukandar", `/dukan/customer-orders/${id}`);
+  const [t, order] = await Promise.all([getTranslations("customerOrders"), getCustomerOrder(id)]);
+  if (!order) {
+    return (
+      <div className="mx-auto w-full max-w-3xl px-4 py-10">
+        <EmptyState icon={ReceiptText} title={t("errors.order_not_found")} />
+      </div>
+    );
+  }
+  const tel = telHref(order.customer_phone);
+  const wa = whatsappHref(order.customer_phone);
+  return (
+    <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-5">
+      <header className="flex items-center gap-3">
+        <BackLink href="/dukan/customer-orders" label={t("back")} />
+        <div className="min-w-0 flex-1">
+          <h1 className="truncate font-heading text-2xl font-bold text-ink">
+            {order.order_number}
+          </h1>
+          <p className="num text-sm text-muted">{formatDateTime(order.created_at)}</p>
+        </div>
+        <OrderStatusBadge status={order.status} />
+      </header>
+      <section className="flex items-center gap-3 rounded-lg border border-border/60 bg-surface p-4 shadow-card">
+        <span className="min-w-0 flex-1">
+          <span className="block font-heading text-lg font-semibold text-ink">
+            {order.customer_name ?? t("customer")}
+          </span>
+          {order.customer_phone ? (
+            <bdi dir="ltr" className="num block text-sm text-muted">
+              {formatPkMobile(order.customer_phone)}
+            </bdi>
+          ) : null}
+        </span>
+        {tel ? (
+          <a
+            href={tel}
+            aria-label={t("call")}
+            className="flex size-12 items-center justify-center rounded-full bg-primary-soft text-primary-strong"
+          >
+            <Phone aria-hidden className="size-5" />
+          </a>
+        ) : null}
+        {wa ? (
+          <a
+            href={wa}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={t("whatsapp")}
+            className="flex size-12 items-center justify-center rounded-full bg-primary-soft text-primary-strong"
+          >
+            <MessageSquareShare aria-hidden className="size-5" />
+          </a>
+        ) : null}
+      </section>
+      <section className="rounded-lg border border-border/60 bg-surface p-4 shadow-card">
+        <OrderProgress order={order} />
+      </section>
+      <OrderSummary order={order} />
+      <ShopOrderActions orderId={order.id} status={order.status} />
+    </div>
+  );
+}
+
+export function ShopOrderPage({ params }: { params: Promise<{ id: string }> }) {
+  return (
+    <Suspense fallback={<ListSkeleton />}>
+      <ShopOrderContent params={params} />
+    </Suspense>
+  );
+}

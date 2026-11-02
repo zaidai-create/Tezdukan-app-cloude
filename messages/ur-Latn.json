@@ -230,7 +230,8 @@
       "catalog": "Catalog",
       "dukans": "Dukanein",
       "home": "Home",
-      "help": "Madad"
+      "help": "Madad",
+      "myOrders": "Orders"
     },
     "completeTitle": "Dukandar banein",
     "completeHint": "Distributors se trade rate, agle din delivery",
@@ -686,7 +687,16 @@
       "confirmRequested": "Order {number} confirm karein",
       "confirmRequestedBody": "{org} · {total}. Confirm karne ke liye tap karein.",
       "shopConfirmed": "{shop} ne {number} confirm kar diya",
-      "shopConfirmedBody": "Ab aap maal bhej sakte hain."
+      "shopConfirmedBody": "Ab aap maal bhej sakte hain.",
+      "customerOrderPlaced": "Naya order {number}",
+      "customerOrderPlacedBody": "{name} · {total}",
+      "customerOrderAccepted": "{shop} ne aap ka order accept kar liya",
+      "customerOrderPacked": "Aap ka order {number} pack ho gaya",
+      "customerOrderOnTheWay": "Aap ka order {number} raste mein hai",
+      "customerOrderDelivered": "Order {number} pohanch gaya",
+      "customerOrderRejected": "{shop} aap ka order nahi le saki",
+      "customerOrderCancelled": "Order {number} cancel ho gaya",
+      "customerOrderCancelledByCustomer": "{name} ne order {number} cancel kar diya"
     },
     "push": {
       "title": "Phone par notifications",
@@ -1203,19 +1213,85 @@
       "belowMin": "Kam az kam order {amount} hai. {short} aur add karein.",
       "address": "Delivery ka pata",
       "addressPlaceholder": "Ghar, gali, area",
-      "orderWhatsapp": "WhatsApp par order karein",
-      "noWhatsapp": "Is dukan ka WhatsApp nahi. Order ke liye call karein.",
-      "clear": "Sab hatayein",
-      "howItWorks": "Aap ka order WhatsApp par dukan ko jata hai. Woh confirm kar ke deliver karte hain.",
-      "message": {
-        "intro": "Assalam-o-Alaikum! TezDukan se naya order:",
-        "items": "Cheezein: {amount}",
-        "delivery": "Delivery: {amount}",
-        "total": "Total: {amount}",
-        "name": "Naam: {name}",
-        "address": "Pata: {address}",
-        "outro": "Meharbani kar ke confirm karein. Shukriya!"
-      }
+      "placeOrder": "Order karein · {total}",
+      "addressNeeded": "Order ke liye delivery ka pata likhein."
+    }
+  },
+  "customerOrders": {
+    "title": "Mere orders",
+    "shopTitle": "Online orders",
+    "back": "Wapas",
+    "empty": "Abhi koi order nahi",
+    "emptyHint": "Qareebi dukanon se aap ke orders yahan nazar aayenge.",
+    "customer": "Customer",
+    "call": "Call",
+    "whatsapp": "WhatsApp",
+    "itemTotal": "Cheezon ka total",
+    "delivery": "Delivery fee",
+    "free": "Free",
+    "total": "Total",
+    "cod": "Delivery par cash",
+    "paid": "Paid",
+    "placedTitle": "Order ho gaya!",
+    "placedHint": "{shop} jald confirm karegi. Har qadam par aap ko notification milegi.",
+    "status": {
+      "placed": "Order hua",
+      "accepted": "Accept",
+      "packed": "Pack",
+      "out_for_delivery": "Raste mein",
+      "delivered": "Pohanch gaya",
+      "cancelled": "Cancel",
+      "rejected": "Reject"
+    },
+    "tabs": {
+      "new": "Naye",
+      "active": "Jari",
+      "done": "Mukammal"
+    },
+    "shopEmpty": {
+      "new": "Koi naya order nahi",
+      "active": "Koi order jari nahi",
+      "done": "Abhi koi mukammal order nahi"
+    },
+    "shopEmptyHint": "Qareebi customers ke orders yahan awaz aur notification ke saath aate hain.",
+    "newCount": "{count, plural, =0 {Koi naya order nahi} one {# naya order} other {# naye orders}}",
+    "shopCardHint": "Qareebi customers ke orders",
+    "actions": {
+      "accept": "Order accept karein",
+      "reject": "Reject",
+      "packed": "Pack ho gaya",
+      "outForDelivery": "Delivery ke liye bhejein",
+      "delivered": "Pohancha diya",
+      "cancel": "Order cancel karein",
+      "rejectTitle": "Ye order kyun nahi le sakte?",
+      "confirmReject": "Order reject karein"
+    },
+    "reasons": {
+      "r1": "Saman khatam hai",
+      "r2": "Dukan band hai",
+      "r3": "Delivery ke liye bahut door"
+    },
+    "moved": {
+      "placed": "Order ho gaya.",
+      "accepted": "Order accept. Customer ko bata diya.",
+      "packed": "Pack ho gaya.",
+      "out_for_delivery": "Raste mein. Customer ko bata diya.",
+      "delivered": "Pohancha diya. Stock update ho gaya.",
+      "cancelled": "Order cancel.",
+      "rejected": "Order reject. Customer ko bata diya."
+    },
+    "errors": {
+      "shop_not_taking_orders": "Ye dukan abhi order nahi le rahi.",
+      "empty_order": "Aap ka cart khali hai.",
+      "address_required": "Order ke liye delivery ka pata likhein.",
+      "invalid_quantity": "Tadaad check karein.",
+      "item_unavailable": "Ek cheez ab available nahi. Hata kar dobara koshish karein.",
+      "out_of_stock": "Ek cheez ka stock khatam ho gaya. Tadaad kam kar ke dobara koshish karein.",
+      "below_minimum": "Dukan ke minimum order ke liye thora aur add karein.",
+      "invalid_transition": "Ye order aage barh chuka hai. Page refresh karein.",
+      "not_allowed": "Aap ye order nahi badal sakte.",
+      "order_not_found": "Ye order available nahi.",
+      "generic": "Kuch ghalat ho gaya. Dobara koshish karein."
     }
   }
 }

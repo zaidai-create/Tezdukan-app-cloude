@@ -1,4 +1,5 @@
-import { ChevronRight, Star, Store, Truck, Wallet } from "lucide-react";
+import { cn } from "cn";
+import { ChevronRight, ShoppingBag, Star, Store, Truck, Wallet } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { connection } from "next/server";
 import { Suspense } from "react";
@@ -6,6 +7,7 @@ import { CategoryTile } from "@/components/commerce/category-tile";
 import { ProductCardSkeleton } from "@/components/states/skeletons";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { countNewShopOrders } from "@/features/customer-orders/data";
 import { Link } from "@/i18n/navigation";
 import { formatRs } from "@/lib/money";
 import { categoryIcon, categoryTint } from "../category-style";
@@ -49,12 +51,14 @@ function DukanHomeSkeleton() {
 async function DukanHomeContent() {
   await connection();
   const { session, shopId } = await requireDukan("/dukan");
-  const [feed, cart, distributors, t, locale] = await Promise.all([
+  const [feed, cart, distributors, t, locale, newOrders, tOrders] = await Promise.all([
     getHomeFeed(shopId),
     getCart(shopId),
     getShopDistributors(shopId),
     getTranslations("ordering"),
     getLocale(),
+    countNewShopOrders(shopId),
+    getTranslations("customerOrders"),
   ]);
   const tHome = await getTranslations("home");
   const tCommon = await getTranslations("common");
@@ -88,6 +92,31 @@ async function DukanHomeContent() {
             ) : null}
           </div>
           <SearchEntry />
+          <Link
+            href="/dukan/customer-orders"
+            className={cn(
+              "flex min-h-16 items-center gap-3 rounded-lg border p-3 shadow-card transition-transform duration-150 ease-out active:scale-[0.98]",
+              newOrders > 0 ? "border-primary/40 bg-primary-soft" : "border-border/60 bg-surface",
+            )}
+          >
+            <span className="relative flex size-12 shrink-0 items-center justify-center rounded-md bg-surface text-primary-strong shadow-card">
+              <ShoppingBag aria-hidden className="size-6" strokeWidth={1.75} />
+              {newOrders > 0 ? (
+                <span className="num absolute -end-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-danger px-1 text-xs font-bold text-on-danger ring-2 ring-surface">
+                  {newOrders}
+                </span>
+              ) : null}
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block font-semibold text-ink">{tOrders("shopTitle")}</span>
+              <span className="block text-sm text-muted">
+                {newOrders > 0
+                  ? tOrders("newCount", { count: newOrders })
+                  : tOrders("shopCardHint")}
+              </span>
+            </span>
+            <ChevronRight aria-hidden className="size-5 text-muted rtl:-scale-x-100" />
+          </Link>
         </header>
 
         <BannerCarousel banners={feed.banners} />
