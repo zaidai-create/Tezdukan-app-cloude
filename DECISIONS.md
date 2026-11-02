@@ -169,6 +169,10 @@ section. Format: **decision** — reason (date).
 
 ## Backend
 
+- **Hosting: Vercel project `tezdukan` (team tezduakan), functions in Mumbai (`bom1`)** —
+  next to the Supabase project (ap-south-1). From Washington (the default) every page paid
+  several cross-world database round trips; in Mumbai the dukan home loads in about half a
+  second warm. Deployed with the Vercel CLI while GitHub pushes are blocked. (2026-11-02)
 - **The hosted project is reused, wiped and set up over the Management API** — the owner
   chose to keep `vgdwsisihixwsuuikhvp` and drop the old app's data (done: no tables, users or
   files remain). `pnpm hosted:setup` applies the migrations over HTTPS
