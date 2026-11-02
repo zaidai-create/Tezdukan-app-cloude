@@ -7,7 +7,7 @@ import { messages } from "./support/messages";
  * verify, sign in to each role's home, stay signed in, switch roles without signing out, and
  * sign out.
  */
-const { auth, roles, home, common, onboarding } = messages.en;
+const { auth, roles, home, common } = messages.en;
 const DEMO_PASSWORD = "TezDukan-Demo-1";
 
 async function signIn(page: Page, phone: string) {
@@ -25,11 +25,6 @@ test.beforeEach(async ({ context, baseURL }) => {
 
 const greeting = (name: string) => home.greetingNamed.replace("{name}", name);
 
-/** A shopper who already answered "How will you use TezDukan?" on this device. */
-async function asReturningShopper(page: Page, baseURL: string | undefined) {
-  await page.context().addCookies([{ name: "td_start_done", value: "1", url: baseURL ?? "" }]);
-}
-
 test("a dukandar lands on the dukan home and stays signed in", async ({ page }) => {
   await signIn(page, "0300 0000002");
   await expect(page).toHaveURL(/\/dukan$/);
@@ -45,8 +40,7 @@ test("a distributor lands on the distributor dashboard", async ({ page }) => {
   await expect(page.getByRole("heading", { name: greeting("Faisal") })).toBeVisible();
 });
 
-test("a signed-in visitor to the sign-in page goes home instead", async ({ page, baseURL }) => {
-  await asReturningShopper(page, baseURL);
+test("a signed-in visitor to the sign-in page goes home instead", async ({ page }) => {
   await signIn(page, "0300 0000006");
   await expect(page).toHaveURL(/\/$/);
   await page.goto("/login");
@@ -72,8 +66,7 @@ test("one account switches roles without signing out", async ({ page }, testInfo
   await expect(page).toHaveURL(/\/$/);
 });
 
-test("signing out returns to sign in and protects the app again", async ({ page, baseURL }) => {
-  await asReturningShopper(page, baseURL);
+test("signing out returns to sign in and protects the app again", async ({ page }) => {
   await signIn(page, "0300 0000006");
   await expect(page).toHaveURL(/\/$/);
   // Wait for hydration: a tap before the click handler attaches does nothing.
@@ -108,10 +101,6 @@ test.describe("sign up", () => {
     await expect(code).toHaveText(/^\d{6}$/, { timeout: 15_000 });
     await page.getByLabel(auth.codeLabel).pressSequentially((await code.textContent()) ?? "");
 
-    // A new account is asked how it will use TezDukan before landing anywhere.
-    await expect(page).toHaveURL(/\/start$/, { timeout: 15_000 });
-    await expect(page.getByRole("heading", { name: onboarding.title })).toBeVisible();
-    await page.getByRole("button", { name: new RegExp(onboarding.customer.title) }).click();
     await expect(page).toHaveURL(/\/$/, { timeout: 15_000 });
     await expect(page.getByRole("heading", { name: greeting("Bilal") })).toBeVisible();
   });
@@ -144,7 +133,7 @@ test.describe("password reset", () => {
     await expect(page).toHaveURL(/\/forgot-password\/new$/, { timeout: 15_000 });
     await page.getByLabel(auth.newPasswordLabel).fill("dukan-e2e-456");
     await page.getByRole("button", { name: auth.updatePassword }).click();
-    await expect(page).toHaveURL(/\/start$/, { timeout: 15_000 });
+    await expect(page).toHaveURL(/\/$/, { timeout: 15_000 });
 
     // The new password works from a fresh device.
     await page.context().clearCookies();
@@ -152,7 +141,7 @@ test.describe("password reset", () => {
     await page.getByLabel(auth.phoneLabel).fill(phone);
     await page.getByLabel(auth.passwordLabel, { exact: true }).fill("dukan-e2e-456");
     await page.getByRole("button", { name: auth.signIn }).click();
-    await expect(page).toHaveURL(/\/start$/, { timeout: 15_000 });
+    await expect(page.getByRole("heading", { name: greeting("Zainab") })).toBeVisible();
   });
 });
 

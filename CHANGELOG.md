@@ -4,15 +4,20 @@ All notable changes, newest first. Dates are Asia/Karachi.
 
 ## Unreleased
 
-### Onboarding and the new Account page (2026-11-02)
+### Customer app, onboarding and the new Account page (2026-11-02)
 
-- New accounts are asked "How will you use TezDukan?" (dukan, distributor or shopping)
-  instead of landing on an empty customer screen.
-- Register your dukan / Register your business from the app: name, phone, area, address and
-  current location; distributors pick the areas they deliver to. A testing flag approves
-  registrations at once (on for the live test site); otherwise they wait for an admin.
-- Customer home: nearby approved dukans with Call and WhatsApp, plus the way in for dukandars
-  and distributors.
+- Everyone lands on the customer app after sign-in, with five tabs: Home, Categories, Nearby,
+  Cart and Account.
+  - Home: search, shop by category, dukans near you and popular products.
+  - Categories: category chips, search and a product grid with ADD and steppers.
+  - Nearby: live dukans with delivery time, fee, minimum order, Call and WhatsApp; each opens
+    its own storefront page.
+  - Cart: one bill per dukan with a free-delivery progress bar, minimum-order check, savings
+    and a delivery address; the order goes to the dukan on WhatsApp.
+- Two more demo dukans (Madina Mart, Al-Rehman Kiryana), so the customer app has a choice.
+- Account offers Become a shopkeeper and Become a distributor: register from the app with
+  name, phone, area, address and location (distributors pick the areas they deliver to). A
+  testing flag approves registrations at once; otherwise they wait for an admin.
 - Account page redesigned in an Apple-like style: profile header, quick tiles, grouped
   settings (appearance, language, notifications), support and policies, opportunities, and
   sign out.

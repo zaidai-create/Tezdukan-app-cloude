@@ -64,7 +64,8 @@
     "distributors": "Distributors",
     "chat": "Chat",
     "support": "Support",
-    "catalog": "Catalog"
+    "catalog": "Catalog",
+    "nearby": "Nearby"
   },
   "roles": {
     "customer": "Customer",
@@ -231,7 +232,7 @@
       "home": "Home",
       "help": "Help"
     },
-    "completeTitle": "Register your dukan",
+    "completeTitle": "Become a shopkeeper",
     "completeHint": "Trade prices from distributors, delivered next day",
     "groups": {
       "roles": "Your roles",
@@ -248,7 +249,7 @@
     "terms": "Terms and conditions",
     "privacy": "Privacy policy",
     "refund": "Refund policy",
-    "registerDukan": "Register your dukan",
+    "registerDukan": "Become a shopkeeper",
     "becomeDistributor": "Become a distributor",
     "joinRider": "Join as a delivery rider",
     "joinRiderHint": "Talk to our team"
@@ -1044,20 +1045,6 @@
     }
   },
   "onboarding": {
-    "title": "How will you use TezDukan?",
-    "subtitle": "Pick one. You can add the others later from Account.",
-    "dukan": {
-      "title": "I have a dukan",
-      "hint": "Order stock from distributors, keep khata and bills"
-    },
-    "distributor": {
-      "title": "I'm a distributor",
-      "hint": "Sell to dukans, manage orders and delivery"
-    },
-    "customer": {
-      "title": "I'm here to shop",
-      "hint": "Buy from dukans near you"
-    },
     "form": {
       "dukanTitle": "Register your dukan",
       "dukanHint": "Takes a minute. Distributors see these details when you order.",
@@ -1093,19 +1080,6 @@
         "generic": "Couldn't register. Please try again."
       }
     }
-  },
-  "customerHome": {
-    "registerTitle": "Have a dukan?",
-    "registerHint": "Order stock from Hyderabad's distributors at trade price, delivered next day.",
-    "registerAction": "Register your dukan",
-    "distributorTitle": "Are you a distributor?",
-    "distributorAction": "Register your business",
-    "nearbyTitle": "Dukans near you",
-    "nearbyEmpty": "No dukans in your area yet",
-    "nearbyEmptyHint": "Tell your local dukandar about TezDukan.",
-    "call": "Call",
-    "whatsapp": "WhatsApp",
-    "orderingSoon": "Online ordering from dukans is coming soon. Call or WhatsApp them for now."
   },
   "legal": {
     "updated": "Last updated 2 November 2026",
@@ -1169,6 +1143,78 @@
       "s3": {
         "title": "Cancelled orders",
         "body": "You can cancel an order before it is packed. If you already paid, the full amount is returned."
+      }
+    }
+  },
+  "storefront": {
+    "deliveringIn": "Delivering across Hyderabad",
+    "searchLabel": "Search products",
+    "searchPlaceholder": "Search atta, chai, oil…",
+    "categoriesTitle": "Shop by category",
+    "seeAll": "See all",
+    "nearbyTitle": "Dukans near you",
+    "popularTitle": "Popular near you",
+    "growTitle": "Grow with TezDukan",
+    "becomeShopkeeperHint": "Order stock at trade price and run your dukan",
+    "becomeDistributorHint": "Sell to dukans across Hyderabad",
+    "lowStock": "Only a few left",
+    "eta": "{minutes, number} min",
+    "deliveryFee": "Delivery {amount}",
+    "freeDelivery": "Free delivery",
+    "callToOrder": "Call to order",
+    "openShop": "Shop now",
+    "call": "Call",
+    "whatsapp": "WhatsApp",
+    "categories": {
+      "title": "Categories",
+      "all": "All",
+      "resultsFor": "Results for “{query}”",
+      "empty": "Nothing here yet",
+      "emptyHint": "Try another category, or search for it.",
+      "count": "{count, plural, one {# item} other {# items}}"
+    },
+    "shops": {
+      "title": "Nearby shops",
+      "subtitle": "Dukans that deliver to you",
+      "empty": "No dukans near you yet",
+      "emptyHint": "Tell your local dukandar about TezDukan."
+    },
+    "shop": {
+      "products": "Products",
+      "minOrder": "Min order {amount}",
+      "freeAbove": "Free delivery above {amount}",
+      "notLive": "This dukan doesn't take online orders yet. Call or WhatsApp them.",
+      "empty": "No products online yet",
+      "emptyHint": "Call or WhatsApp the dukan to order.",
+      "notFound": "This dukan isn't on TezDukan"
+    },
+    "cart": {
+      "title": "Cart",
+      "empty": "Your cart is empty",
+      "emptyHint": "Add items from dukans near you.",
+      "startShopping": "Start shopping",
+      "itemTotal": "Item total",
+      "delivery": "Delivery fee",
+      "free": "Free",
+      "toPay": "To pay",
+      "savings": "You save {amount}",
+      "addMoreForFree": "Add {amount} more for free delivery",
+      "freeUnlocked": "Free delivery unlocked",
+      "belowMin": "Minimum order is {amount}. Add {short} more.",
+      "address": "Delivery address",
+      "addressPlaceholder": "House, street, area",
+      "orderWhatsapp": "Order on WhatsApp",
+      "noWhatsapp": "This dukan has no WhatsApp yet. Call to order.",
+      "clear": "Remove all",
+      "howItWorks": "Your order goes to the dukan on WhatsApp. They confirm it and deliver.",
+      "message": {
+        "intro": "Assalam-o-Alaikum! New order from TezDukan:",
+        "items": "Items: {amount}",
+        "delivery": "Delivery: {amount}",
+        "total": "Total: {amount}",
+        "name": "Name: {name}",
+        "address": "Address: {address}",
+        "outro": "Please confirm. Thank you!"
       }
     }
   }

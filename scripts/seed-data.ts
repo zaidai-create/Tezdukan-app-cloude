@@ -1513,6 +1513,88 @@ export const schemeProducts: SeedRow<"scheme_products">[] = [
 
 export const SHOP_ID = seedId("shop:tezdukan");
 
+/**
+ * Two more live dukans so the customer app has a real choice nearby. Each sells part of the
+ * TezDukan shelf at its own prices: [product, quantity, selling price in rupees or MRP].
+ */
+const neighbourDukans: {
+  id: string;
+  key: string;
+  name: string;
+  slug: string;
+  area: string;
+  address: string;
+  lat: number;
+  lng: number;
+  tagline: string;
+  eta: number;
+  minOrder: number;
+  fee: number;
+  freeAbove: number;
+  shelf: [ProductKey, number, number | null][];
+}[] = [
+  {
+    id: seedId("shop:madina-mart"),
+    key: "madina-mart",
+    name: "Madina Mart",
+    slug: "madina-mart",
+    area: "qasimabad",
+    address: "Shop 4, Main Qasimabad Road, Hyderabad",
+    lat: 25.4027,
+    lng: 68.3396,
+    tagline: "Fresh stock every morning, delivered in 30 minutes.",
+    eta: 30,
+    minOrder: 250,
+    fee: 40,
+    freeAbove: 1200,
+    shelf: [
+      ["tapal-danedar-950g", 10, null],
+      ["milkpak-1l", 30, null],
+      ["olpers-1l", 20, 325],
+      ["dalda-oil-1l", 12, null],
+      ["sunridge-atta-5kg", 8, null],
+      ["shan-biryani-50g", 40, 135],
+      ["knorr-chicken-noodles-66g", 60, null],
+      ["sooper-half-roll", 24, null],
+      ["lays-salted-40g", 36, null],
+      ["coca-cola-1500ml", 20, null],
+      ["surf-excel-1kg", 8, null],
+      ["lux-soft-touch-128g", 30, null],
+    ],
+  },
+  {
+    id: seedId("shop:al-rehman-kiryana"),
+    key: "al-rehman-kiryana",
+    name: "Al-Rehman Kiryana",
+    slug: "al-rehman-kiryana",
+    area: "hirabad",
+    address: "Near Jamia Masjid, Hirabad, Hyderabad",
+    lat: 25.3905,
+    lng: 68.3712,
+    tagline: "Wholesale rates for the neighbourhood since 1998.",
+    eta: 40,
+    minOrder: 400,
+    fee: 60,
+    freeAbove: 2000,
+    shelf: [
+      ["lipton-yellow-label-950g", 6, null],
+      ["milkpak-1l", 18, 330],
+      ["habib-oil-1l", 14, null],
+      ["dalda-oil-5l", 4, null],
+      ["guard-basmati-1kg", 10, 520],
+      ["national-salt-800g", 25, null],
+      ["national-ketchup-800g", 8, null],
+      ["prince-half-roll", 20, null],
+      ["kurkure-chutney-chaska-55g", 24, null],
+      ["pepsi-1500ml", 16, null],
+      ["pure-life-1500ml", 30, null],
+      ["bonus-tristar-1kg", 10, null],
+      ["lifebuoy-total-128g", 20, null],
+      ["colgate-mcp-140g", 12, null],
+    ],
+  },
+];
+
 export const buildShops = (withDemoUsers: boolean): SeedRow<"shops">[] => [
   {
     id: SHOP_ID,
@@ -1537,6 +1619,28 @@ export const buildShops = (withDemoUsers: boolean): SeedRow<"shops">[] => [
     submitted_at: "2026-09-05T05:00:00Z",
     approved_at: "2026-09-05T09:00:00Z",
   },
+  ...neighbourDukans.map((dukan): SeedRow<"shops"> => ({
+    id: dukan.id,
+    owner_id: null,
+    name: dukan.name,
+    slug: dukan.slug,
+    // Demo only: the neighbour dukans have no owner account, so their orders reach the demo
+    // dukandar's WhatsApp. Without demo users they show no number at all.
+    phone: withDemoUsers ? DEMO_USERS.dukandar.phone : null,
+    whatsapp: withDemoUsers ? DEMO_USERS.dukandar.phone : null,
+    kind: "kirana",
+    description: dukan.tagline,
+    address_line: dukan.address,
+    area_id: areaId(dukan.area),
+    lat: dukan.lat,
+    lng: dukan.lng,
+    photo_path: null,
+    cover_path: null,
+    status: "approved",
+    tier: "silver",
+    submitted_at: "2026-10-01T05:00:00Z",
+    approved_at: "2026-10-01T09:00:00Z",
+  })),
 ];
 
 const everyDay = [{ open: "08:00", close: "23:00" }];
@@ -1569,6 +1673,33 @@ export const storefrontSettings: SeedRow<"storefront_settings">[] = [
     announcement: null,
     gallery_paths: [],
   },
+  ...neighbourDukans.map((dukan): SeedRow<"storefront_settings"> => ({
+    id: seedId(`storefront:${dukan.key}`),
+    shop_id: dukan.id,
+    is_live: true,
+    tagline: dukan.tagline,
+    about: dukan.tagline,
+    timings: {
+      mon: everyDay,
+      tue: everyDay,
+      wed: everyDay,
+      thu: everyDay,
+      fri: everyDay,
+      sat: everyDay,
+      sun: everyDay,
+    },
+    delivery_radius_m: 5000,
+    serves_all_city: false,
+    min_order_paisa: rs(dukan.minOrder),
+    delivery_fee_paisa: rs(dukan.fee),
+    free_delivery_above_paisa: rs(dukan.freeAbove),
+    eta_minutes: dukan.eta,
+    payment_options: ["cod"],
+    pickup_enabled: true,
+    accept_orders_when_closed: false,
+    announcement: null,
+    gallery_paths: [],
+  })),
 ];
 
 // Stock on the shelf: [product, quantity, low-stock threshold, selling price (rupees, defaults to MRP), favourite]
@@ -1655,6 +1786,35 @@ export const shopInventory: SeedRow<"shop_inventory">[] = [
     is_active: true,
     image_path: null,
   },
+  ...neighbourDukans.flatMap((dukan) =>
+    dukan.shelf.map(([key, qty, selling]): SeedRow<"shop_inventory"> => {
+      const def = findProduct(key);
+      return {
+        id: seedId(`inventory:${dukan.key}:${key}`),
+        shop_id: dukan.id,
+        master_product_id: masterProductId(key),
+        distributor_product_id: null,
+        name: `${def.name} ${def.packSize}`,
+        name_ur: def.nameUr,
+        barcode: productBarcode(def),
+        sku: def.sku,
+        category_id: categoryId(def.category),
+        brand_id: def.brand ? brandId(def.brand) : null,
+        pack_size_label: def.packSize,
+        unit: "pc",
+        is_loose: false,
+        cost_price_paisa: rs(def.trade),
+        selling_price_paisa: rs(selling ?? def.mrp),
+        mrp_paisa: rs(def.mrp),
+        qty_on_hand: qty,
+        low_stock_threshold: 4,
+        is_favourite: false,
+        is_visible_online: true,
+        is_active: true,
+        image_path: null,
+      };
+    }),
+  ),
 ];
 
 /** Opening balance movements so stock history matches qty_on_hand. */
@@ -1662,7 +1822,7 @@ export const shopStockMovements: SeedRow<"shop_stock_movements">[] = shopInvento
   .filter((item) => Number(item.qty_on_hand ?? 0) > 0)
   .map((item) => ({
     id: seedId(`movement:opening:${item.id}`),
-    shop_id: SHOP_ID,
+    shop_id: item.shop_id,
     inventory_id: item.id,
     movement_type: "opening",
     qty: Number(item.qty_on_hand ?? 0),

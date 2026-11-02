@@ -27,23 +27,6 @@ export const registerDistributorSchema = z.object({
 });
 export type RegisterDistributorInput = z.infer<typeof registerDistributorSchema>;
 
-export const nearbyDukanSchema = z.object({
-  id: z.uuid(),
-  name: z.string(),
-  slug: z.string(),
-  address_line: z.string().nullable(),
-  phone: z.string().nullable(),
-  whatsapp: z.string().nullable(),
-  photo_path: z.string().nullable(),
-  area_name: z.string().nullable(),
-  area_name_ur: z.string().nullable(),
-  distance_m: z.number().nullable(),
-});
-export type NearbyDukan = z.infer<typeof nearbyDukanSchema>;
-
-/** Set when someone picks "I'm a customer", so sign-in stops offering the role choice. */
-export const START_DONE_COOKIE = "td_start_done";
-
 export const registrationErrors = [
   "invalid_name",
   "invalid_phone",

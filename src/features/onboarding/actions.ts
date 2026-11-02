@@ -1,6 +1,5 @@
 "use server";
 
-import { cookies } from "next/headers";
 import { z } from "zod";
 import { switchContextAction } from "@/features/auth/actions";
 import { normalizePkMobile } from "@/lib/phone";
@@ -9,7 +8,6 @@ import {
   registerDistributorSchema,
   registerDukanSchema,
   registrationErrorKey,
-  START_DONE_COOKIE,
   type RegisterDistributorInput,
   type RegisterDukanInput,
   type RegistrationError,
@@ -97,15 +95,4 @@ export async function registerDistributor(
     if (switched.ok) return { ok: true, data: { approved, home: switched.data.home } };
   }
   return { ok: true, data: { approved, home: "/account" } };
-}
-
-/** "I'm here to shop": remember the choice so sign-in goes straight home next time. */
-export async function chooseCustomer(): Promise<{ home: string }> {
-  const cookieStore = await cookies();
-  cookieStore.set(START_DONE_COOKIE, "1", {
-    path: "/",
-    maxAge: 60 * 60 * 24 * 365,
-    sameSite: "lax",
-  });
-  return { home: "/" };
 }

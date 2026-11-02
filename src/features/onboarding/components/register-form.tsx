@@ -133,7 +133,7 @@ export function RegisterForm({
     <div className="mx-auto flex w-full max-w-lg flex-col gap-5 px-4 pt-5 pb-8">
       <header className="flex items-start gap-3">
         <Link
-          href="/start"
+          href="/account"
           aria-label={t("back")}
           className="flex size-12 shrink-0 items-center justify-center rounded-full bg-surface text-ink shadow-card"
         >

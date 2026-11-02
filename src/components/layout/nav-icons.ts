@@ -20,6 +20,7 @@ import type { NavIcon } from "./nav-config";
 export const navIcons: Record<NavIcon, LucideIcon> = {
   home: House,
   categories: LayoutGrid,
+  nearby: MapPinned,
   cart: ShoppingBasket,
   orders: Package,
   dukan: Store,

@@ -64,7 +64,8 @@
     "distributors": "Distributors",
     "chat": "Chat",
     "support": "Support",
-    "catalog": "Catalog"
+    "catalog": "Catalog",
+    "nearby": "Qareeb"
   },
   "roles": {
     "customer": "Gaahak",
@@ -231,7 +232,7 @@
       "home": "Home",
       "help": "Madad"
     },
-    "completeTitle": "Apni dukan register karein",
+    "completeTitle": "Dukandar banein",
     "completeHint": "Distributors se trade rate, agle din delivery",
     "groups": {
       "roles": "Aap ke roles",
@@ -248,7 +249,7 @@
     "terms": "Terms aur conditions",
     "privacy": "Privacy policy",
     "refund": "Refund policy",
-    "registerDukan": "Apni dukan register karein",
+    "registerDukan": "Dukandar banein",
     "becomeDistributor": "Distributor banein",
     "joinRider": "Delivery rider banein",
     "joinRiderHint": "Hamari team se baat karein"
@@ -1044,20 +1045,6 @@
     }
   },
   "onboarding": {
-    "title": "Aap TezDukan kaise use karenge?",
-    "subtitle": "Ek chunein. Baaqi baad mein Account se add kar sakte hain.",
-    "dukan": {
-      "title": "Meri dukan hai",
-      "hint": "Distributors se maal mangwayein, khata aur bill rakhein"
-    },
-    "distributor": {
-      "title": "Main distributor hoon",
-      "hint": "Dukanon ko maal bechein, orders aur delivery sambhalein"
-    },
-    "customer": {
-      "title": "Sirf khareedari",
-      "hint": "Apne qareeb ki dukanon se khareedein"
-    },
     "form": {
       "dukanTitle": "Apni dukan register karein",
       "dukanHint": "Ek minute lagega. Order karne par distributors ye details dekhte hain.",
@@ -1093,19 +1080,6 @@
         "generic": "Register nahi ho saka. Dobara koshish karein."
       }
     }
-  },
-  "customerHome": {
-    "registerTitle": "Dukan hai?",
-    "registerHint": "Hyderabad ke distributors se trade rate par maal mangwayein, agle din delivery.",
-    "registerAction": "Apni dukan register karein",
-    "distributorTitle": "Distributor hain?",
-    "distributorAction": "Apna business register karein",
-    "nearbyTitle": "Aap ke qareeb dukanein",
-    "nearbyEmpty": "Abhi aap ke area mein koi dukan nahi",
-    "nearbyEmptyHint": "Apne dukandar ko TezDukan ke baare mein batayein.",
-    "call": "Call",
-    "whatsapp": "WhatsApp",
-    "orderingSoon": "Dukanon se online order jald aa raha hai. Abhi call ya WhatsApp karein."
   },
   "legal": {
     "updated": "Aakhri tabdeeli 2 November 2026",
@@ -1169,6 +1143,78 @@
       "s3": {
         "title": "Cancel orders",
         "body": "Packing se pehle order cancel kar sakte hain. Agar payment ho chuki ho to poori raqam wapas milegi."
+      }
+    }
+  },
+  "storefront": {
+    "deliveringIn": "Poore Hyderabad mein delivery",
+    "searchLabel": "Products talash karein",
+    "searchPlaceholder": "Atta, chai, tel talash karein…",
+    "categoriesTitle": "Category se khareedein",
+    "seeAll": "Sab dekhein",
+    "nearbyTitle": "Aap ke qareeb dukanein",
+    "popularTitle": "Qareeb mein mashhoor",
+    "growTitle": "TezDukan ke saath aage barhein",
+    "becomeShopkeeperHint": "Trade rate par maal mangwayein aur dukan chalayein",
+    "becomeDistributorHint": "Hyderabad bhar ki dukanon ko maal bechein",
+    "lowStock": "Sirf chand baqi",
+    "eta": "{minutes, number} min",
+    "deliveryFee": "Delivery {amount}",
+    "freeDelivery": "Free delivery",
+    "callToOrder": "Order ke liye call karein",
+    "openShop": "Khareedari karein",
+    "call": "Call",
+    "whatsapp": "WhatsApp",
+    "categories": {
+      "title": "Categories",
+      "all": "Sab",
+      "resultsFor": "“{query}” ke results",
+      "empty": "Abhi yahan kuch nahi",
+      "emptyHint": "Koi aur category chunein, ya talash karein.",
+      "count": "{count, plural, one {# cheez} other {# cheezein}}"
+    },
+    "shops": {
+      "title": "Qareebi dukanein",
+      "subtitle": "Jo dukanein aap tak delivery karti hain",
+      "empty": "Abhi aap ke qareeb koi dukan nahi",
+      "emptyHint": "Apne dukandar ko TezDukan ke baare mein batayein."
+    },
+    "shop": {
+      "products": "Products",
+      "minOrder": "Kam az kam order {amount}",
+      "freeAbove": "{amount} se upar free delivery",
+      "notLive": "Ye dukan abhi online order nahi leti. Call ya WhatsApp karein.",
+      "empty": "Abhi koi cheez online nahi",
+      "emptyHint": "Order ke liye dukan ko call ya WhatsApp karein.",
+      "notFound": "Ye dukan TezDukan par nahi"
+    },
+    "cart": {
+      "title": "Cart",
+      "empty": "Aap ka cart khali hai",
+      "emptyHint": "Qareebi dukanon se cheezein add karein.",
+      "startShopping": "Khareedari shuru karein",
+      "itemTotal": "Cheezon ka total",
+      "delivery": "Delivery fee",
+      "free": "Free",
+      "toPay": "Kul adaigi",
+      "savings": "Aap ki bachat {amount}",
+      "addMoreForFree": "Free delivery ke liye {amount} aur add karein",
+      "freeUnlocked": "Free delivery mil gayi",
+      "belowMin": "Kam az kam order {amount} hai. {short} aur add karein.",
+      "address": "Delivery ka pata",
+      "addressPlaceholder": "Ghar, gali, area",
+      "orderWhatsapp": "WhatsApp par order karein",
+      "noWhatsapp": "Is dukan ka WhatsApp nahi. Order ke liye call karein.",
+      "clear": "Sab hatayein",
+      "howItWorks": "Aap ka order WhatsApp par dukan ko jata hai. Woh confirm kar ke deliver karte hain.",
+      "message": {
+        "intro": "Assalam-o-Alaikum! TezDukan se naya order:",
+        "items": "Cheezein: {amount}",
+        "delivery": "Delivery: {amount}",
+        "total": "Total: {amount}",
+        "name": "Naam: {name}",
+        "address": "Pata: {address}",
+        "outro": "Meharbani kar ke confirm karein. Shukriya!"
       }
     }
   }

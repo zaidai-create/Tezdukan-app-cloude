@@ -169,12 +169,16 @@ section. Format: **decision** — reason (date).
 
 ## Backend
 
-- **Sign-up asks the role; auto-approval is a feature flag** — every account starts as a
-  customer, and the customer app comes later, so a new account sees "How will you use
-  TezDukan?" (until it picks shopping, remembered in `td_start_done`). Registrations use the
-  existing `register_shop` / `register_organization`; the `auto_approve_registrations` flag
-  (on for the test site, off by default) approves them in a before-insert trigger, so turning
-  on admin approval later is one switch. (2026-11-02)
+- **Customer first; becoming a business is an Account option** (owner's call) — every
+  sign-in lands on the shopping app; "Become a shopkeeper / distributor" in Account registers
+  through `register_shop` / `register_organization`. The `auto_approve_registrations` flag (on
+  for the test site, off by default and in every pgTAP test) approves them in a before-insert
+  trigger, so admin approval is one switch away. (2026-11-02)
+- **Customer orders go to the dukan on WhatsApp for now** — the cart is kept on the phone and
+  each dukan's bill (fee, free-delivery threshold, minimum order) comes from its storefront
+  settings; the message lists items, totals, name and address. In-app customer orders, with a
+  dukandar inbox, come with the customer-orders phase. Storefront reads go through definer
+  functions because RLS keeps inventory private to the dukan. (2026-11-02)
 - **Hosting: Vercel project `tezdukan` (team tezduakan), functions in Mumbai (`bom1`)** —
   next to the Supabase project (ap-south-1). From Washington (the default) every page paid
   several cross-world database round trips; in Mumbai the dukan home loads in about half a

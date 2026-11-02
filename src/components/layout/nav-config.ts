@@ -17,6 +17,7 @@ import type { AppRole } from "@/lib/auth/roles";
 export type NavLabel =
   | "home"
   | "categories"
+  | "nearby"
   | "cart"
   | "orders"
   | "dukan"
@@ -39,6 +40,7 @@ export type NavLabel =
 export type NavIcon =
   | "home"
   | "categories"
+  | "nearby"
   | "cart"
   | "orders"
   | "dukan"
@@ -59,6 +61,9 @@ export type NavGroup = { label: "main" | "account"; items: NavItem[] };
 export const mobileTabs: Partial<Record<AppRole, NavItem[]>> = {
   customer: [
     { href: "/", label: "home", icon: "home", exact: true },
+    { href: "/categories", label: "categories", icon: "categories" },
+    { href: "/shops", label: "nearby", icon: "nearby" },
+    { href: "/cart", label: "cart", icon: "cart" },
     { href: "/account", label: "account", icon: "account" },
   ],
   dukandar: [

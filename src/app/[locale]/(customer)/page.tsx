@@ -1,5 +1,5 @@
-import { CustomerHome } from "@/features/home/customer-home";
+import { StorefrontHome } from "@/features/storefront/pages";
 
 export default function Page() {
-  return <CustomerHome />;
+  return <StorefrontHome />;
 }

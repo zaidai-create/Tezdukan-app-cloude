@@ -8822,6 +8822,12 @@ export type Database = {
         Args: { p_from?: string; p_org_id: string; p_shop_id: string; p_to?: string };
         Returns: Json;
       };
+      storefront_categories: { Args: Record<PropertyKey, never>; Returns: Json };
+      storefront_products: {
+        Args: { p_category_id?: string; p_limit?: number; p_query?: string; p_shop_id?: string };
+        Returns: Json;
+      };
+      storefront_shop: { Args: { p_slug: string }; Returns: Json };
       switch_active_context: {
         Args: { p_context_id?: string; p_role: Database["public"]["Enums"]["app_role"] };
         Returns: undefined;
