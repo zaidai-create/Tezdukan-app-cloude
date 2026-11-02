@@ -11,6 +11,7 @@
     </queries>
 
     <application
+        android:name=".TezDukanApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -23,7 +24,8 @@
             android:resource="@string/asset_statements" />
 
         <activity
-            android:name="com.google.androidbrowserhelper.trusted.LauncherActivity"
+            android:name=".LauncherActivity"
+            android:alwaysRetainTaskState="true"
             android:exported="true"
             android:label="@string/app_name">
             <meta-data
