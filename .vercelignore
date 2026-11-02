@@ -1,0 +1,11 @@
+# Not part of the web app: keeps uploads small and secrets local.
+.env*
+!.env.example
+.next
+node_modules
+android
+e2e
+test-results
+playwright-report
+supabase/.temp
+supabase/tests

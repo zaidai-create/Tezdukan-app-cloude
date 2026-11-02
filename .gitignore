@@ -59,3 +59,6 @@ next-env.d.ts
 
 # Claude Code agent worktrees
 /.claude/worktrees/
+
+# Built Android app, served for testers; never committed
+/public/download/
