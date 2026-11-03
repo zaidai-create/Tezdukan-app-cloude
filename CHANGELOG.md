@@ -4,6 +4,23 @@ All notable changes, newest first. Dates are Asia/Karachi.
 
 ## Unreleased
 
+### Shop dashboard, distributor insights and order alerts (2026-11-03)
+
+- The dukandar's Home is now a live shop dashboard: today's online sales and orders, a 7-day
+  trend, the live order queue with one-tap next steps (Accept, Mark packed, Send out,
+  Delivered), low stock with a restock button, and khata and stock totals.
+- Dukandar tabs are now Home, Orders, Wholesale, Khata and Account. Buying stock from
+  distributors moved to Wholesale (`/dukan/wholesale`); the sidebar adds Stock orders.
+- Distributor dashboard, full width: this month against last month, average order, the order
+  pipeline (Placed to On the way), retailers active this week, new and gone quiet, fill rate,
+  best sellers, sales by category, stock running out at the current selling speed, and quiet
+  dukans with Call and WhatsApp buttons.
+- "Turn on order alerts" card on the dukandar and distributor dashboards and the order pages,
+  with clear steps when the phone has blocked notifications.
+- Android app 0.1.3 asks for the Android 13+ notification permission, so order alerts arrive
+  as phone notifications.
+- Admin panel plan in `docs/admin/ADMIN_PLAN.md` (no code yet).
+
 ### Customer app, onboarding and the new Account page (2026-11-02)
 
 - Everyone lands on the customer app after sign-in, with five tabs: Home, Categories, Nearby,

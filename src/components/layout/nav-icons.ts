@@ -10,9 +10,11 @@ import {
   MapPinned,
   MessageCircle,
   Package,
+  PackageOpen,
   ShieldCheck,
   ShoppingBasket,
   Store,
+  Truck,
   Wallet,
 } from "lucide-react";
 import type { NavIcon } from "./nav-config";
@@ -33,4 +35,6 @@ export const navIcons: Record<NavIcon, LucideIcon> = {
   beat: MapPinned,
   today: Bike,
   admin: ShieldCheck,
+  wholesale: Truck,
+  stockOrders: PackageOpen,
 };

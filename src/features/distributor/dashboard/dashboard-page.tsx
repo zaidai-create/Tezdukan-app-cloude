@@ -2,13 +2,10 @@ import { cn } from "cn";
 import {
   ArrowRight,
   CircleAlert,
-  Clock3,
   type LucideIcon,
   Package,
   PackageCheck,
   PhoneCall,
-  Store,
-  Truck,
   Wallet,
 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
@@ -17,16 +14,23 @@ import { Suspense } from "react";
 import { EmptyState } from "@/components/states/empty-state";
 import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { NotificationPrompt } from "@/features/notifications/components/notification-prompt";
 import { Link } from "@/i18n/navigation";
 import { activeContextOf } from "@/lib/auth/session-types";
 import { formatRs } from "@/lib/money";
 import { OrderCard } from "../components/order-card";
 import { getDashboard, getInbox, requireDistributor } from "../data";
+import {
+  DashboardInsights,
+  InsightsSkeleton,
+  MonthFigures,
+  MonthFiguresSkeleton,
+} from "./insights";
 import { SalesChart } from "./sales-chart";
 
 function DashboardSkeleton() {
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 px-4 py-6 lg:px-8" aria-hidden>
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4 py-6 lg:px-8" aria-hidden>
       <Skeleton className="h-8 w-64" />
       <Skeleton className="h-32 w-full rounded-xl" />
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -100,13 +104,15 @@ async function DashboardContent() {
   const weekOrders = dash.sales_7d.reduce((sum, d) => sum + d.orders, 0);
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 px-4 py-6 lg:px-8">
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4 py-6 lg:px-8">
       <header>
         <h1 className="font-heading text-2xl font-extrabold text-ink lg:text-3xl">
           {t("greeting", { name: firstName })}
         </h1>
         <p className="mt-1 text-base text-muted">{t("subtitle", { org })}</p>
       </header>
+
+      <NotificationPrompt audience="distributor" />
 
       {dash.needs_confirmation > 0 ? (
         <Link
@@ -129,43 +135,26 @@ async function DashboardContent() {
         </Link>
       ) : null}
 
-      {/* The one hero figure: what came in today. */}
-      <section className="sheen relative overflow-hidden rounded-xl bg-forest p-5 text-on-forest shadow-raised inset-shadow-edge">
-        <p className="text-sm font-semibold text-on-forest/85">{t("todayOrders")}</p>
-        <p className="num mt-1 font-heading text-5xl font-extrabold">
-          {formatRs(dash.today_value_paisa)}
-        </p>
-        <p className="num mt-1 text-sm text-on-forest/85">
-          {t("ordersCount", { count: dash.today_orders })}
-        </p>
+      {/* The hero: what came in today, and how the month is going. */}
+      <section className="sheen relative flex flex-col gap-4 overflow-hidden rounded-xl bg-forest p-5 text-on-forest shadow-raised inset-shadow-edge sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-sm font-semibold text-on-forest/85">{t("todayOrders")}</p>
+          <p className="num mt-1 font-heading text-5xl font-extrabold">
+            {formatRs(dash.today_value_paisa)}
+          </p>
+          <p className="num mt-1 text-sm text-on-forest/85">
+            {t("ordersCount", { count: dash.today_orders })}
+          </p>
+        </div>
+        <Suspense fallback={<MonthFiguresSkeleton />}>
+          <MonthFigures orgId={orgId} />
+        </Suspense>
       </section>
 
-      <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatTile
-          icon={Clock3}
-          label={t("newOrders")}
-          value={String(dash.new_orders)}
-          tone={dash.new_orders > 0 ? "warning" : "neutral"}
-          href="/distributor/orders"
-        />
-        <StatTile
-          icon={Package}
-          label={t("toDispatch")}
-          value={String(dash.to_dispatch)}
-          href="/distributor/orders?tab=active"
-        />
-        <StatTile
-          icon={Truck}
-          label={t("outForDelivery")}
-          value={String(dash.out_for_delivery)}
-          href="/distributor/orders?tab=active"
-        />
-        <StatTile
-          icon={PackageCheck}
-          label={t("deliveredToday")}
-          value={formatRs(dash.delivered_today_paisa)}
-        />
-        <StatTile icon={Wallet} label={t("receivable")} value={formatRs(dash.receivable_paisa)} />
+      <section className="grid grid-cols-2 gap-3 lg:grid-cols-3">
+        <div className="col-span-2 lg:col-span-1">
+          <StatTile icon={Wallet} label={t("receivable")} value={formatRs(dash.receivable_paisa)} />
+        </div>
         <StatTile
           icon={CircleAlert}
           label={t("overdue")}
@@ -173,12 +162,15 @@ async function DashboardContent() {
           tone={dash.overdue_paisa > 0 ? "danger" : "neutral"}
         />
         <StatTile
-          icon={Store}
-          label={t("activeShops")}
-          value={String(dash.active_shops)}
-          hint={t("activeShopsHint")}
+          icon={PackageCheck}
+          label={t("deliveredToday")}
+          value={formatRs(dash.delivered_today_paisa)}
         />
       </section>
+
+      <Suspense fallback={<InsightsSkeleton />}>
+        <DashboardInsights orgId={orgId} />
+      </Suspense>
 
       <div className="grid gap-5 lg:grid-cols-5">
         <section className="rounded-lg border border-border/70 bg-surface p-4 shadow-card lg:col-span-3">

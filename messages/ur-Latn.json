@@ -65,7 +65,9 @@
     "chat": "Chat",
     "support": "Support",
     "catalog": "Catalog",
-    "nearby": "Qareeb"
+    "nearby": "Qareeb",
+    "wholesale": "Wholesale",
+    "stockOrders": "Stock orders"
   },
   "roles": {
     "customer": "Gaahak",
@@ -710,6 +712,17 @@
       "enabled": "Phone notifications on ho gayin",
       "disabled": "Phone notifications band ho gayin",
       "failed": "Notifications on nahi ho sakin. Dobara koshish karein."
+    },
+    "prompt": {
+      "title": "Order alerts on karein",
+      "hint": {
+        "dukandar": "Customer ke order karte hi awaz aur notification milegi.",
+        "distributor": "Dukanon ke naye orders foran sunein, app band ho tab bhi.",
+        "customer": "Janein kab aap ka order accept hua aur raste mein hai."
+      },
+      "action": "On karein",
+      "blockedTitle": "Notifications band hain",
+      "blockedHint": "Phone ki Settings › Apps › TezDukan › Notifications khol kar ijazat dein, phir wapas aayein."
     }
   },
   "distributor": {
@@ -736,7 +749,35 @@
       "seeAll": "Sab order dekhein",
       "noNew": "Abhi koi naya order nahi.",
       "noNewHint": "Dukan order karte hi naya order ghanti ke saath yahan aa jayega.",
-      "ordersCount": "{count, plural, one {# order} other {# orders}}"
+      "ordersCount": "{count, plural, one {# order} other {# orders}}",
+      "mtdSales": "Is mahine",
+      "upVsLast": "Pichle mahine se {pct}% zyada",
+      "downVsLast": "Pichle mahine se {pct}% kam",
+      "noCompare": "TezDukan par pehla mahina",
+      "aov": "Ausat order",
+      "pipeline": "Orders ki line",
+      "activeWeek": "Is hafte order kiya",
+      "newRetailers": "Nayi dukanein, 30 din",
+      "quietCount": "7+ din se khamosh",
+      "fillRate": "Fill rate",
+      "fillRateHint": "Deliver banam order, 30 din",
+      "topProducts": "Sab se zyada bikne wale",
+      "last30": "Pichle 30 din",
+      "units": "{count, plural, one {# unit bika} other {# units bike}}",
+      "byCategory": "Category ke hisaab se sale",
+      "runningLow": "Jaldi khatam hone wala",
+      "runningLowHint": "Is mahine ki sale ki raftar se",
+      "catalog": "Stock",
+      "stockFine": "Stock agle do hafton ke liye kaafi hai.",
+      "piecesLeft": "{count, plural, one {# piece baqi} other {# pieces baqi}}",
+      "daysLeft": "{count, plural, one {# din baqi} other {# din baqi}}",
+      "outOfStock": "Stock khatam",
+      "quietShops": "Khamosh dukanein",
+      "quietHint": "7+ din se koi order nahi. Ek call se wapas aa jayengi.",
+      "lastOrder": "Aakhri order {date} · {days, plural, one {# din pehle} other {# din pehle}}",
+      "callShop": "{name} ko call karein",
+      "whatsappShop": "{name} ko WhatsApp karein",
+      "nudgeText": "Assalam-o-Alaikum {name}, is hafte naya stock aur schemes aayi hain. TezDukan par order karein, kal delivery ho jayegi."
     },
     "inbox": {
       "title": "Orders",
@@ -1254,7 +1295,7 @@
       "done": "Abhi koi mukammal order nahi"
     },
     "shopEmptyHint": "Qareebi customers ke orders yahan awaz aur notification ke saath aate hain.",
-    "newCount": "{count, plural, =0 {Koi naya order nahi} one {# naya order} other {# naye orders}}",
+    "newCount": "{count, plural, one {# naya order} other {# naye orders}}",
     "shopCardHint": "Qareebi customers ke orders",
     "actions": {
       "accept": "Order accept karein",
@@ -1292,6 +1333,46 @@
       "not_allowed": "Aap ye order nahi badal sakte.",
       "order_not_found": "Ye order available nahi.",
       "generic": "Kuch ghalat ho gaya. Dobara koshish karein."
+    }
+  },
+  "shopDash": {
+    "online": "Online",
+    "offline": "Offline",
+    "todaySales": "Aaj ki sale",
+    "todayOrders": "{count, plural, one {# order} other {# orders}}",
+    "delivered": "{count, plural, other {# deliver}}",
+    "weekChart": "Pichle 7 din ki sale",
+    "quick": "Fori links",
+    "tiles": {
+      "wholesale": "Maal khareedein",
+      "orders": "Orders",
+      "khata": "Khata",
+      "chat": "Chat"
+    },
+    "liveOrders": "Live orders",
+    "newCount": "{count, plural, one {# naya} other {# naye}}",
+    "seeAll": "Sab dekhein",
+    "queueEmpty": "Abhi koi order nahi. Naya order awaaz ke saath yahan aayega.",
+    "queueOffline": "Aap ki dukan offline hai. Order lene ke liye Account mein on karein.",
+    "lowStock": "Kam stock",
+    "lowCount": "{count, plural, one {# cheez} other {# cheezein}}",
+    "left": "{count, plural, other {# baqi}}",
+    "restock": "Wholesale se mangwayein",
+    "khataTitle": "Khata aur stock",
+    "owed": "Distributors ka baqaya",
+    "incoming": "Raste mein maal",
+    "incomingCount": "{count, plural, one {# order} other {# orders}}",
+    "stockValue": "Stock ki maaliyat",
+    "products": "Products",
+    "viewKhata": "Khata kholein",
+    "stockOrders": "Stock orders",
+    "items": "{count, plural, one {# cheez} other {# cheezein}}",
+    "open": "Kholein",
+    "next": {
+      "accepted": "Qubool karein",
+      "packed": "Pack ho gaya",
+      "out_for_delivery": "Rawana karein",
+      "delivered": "Deliver ho gaya"
     }
   }
 }

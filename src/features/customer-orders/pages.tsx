@@ -12,6 +12,7 @@ import { Suspense } from "react";
 import { cn } from "cn";
 import { EmptyState } from "@/components/states/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
+import { NotificationPrompt } from "@/features/notifications/components/notification-prompt";
 import { Link } from "@/i18n/navigation";
 import { requireRole } from "@/lib/auth/session";
 import { telHref, whatsappHref } from "@/lib/contact";
@@ -86,6 +87,7 @@ async function MyOrdersContent() {
         <BackLink href="/account" label={t("back")} />
         <h1 className="font-heading text-2xl font-bold text-ink">{t("title")}</h1>
       </header>
+      <NotificationPrompt audience="customer" />
       {orders.length === 0 ? (
         <EmptyState icon={ReceiptText} title={t("empty")} description={t("emptyHint")} />
       ) : (
@@ -143,6 +145,7 @@ async function MyOrderContent({
         </div>
         <OrderStatusBadge status={order.status} />
       </header>
+      <NotificationPrompt audience="customer" />
       {justPlaced ? (
         <section className="flex items-center gap-3 rounded-xl bg-forest p-4 text-on-forest shadow-raised">
           <PartyPopper aria-hidden className="size-8 shrink-0 text-mint" strokeWidth={1.75} />
@@ -196,6 +199,7 @@ async function ShopOrdersContent({ searchParams }: { searchParams: SearchParams 
         <BackLink href="/dukan" label={t("back")} />
         <h1 className="font-heading text-2xl font-bold text-ink">{t("shopTitle")}</h1>
       </header>
+      <NotificationPrompt audience="dukandar" />
       <nav
         aria-label={t("shopTitle")}
         className="grid grid-cols-3 gap-1 rounded-full bg-subtle p-1"

@@ -78,7 +78,13 @@ export function usePushSubscription() {
         setState(permission === "denied" ? "blocked" : "off");
         return false;
       }
-      const registration = await navigator.serviceWorker.ready;
+      // The service worker normally registers on first load; never wait on it forever.
+      const registration = await Promise.race([
+        navigator.serviceWorker.ready,
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error("service worker not ready")), 10_000),
+        ),
+      ]);
       const subscription =
         (await registration.pushManager.getSubscription()) ??
         (await registration.pushManager.subscribe({

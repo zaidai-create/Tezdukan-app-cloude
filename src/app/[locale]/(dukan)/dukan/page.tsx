@@ -1,5 +1,5 @@
-import { DukanHome } from "@/features/ordering/home/dukan-home";
+import { ShopDashboardPage } from "@/features/shop-dashboard/dashboard-page";
 
 export default function Page() {
-  return <DukanHome />;
+  return <ShopDashboardPage />;
 }

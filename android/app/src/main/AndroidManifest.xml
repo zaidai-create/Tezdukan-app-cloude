@@ -95,6 +95,10 @@
             </intent-filter>
         </activity>
 
+        <!-- Android 13+: asks the phone's permission when the site turns on order alerts, so web
+             push arrives as app notifications. -->
+        <activity android:name="com.google.androidbrowserhelper.trusted.NotificationPermissionRequestActivity" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="pk.tezdukan.app.fileprovider"

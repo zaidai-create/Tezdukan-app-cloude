@@ -3,7 +3,7 @@
 -- the Web Push outbox.
 begin;
 \ir helpers/setup.psql
-select plan(71);
+select plan(75);
 
 -- Fixtures -----------------------------------------------------------------------------------------
 create or replace function tests.make_product(p_alias text, p_org text, p_name text, p_trade bigint)
@@ -292,6 +292,23 @@ select tests.authenticate_as('dist_x');
 select is(
   (public.org_dashboard(tests.id('org_x')) ->> 'delivered_today_paisa')::bigint, 12000::bigint,
   'the dashboard adds up today''s deliveries'
+);
+select is(
+  (public.org_insights(tests.id('org_x')) -> 'retailers' ->> 'active')::integer, 1,
+  'insights count the dukan that ordered this week as active'
+);
+select ok(
+  (public.org_insights(tests.id('org_x')) ->> 'fill_rate')::numeric > 0,
+  'insights work out the fill rate from delivered pieces'
+);
+select is(
+  jsonb_array_length(public.org_insights(tests.id('org_x')) -> 'top_products') > 0, true,
+  'insights list the best sellers'
+);
+select tests.authenticate_as('dist_y');
+select throws_ok(
+  format($$ select public.org_insights(%L) $$, tests.id('org_x')),
+  '42501', 'not_allowed', 'another distributor cannot read the insights'
 );
 select tests.authenticate_as('ali');
 select is(tests.my_notifications('order.delivered'), 2, 'the dukandar hears about each delivery');

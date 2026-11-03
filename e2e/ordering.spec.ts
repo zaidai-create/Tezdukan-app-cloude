@@ -51,6 +51,9 @@ test.describe("ordering", () => {
 
   test("a dukandar finds a product, orders it and can cancel the order", async ({ page }) => {
     await signIn(page, phone);
+    // Home is the shop dashboard; buying stock starts from the Wholesale tab.
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await page.goto("/dukan/wholesale");
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Delivery");
     await expectAccessible(page);
 

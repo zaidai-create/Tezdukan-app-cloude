@@ -65,7 +65,9 @@
     "chat": "چیٹ",
     "support": "سپورٹ",
     "catalog": "کیٹلاگ",
-    "nearby": "قریب"
+    "nearby": "قریب",
+    "wholesale": "ہول سیل",
+    "stockOrders": "اسٹاک آرڈر"
   },
   "roles": {
     "customer": "گاہک",
@@ -710,6 +712,17 @@
       "enabled": "فون پر اطلاعات آن ہو گئیں",
       "disabled": "فون پر اطلاعات بند ہو گئیں",
       "failed": "اطلاعات آن نہیں ہو سکیں۔ دوبارہ کوشش کریں۔"
+    },
+    "prompt": {
+      "title": "آرڈر کی اطلاعات آن کریں",
+      "hint": {
+        "dukandar": "گاہک کے آرڈر کرتے ہی آواز اور اطلاع ملے گی۔",
+        "distributor": "دکانوں کے نئے آرڈر فوراً سنیں، ایپ بند ہو تب بھی۔",
+        "customer": "جانیں کب آپ کا آرڈر قبول ہوا اور راستے میں ہے۔"
+      },
+      "action": "آن کریں",
+      "blockedTitle": "اطلاعات بند ہیں",
+      "blockedHint": "فون کی Settings › Apps › TezDukan › Notifications کھول کر اجازت دیں، پھر واپس آئیں۔"
     }
   },
   "distributor": {
@@ -736,7 +749,35 @@
       "seeAll": "سب آرڈر دیکھیں",
       "noNew": "ابھی کوئی نیا آرڈر نہیں۔",
       "noNewHint": "دکان آرڈر کرتے ہی نیا آرڈر گھنٹی کے ساتھ یہاں آ جائے گا۔",
-      "ordersCount": "{count, plural, one {# آرڈر} other {# آرڈر}}"
+      "ordersCount": "{count, plural, one {# آرڈر} other {# آرڈر}}",
+      "mtdSales": "اس مہینے",
+      "upVsLast": "پچھلے مہینے سے {pct}% زیادہ",
+      "downVsLast": "پچھلے مہینے سے {pct}% کم",
+      "noCompare": "ٹیز دکان پر پہلا مہینہ",
+      "aov": "اوسط آرڈر",
+      "pipeline": "آرڈرز کی لائن",
+      "activeWeek": "اس ہفتے آرڈر کیا",
+      "newRetailers": "نئی دکانیں، 30 دن",
+      "quietCount": "7+ دن سے خاموش",
+      "fillRate": "فل ریٹ",
+      "fillRateHint": "ڈیلیور بمقابلہ آرڈر، 30 دن",
+      "topProducts": "سب سے زیادہ بکنے والے",
+      "last30": "پچھلے 30 دن",
+      "units": "{count, plural, one {# یونٹ بکا} other {# یونٹ بکے}}",
+      "byCategory": "کیٹیگری کے حساب سے سیل",
+      "runningLow": "جلد ختم ہونے والا",
+      "runningLowHint": "اس مہینے کی سیل کی رفتار سے",
+      "catalog": "اسٹاک",
+      "stockFine": "اسٹاک اگلے دو ہفتوں کے لیے کافی ہے۔",
+      "piecesLeft": "{count, plural, one {# پیس باقی} other {# پیس باقی}}",
+      "daysLeft": "{count, plural, one {# دن باقی} other {# دن باقی}}",
+      "outOfStock": "اسٹاک ختم",
+      "quietShops": "خاموش دکانیں",
+      "quietHint": "7+ دن سے کوئی آرڈر نہیں۔ ایک کال سے واپس آ جائیں گی۔",
+      "lastOrder": "آخری آرڈر {date} · {days, plural, one {# دن پہلے} other {# دن پہلے}}",
+      "callShop": "{name} کو کال کریں",
+      "whatsappShop": "{name} کو واٹس ایپ کریں",
+      "nudgeText": "السلام علیکم {name}، اس ہفتے نیا اسٹاک اور اسکیمیں آئی ہیں۔ ٹیز دکان پر آرڈر کریں، کل ڈیلیوری ہو گی۔"
     },
     "inbox": {
       "title": "آرڈر",
@@ -1254,7 +1295,7 @@
       "done": "ابھی کوئی مکمل آرڈر نہیں"
     },
     "shopEmptyHint": "قریبی گاہکوں کے آرڈر یہاں آواز اور اطلاع کے ساتھ آتے ہیں۔",
-    "newCount": "{count, plural, =0 {کوئی نیا آرڈر نہیں} one {# نیا آرڈر} other {# نئے آرڈر}}",
+    "newCount": "{count, plural, one {# نیا آرڈر} other {# نئے آرڈر}}",
     "shopCardHint": "قریبی گاہکوں کے آرڈر",
     "actions": {
       "accept": "آرڈر قبول کریں",
@@ -1292,6 +1333,46 @@
       "not_allowed": "آپ یہ آرڈر نہیں بدل سکتے۔",
       "order_not_found": "یہ آرڈر دستیاب نہیں۔",
       "generic": "کچھ غلط ہو گیا۔ دوبارہ کوشش کریں۔"
+    }
+  },
+  "shopDash": {
+    "online": "آن لائن",
+    "offline": "آف لائن",
+    "todaySales": "آج کی سیل",
+    "todayOrders": "{count, plural, one {# آرڈر} other {# آرڈر}}",
+    "delivered": "{count, plural, other {# ڈیلیور}}",
+    "weekChart": "پچھلے 7 دن کی سیل",
+    "quick": "فوری لنک",
+    "tiles": {
+      "wholesale": "مال خریدیں",
+      "orders": "آرڈر",
+      "khata": "کھاتہ",
+      "chat": "چیٹ"
+    },
+    "liveOrders": "لائیو آرڈر",
+    "newCount": "{count, plural, one {# نیا} other {# نئے}}",
+    "seeAll": "سب دیکھیں",
+    "queueEmpty": "ابھی کوئی آرڈر نہیں۔ نیا آرڈر آواز کے ساتھ یہاں آئے گا۔",
+    "queueOffline": "آپ کی دکان آف لائن ہے۔ آرڈر لینے کے لیے اکاؤنٹ میں آن کریں۔",
+    "lowStock": "کم اسٹاک",
+    "lowCount": "{count, plural, one {# چیز} other {# چیزیں}}",
+    "left": "{count, plural, other {# باقی}}",
+    "restock": "ہول سیل سے منگوائیں",
+    "khataTitle": "کھاتہ اور اسٹاک",
+    "owed": "ڈسٹری بیوٹرز کا بقایا",
+    "incoming": "راستے میں مال",
+    "incomingCount": "{count, plural, one {# آرڈر} other {# آرڈر}}",
+    "stockValue": "اسٹاک کی مالیت",
+    "products": "پروڈکٹس",
+    "viewKhata": "کھاتہ کھولیں",
+    "stockOrders": "اسٹاک آرڈر",
+    "items": "{count, plural, one {# چیز} other {# چیزیں}}",
+    "open": "کھولیں",
+    "next": {
+      "accepted": "قبول کریں",
+      "packed": "پیک ہو گیا",
+      "out_for_delivery": "روانہ کریں",
+      "delivered": "ڈیلیور ہو گیا"
     }
   }
 }

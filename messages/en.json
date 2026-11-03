@@ -65,7 +65,9 @@
     "chat": "Chat",
     "support": "Support",
     "catalog": "Catalog",
-    "nearby": "Nearby"
+    "nearby": "Nearby",
+    "wholesale": "Wholesale",
+    "stockOrders": "Stock orders"
   },
   "roles": {
     "customer": "Customer",
@@ -710,6 +712,17 @@
       "enabled": "Phone notifications are on",
       "disabled": "Phone notifications are off",
       "failed": "Couldn't turn on notifications. Try again."
+    },
+    "prompt": {
+      "title": "Turn on order alerts",
+      "hint": {
+        "dukandar": "Get a sound and a notification the moment a customer orders.",
+        "distributor": "Hear new orders from dukans instantly, even when the app is closed.",
+        "customer": "Know when your order is accepted and on the way."
+      },
+      "action": "Turn on",
+      "blockedTitle": "Notifications are blocked",
+      "blockedHint": "Open phone Settings › Apps › TezDukan › Notifications and allow them, then come back."
     }
   },
   "distributor": {
@@ -736,7 +749,35 @@
       "seeAll": "See all orders",
       "noNew": "No new orders right now.",
       "noNewHint": "New orders appear here with a chime as soon as a dukan orders.",
-      "ordersCount": "{count, plural, one {# order} other {# orders}}"
+      "ordersCount": "{count, plural, one {# order} other {# orders}}",
+      "mtdSales": "This month",
+      "upVsLast": "{pct}% up on last month",
+      "downVsLast": "{pct}% down on last month",
+      "noCompare": "First month on TezDukan",
+      "aov": "Average order",
+      "pipeline": "Order pipeline",
+      "activeWeek": "Ordered this week",
+      "newRetailers": "New dukans, 30 days",
+      "quietCount": "Quiet 7+ days",
+      "fillRate": "Fill rate",
+      "fillRateHint": "Delivered vs ordered, 30 days",
+      "topProducts": "Best sellers",
+      "last30": "Last 30 days",
+      "units": "{count, plural, one {# unit sold} other {# units sold}}",
+      "byCategory": "Sales by category",
+      "runningLow": "Running out soon",
+      "runningLowHint": "At this month's selling speed",
+      "catalog": "Stock",
+      "stockFine": "Stock covers the next two weeks.",
+      "piecesLeft": "{count, plural, one {# piece left} other {# pieces left}}",
+      "daysLeft": "{count, plural, one {# day left} other {# days left}}",
+      "outOfStock": "Out of stock",
+      "quietShops": "Dukans gone quiet",
+      "quietHint": "No order in 7+ days. A quick call brings them back.",
+      "lastOrder": "Last order {date} · {days, plural, one {# day ago} other {# days ago}}",
+      "callShop": "Call {name}",
+      "whatsappShop": "WhatsApp {name}",
+      "nudgeText": "Assalam-o-Alaikum {name}, we have fresh stock and schemes this week. Order on TezDukan and we deliver tomorrow."
     },
     "inbox": {
       "title": "Orders",
@@ -1254,7 +1295,7 @@
       "done": "No finished orders yet"
     },
     "shopEmptyHint": "Orders from customers near you appear here, with a sound and a notification.",
-    "newCount": "{count, plural, =0 {No new orders} one {# new order} other {# new orders}}",
+    "newCount": "{count, plural, one {# new order} other {# new orders}}",
     "shopCardHint": "Orders from customers near you",
     "actions": {
       "accept": "Accept order",
@@ -1292,6 +1333,46 @@
       "not_allowed": "You can't change this order.",
       "order_not_found": "This order isn't available.",
       "generic": "Something went wrong. Please try again."
+    }
+  },
+  "shopDash": {
+    "online": "Online",
+    "offline": "Offline",
+    "todaySales": "Today's sales",
+    "todayOrders": "{count, plural, one {# order} other {# orders}}",
+    "delivered": "{count, plural, other {# delivered}}",
+    "weekChart": "Sales for the last 7 days",
+    "quick": "Quick links",
+    "tiles": {
+      "wholesale": "Buy stock",
+      "orders": "Orders",
+      "khata": "Khata",
+      "chat": "Chat"
+    },
+    "liveOrders": "Live orders",
+    "newCount": "{count, plural, one {# new} other {# new}}",
+    "seeAll": "See all",
+    "queueEmpty": "No orders right now. New orders show up here with a sound.",
+    "queueOffline": "Your shop is offline. Turn it on in Account to get orders.",
+    "lowStock": "Low stock",
+    "lowCount": "{count, plural, one {# item} other {# items}}",
+    "left": "{count, plural, other {# left}}",
+    "restock": "Restock from wholesale",
+    "khataTitle": "Khata and stock",
+    "owed": "You owe distributors",
+    "incoming": "Stock on the way",
+    "incomingCount": "{count, plural, one {# order} other {# orders}}",
+    "stockValue": "Stock value",
+    "products": "Products",
+    "viewKhata": "Open khata",
+    "stockOrders": "Stock orders",
+    "items": "{count, plural, one {# item} other {# items}}",
+    "open": "Open",
+    "next": {
+      "accepted": "Accept",
+      "packed": "Mark packed",
+      "out_for_delivery": "Send out",
+      "delivered": "Delivered"
     }
   }
 }

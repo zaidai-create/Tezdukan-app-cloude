@@ -53,6 +53,7 @@ async function orderId(page: Page, number: string) {
 }
 
 const pages: { name: string; path: string; variants: Variant[] }[] = [
+  { name: "dukan-wholesale", path: "/dukan/wholesale", variants: [english] },
   { name: "dukan-categories", path: "/dukan/categories", variants: [english] },
   { name: "dukan-category", path: "/dukan/categories/tea-coffee", variants: [english] },
   { name: "dukan-search", path: "/dukan/search?q=tapal", variants: [english] },

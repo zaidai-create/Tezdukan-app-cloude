@@ -33,7 +33,9 @@ export type NavLabel =
   | "trips"
   | "settlement"
   | "overview"
-  | "verifications";
+  | "verifications"
+  | "wholesale"
+  | "stockOrders";
 
 /** Icon names, resolved to Lucide components in client code (components cannot be passed
  * from the server shell to client components as props). */
@@ -52,7 +54,9 @@ export type NavIcon =
   | "dashboard"
   | "beat"
   | "today"
-  | "admin";
+  | "admin"
+  | "wholesale"
+  | "stockOrders";
 
 export type NavItem = { href: string; label: NavLabel; icon: NavIcon; exact?: boolean };
 export type NavGroup = { label: "main" | "account"; items: NavItem[] };
@@ -66,11 +70,12 @@ export const mobileTabs: Partial<Record<AppRole, NavItem[]>> = {
     { href: "/cart", label: "cart", icon: "cart" },
     { href: "/account", label: "account", icon: "account" },
   ],
+  // Home is the shop's live dashboard; buying stock lives under Wholesale.
   dukandar: [
     { href: "/dukan", label: "home", icon: "home", exact: true },
-    { href: "/dukan/categories", label: "categories", icon: "categories" },
-    { href: "/dukan/cart", label: "cart", icon: "cart" },
-    { href: "/dukan/orders", label: "orders", icon: "orders" },
+    { href: "/dukan/customer-orders", label: "orders", icon: "orders" },
+    { href: "/dukan/wholesale", label: "wholesale", icon: "wholesale" },
+    { href: "/dukan/ledger", label: "ledger", icon: "ledger" },
     { href: "/dukan/account", label: "account", icon: "account" },
   ],
   booker: [
@@ -135,9 +140,11 @@ export const sidebarGroups: Partial<Record<AppRole, NavGroup[]>> = {
       label: "main",
       items: [
         { href: "/dukan", label: "home", icon: "home", exact: true },
+        { href: "/dukan/customer-orders", label: "orders", icon: "orders" },
+        { href: "/dukan/wholesale", label: "wholesale", icon: "wholesale" },
         { href: "/dukan/categories", label: "categories", icon: "categories" },
         { href: "/dukan/cart", label: "cart", icon: "cart" },
-        { href: "/dukan/orders", label: "orders", icon: "orders" },
+        { href: "/dukan/orders", label: "stockOrders", icon: "stockOrders" },
         { href: "/dukan/ledger", label: "ledger", icon: "ledger" },
         { href: "/dukan/distributors", label: "distributors", icon: "dukan" },
         { href: "/dukan/chat", label: "chat", icon: "chat" },

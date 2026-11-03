@@ -29,6 +29,7 @@ describe("message catalogues", () => {
     for (const key of Object.keys(flatten(sd))) expect(base).toHaveProperty([key]);
   });
 
+  // Each case formats the whole catalogue, which takes seconds on a busy machine.
   it.each([
     ["en", en],
     ["ur", ur],
@@ -45,23 +46,30 @@ describe("message catalogues", () => {
     ["en", en],
     ["ur", ur],
     ["ur-Latn", urLatn],
-  ] as const)("%s messages are valid ICU and keep their placeholders", (locale, messages) => {
-    const t = createTranslator({
-      locale,
-      messages: messages as Json,
-      onError: (error) => {
-        throw error;
-      },
-    });
-    for (const [key, english] of Object.entries(base)) {
-      const placeholders = [...english.matchAll(/\{(\w+)/g)].map((m) => m[1] as string);
-      const values = Object.fromEntries(
-        placeholders.map((p) => [p, p === "count" || p === "seconds" || p === "percent" ? 3 : "x"]),
-      );
-      expect(() => t(key as never, values as never), `${locale}:${key}`).not.toThrow();
-      const own = flatten(messages as Json)[key] ?? "";
-      for (const placeholder of placeholders)
-        expect(own, `${locale}:${key}`).toContain(`{${placeholder}`);
-    }
-  });
+  ] as const)(
+    "%s messages are valid ICU and keep their placeholders",
+    (locale, messages) => {
+      const t = createTranslator({
+        locale,
+        messages: messages as Json,
+        onError: (error) => {
+          throw error;
+        },
+      });
+      for (const [key, english] of Object.entries(base)) {
+        const placeholders = [...english.matchAll(/\{(\w+)/g)].map((m) => m[1] as string);
+        const values = Object.fromEntries(
+          placeholders.map((p) => [
+            p,
+            p === "count" || p === "seconds" || p === "percent" ? 3 : "x",
+          ]),
+        );
+        expect(() => t(key as never, values as never), `${locale}:${key}`).not.toThrow();
+        const own = flatten(messages as Json)[key] ?? "";
+        for (const placeholder of placeholders)
+          expect(own, `${locale}:${key}`).toContain(`{${placeholder}`);
+      }
+    },
+    30_000,
+  );
 });

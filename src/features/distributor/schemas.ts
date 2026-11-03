@@ -173,6 +173,54 @@ export const dashboardSchema = z.object({
 });
 export type Dashboard = z.infer<typeof dashboardSchema>;
 
+export const insightsSchema = z.object({
+  mtd: z.object({ sales_paisa: paisa, orders: z.number().int(), prev_sales_paisa: paisa }),
+  pipeline: z.object({
+    new: z.number().int(),
+    confirmed: z.number().int(),
+    picking: z.number().int(),
+    packed: z.number().int(),
+    dispatched: z.number().int(),
+  }),
+  fill_rate: z.number().nullable(),
+  retailers: z.object({
+    total: z.number().int(),
+    active: z.number().int(),
+    new: z.number().int(),
+    inactive: z.number().int(),
+  }),
+  inactive_shops: z.array(
+    z.object({
+      id,
+      name: z.string(),
+      phone: z.string().nullable(),
+      last_order_at: timestamp,
+      days_quiet: z.number().int(),
+    }),
+  ),
+  top_products: z.array(
+    z.object({
+      id,
+      name: z.string(),
+      image_path: z.string().nullable(),
+      units: z.number().int(),
+      value_paisa: paisa,
+    }),
+  ),
+  categories: z.array(
+    z.object({ id, name: z.string(), name_ur: z.string().nullable(), value_paisa: paisa }),
+  ),
+  running_low: z.array(
+    z.object({
+      id,
+      name: z.string(),
+      available_base_qty: z.number().int(),
+      days_left: z.number().int(),
+    }),
+  ),
+});
+export type Insights = z.infer<typeof insightsSchema>;
+
 export const statusResultSchema = z.object({
   id,
   status: orderStatusSchema,

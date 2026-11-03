@@ -8348,6 +8348,7 @@ export type Database = {
         Returns: Json;
       };
       org_dashboard: { Args: { p_org_id: string }; Returns: Json };
+      org_insights: { Args: { p_org_id: string }; Returns: Json };
       org_order_detail: { Args: { p_order_id: string }; Returns: Json };
       org_order_inbox: {
         Args: {
@@ -8809,6 +8810,7 @@ export type Database = {
           isSetofReturn: false;
         };
       };
+      shop_dashboard: { Args: { p_shop_id: string }; Returns: Json };
       shop_distributors: {
         Args: { p_shop_id: string };
         Returns: {
