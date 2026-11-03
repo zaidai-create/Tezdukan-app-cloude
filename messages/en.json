@@ -1150,7 +1150,7 @@
     }
   },
   "legal": {
-    "updated": "Last updated 2 November 2026",
+    "updated": "Last updated 03/11/2026",
     "back": "Back",
     "terms": {
       "title": "Terms and conditions",
@@ -1179,7 +1179,7 @@
       "title": "Privacy policy",
       "s1": {
         "title": "What we collect",
-        "body": "Your name, mobile number, dukan or business details, location you choose to share, orders, payments and messages you send in the app."
+        "body": "Your name, mobile number, email (only if you sign in with Google), dukan or business details, the location you choose to share, orders, payments and messages you send in the app. When you use the mic, your voice clip is turned into text and not kept. The Android app sends crash reports (phone model, Android version and the error) so we can fix problems."
       },
       "s2": {
         "title": "Why we use it",
@@ -1187,11 +1187,11 @@
       },
       "s3": {
         "title": "Who can see it",
-        "body": "Distributors you order from see your dukan name, phone and address. We never sell your data. Service providers (hosting, SMS) process it only for us."
+        "body": "The dukan or distributor you order from sees your name, phone and delivery address for that order. We never sell your data. Service providers process it only for us: Supabase (database), Vercel (hosting), SMS providers, and Google Gemini, which answers Munshi and turns voice into text."
       },
       "s4": {
         "title": "Your choices",
-        "body": "You can turn phone notifications off, change your details, or ask us to delete your account and data through Help and support in the app."
+        "body": "You can turn phone notifications off and change your details at any time. To delete your account and data, open Account → Delete my account, or visit tezdukan.vercel.app/data-deletion. We finish within 30 days."
       },
       "s5": {
         "title": "Security",

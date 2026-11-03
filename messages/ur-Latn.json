@@ -1150,7 +1150,7 @@
     }
   },
   "legal": {
-    "updated": "Aakhri tabdeeli 2 November 2026",
+    "updated": "Aakhri tabdeeli 03/11/2026",
     "back": "Wapas",
     "terms": {
       "title": "Terms aur conditions",
@@ -1179,7 +1179,7 @@
       "title": "Privacy policy",
       "s1": {
         "title": "Hum kya jama karte hain",
-        "body": "Aap ka naam, mobile number, dukan ya business ki details, aap ki share ki gayi location, orders, payments aur app mein bheje gaye messages."
+        "body": "Aap ka naam, mobile number, email (sirf Google se sign in par), dukan ya karobar ki tafseel, jo location aap share karein, orders, payments aur app mein bheje gaye messages. Mic istemal karne par aap ki awaaz ko likhai mein badla jata hai aur mehfooz nahi kiya jata. Android app kharabi ki report (phone model, Android version aur kharabi) bhejti hai taake hum masle theek kar sakein."
       },
       "s2": {
         "title": "Kyun use karte hain",
@@ -1187,11 +1187,11 @@
       },
       "s3": {
         "title": "Kaun dekh sakta hai",
-        "body": "Jin distributors se aap order karte hain woh aap ki dukan ka naam, phone aur pata dekhte hain. Hum aap ka data kabhi nahi bechte. Hosting aur SMS companies sirf hamare liye ise use karti hain."
+        "body": "Jis dukan ya distributor se aap order karein, wo us order ke liye aap ka naam, phone aur delivery ka pata dekhta hai. Hum aap ka data kabhi nahi bechte. Service providers sirf hamare liye kaam karte hain: Supabase (database), Vercel (hosting), SMS service, aur Google Gemini jo Munshi ke jawab deta hai aur awaaz ko likhai mein badalta hai."
       },
       "s4": {
         "title": "Aap ke ikhtiyarat",
-        "body": "Aap phone notifications band kar sakte hain, details badal sakte hain, ya app mein Madad ke zariye account aur data delete karwa sakte hain."
+        "body": "Aap kisi bhi waqt phone notifications band kar sakte hain aur apni tafseel badal sakte hain. Account aur data delete karne ke liye Account → Mera account delete karein kholein, ya tezdukan.vercel.app/data-deletion par jayein. Hum 30 din ke andar mukammal karte hain."
       },
       "s5": {
         "title": "Hifazat",
