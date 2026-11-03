@@ -4,6 +4,19 @@ All notable changes, newest first. Dates are Asia/Karachi.
 
 ## Unreleased
 
+### Munshi answers with AI (2026-11-03)
+
+- Munshi now answers questions and does simple jobs with Google's Gemini (official API, a free
+  Google AI Studio key is enough). Dukandars can ask for today's sales and new orders, find a
+  product, change its price or stock, add products and open a screen ("Products wala page
+  kholo" gives a button). Customers can ask about nearby dukans, products and their orders;
+  distributors about today's numbers and pending orders.
+- Replies are short plain text in the person's language, with a speaker button that reads them
+  aloud. Every change runs with the person's own permissions.
+- Google's free tier is often busy, so Munshi tries several Gemini models in turn and says
+  "busy, try again in a minute" when all of them are.
+- The same key also turns on better voice recognition (Gemini hears Roman Urdu well).
+
 ### New posters (2026-11-03)
 
 - New poster designs made from the app's real screens in tilted 3D phones, with floating

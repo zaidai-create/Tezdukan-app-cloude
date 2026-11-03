@@ -16,8 +16,24 @@ const aiEnvSchema = z.object({
 export type AiConfig = z.infer<typeof aiEnvSchema> & { configured: boolean };
 
 export function getAiConfig(): AiConfig {
+  // The chosen provider if it has a key; otherwise whichever provider does. A Gemini key alone
+  // (free from Google AI Studio) powers Munshi, the support assistant and voice.
+  const chosen = process.env.AI_PROVIDER || undefined;
+  const hasKey = (name: string | undefined) =>
+    name === "anthropic"
+      ? Boolean(process.env.ANTHROPIC_API_KEY)
+      : name === "gemini"
+        ? Boolean(process.env.GEMINI_API_KEY)
+        : false;
+  const provider = hasKey(chosen)
+    ? chosen
+    : process.env.GEMINI_API_KEY
+      ? "gemini"
+      : process.env.ANTHROPIC_API_KEY
+        ? "anthropic"
+        : chosen;
   const env = aiEnvSchema.parse({
-    AI_PROVIDER: process.env.AI_PROVIDER || undefined,
+    AI_PROVIDER: provider,
     AI_MODEL_AGENT: process.env.AI_MODEL_AGENT || undefined,
     AI_MODEL_FAST: process.env.AI_MODEL_FAST || undefined,
     ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY || undefined,

@@ -1,9 +1,10 @@
 "use client";
 
 import { cn } from "cn";
-import { ArrowUp, Mic, Square, X } from "lucide-react";
+import { ArrowUp, ChevronRight, Mic, Square, Volume2, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
+import { z } from "zod";
 import { SpeedLines } from "@/components/brand/speed-lines";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,13 +21,28 @@ import {
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { useVoiceInput } from "@/hooks/use-voice-input";
 import { speechLang } from "@/i18n/locales";
-import { usePathname } from "@/i18n/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
 import type { AppRole } from "@/lib/auth/roles";
 import { useMunshi } from "./munshi-store";
 
 type NewMessage =
   | { from: "user"; text: string }
-  | { from: "munshi"; kind: "notice" | "error"; text: string; sandbox?: boolean };
+  | { from: "munshi"; kind: "notice" | "error"; text: string; sandbox?: boolean }
+  | { from: "munshi"; kind: "reply"; text: string; link: { href: string; label: string } | null };
+
+const replySchema = z.object({
+  reply: z.string(),
+  link: z.object({ href: z.string().startsWith("/"), label: z.string() }).nullable(),
+});
+
+/** Reads a reply aloud for people who read slowly (the phone's own voice, no network). */
+function speak(text: string, lang: string) {
+  if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = lang;
+  window.speechSynthesis.speak(utterance);
+}
 type Message = NewMessage & { id: number };
 
 /** Three role-specific example commands (message keys munshi.suggestions.<role>.s1–s3). */
@@ -48,6 +64,7 @@ function MunshiPanel({
   const t = useTranslations("munshi");
   const locale = useLocale();
   const pathname = usePathname();
+  const { setOpen } = useMunshi();
   const [input, setInput] = useState(draft);
   const [messages, setMessages] = useState<Message[]>([]);
   const [sending, setSending] = useState(false);
@@ -60,6 +77,11 @@ function MunshiPanel({
   const send = async (raw: string) => {
     const text = raw.trim();
     if (!text || sending) return;
+    // The last few turns, so Munshi can follow "and the other one?" style follow-ups.
+    const history = messages
+      .filter((m) => m.from === "user" || m.kind === "reply")
+      .slice(-8)
+      .map((m) => ({ role: m.from === "user" ? "user" : "munshi", text: m.text }));
     push({ from: "user", text });
     setInput("");
     setSending(true);
@@ -67,12 +89,18 @@ function MunshiPanel({
       const response = await fetch("/api/munshi", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text, locale, screen: pathname }),
+        body: JSON.stringify({ message: text, locale, screen: pathname, history }),
       });
-      const body = (await response.json().catch(() => ({}))) as { error?: string };
-      if (body.error === "ai_not_configured") {
+      const body: unknown = await response.json().catch(() => ({}));
+      const error = z.object({ error: z.string() }).safeParse(body);
+      const answer = replySchema.safeParse(body);
+      if (response.ok && answer.success) {
+        push({ from: "munshi", kind: "reply", text: answer.data.reply, link: answer.data.link });
+      } else if (error.success && error.data.error === "ai_not_configured") {
         push({ from: "munshi", kind: "notice", text: t("notConfigured"), sandbox: true });
-      } else if (!response.ok) {
+      } else if (error.success && error.data.error === "busy") {
+        push({ from: "munshi", kind: "error", text: t("busy") });
+      } else {
         push({ from: "munshi", kind: "error", text: t("unavailable") });
       }
     } catch {
@@ -141,12 +169,34 @@ function MunshiPanel({
                     : "bg-subtle text-ink",
                 )}
               >
-                {message.sandbox ? (
+                {message.kind !== "reply" && message.sandbox ? (
                   <Badge variant="offer" size="sm">
                     {t("sandbox")}
                   </Badge>
                 ) : null}
-                <p>{message.text}</p>
+                <p className="whitespace-pre-line">{message.text}</p>
+                {message.kind === "reply" ? (
+                  <div className="flex flex-wrap items-center gap-2 pt-1">
+                    {message.link ? (
+                      <Link
+                        href={message.link.href}
+                        onClick={() => setOpen(false)}
+                        className="inline-flex min-h-10 items-center gap-1 rounded-full bg-action px-4 text-sm font-semibold text-on-action"
+                      >
+                        {message.link.label}
+                        <ChevronRight aria-hidden className="size-4 rtl:-scale-x-100" />
+                      </Link>
+                    ) : null}
+                    <button
+                      type="button"
+                      onClick={() => speak(message.text, speechLang[locale])}
+                      aria-label={t("readAloud")}
+                      className="inline-flex size-10 items-center justify-center rounded-full bg-surface text-primary-strong shadow-card"
+                    >
+                      <Volume2 aria-hidden className="size-5" />
+                    </button>
+                  </div>
+                ) : null}
               </div>
             ),
           )}

@@ -317,7 +317,9 @@
     "unavailable": "Munshi is not available right now. Please use the app screens, everything works as normal.",
     "offline": "You are offline. Munshi needs the internet; your screens still work.",
     "micDenied": "Microphone is blocked. Allow it in your browser settings, or type instead.",
-    "transcribing": "Getting what you said…"
+    "transcribing": "Getting what you said…",
+    "busy": "Munshi is very busy right now. Please try again in a minute.",
+    "readAloud": "Read this aloud"
   },
   "pwa": {
     "installTitle": "Install TezDukan",

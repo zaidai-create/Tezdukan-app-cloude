@@ -13,12 +13,14 @@ const sttEnvSchema = z.object({
   STT_API_KEY: z.string().optional(),
   STT_MODEL: z.string().min(1).default("whisper-large-v3-turbo"),
   GEMINI_API_KEY: z.string().optional(),
-  GEMINI_MODEL_STT: z.string().min(1).default("gemini-2.5-flash"),
+  GEMINI_MODEL_STT: z.string().min(1).default("gemini-3.5-flash,gemini-3.5-flash-lite"),
 });
 
 function sttEnv() {
   return sttEnvSchema.parse({
-    AI_STT_PROVIDER: process.env.AI_STT_PROVIDER || undefined,
+    // A Gemini key alone also turns on server speech-to-text.
+    AI_STT_PROVIDER:
+      process.env.AI_STT_PROVIDER || (process.env.GEMINI_API_KEY ? "gemini" : undefined),
     STT_API_BASE_URL: process.env.STT_API_BASE_URL || undefined,
     STT_API_KEY: process.env.STT_API_KEY || undefined,
     STT_MODEL: process.env.STT_MODEL || undefined,
@@ -46,7 +48,11 @@ const geminiSchema = z.object({
   candidates: z
     .array(
       z.object({
-        content: z.object({ parts: z.array(z.object({ text: z.string().optional() })) }),
+        content: z.object({
+          parts: z.array(
+            z.object({ text: z.string().optional(), thought: z.boolean().optional() }),
+          ),
+        }),
       }),
     )
     .min(1),
@@ -84,29 +90,43 @@ export async function transcribe(audio: Blob, locale: string): Promise<string> {
       (urduScript ? "Urdu script" : "Roman Urdu (Latin letters), English words as English") +
       ", digits as digits. Reply with the transcription only. Likely words: " +
       VOCABULARY;
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${env.GEMINI_MODEL_STT}:generateContent`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-goog-api-key": env.GEMINI_API_KEY ?? "" },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                { text: instruction },
-                { inline_data: { mime_type: audio.type || "audio/webm", data: base64 } },
-              ],
-            },
+    const body = JSON.stringify({
+      contents: [
+        {
+          parts: [
+            { text: instruction },
+            { inline_data: { mime_type: audio.type || "audio/webm", data: base64 } },
           ],
-          generationConfig: { temperature: 0 },
-        }),
-        signal: AbortSignal.timeout(20_000),
-      },
-    );
+        },
+      ],
+      generationConfig: { temperature: 0 },
+    });
+    // Busy (503), rate-limited or retired models fall through to the next one in the list.
+    let response: Response | null = null;
+    for (const model of env.GEMINI_MODEL_STT.split(",")
+      .map((name) => name.trim())
+      .filter(Boolean)) {
+      response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-goog-api-key": env.GEMINI_API_KEY ?? "",
+          },
+          body,
+          signal: AbortSignal.timeout(20_000),
+        },
+      );
+      if (response.ok || ![404, 429, 500, 503].includes(response.status)) break;
+    }
+    if (!response) throw new Error("stt_no_model");
     if (!response.ok) throw new Error(`stt_${response.status}`);
     const parsed = geminiSchema.parse(await response.json());
     return (
-      parsed.candidates[0]?.content.parts.map((part) => part.text ?? "").join("") ?? ""
+      parsed.candidates[0]?.content.parts
+        .map((part) => (part.thought ? "" : (part.text ?? "")))
+        .join("") ?? ""
     ).trim();
   }
 

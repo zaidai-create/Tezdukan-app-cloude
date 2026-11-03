@@ -317,7 +317,9 @@
     "unavailable": "Munshi abhi dastiyab nahi. App ke safhat istemal karein, sab kuch maamool ke mutabiq kaam kar raha hai.",
     "offline": "Aap offline hain. Munshi ko internet chahiye, baqi safhat kaam kar rahe hain.",
     "micDenied": "Mic band hai. Browser ki setting mein ijazat dein ya likh kar poochein.",
-    "transcribing": "Aap ki baat samajh raha hoon…"
+    "transcribing": "Aap ki baat samajh raha hoon…",
+    "busy": "Munshi abhi bohat masroof hai. Ek minute baad dobara koshish karein.",
+    "readAloud": "Ye parh kar sunayein"
   },
   "pwa": {
     "installTitle": "TezDukan install karein",
