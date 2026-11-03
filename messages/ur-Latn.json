@@ -322,7 +322,11 @@
     "installBody": "App ki tarah kholein, kam internet par bhi.",
     "install": "Install karein",
     "notNow": "Abhi nahi",
-    "iosHint": "Share dabayein, phir Add to Home Screen."
+    "iosHint": "Share dabayein, phir Add to Home Screen.",
+    "updateTitle": "TezDukan ki nayi app aa gayi",
+    "updateBody": "Version {version} tez khulta hai aur order alert deta hai. Isi app ke upar install karein, aap sign in rahenge.",
+    "update": "Update download karein",
+    "close": "Band karein"
   },
   "home": {
     "greeting": "Assalam-o-Alaikum",

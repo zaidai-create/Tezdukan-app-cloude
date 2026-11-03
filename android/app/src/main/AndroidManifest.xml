@@ -3,6 +3,8 @@
 
     <!-- Android 13+: order and chat alerts from the site show as app notifications. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Only to send crash reports; the app itself runs in the browser engine. -->
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <queries>
         <intent>

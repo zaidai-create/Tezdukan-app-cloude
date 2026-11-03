@@ -322,7 +322,11 @@
     "installBody": "Open it like an app, even on slow internet.",
     "install": "Install",
     "notNow": "Not now",
-    "iosHint": "Tap Share, then Add to Home Screen."
+    "iosHint": "Tap Share, then Add to Home Screen.",
+    "updateTitle": "New TezDukan app ready",
+    "updateBody": "Version {version} opens faster and brings order alerts. Install it over this one; you stay signed in.",
+    "update": "Download update",
+    "close": "Close"
   },
   "home": {
     "greeting": "Assalam-o-Alaikum",

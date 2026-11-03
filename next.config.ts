@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 import { withSerwist } from "@serwist/turbopack";
+import { androidRelease } from "./src/lib/app-release";
 
 const supabaseUrl = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "http://127.0.0.1:54321");
 const supabaseIsLocal = ["127.0.0.1", "localhost"].includes(supabaseUrl.hostname);
@@ -51,6 +52,12 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
+  },
+  // The QR code and old links point at the unversioned name; send them to the newest APK.
+  async redirects() {
+    return [
+      { source: "/download/TezDukan.apk", destination: androidRelease.path, permanent: false },
+    ];
   },
 };
 

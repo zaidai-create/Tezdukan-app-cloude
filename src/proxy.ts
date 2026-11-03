@@ -1,6 +1,7 @@
 import createIntlMiddleware from "next-intl/middleware";
 import { NextResponse, type NextRequest } from "next/server";
 import { routing } from "@/i18n/routing";
+import { ANDROID_APP_COOKIE } from "@/lib/app-release";
 import {
   CONTEXT_COOKIE,
   isAuthPath,
@@ -20,6 +21,21 @@ const CACHE_HEADERS = ["cache-control", "expires", "pragma"] as const;
  * decides where people land.
  */
 export default async function proxy(request: NextRequest) {
+  const response = await route(request);
+  // The Android app opens the site with ?app=<versionCode>. Redirects below drop the query,
+  // so keep it in a cookie the update prompt can read on any page.
+  const app = request.nextUrl.searchParams.get("app");
+  if (app && /^\d{1,4}$/.test(app)) {
+    response.cookies.set(ANDROID_APP_COOKIE, app, {
+      path: "/",
+      maxAge: 60 * 60 * 24 * 365,
+      sameSite: "lax",
+    });
+  }
+  return response;
+}
+
+async function route(request: NextRequest) {
   const response = handleI18n(request);
   if (response.headers.has("location")) return response;
 

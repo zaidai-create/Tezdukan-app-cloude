@@ -25,6 +25,7 @@ android {
         versionName = providers.gradleProperty("versionName").get()
 
         resValue("string", "launch_url", "https://$twaHost/")
+        resValue("string", "crash_url", "https://$twaHost/api/app-crash")
         resValue("string", "asset_statements", assetStatements)
         manifestPlaceholders["hostName"] = twaHost
     }

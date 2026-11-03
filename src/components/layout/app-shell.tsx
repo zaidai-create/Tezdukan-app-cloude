@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { Suspense, type ReactNode } from "react";
 import { MunshiFab } from "@/components/munshi/munshi-fab";
 import { MunshiSheet } from "@/components/munshi/munshi-sheet";
+import { AppUpdatePrompt } from "@/components/pwa/app-update-prompt";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
 import { OfflineBanner } from "@/components/states/offline-banner";
 import type { AppRole } from "@/lib/auth/roles";
@@ -67,6 +68,7 @@ async function AppShell({ role, children }: { role: AppRole; children: ReactNode
         <MunshiSheet role={role} />
       </Suspense>
       <InstallPrompt />
+      <AppUpdatePrompt />
     </div>
   );
 }
