@@ -1269,10 +1269,42 @@
       "addMoreForFree": "Add {amount} more for free delivery",
       "freeUnlocked": "Free delivery unlocked",
       "belowMin": "Minimum order is {amount}. Add {short} more.",
-      "address": "Delivery address",
-      "addressPlaceholder": "House, street, area",
+      "address": "House and street",
+      "addressPlaceholder": "e.g. House 5, Street 2",
       "placeOrder": "Place order · {total}",
-      "addressNeeded": "Add your delivery address to order."
+      "addressNeeded": "Add your delivery address to order.",
+      "itemsCount": "{count, plural, one {# item} other {# items}}",
+      "multiShop": "Each dukan gets its own order and bill.",
+      "addMore": "Add more",
+      "addMoreToOrder": "Add {amount} more to order",
+      "addressTitle": "Deliver to",
+      "change": "Change",
+      "addNew": "Add a new address",
+      "savedTitle": "Your addresses",
+      "saveAddress": "Save address",
+      "addressSaved": "Address saved",
+      "labelLabel": "Save as",
+      "labels": {
+        "Home": "Home",
+        "Work": "Work",
+        "Other": "Other"
+      },
+      "areaLabel": "Area or landmark (optional)",
+      "areaPlaceholder": "e.g. Latifabad Unit 6, near the masjid",
+      "useLocation": "Use my current location",
+      "locationAdded": "Location added",
+      "locationFailed": "Could not get your location. Type the address instead.",
+      "instructionsTitle": "Delivery instructions",
+      "instructions": {
+        "callOnArrival": "Call when you arrive",
+        "ringBell": "Ring the bell",
+        "leaveAtDoor": "Leave at the door",
+        "noBell": "Don't ring the bell"
+      },
+      "notePlaceholder": "Note for the dukan (optional)",
+      "paymentTitle": "Payment",
+      "codTitle": "Cash on delivery",
+      "codHint": "Pay in cash when your order arrives."
     }
   },
   "customerOrders": {

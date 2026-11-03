@@ -1269,10 +1269,42 @@
       "addMoreForFree": "Free delivery ke liye {amount} aur add karein",
       "freeUnlocked": "Free delivery mil gayi",
       "belowMin": "Kam az kam order {amount} hai. {short} aur add karein.",
-      "address": "Delivery ka pata",
-      "addressPlaceholder": "Ghar, gali, area",
+      "address": "Makaan aur gali",
+      "addressPlaceholder": "Maslan Makaan 5, Gali 2",
       "placeOrder": "Order karein · {total}",
-      "addressNeeded": "Order ke liye delivery ka pata likhein."
+      "addressNeeded": "Order ke liye delivery ka pata likhein.",
+      "itemsCount": "{count, plural, one {# cheez} other {# cheezein}}",
+      "multiShop": "Har dukan ka alag order aur alag bill.",
+      "addMore": "Aur add karein",
+      "addMoreToOrder": "Order ke liye {amount} aur add karein",
+      "addressTitle": "Yahan pohanchayein",
+      "change": "Badlein",
+      "addNew": "Naya pata add karein",
+      "savedTitle": "Aap ke pate",
+      "saveAddress": "Pata save karein",
+      "addressSaved": "Pata save ho gaya",
+      "labelLabel": "Is naam se save karein",
+      "labels": {
+        "Home": "Ghar",
+        "Work": "Daftar",
+        "Other": "Doosra"
+      },
+      "areaLabel": "Ilaqa ya nishani (ikhtiyari)",
+      "areaPlaceholder": "Maslan Latifabad Unit 6, masjid ke paas",
+      "useLocation": "Meri maujooda location lein",
+      "locationAdded": "Location add ho gayi",
+      "locationFailed": "Location nahi mil saki. Pata likh dein.",
+      "instructionsTitle": "Delivery ki hidayaat",
+      "instructions": {
+        "callOnArrival": "Pohanch kar call karein",
+        "ringBell": "Ghanti bajayein",
+        "leaveAtDoor": "Darwaze par rakh dein",
+        "noBell": "Ghanti na bajayein"
+      },
+      "notePlaceholder": "Dukan ke liye note (ikhtiyari)",
+      "paymentTitle": "Adaigi",
+      "codTitle": "Delivery par cash",
+      "codHint": "Order pohanchne par cash ada karein."
     }
   },
   "customerOrders": {

@@ -45,10 +45,14 @@ test("a shopper orders in the app and the dukandar accepts it", async ({
   await shopper.getByRole("link", { name: /View cart/i }).click();
 
   await expect(shopper).toHaveURL(/\/cart$/);
-  await shopper.getByLabel(storefront.cart.address).fill("House 5, Street 2, Latifabad Unit 6");
+  // The demo shopper has a saved address, so checkout shows it instead of empty fields.
+  await expect(shopper.getByText(storefront.cart.addressTitle)).toBeVisible();
+  await shopper.getByRole("button", { name: storefront.cart.instructions.callOnArrival }).click();
   await shopper.getByRole("button", { name: /^Place order/ }).click();
   await expect(shopper).toHaveURL(/\/orders\/[0-9a-f-]+\?placed=1$/, { timeout: 20_000 });
-  await expect(shopper.getByText(customerOrders.placedTitle)).toBeVisible();
+  // The "Order placed!" moment, then the tracking screen underneath.
+  await expect(shopper.getByText(customerOrders.celebrate.title)).toBeVisible();
+  await shopper.getByRole("button", { name: customerOrders.celebrate.track }).click();
   const orderNumber = (await shopper.locator("header p.num").first().textContent())?.trim() ?? "";
   expect(orderNumber).toMatch(/^C-\d{6}$/);
 

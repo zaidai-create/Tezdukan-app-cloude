@@ -25,16 +25,26 @@ const cartLineSchema = z.object({
 });
 export type CartLine = z.infer<typeof cartLineSchema>;
 
+export const deliveryInstructions = ["callOnArrival", "ringBell", "leaveAtDoor", "noBell"] as const;
+export type DeliveryInstruction = (typeof deliveryInstructions)[number];
+
 const storedSchema = z.object({
   lines: z.array(cartLineSchema).catch([]),
   address: z.string().max(300).catch(""),
+  addressExtra: z.string().max(200).catch(""),
+  addressLabel: z.enum(["Home", "Work", "Other"]).catch("Home"),
+  addressId: z.uuid().nullable().catch(null),
+  coords: z.object({ lat: z.number(), lng: z.number() }).nullable().catch(null),
+  instructions: z.array(z.enum(deliveryInstructions)).catch([]),
+  note: z.string().max(200).catch(""),
 });
+type Stored = z.infer<typeof storedSchema>;
 
-type CartState = {
-  lines: CartLine[];
-  address: string;
+type CartState = Stored & {
   setQuantity: (product: StorefrontProduct, quantity: number) => void;
   setAddress: (address: string) => void;
+  setDelivery: (patch: Partial<Omit<Stored, "lines">>) => void;
+  toggleInstruction: (instruction: DeliveryInstruction) => void;
   clearShop: (shopId: string) => void;
 };
 
@@ -43,6 +53,12 @@ export const useCustomerCart = create<CartState>()(
     (set) => ({
       lines: [],
       address: "",
+      addressExtra: "",
+      addressLabel: "Home",
+      addressId: null,
+      coords: null,
+      instructions: [],
+      note: "",
       setQuantity: (product, quantity) =>
         set((state) => {
           const rest = state.lines.filter((line) => line.id !== product.id);
@@ -68,13 +84,29 @@ export const useCustomerCart = create<CartState>()(
           };
         }),
       setAddress: (address) => set({ address: address.slice(0, 300) }),
+      setDelivery: (patch) => set(patch),
+      toggleInstruction: (instruction) =>
+        set((state) => ({
+          instructions: state.instructions.includes(instruction)
+            ? state.instructions.filter((item) => item !== instruction)
+            : [...state.instructions, instruction],
+        })),
       clearShop: (shopId) =>
         set((state) => ({ lines: state.lines.filter((line) => line.shopId !== shopId) })),
     }),
     {
       name: "td-customer-cart",
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({ lines: state.lines, address: state.address }),
+      partialize: (state): Stored => ({
+        lines: state.lines,
+        address: state.address,
+        addressExtra: state.addressExtra,
+        addressLabel: state.addressLabel,
+        addressId: state.addressId,
+        coords: state.coords,
+        instructions: state.instructions,
+        note: state.note,
+      }),
       merge: (persisted, current) => ({ ...current, ...storedSchema.parse(persisted ?? {}) }),
     },
   ),

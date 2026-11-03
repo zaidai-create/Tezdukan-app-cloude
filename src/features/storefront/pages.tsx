@@ -10,6 +10,7 @@ import { categoryIcon, categoryTint } from "@/features/ordering/category-style";
 import { storageUrl } from "@/features/ordering/images";
 import { Link } from "@/i18n/navigation";
 import { requireRole } from "@/lib/auth/session";
+import { getMyAddresses } from "@/features/addresses/data";
 import { CartView } from "./components/cart-view";
 import { CustomerCartBar } from "./components/customer-cart-bar";
 import { ProductGrid } from "./components/product-grid";
@@ -398,8 +399,8 @@ export function ShopPage({ params }: { params: Promise<{ slug: string }> }) {
 async function CartContent() {
   await connection();
   await requireRole("customer", "/cart");
-  const shops = await getNearbyShops();
-  return <CartView shops={shops} />;
+  const [shops, addresses] = await Promise.all([getNearbyShops(), getMyAddresses()]);
+  return <CartView shops={shops} addresses={addresses} />;
 }
 
 export function CustomerCartPage() {

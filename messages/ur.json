@@ -1269,10 +1269,42 @@
       "addMoreForFree": "مفت ڈیلیوری کے لیے {amount} اور شامل کریں",
       "freeUnlocked": "مفت ڈیلیوری مل گئی",
       "belowMin": "کم از کم آرڈر {amount} ہے۔ {short} اور شامل کریں۔",
-      "address": "ڈیلیوری کا پتہ",
-      "addressPlaceholder": "مکان، گلی، علاقہ",
+      "address": "مکان اور گلی",
+      "addressPlaceholder": "مثلاً مکان 5، گلی 2",
       "placeOrder": "آرڈر کریں · {total}",
-      "addressNeeded": "آرڈر کے لیے ڈیلیوری کا پتہ لکھیں۔"
+      "addressNeeded": "آرڈر کے لیے ڈیلیوری کا پتہ لکھیں۔",
+      "itemsCount": "{count, plural, one {# چیز} other {# چیزیں}}",
+      "multiShop": "ہر دکان کا الگ آرڈر اور الگ بل۔",
+      "addMore": "اور شامل کریں",
+      "addMoreToOrder": "آرڈر کے لیے {amount} اور شامل کریں",
+      "addressTitle": "یہاں پہنچائیں",
+      "change": "بدلیں",
+      "addNew": "نیا پتہ شامل کریں",
+      "savedTitle": "آپ کے پتے",
+      "saveAddress": "پتہ محفوظ کریں",
+      "addressSaved": "پتہ محفوظ ہو گیا",
+      "labelLabel": "اس نام سے محفوظ کریں",
+      "labels": {
+        "Home": "گھر",
+        "Work": "دفتر",
+        "Other": "دوسرا"
+      },
+      "areaLabel": "علاقہ یا نشانی (اختیاری)",
+      "areaPlaceholder": "مثلاً لطیف آباد یونٹ 6، مسجد کے پاس",
+      "useLocation": "میری موجودہ لوکیشن لیں",
+      "locationAdded": "لوکیشن شامل ہو گئی",
+      "locationFailed": "لوکیشن نہیں مل سکی۔ پتہ لکھ دیں۔",
+      "instructionsTitle": "ڈیلیوری کی ہدایات",
+      "instructions": {
+        "callOnArrival": "پہنچ کر کال کریں",
+        "ringBell": "گھنٹی بجائیں",
+        "leaveAtDoor": "دروازے پر رکھ دیں",
+        "noBell": "گھنٹی نہ بجائیں"
+      },
+      "notePlaceholder": "دکان کے لیے نوٹ (اختیاری)",
+      "paymentTitle": "ادائیگی",
+      "codTitle": "ڈیلیوری پر نقد",
+      "codHint": "آرڈر پہنچنے پر نقد ادا کریں۔"
     }
   },
   "customerOrders": {
