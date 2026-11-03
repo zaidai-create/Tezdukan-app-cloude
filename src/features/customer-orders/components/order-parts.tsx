@@ -1,4 +1,4 @@
-import { Check, MapPin, Wallet } from "lucide-react";
+import { Bike, Check, Clock3, MapPin, Package, PartyPopper, Store, Wallet, X } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { cn } from "cn";
 import { ProductImage } from "@/components/commerce/product-image";
@@ -137,6 +137,75 @@ export async function OrderSummary({ order }: { order: CustomerOrder }) {
           {order.payment_status === "paid" ? ` · ${t("paid")}` : null}
         </p>
       </div>
+    </section>
+  );
+}
+
+const heroIcon = {
+  placed: Clock3,
+  accepted: Store,
+  packed: Package,
+  out_for_delivery: Bike,
+  delivered: PartyPopper,
+  cancelled: X,
+  rejected: X,
+} as const;
+
+/**
+ * The top of the tracking screen: where the order is now in one big line, how long it
+ * usually takes, and the five steps as a capsule progress bar.
+ */
+export async function OrderHero({
+  order,
+  etaMinutes,
+}: {
+  order: CustomerOrder;
+  etaMinutes: number | null;
+}) {
+  const t = await getTranslations("customerOrders");
+  const ended = order.status === "cancelled" || order.status === "rejected";
+  const reached = orderSteps.indexOf(order.status);
+  const Icon = heroIcon[order.status];
+  const active = !ended && order.status !== "delivered";
+  return (
+    <section
+      className={cn(
+        "sheen relative overflow-hidden rounded-xl p-5 shadow-raised inset-shadow-edge",
+        ended ? "bg-danger-soft text-danger-ink" : "bg-forest text-on-forest",
+      )}
+    >
+      <div className="flex items-center gap-4">
+        <span
+          className={cn(
+            "flex size-14 shrink-0 items-center justify-center rounded-full",
+            ended ? "bg-surface text-danger-ink" : "bg-mint text-forest",
+          )}
+        >
+          <Icon aria-hidden className="size-7" strokeWidth={1.75} />
+        </span>
+        <div className="min-w-0">
+          <p className="font-heading text-xl leading-tight font-extrabold text-pretty">
+            {t(`hero.${order.status}`, { shop: order.shop_name })}
+          </p>
+          {active && etaMinutes ? (
+            <p className="num mt-1 text-sm opacity-85">{t("eta", { minutes: etaMinutes })}</p>
+          ) : null}
+        </div>
+      </div>
+      {ended ? null : (
+        <ol className="mt-5 grid grid-cols-5 gap-1.5" aria-label={t(`status.${order.status}`)}>
+          {orderSteps.map((step, index) => (
+            <li
+              key={step}
+              className={cn(
+                "h-1.5 rounded-full transition-colors duration-200",
+                index <= reached ? "bg-mint" : "bg-on-forest/20",
+                index === reached && active && "motion-safe:animate-pulse",
+              )}
+            />
+          ))}
+        </ol>
+      )}
     </section>
   );
 }

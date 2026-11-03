@@ -1,11 +1,4 @@
-import {
-  ArrowLeft,
-  ChevronRight,
-  MessageSquareShare,
-  PartyPopper,
-  Phone,
-  ReceiptText,
-} from "lucide-react";
+import { ArrowLeft, ChevronRight, MessageSquareShare, Phone, ReceiptText } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { connection } from "next/server";
 import { Suspense } from "react";
@@ -13,6 +6,7 @@ import { cn } from "cn";
 import { EmptyState } from "@/components/states/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { NotificationPrompt } from "@/features/notifications/components/notification-prompt";
+import { getNearbyShops } from "@/features/storefront/data";
 import { Link } from "@/i18n/navigation";
 import { requireRole } from "@/lib/auth/session";
 import { telHref, whatsappHref } from "@/lib/contact";
@@ -20,8 +14,16 @@ import { formatDateTime } from "@/lib/format";
 import { formatRs } from "@/lib/money";
 import { formatPkMobile } from "@/lib/phone";
 import { CancelOrderButton, ShopOrderActions } from "./components/order-actions";
-import { OrderProgress, OrderStatusBadge, OrderSummary } from "./components/order-parts";
-import { getCustomerOrder, getMyCustomerOrders, getShopCustomerOrders } from "./data";
+import { OrderAgainButton } from "./components/order-again-button";
+import { OrderCelebration } from "./components/order-celebration";
+import { RateOrder } from "./components/rate-order";
+import { OrderHero, OrderProgress, OrderStatusBadge, OrderSummary } from "./components/order-parts";
+import {
+  getCustomerOrder,
+  getMyCustomerOrders,
+  getMyOrderRating,
+  getShopCustomerOrders,
+} from "./data";
 import type { CustomerOrder, InboxTab } from "./schemas";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -135,8 +137,22 @@ async function MyOrderContent({
     );
   }
   const justPlaced = query.placed === "1" && order.status === "placed";
+  const [shops, myRating] = await Promise.all([
+    getNearbyShops().catch(() => []),
+    order.status === "delivered" ? getMyOrderRating(order.id) : Promise.resolve(null),
+  ]);
+  const shop = shops.find((s) => s.id === order.shop_id);
+  const call = telHref(shop?.phone);
+  const whatsapp = whatsappHref(
+    shop?.whatsapp ?? shop?.phone,
+    t("whatsappAbout", { number: order.order_number }),
+  );
+  const finished = ["delivered", "cancelled", "rejected"].includes(order.status);
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-5">
+      {justPlaced ? (
+        <OrderCelebration shop={order.shop_name} orderNumber={order.order_number} />
+      ) : null}
       <header className="flex items-center gap-3">
         <BackLink href="/orders" label={t("back")} />
         <div className="min-w-0 flex-1">
@@ -145,23 +161,41 @@ async function MyOrderContent({
         </div>
         <OrderStatusBadge status={order.status} />
       </header>
+      <OrderHero order={order} etaMinutes={shop?.eta_minutes ?? null} />
+      {call || whatsapp ? (
+        <div className="grid grid-cols-2 gap-3">
+          {call ? (
+            <a
+              href={call}
+              className="flex min-h-12 items-center justify-center gap-2 rounded-md border border-border/60 bg-surface font-semibold text-ink shadow-card"
+            >
+              <Phone aria-hidden className="size-5 text-primary-strong" />
+              {t("callShop")}
+            </a>
+          ) : null}
+          {whatsapp ? (
+            <a
+              href={whatsapp}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex min-h-12 items-center justify-center gap-2 rounded-md border border-border/60 bg-surface font-semibold text-ink shadow-card"
+            >
+              <MessageSquareShare aria-hidden className="size-5 text-primary-strong" />
+              {t("whatsappShop")}
+            </a>
+          ) : null}
+        </div>
+      ) : null}
       <NotificationPrompt audience="customer" />
-      {justPlaced ? (
-        <section className="flex items-center gap-3 rounded-xl bg-forest p-4 text-on-forest shadow-raised">
-          <PartyPopper aria-hidden className="size-8 shrink-0 text-mint" strokeWidth={1.75} />
-          <span>
-            <span className="block font-heading text-lg font-bold">{t("placedTitle")}</span>
-            <span className="block text-sm text-on-forest/80">
-              {t("placedHint", { shop: order.shop_name })}
-            </span>
-          </span>
-        </section>
+      {order.status === "delivered" ? (
+        <RateOrder orderId={order.id} shop={order.shop_name} current={myRating} />
       ) : null}
       <section className="rounded-lg border border-border/60 bg-surface p-4 shadow-card">
         <OrderProgress order={order} />
       </section>
       <OrderSummary order={order} />
       {order.status === "placed" ? <CancelOrderButton orderId={order.id} /> : null}
+      {finished ? <OrderAgainButton orderId={order.id} /> : null}
     </div>
   );
 }

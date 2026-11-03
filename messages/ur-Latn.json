@@ -1290,8 +1290,6 @@
     "total": "Total",
     "cod": "Delivery par cash",
     "paid": "Paid",
-    "placedTitle": "Order ho gaya!",
-    "placedHint": "{shop} jald confirm karegi. Har qadam par aap ko notification milegi.",
     "status": {
       "placed": "Order hua",
       "accepted": "Accept",
@@ -1349,7 +1347,39 @@
       "invalid_transition": "Ye order aage barh chuka hai. Page refresh karein.",
       "not_allowed": "Aap ye order nahi badal sakte.",
       "order_not_found": "Ye order available nahi.",
-      "generic": "Kuch ghalat ho gaya. Dobara koshish karein."
+      "generic": "Kuch ghalat ho gaya. Dobara koshish karein.",
+      "not_delivered": "Order deliver hone ke baad rating de sakte hain.",
+      "invalid_rating": "1 se 5 sitare chunein."
+    },
+    "hero": {
+      "placed": "{shop} ke qubool karne ka intezar",
+      "accepted": "{shop} aap ka order tayyar kar rahi hai",
+      "packed": "Pack ho gaya, rawana hone wala hai",
+      "out_for_delivery": "Aap ki taraf aa raha hai",
+      "delivered": "Deliver ho gaya. Lutf uthayein!",
+      "cancelled": "Ye order mansookh ho gaya",
+      "rejected": "{shop} ye order nahi le saki"
+    },
+    "eta": "Aam tor par taqreeban {minutes, number} minute mein pohanchta hai",
+    "callShop": "Dukan ko call karein",
+    "whatsappShop": "WhatsApp",
+    "whatsappAbout": "Assalam-o-Alaikum, mere TezDukan order {number} ke baare mein:",
+    "orderAgain": "Dobara order karein",
+    "orderAgainAdded": "{count, plural, one {# cheez cart mein add} other {# cheezein cart mein add}}",
+    "orderAgainNone": "Ye cheezein abhi dastiyab nahi.",
+    "rate": {
+      "title": "{shop} se aap ka order kaisa raha?",
+      "hint": "Aap ke sitare qareebi logon ko achhi dukan chunne mein madad dete hain.",
+      "stars": "{count, plural, one {# sitara} other {# sitare}}",
+      "commentPlaceholder": "Kuch aur kehna hai? (ikhtiyari)",
+      "submit": "Rating bhejein",
+      "thanks": "{shop} ko rating dene ka shukriya",
+      "change": "Badlein"
+    },
+    "celebrate": {
+      "title": "Order ho gaya!",
+      "body": "{shop} ko aap ka order mil gaya. Qubool hote hi hum aap ko batayenge.",
+      "track": "Order track karein"
     }
   },
   "shopDash": {

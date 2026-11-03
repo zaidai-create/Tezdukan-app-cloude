@@ -61,3 +61,16 @@ export async function countNewShopOrders(shopId: string): Promise<number> {
   if (error) return 0;
   return count ?? 0;
 }
+
+/** The customer's own rating of an order, if any (RLS: reviewers see their reviews). */
+export async function getMyOrderRating(
+  orderId: string,
+): Promise<{ rating: number; comment: string | null } | null> {
+  const supabase = await getSupabaseServerClient();
+  const { data } = await supabase
+    .from("reviews")
+    .select("rating, comment")
+    .eq("customer_order_id", orderId)
+    .maybeSingle();
+  return data ? { rating: data.rating, comment: data.comment } : null;
+}

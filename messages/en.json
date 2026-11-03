@@ -1290,8 +1290,6 @@
     "total": "Total",
     "cod": "Cash on delivery",
     "paid": "Paid",
-    "placedTitle": "Order placed!",
-    "placedHint": "{shop} will confirm it shortly. We'll notify you at every step.",
     "status": {
       "placed": "Placed",
       "accepted": "Accepted",
@@ -1349,7 +1347,39 @@
       "invalid_transition": "This order has already moved on. Pull down to refresh.",
       "not_allowed": "You can't change this order.",
       "order_not_found": "This order isn't available.",
-      "generic": "Something went wrong. Please try again."
+      "generic": "Something went wrong. Please try again.",
+      "not_delivered": "You can rate the order once it is delivered.",
+      "invalid_rating": "Choose 1 to 5 stars."
+    },
+    "hero": {
+      "placed": "Waiting for {shop} to accept",
+      "accepted": "{shop} is getting your order ready",
+      "packed": "Packed and about to leave",
+      "out_for_delivery": "On the way to you",
+      "delivered": "Delivered. Enjoy!",
+      "cancelled": "This order was cancelled",
+      "rejected": "{shop} could not take this order"
+    },
+    "eta": "Usually arrives in about {minutes, number} min",
+    "callShop": "Call dukan",
+    "whatsappShop": "WhatsApp",
+    "whatsappAbout": "Assalam-o-Alaikum, about my TezDukan order {number}:",
+    "orderAgain": "Order again",
+    "orderAgainAdded": "{count, plural, one {# item} other {# items}} added to your cart",
+    "orderAgainNone": "These items are not available right now.",
+    "rate": {
+      "title": "How was your order from {shop}?",
+      "hint": "Your stars help people near you choose a good dukan.",
+      "stars": "{count, plural, one {# star} other {# stars}}",
+      "commentPlaceholder": "Anything to add? (optional)",
+      "submit": "Send rating",
+      "thanks": "Thanks for rating {shop}",
+      "change": "Change"
+    },
+    "celebrate": {
+      "title": "Order placed!",
+      "body": "{shop} has your order. We will tell you the moment it is accepted.",
+      "track": "Track my order"
     }
   },
   "shopDash": {

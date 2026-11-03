@@ -88,7 +88,8 @@ export function NotificationsLive({ scope }: { scope: NotificationScope }) {
             (pathname.includes(customerOrderId) ||
               pathname.endsWith("/customer-orders") ||
               pathname === "/dukan" ||
-              pathname === "/orders")
+              pathname === "/orders" ||
+              pathname === "/")
           ) {
             router.refresh();
           }

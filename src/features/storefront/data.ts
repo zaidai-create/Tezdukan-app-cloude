@@ -53,3 +53,11 @@ export async function getStorefrontShop(slug: string): Promise<StorefrontShop | 
   const shop = storefrontShopSchema.parse(data);
   return { ...shop, products: shop.products.filter((product) => product.in_stock) };
 }
+
+/** Products the shopper ordered before that nearby dukans still have, most ordered first. */
+export async function getBuyAgain(limit = 12): Promise<StorefrontProduct[]> {
+  const supabase = await getSupabaseServerClient();
+  const { data, error } = await supabase.rpc("my_buy_again", { p_limit: limit });
+  if (error) throw new Error(error.message);
+  return z.array(storefrontProductSchema).parse(data);
+}

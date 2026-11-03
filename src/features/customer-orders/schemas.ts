@@ -71,6 +71,7 @@ export const placeOrderSchema = z.object({
     .min(1)
     .max(100),
   address: z.string().trim().min(5).max(300),
+  note: z.string().trim().max(300).optional(),
   requestId: z.uuid(),
 });
 export type PlaceOrderInput = z.infer<typeof placeOrderSchema>;
@@ -86,6 +87,8 @@ export const orderErrors = [
   "invalid_transition",
   "not_allowed",
   "order_not_found",
+  "not_delivered",
+  "invalid_rating",
   "generic",
 ] as const;
 export type OrderError = (typeof orderErrors)[number];
