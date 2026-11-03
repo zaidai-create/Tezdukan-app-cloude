@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "cn";
-import { Briefcase, Check, House, LocateFixed, MapPin, Plus } from "lucide-react";
+import { Briefcase, Check, ChevronDown, House, LocateFixed, MapPin, Plus, Zap } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
@@ -115,29 +115,24 @@ function AddressFields({ idPrefix }: { idPrefix: string }) {
 }
 
 /**
- * Where the order goes. With saved addresses it shows the chosen one and a Change sheet;
- * without, the fields sit right here and the address is saved with the first order.
+ * Saved addresses to pick from, and the add-address form. Picking one makes it the address
+ * for checkout; a new address is saved as the default.
  */
-export function AddressSection({ addresses }: { addresses: SavedAddress[] }) {
+export function AddressSheet({
+  addresses,
+  open,
+  onOpenChange,
+}: {
+  addresses: SavedAddress[];
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
   const t = useTranslations("storefront.cart");
   const addressId = useCustomerCart((state) => state.addressId);
   const setDelivery = useCustomerCart((state) => state.setDelivery);
-  const [open, setOpen] = useState(false);
-  const [adding, setAdding] = useState(false);
+  const [adding, setAdding] = useState(addresses.length === 0);
   const [saving, startSaving] = useTransition();
   const selected = addresses.find((a) => a.id === addressId) ?? addresses[0] ?? null;
-
-  if (!selected) {
-    return (
-      <section className="flex flex-col gap-3 rounded-lg border border-border/60 bg-surface p-4 shadow-card">
-        <h2 className="flex items-center gap-2 font-heading text-lg font-bold text-ink">
-          <MapPin aria-hidden className="size-5 text-primary" />
-          {t("addressTitle")}
-        </h2>
-        <AddressFields idPrefix="cart" />
-      </section>
-    );
-  }
 
   const saveNew = () =>
     startSaving(async () => {
@@ -157,9 +152,103 @@ export function AddressSection({ addresses }: { addresses: SavedAddress[] }) {
       haptic("success");
       setDelivery({ addressId: result.data.id, address: "", addressExtra: "", coords: null });
       toast.success(t("addressSaved"));
-      setAdding(false);
-      setOpen(false);
+      setAdding(addresses.length === 0);
+      onOpenChange(false);
     });
+
+  return (
+    <Sheet
+      open={open}
+      onOpenChange={(next) => {
+        onOpenChange(next);
+        if (!next) setAdding(addresses.length === 0);
+      }}
+    >
+      <SheetContent>
+        <SheetHeader>
+          <SheetTitle>{adding ? t("addNew") : t("savedTitle")}</SheetTitle>
+        </SheetHeader>
+        <SheetBody>
+          {adding ? (
+            <AddressFields idPrefix="sheet" />
+          ) : (
+            <ul className="flex flex-col gap-2" role="radiogroup" aria-label={t("savedTitle")}>
+              {addresses.map((item) => {
+                const on = item.id === selected?.id;
+                return (
+                  <li key={item.id}>
+                    <button
+                      type="button"
+                      role="radio"
+                      aria-checked={on}
+                      onClick={() => {
+                        haptic("tap");
+                        setDelivery({ addressId: item.id });
+                        onOpenChange(false);
+                      }}
+                      className={cn(
+                        "flex w-full items-center gap-3 rounded-lg border p-3 text-start transition-colors",
+                        on ? "border-primary bg-primary-soft" : "border-border/70 bg-surface",
+                      )}
+                    >
+                      <LabelIcon
+                        label={item.label}
+                        className="size-5 shrink-0 text-primary-strong"
+                      />
+                      <span className="min-w-0 flex-1">
+                        <span className="block font-semibold text-ink">
+                          {t(`labels.${labelKey(item.label)}`)}
+                        </span>
+                        <span className="block truncate text-sm text-muted">
+                          {addressText(item)}
+                        </span>
+                      </span>
+                      {on ? <Check aria-hidden className="size-5 text-primary-strong" /> : null}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </SheetBody>
+        <SheetFooter>
+          {adding ? (
+            <Button size="lg" block loading={saving} onClick={saveNew}>
+              {t("saveAddress")}
+            </Button>
+          ) : (
+            <Button variant="secondary" size="lg" block onClick={() => setAdding(true)}>
+              <Plus aria-hidden />
+              {t("addNew")}
+            </Button>
+          )}
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
+  );
+}
+
+/**
+ * Where the order goes. With saved addresses it shows the chosen one and a Change sheet;
+ * without, the fields sit right here and the address is saved with the first order.
+ */
+export function AddressSection({ addresses }: { addresses: SavedAddress[] }) {
+  const t = useTranslations("storefront.cart");
+  const addressId = useCustomerCart((state) => state.addressId);
+  const [open, setOpen] = useState(false);
+  const selected = addresses.find((a) => a.id === addressId) ?? addresses[0] ?? null;
+
+  if (!selected) {
+    return (
+      <section className="flex flex-col gap-3 rounded-lg border border-border/60 bg-surface p-4 shadow-card">
+        <h2 className="flex items-center gap-2 font-heading text-lg font-bold text-ink">
+          <MapPin aria-hidden className="size-5 text-primary" />
+          {t("addressTitle")}
+        </h2>
+        <AddressFields idPrefix="cart" />
+      </section>
+    );
+  }
 
   return (
     <>
@@ -176,75 +265,55 @@ export function AddressSection({ addresses }: { addresses: SavedAddress[] }) {
           {t("change")}
         </Button>
       </section>
+      <AddressSheet addresses={addresses} open={open} onOpenChange={setOpen} />
+    </>
+  );
+}
 
-      <Sheet
-        open={open}
-        onOpenChange={(next) => {
-          setOpen(next);
-          if (!next) setAdding(false);
-        }}
+/** Home's "Deliver to" pill: the chosen address in one line, tap to change or add one. */
+export function DeliveryPill({
+  addresses,
+  etaMinutes,
+}: {
+  addresses: SavedAddress[];
+  etaMinutes: number | null;
+}) {
+  const t = useTranslations("storefront.cart");
+  const tHome = useTranslations("storefront");
+  const addressId = useCustomerCart((state) => state.addressId);
+  const [open, setOpen] = useState(false);
+  const selected = addresses.find((a) => a.id === addressId) ?? addresses[0] ?? null;
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="flex w-full items-center gap-3 rounded-2xl border border-border/60 bg-surface p-3 text-start shadow-card transition-transform duration-150 ease-out active:scale-[0.99]"
       >
-        <SheetContent>
-          <SheetHeader>
-            <SheetTitle>{adding ? t("addNew") : t("savedTitle")}</SheetTitle>
-          </SheetHeader>
-          <SheetBody>
-            {adding ? (
-              <AddressFields idPrefix="sheet" />
-            ) : (
-              <ul className="flex flex-col gap-2" role="radiogroup" aria-label={t("savedTitle")}>
-                {addresses.map((item) => {
-                  const on = item.id === selected.id;
-                  return (
-                    <li key={item.id}>
-                      <button
-                        type="button"
-                        role="radio"
-                        aria-checked={on}
-                        onClick={() => {
-                          haptic("tap");
-                          setDelivery({ addressId: item.id });
-                          setOpen(false);
-                        }}
-                        className={cn(
-                          "flex w-full items-center gap-3 rounded-lg border p-3 text-start transition-colors",
-                          on ? "border-primary bg-primary-soft" : "border-border/70 bg-surface",
-                        )}
-                      >
-                        <LabelIcon
-                          label={item.label}
-                          className="size-5 shrink-0 text-primary-strong"
-                        />
-                        <span className="min-w-0 flex-1">
-                          <span className="block font-semibold text-ink">
-                            {t(`labels.${labelKey(item.label)}`)}
-                          </span>
-                          <span className="block truncate text-sm text-muted">
-                            {addressText(item)}
-                          </span>
-                        </span>
-                        {on ? <Check aria-hidden className="size-5 text-primary-strong" /> : null}
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </SheetBody>
-          <SheetFooter>
-            {adding ? (
-              <Button size="lg" block loading={saving} onClick={saveNew}>
-                {t("saveAddress")}
-              </Button>
-            ) : (
-              <Button variant="secondary" size="lg" block onClick={() => setAdding(true)}>
-                <Plus aria-hidden />
-                {t("addNew")}
-              </Button>
-            )}
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
+        <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary-strong">
+          {selected ? (
+            <LabelIcon label={selected.label} className="size-5" />
+          ) : (
+            <MapPin aria-hidden className="size-5" />
+          )}
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="flex items-center gap-1 text-sm font-bold text-ink">
+            {selected ? t(`labels.${labelKey(selected.label)}`) : t("addressTitle")}
+            <ChevronDown aria-hidden className="size-4 text-muted" />
+          </span>
+          <span className="block truncate text-sm text-muted">
+            {selected ? addressText(selected) : tHome("addAddressHint")}
+          </span>
+        </span>
+        {etaMinutes ? (
+          <span className="num flex shrink-0 items-center gap-1 rounded-full bg-mint-soft px-3 py-1.5 text-sm font-bold text-primary-strong">
+            <Zap aria-hidden className="size-4" />
+            {tHome("etaShort", { minutes: etaMinutes })}
+          </span>
+        ) : null}
+      </button>
+      <AddressSheet addresses={addresses} open={open} onOpenChange={setOpen} />
     </>
   );
 }

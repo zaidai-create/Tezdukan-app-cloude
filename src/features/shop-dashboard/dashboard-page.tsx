@@ -175,7 +175,7 @@ async function DashboardContent() {
           </Link>
         </div>
         {dash.queue.length > 0 ? (
-          <div className="grid gap-3 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
             {dash.queue.map((order) => (
               <QueueCard key={order.id} order={order} />
             ))}
@@ -189,7 +189,7 @@ async function DashboardContent() {
 
       <DukanPosters />
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {dash.low_stock.length > 0 ? (
           <section className="flex flex-col gap-3 rounded-lg border border-danger/25 bg-danger-soft p-4">
             <div className="flex items-center justify-between gap-3">

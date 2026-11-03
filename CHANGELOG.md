@@ -4,6 +4,22 @@ All notable changes, newest first. Dates are Asia/Karachi.
 
 ## Unreleased
 
+### Premium customer side (2026-11-04)
+
+- Home: "Deliver to" pill with the chosen address and the fastest delivery time, a live card
+  for an order on its way (tap to track), Buy again (what you ordered before, still on the
+  shelf) and Deals for you (biggest savings against MRP first).
+- Tap any product for a detail sheet: big photo, price against MRP and the saving, the dukan
+  that sells it, and ADD or the stepper.
+- Checkout: saved addresses (Home, Work, Other, optional current location) with a Change
+  sheet; the first typed address is saved with the first order. Delivery instruction chips and
+  a note go to the dukan; a Cash on delivery card; a sticky "Place order · Rs ..." bar that no
+  longer hides behind the navigation dock.
+- After ordering: an "Order placed!" moment, then tracking with the status in one big line,
+  the usual delivery time, a five-step bar, Call and WhatsApp the dukan, Cancel while new,
+  five-star rating after delivery, and Order again at today's prices.
+- Fixed: the Deals row made the whole page scroll sideways on phones.
+
 ### Play Store readiness, account deletion, Google sign-in (2026-11-03)
 
 - Delete my account (Account page) and the public page /data-deletion, as Google Play requires.

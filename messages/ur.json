@@ -205,8 +205,7 @@
     "marginBadge": "منافع {percent, number}% · {amount} فی عدد",
     "mrp": "پرنٹ قیمت",
     "unit": "پیک سائز",
-    "unitConversion": "1 {unit} = {count, number} عدد",
-    "openDetails": "{name} کی تفصیل"
+    "unitConversion": "1 {unit} = {count, number} عدد"
   },
   "cart": {
     "summary": "{count, plural, one {# چیز} other {# چیزیں}} · {total}",
@@ -1305,7 +1304,15 @@
       "paymentTitle": "ادائیگی",
       "codTitle": "ڈیلیوری پر نقد",
       "codHint": "آرڈر پہنچنے پر نقد ادا کریں۔"
-    }
+    },
+    "addAddressHint": "صحیح دکانیں اور ڈیلیوری کا وقت دیکھنے کے لیے اپنا پتہ شامل کریں",
+    "etaShort": "{minutes, number} منٹ",
+    "buyAgainTitle": "دوبارہ خریدیں",
+    "dealsTitle": "آپ کے لیے ڈیلز",
+    "percentOff": "{percent, number}% کم",
+    "youSaveRs": "آپ کی بچت {amount}",
+    "soldBy": "بیچنے اور پہنچانے والی دکان",
+    "freshPromise": "روانگی سے پہلے دکان چیک کرتی ہے۔ پہنچنے پر ادائیگی کریں۔"
   },
   "customerOrders": {
     "title": "میرے آرڈرز",
@@ -1412,6 +1419,17 @@
       "title": "آرڈر ہو گیا!",
       "body": "{shop} کو آپ کا آرڈر مل گیا۔ قبول ہوتے ہی ہم آپ کو بتائیں گے۔",
       "track": "آرڈر ٹریک کریں"
+    },
+    "liveOrder": "{shop} سے آپ کا آرڈر",
+    "track": "ٹریک کریں",
+    "liveStatus": {
+      "placed": "دکان کا انتظار",
+      "accepted": "تیار ہو رہا ہے",
+      "packed": "پیک ہو گیا، جلد روانہ",
+      "out_for_delivery": "آپ کی طرف آ رہا ہے",
+      "delivered": "ڈیلیور ہو گیا",
+      "cancelled": "منسوخ",
+      "rejected": "قبول نہیں ہوا"
     }
   },
   "shopDash": {

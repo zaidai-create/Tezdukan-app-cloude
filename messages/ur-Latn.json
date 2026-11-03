@@ -205,8 +205,7 @@
     "marginBadge": "Munafa {percent, number}% · {amount}/pc",
     "mrp": "MRP",
     "unit": "Pack size",
-    "unitConversion": "1 {unit} = {count, number} adad",
-    "openDetails": "{name} ki tafseel"
+    "unitConversion": "1 {unit} = {count, number} adad"
   },
   "cart": {
     "summary": "{count, plural, one {# cheez} other {# cheezein}} · {total}",
@@ -1305,7 +1304,15 @@
       "paymentTitle": "Adaigi",
       "codTitle": "Delivery par cash",
       "codHint": "Order pohanchne par cash ada karein."
-    }
+    },
+    "addAddressHint": "Sahi dukanein aur delivery ka waqt dekhne ke liye apna pata add karein",
+    "etaShort": "{minutes, number} min",
+    "buyAgainTitle": "Dobara khareedein",
+    "dealsTitle": "Aap ke liye deals",
+    "percentOff": "{percent, number}% kam",
+    "youSaveRs": "Aap ki bachat {amount}",
+    "soldBy": "Bechne aur pohanchane wali dukan",
+    "freshPromise": "Rawangi se pehle dukan check karti hai. Pohanchne par adaigi karein."
   },
   "customerOrders": {
     "title": "Mere orders",
@@ -1412,6 +1419,17 @@
       "title": "Order ho gaya!",
       "body": "{shop} ko aap ka order mil gaya. Qubool hote hi hum aap ko batayenge.",
       "track": "Order track karein"
+    },
+    "liveOrder": "{shop} se aap ka order",
+    "track": "Track karein",
+    "liveStatus": {
+      "placed": "Dukan ka intezar",
+      "accepted": "Tayyar ho raha hai",
+      "packed": "Pack ho gaya, jald rawana",
+      "out_for_delivery": "Aap ki taraf aa raha hai",
+      "delivered": "Deliver ho gaya",
+      "cancelled": "Mansookh",
+      "rejected": "Qubool nahi hua"
     }
   },
   "shopDash": {

@@ -95,24 +95,13 @@ function ProductCard({
       data-slot="product-card"
       aria-label={product.name}
       className={cn(
-        "flex flex-col rounded-lg border border-border bg-surface p-2.5 shadow-card",
+        "relative flex flex-col rounded-lg border border-border bg-surface p-2.5 shadow-card",
         !product.inStock && "opacity-95",
         className,
       )}
     >
       <div className="relative">
-        {onOpen ? (
-          <button
-            type="button"
-            onClick={onOpen}
-            className="block w-full rounded-md"
-            aria-label={t("openDetails", { name: product.name })}
-          >
-            {image}
-          </button>
-        ) : (
-          image
-        )}
+        {image}
         {deal > 0 ? (
           <Badge variant="sale" size="sm" className="absolute start-1.5 top-1.5">
             {t("percentOff", { percent: deal })}
@@ -139,7 +128,13 @@ function ProductCard({
         ) : null}
         <h3 className="line-clamp-2 min-h-10 text-sm leading-5 font-semibold text-ink">
           {onOpen ? (
-            <button type="button" onClick={onOpen} className="text-start">
+            // One control for details: the name, with its tap area stretched over the whole
+            // card (the photo included). ADD and the stepper sit above it.
+            <button
+              type="button"
+              onClick={onOpen}
+              className="text-start after:absolute after:inset-0 after:rounded-lg"
+            >
               {product.name}
             </button>
           ) : (
@@ -157,7 +152,7 @@ function ProductCard({
             value={unit.id}
             onValueChange={(value) => value && onUnitChange(value)}
             aria-label={t("unit")}
-            className="mt-1 w-full p-0.5"
+            className="relative z-10 mt-1 w-full p-0.5"
           >
             {product.units.map((option) => (
               <ToggleGroupItem
@@ -182,7 +177,7 @@ function ProductCard({
               {t("marginBadge", { percent: margin, amount: formatRs(marginPerPiece) })}
             </Badge>
           ) : null}
-          <div className="flex items-end justify-between gap-2">
+          <div className="relative z-10 flex items-end justify-between gap-2">
             <Price
               paisa={unit.pricePaisa}
               strikePaisa={unit.mrpPaisa}

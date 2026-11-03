@@ -30,7 +30,7 @@ export function InsightsSkeleton() {
           <Skeleton key={i} className="h-20 rounded-lg" />
         ))}
       </div>
-      <div className="grid gap-5 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
         {Array.from({ length: 3 }, (_, i) => (
           <Skeleton key={i} className="h-64 rounded-lg" />
         ))}
@@ -232,7 +232,7 @@ export async function DashboardInsights({ orgId }: { orgId: string }) {
         </div>
       </section>
 
-      <div className="grid gap-5 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
         <SectionCard title={t("topProducts")} hint={t("last30")}>
           {insights.top_products.length === 0 ? (
             <p className="text-sm text-muted">{t("noTopShops")}</p>
@@ -341,7 +341,7 @@ export async function DashboardInsights({ orgId }: { orgId: string }) {
 
       {insights.inactive_shops.length > 0 ? (
         <SectionCard title={t("quietShops")} hint={t("quietHint")}>
-          <ul className="grid gap-2 lg:grid-cols-2">
+          <ul className="grid grid-cols-1 gap-2 lg:grid-cols-2">
             {insights.inactive_shops.map((shop) => {
               return (
                 <li

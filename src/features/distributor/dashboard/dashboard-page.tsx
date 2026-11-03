@@ -175,7 +175,7 @@ async function DashboardContent() {
 
       <DistributorPosters />
 
-      <div className="grid gap-5 lg:grid-cols-5">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-5">
         <section className="rounded-lg border border-border/70 bg-surface p-4 shadow-card lg:col-span-3">
           <h2 className="font-heading text-lg font-bold text-ink">{t("sales7d")}</h2>
           <p className="num mb-4 text-sm text-muted">
@@ -221,7 +221,7 @@ async function DashboardContent() {
         {inbox.orders.length === 0 ? (
           <EmptyState icon={Package} title={t("noNew")} description={t("noNewHint")} />
         ) : (
-          <ul className="grid gap-3 lg:grid-cols-2">
+          <ul className="grid grid-cols-1 gap-3 lg:grid-cols-2">
             {inbox.orders.slice(0, 6).map((order) => (
               <OrderCard key={order.id} order={order} />
             ))}

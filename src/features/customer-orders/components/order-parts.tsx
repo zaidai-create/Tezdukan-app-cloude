@@ -1,9 +1,21 @@
-import { Bike, Check, Clock3, MapPin, Package, PartyPopper, Store, Wallet, X } from "lucide-react";
+import {
+  Bike,
+  Check,
+  ChevronRight,
+  Clock3,
+  MapPin,
+  Package,
+  PartyPopper,
+  Store,
+  Wallet,
+  X,
+} from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { cn } from "cn";
 import { ProductImage } from "@/components/commerce/product-image";
 import { StatusBadge, type StatusTone } from "@/components/ui/status-badge";
 import { storageUrl } from "@/features/ordering/images";
+import { Link } from "@/i18n/navigation";
 import { formatDateTime } from "@/lib/format";
 import { formatRs } from "@/lib/money";
 import { orderSteps, type CustomerOrder, type CustomerOrderStatus } from "../schemas";
@@ -207,5 +219,48 @@ export async function OrderHero({
         </ol>
       )}
     </section>
+  );
+}
+
+/** Home's live card for an order on its way: where it is, the five steps, and Track. */
+export async function ActiveOrderCard({ order }: { order: CustomerOrder }) {
+  const t = await getTranslations("customerOrders");
+  const reached = orderSteps.indexOf(order.status);
+  const Icon = heroIcon[order.status];
+  return (
+    <Link
+      href={`/orders/${order.id}`}
+      className="sheen flex flex-col gap-3 rounded-xl bg-forest p-4 text-on-forest shadow-raised inset-shadow-edge transition-transform duration-150 ease-out active:scale-[0.99]"
+    >
+      <span className="flex items-center gap-3">
+        <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-mint text-forest">
+          <Icon aria-hidden className="size-5" strokeWidth={1.75} />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-xs font-semibold tracking-wide text-on-forest/75 uppercase">
+            {t("liveOrder", { shop: order.shop_name })}
+          </span>
+          <span className="block font-heading text-lg leading-tight font-bold">
+            {t(`liveStatus.${order.status}`)}
+          </span>
+        </span>
+        <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-mint px-3 py-1.5 text-sm font-bold text-forest">
+          {t("track")}
+          <ChevronRight aria-hidden className="size-4 rtl:-scale-x-100" />
+        </span>
+      </span>
+      <span className="grid grid-cols-5 gap-1.5" aria-hidden>
+        {orderSteps.map((step, index) => (
+          <span
+            key={step}
+            className={cn(
+              "h-1.5 rounded-full",
+              index <= reached ? "bg-mint" : "bg-on-forest/20",
+              index === reached && "motion-safe:animate-pulse",
+            )}
+          />
+        ))}
+      </span>
+    </Link>
   );
 }

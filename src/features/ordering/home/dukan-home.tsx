@@ -205,7 +205,7 @@ async function DukanHomeContent() {
             title={t("sections.distributors")}
             action={{ href: "/dukan/distributors", label: tCommon("seeAll") }}
           >
-            <ul className="grid gap-3 sm:grid-cols-2">
+            <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {distributors.slice(0, 4).map((d) => (
                 <li key={d.org_id}>
                   <Link

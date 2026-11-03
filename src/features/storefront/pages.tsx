@@ -1,4 +1,4 @@
-import { ChevronRight, MapPin, PackageSearch, Store, Truck } from "lucide-react";
+import { ChevronRight, PackageSearch, Store, Truck } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { connection } from "next/server";
 import { Suspense } from "react";
@@ -13,7 +13,8 @@ import { requireRole } from "@/lib/auth/session";
 import { getMyAddresses } from "@/features/addresses/data";
 import { CartView } from "./components/cart-view";
 import { CustomerCartBar } from "./components/customer-cart-bar";
-import { ProductGrid } from "./components/product-grid";
+import { ProductGrid, ProductRail } from "./components/product-grid";
+import { DeliveryPill } from "./components/checkout/address-section";
 import { SearchBar } from "./components/search-bar";
 import { ShopCard } from "./components/shop-card";
 import { ShopHeader } from "./components/shop-header";
@@ -22,9 +23,16 @@ import {
   getStorefrontCategories,
   getStorefrontProducts,
   getStorefrontShop,
+  getBuyAgain,
 } from "./data";
 import type { StorefrontCategory } from "./schemas";
 import { CustomerPosters } from "@/features/posters/posters";
+import { ActiveOrderCard } from "@/features/customer-orders/components/order-parts";
+import { getMyCustomerOrders } from "@/features/customer-orders/data";
+import { discountPercent } from "@/lib/money";
+
+const activeStatuses = ["placed", "accepted", "packed", "out_for_delivery"] as const;
+const isActive = (status: string) => (activeStatuses as readonly string[]).includes(status);
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 const first = (value: string | string[] | undefined) => (Array.isArray(value) ? value[0] : value);
@@ -75,13 +83,32 @@ const categoryName = (category: StorefrontCategory, locale: string) =>
 async function HomeContent() {
   await connection();
   const session = await requireRole("customer", "/");
-  const [t, locale, categories, shops, products] = await Promise.all([
-    getTranslations(),
-    getLocale(),
-    getStorefrontCategories(),
-    getNearbyShops(),
-    getStorefrontProducts({ limit: 24 }),
-  ]);
+  const [t, locale, categories, shops, allProducts, addresses, orders, buyAgain] =
+    await Promise.all([
+      getTranslations(),
+      getLocale(),
+      getStorefrontCategories(),
+      getNearbyShops(),
+      getStorefrontProducts({ limit: 60 }),
+      getMyAddresses(),
+      getMyCustomerOrders(session.userId),
+      getBuyAgain(10),
+    ]);
+  const products = allProducts.slice(0, 24);
+  const active = orders.find((order) => isActive(order.status));
+  const etas = shops
+    .filter((shop) => shop.is_live && shop.eta_minutes)
+    .map((shop) => shop.eta_minutes ?? 0);
+  const fastest = etas.length > 0 ? Math.min(...etas) : null;
+  // Deals: the biggest savings against MRP first.
+  const deals = allProducts
+    .filter((product) => product.mrp_paisa && product.mrp_paisa > product.selling_price_paisa)
+    .sort(
+      (a, b) =>
+        discountPercent(b.selling_price_paisa, b.mrp_paisa ?? 0) -
+        discountPercent(a.selling_price_paisa, a.mrp_paisa ?? 0),
+    )
+    .slice(0, 10);
   const firstName = session.fullName.split(" ")[0] ?? "";
   const hasDukan = session.contexts.some((context) => context.role === "dukandar");
   const hasDistributor = session.contexts.some((context) => context.role === "distributor");
@@ -89,17 +116,16 @@ async function HomeContent() {
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-5">
-      <header className="flex flex-col gap-1">
-        <h1 className="font-heading text-2xl font-bold text-ink lg:text-3xl">
+      <header className="flex flex-col gap-3">
+        <h1 className="font-heading text-xl font-bold text-ink lg:text-2xl">
           {firstName ? t("home.greetingNamed", { name: firstName }) : t("home.greeting")}
         </h1>
-        <p className="flex items-center gap-1.5 text-sm font-medium text-muted">
-          <MapPin aria-hidden className="size-4 text-primary" />
-          {t("storefront.deliveringIn")}
-        </p>
+        <DeliveryPill addresses={addresses} etaMinutes={fastest} />
       </header>
 
       <SearchBar />
+
+      {active ? <ActiveOrderCard order={active} /> : null}
 
       <CustomerPosters showSell={!hasDukan} />
 
@@ -122,6 +148,24 @@ async function HomeContent() {
               />
             ))}
           </div>
+        </section>
+      ) : null}
+
+      {buyAgain.length > 0 ? (
+        <section className="flex flex-col gap-3">
+          <SectionHeader title={t("storefront.buyAgainTitle")} />
+          <ProductRail products={buyAgain} label={t("storefront.buyAgainTitle")} />
+        </section>
+      ) : null}
+
+      {deals.length > 0 ? (
+        <section className="flex flex-col gap-3">
+          <SectionHeader
+            title={t("storefront.dealsTitle")}
+            href="/categories"
+            action={t("storefront.seeAll")}
+          />
+          <ProductRail products={deals} label={t("storefront.dealsTitle")} />
         </section>
       ) : null}
 
@@ -160,7 +204,7 @@ async function HomeContent() {
       {hasDukan && hasDistributor ? null : (
         <section className="flex flex-col gap-3">
           <SectionHeader title={t("storefront.growTitle")} />
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {hasDukan ? null : (
               <GrowCard
                 href="/start/dukan"

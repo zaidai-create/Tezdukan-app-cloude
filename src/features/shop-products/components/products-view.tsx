@@ -163,7 +163,7 @@ export function ProductsView({
               {t("noMatch")}
             </p>
           ) : (
-            <ul aria-label={t("title")} className="grid gap-2 lg:grid-cols-2">
+            <ul aria-label={t("title")} className="grid grid-cols-1 gap-2 lg:grid-cols-2">
               {shown.map((product) => {
                 const out = product.qty_on_hand <= 0;
                 const isLow = !out && product.qty_on_hand <= product.low_stock_threshold;

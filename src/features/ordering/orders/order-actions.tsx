@@ -145,7 +145,7 @@ function OrderActions({
           {t("order.rated", { stars: order.rating })}
         </p>
       ) : null}
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Button size="lg" onClick={reorder} loading={pending && sheet === null}>
           <Repeat2 aria-hidden />
           {t("orders.reorder")}

@@ -205,8 +205,7 @@
     "marginBadge": "Margin {percent, number}% · {amount}/pc",
     "mrp": "MRP",
     "unit": "Pack size",
-    "unitConversion": "1 {unit} = {count, number} pcs",
-    "openDetails": "Details of {name}"
+    "unitConversion": "1 {unit} = {count, number} pcs"
   },
   "cart": {
     "summary": "{count, plural, one {# item} other {# items}} · {total}",
@@ -1305,7 +1304,15 @@
       "paymentTitle": "Payment",
       "codTitle": "Cash on delivery",
       "codHint": "Pay in cash when your order arrives."
-    }
+    },
+    "addAddressHint": "Add your address for the right dukans and delivery time",
+    "etaShort": "{minutes, number} min",
+    "buyAgainTitle": "Buy again",
+    "dealsTitle": "Deals for you",
+    "percentOff": "{percent, number}% off",
+    "youSaveRs": "You save {amount}",
+    "soldBy": "Sold and delivered by",
+    "freshPromise": "Checked by the dukan before it leaves. Pay when it arrives."
   },
   "customerOrders": {
     "title": "My orders",
@@ -1412,6 +1419,17 @@
       "title": "Order placed!",
       "body": "{shop} has your order. We will tell you the moment it is accepted.",
       "track": "Track my order"
+    },
+    "liveOrder": "Your order from {shop}",
+    "track": "Track",
+    "liveStatus": {
+      "placed": "Waiting for the dukan",
+      "accepted": "Getting it ready",
+      "packed": "Packed, leaving soon",
+      "out_for_delivery": "On the way to you",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled",
+      "rejected": "Not accepted"
     }
   },
   "shopDash": {
