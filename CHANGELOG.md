@@ -4,6 +4,21 @@ All notable changes, newest first. Dates are Asia/Karachi.
 
 ## Unreleased
 
+### Products for dukandars, common-product packs, better voice, Android 0.1.4 (2026-11-03)
+
+- New Products tab for dukandars (Home, Orders, Products, Khata, Account): search the shelf,
+  filter low stock or hidden items, and tap a product to change its price, count its stock or
+  hide it from customers.
+- Add products three ways: type the name (TezDukan fills in photo and details from its
+  catalogue), say it, or add the common-products pack: 16 items most dukans keep, priced at
+  MRP with the same opening stock, in one tap. Products not in the catalogue are added by name.
+- Distributors get the same one-tap pack on Catalog, with trade prices to check first.
+- Munshi and voice search can use a server speech-to-text model (Groq Whisper or Gemini,
+  set by env) that hears Urdu far better than the phone; without a key the phone's own
+  recognition is used as before.
+- Android 0.1.4 never shows an error screen: problems are reported to the server quietly. The
+  download link always gives the newest app, and older apps are asked to update.
+
 ### Shop dashboard, distributor insights and order alerts (2026-11-03)
 
 - The dukandar's Home is now a live shop dashboard: today's online sales and orders, a 7-day

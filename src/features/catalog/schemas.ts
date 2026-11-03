@@ -89,3 +89,31 @@ export const productInputSchema = z.object({
   is_active: z.boolean(),
 });
 export type ProductInput = z.infer<typeof productInputSchema>;
+
+export const orgStarterItemSchema = z.object({
+  id: z.uuid(),
+  name: z.string(),
+  name_ur: z.string().nullable(),
+  brand_id: z.uuid().nullable(),
+  category_id: z.uuid(),
+  category_name: z.string(),
+  pack_size_label: z.string().nullable(),
+  barcode: z.string().nullable(),
+  image_path: z.string().nullable(),
+  mrp_paisa: z.number().int(),
+  units_per_carton: z.number().int().nullable(),
+});
+export const orgStarterPackSchema = z.array(orgStarterItemSchema);
+export type OrgStarterItem = z.infer<typeof orgStarterItemSchema>;
+
+export const starterChoiceSchema = z
+  .array(
+    z.object({
+      id: z.uuid(),
+      trade_price_paisa: z.number().int().min(1).max(100_000_000),
+      stock_in_qty: z.number().int().min(0).max(1_000_000),
+    }),
+  )
+  .min(1)
+  .max(40);
+export type StarterChoice = z.infer<typeof starterChoiceSchema>[number];

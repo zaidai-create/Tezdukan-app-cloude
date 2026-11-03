@@ -5,10 +5,15 @@ import { z } from "zod";
 import { requireDistributor } from "@/features/distributor/data";
 import { draftProductWithAi } from "@/lib/ai/product-draft";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
-import { getCatalogReference } from "./data";
+import { getCatalogReference, getOrgStarterPack } from "./data";
 import { catalogErrorKey, type CatalogErrorKey } from "./errors";
 import { hasDetails, parseProductNote, type ProductDraft } from "./parse-note";
-import { productInputSchema, type ProductInput } from "./schemas";
+import {
+  productInputSchema,
+  starterChoiceSchema,
+  type ProductInput,
+  type StarterChoice,
+} from "./schemas";
 
 /**
  * Catalog writes for the distributor's active organization. The organization always comes
@@ -89,4 +94,49 @@ export async function draftProduct(input: z.input<typeof draftInput>): Promise<D
   if (!note.trim()) return { ok: false, reason: "photo_needs_ai" };
   const draft = parseProductNote(note, brands);
   return hasDetails(draft) ? { ok: true, mode: "sandbox", draft } : { ok: false, reason: "empty" };
+}
+
+/**
+ * Adds the chosen common products in one go. Only ids, trade prices and stock come from the
+ * browser; names, photos, aisles and MRP are read again from the catalogue here.
+ */
+export async function addStarterProducts(
+  choices: StarterChoice[],
+): Promise<CatalogResult<{ added: number }>> {
+  const parsed = starterChoiceSchema.safeParse(choices);
+  if (!parsed.success) return { ok: false, error: "generic" };
+  const { orgId } = await requireDistributor("/distributor/catalog");
+  const pack = new Map((await getOrgStarterPack(orgId, 40)).map((item) => [item.id, item]));
+  const supabase = await getSupabaseServerClient();
+  let added = 0;
+  for (const choice of parsed.data) {
+    const item = pack.get(choice.id);
+    if (!item) continue;
+    const { error } = await supabase.rpc("save_distributor_product", {
+      p_org_id: orgId,
+      p_product: {
+        master_product_id: item.id,
+        name: item.name,
+        name_ur: item.name_ur,
+        brand_id: item.brand_id,
+        category_id: item.category_id,
+        pack_size_label: item.pack_size_label,
+        barcode: item.barcode,
+        image_path: item.image_path,
+        mrp_paisa: item.mrp_paisa,
+        trade_price_paisa: choice.trade_price_paisa,
+        moq_base_qty: 1,
+        carton_qty:
+          item.units_per_carton && item.units_per_carton >= 2 ? item.units_per_carton : null,
+        stock_in_qty: choice.stock_in_qty,
+      },
+    });
+    if (error) {
+      if (added > 0) refresh();
+      return { ok: false, error: catalogErrorKey(error) };
+    }
+    added += 1;
+  }
+  refresh();
+  return { ok: true, data: { added } };
 }

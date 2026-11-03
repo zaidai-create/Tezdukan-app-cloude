@@ -35,7 +35,8 @@ export type NavLabel =
   | "overview"
   | "verifications"
   | "wholesale"
-  | "stockOrders";
+  | "stockOrders"
+  | "products";
 
 /** Icon names, resolved to Lucide components in client code (components cannot be passed
  * from the server shell to client components as props). */
@@ -70,11 +71,12 @@ export const mobileTabs: Partial<Record<AppRole, NavItem[]>> = {
     { href: "/cart", label: "cart", icon: "cart" },
     { href: "/account", label: "account", icon: "account" },
   ],
-  // Home is the shop's live dashboard; buying stock lives under Wholesale.
+  // Home is the shop's live dashboard. Products (add, price, stock) is a tab of its own because
+  // shopkeepers use it daily; buying stock from distributors starts from Home's "Buy stock".
   dukandar: [
     { href: "/dukan", label: "home", icon: "home", exact: true },
     { href: "/dukan/customer-orders", label: "orders", icon: "orders" },
-    { href: "/dukan/wholesale", label: "wholesale", icon: "wholesale" },
+    { href: "/dukan/products", label: "products", icon: "catalog" },
     { href: "/dukan/ledger", label: "ledger", icon: "ledger" },
     { href: "/dukan/account", label: "account", icon: "account" },
   ],
@@ -141,6 +143,7 @@ export const sidebarGroups: Partial<Record<AppRole, NavGroup[]>> = {
       items: [
         { href: "/dukan", label: "home", icon: "home", exact: true },
         { href: "/dukan/customer-orders", label: "orders", icon: "orders" },
+        { href: "/dukan/products", label: "products", icon: "catalog" },
         { href: "/dukan/wholesale", label: "wholesale", icon: "wholesale" },
         { href: "/dukan/categories", label: "categories", icon: "categories" },
         { href: "/dukan/cart", label: "cart", icon: "cart" },

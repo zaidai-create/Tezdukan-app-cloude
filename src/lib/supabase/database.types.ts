@@ -8083,6 +8083,7 @@ export type Database = {
       };
     };
     Functions: {
+      add_shop_products: { Args: { p_items: Json; p_shop_id: string }; Returns: Json };
       approve_organization: {
         Args: { p_org_id: string };
         Returns: {
@@ -8360,6 +8361,7 @@ export type Database = {
         };
         Returns: Json;
       };
+      org_starter_pack: { Args: { p_limit?: number; p_org_id: string }; Returns: Json };
       place_customer_order: {
         Args: {
           p_address: string;
@@ -8810,6 +8812,7 @@ export type Database = {
           isSetofReturn: false;
         };
       };
+      set_shop_stock: { Args: { p_inventory_id: string; p_qty: number }; Returns: number };
       shop_dashboard: { Args: { p_shop_id: string }; Returns: Json };
       shop_distributors: {
         Args: { p_shop_id: string };
@@ -8834,6 +8837,7 @@ export type Database = {
         Args: { p_from?: string; p_org_id: string; p_shop_id: string; p_to?: string };
         Returns: Json;
       };
+      shop_starter_pack: { Args: { p_limit?: number; p_shop_id: string }; Returns: Json };
       storefront_categories: { Args: Record<PropertyKey, never>; Returns: Json };
       storefront_products: {
         Args: { p_category_id?: string; p_limit?: number; p_query?: string; p_shop_id?: string };

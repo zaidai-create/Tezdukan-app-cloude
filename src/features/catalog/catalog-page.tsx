@@ -16,7 +16,8 @@ import { first } from "@/features/ordering/listing/params";
 import { Link } from "@/i18n/navigation";
 import { formatRs } from "@/lib/money";
 import { ActiveSwitch } from "./components/active-switch";
-import { getCatalogReference, getCatalogProduct, getOrgCatalog } from "./data";
+import { OrgStarterPack } from "./components/org-starter-pack";
+import { getCatalogReference, getCatalogProduct, getOrgCatalog, getOrgStarterPack } from "./data";
 import { ProductForm } from "./components/product-form";
 import { catalogFilterSchema, type CatalogFilter } from "./schemas";
 
@@ -51,9 +52,10 @@ async function CatalogContent({ searchParams }: Props) {
   const params = await searchParams;
   const filter = catalogFilterSchema.catch("all").parse(first(params.filter));
   const query = first(params.q)?.trim().slice(0, 80) || undefined;
-  const [catalog, t] = await Promise.all([
+  const [catalog, t, starter] = await Promise.all([
     getOrgCatalog(orgId, filter, query),
     getTranslations("catalog"),
+    getOrgStarterPack(orgId),
   ]);
 
   return (
@@ -65,6 +67,10 @@ async function CatalogContent({ searchParams }: Props) {
           {t("add")}
         </Link>
       </div>
+
+      {starter.length > 0 && filter === "all" && !query ? (
+        <OrgStarterPack items={starter} defaultOpen={catalog.counts.all < 12} />
+      ) : null}
 
       <Form action="/distributor/catalog" role="search" className="relative">
         {filter !== "all" ? <input type="hidden" name="filter" value={filter} /> : null}

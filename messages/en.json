@@ -67,7 +67,8 @@
     "catalog": "Catalog",
     "nearby": "Nearby",
     "wholesale": "Wholesale",
-    "stockOrders": "Stock orders"
+    "stockOrders": "Stock orders",
+    "products": "Products"
   },
   "roles": {
     "customer": "Customer",
@@ -315,7 +316,8 @@
     "notConfigured": "Munshi needs an AI key before it can answer. Everything else in TezDukan works as normal.",
     "unavailable": "Munshi is not available right now. Please use the app screens, everything works as normal.",
     "offline": "You are offline. Munshi needs the internet; your screens still work.",
-    "micDenied": "Microphone is blocked. Allow it in your browser settings, or type instead."
+    "micDenied": "Microphone is blocked. Allow it in your browser settings, or type instead.",
+    "transcribing": "Getting what you said…"
   },
   "pwa": {
     "installTitle": "Install TezDukan",
@@ -1097,6 +1099,16 @@
         "generic": "Couldn't save. Please try again.",
         "offline": "You're offline. Try again when you're connected."
       }
+    },
+    "starter": {
+      "title": "List common products in one tap",
+      "hint": "{count, plural, one {# product} other {# products}} every dukan asks for. Trade price is set a little under MRP; check each one.",
+      "stockEach": "Stock in for each (pieces)",
+      "mrp": "MRP {price}",
+      "tradeFor": "Trade price of {name}",
+      "add": "List {count, plural, one {# product} other {# products}}",
+      "fixPrices": "Fix the prices marked red (at or under MRP)",
+      "added": "{count, plural, one {# product listed} other {# products listed}}"
     }
   },
   "onboarding": {
@@ -1351,7 +1363,8 @@
       "wholesale": "Buy stock",
       "orders": "Orders",
       "khata": "Khata",
-      "chat": "Chat"
+      "chat": "Chat",
+      "products": "Products"
     },
     "liveOrders": "Live orders",
     "newCount": "{count, plural, one {# new} other {# new}}",
@@ -1377,6 +1390,68 @@
       "packed": "Mark packed",
       "out_for_delivery": "Send out",
       "delivered": "Delivered"
+    }
+  },
+  "shopProducts": {
+    "title": "My products",
+    "subtitle": "{count, plural, one {# product} other {# products}} · {low, number} low on stock",
+    "actions": {
+      "add": "Add product",
+      "speak": "Say it",
+      "common": "Common products"
+    },
+    "starter": {
+      "title": "Add common products in one tap",
+      "hint": "The items most dukans keep. Priced at MRP; untick or change any price first.",
+      "stockEach": "Stock for each",
+      "add": "Add {count, plural, one {# product} other {# products}}",
+      "fixPrices": "Fill in the prices marked red"
+    },
+    "priceFor": "Selling price of {name}",
+    "added": "{count, plural, one {# product added} other {# products added}}",
+    "addedOne": "{name} added",
+    "saved": "{name} updated",
+    "removed": "{name} removed from your products",
+    "emptyTitle": "No products yet",
+    "emptyHint": "Add the common products in one tap, then add the rest by typing or speaking.",
+    "searchMine": "Search my products",
+    "clear": "Clear search",
+    "filters": {
+      "all": "All {count, number}",
+      "low": "Low stock {count, number}",
+      "hidden": "Hidden {count, number}"
+    },
+    "noMatch": "Nothing matches. Try another name, or add it as a new product.",
+    "out": "Out of stock",
+    "inStock": "{count, number} in stock",
+    "hiddenBadge": "Hidden",
+    "mrp": "MRP {price}",
+    "sellPrice": "Selling price",
+    "onShelf": "On the shelf",
+    "showOnline": "Show to customers",
+    "showOnlineHint": "Customers can order it from your online dukan.",
+    "save": "Save",
+    "remove": "Remove product",
+    "less": "One less {name}",
+    "more": "One more {name}",
+    "addTitle": "Add a product",
+    "addHint": "Type or say the name. TezDukan fills in the photo and details.",
+    "detailsHint": "Set your price and how many you have.",
+    "ownTitle": "Add your own product",
+    "searchCatalog": "Name, brand or barcode",
+    "speak": "Speak the name",
+    "stopListening": "Stop listening",
+    "listening": "Listening… say the product name",
+    "addOwn": "Not in the list? Add your own",
+    "name": "Product name",
+    "packSize": "Pack size",
+    "packSizeHint": "For example 1 kg or 500 ml",
+    "addButton": "Add product",
+    "back": "Back",
+    "errors": {
+      "generic": "Could not save. Check your internet and try again.",
+      "not_allowed": "Your account cannot change products for this dukan.",
+      "invalid": "Check the price and stock, then try again."
     }
   }
 }

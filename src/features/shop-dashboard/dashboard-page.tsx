@@ -1,8 +1,8 @@
 import {
   BookOpen,
+  Boxes,
   ChevronRight,
   type LucideIcon,
-  MessageCircle,
   PackageOpen,
   ShoppingBag,
   TriangleAlert,
@@ -52,6 +52,12 @@ async function DashboardContent() {
 
   const tiles: Tile[] = [
     {
+      href: "/dukan/products",
+      label: t("tiles.products"),
+      icon: Boxes,
+      tone: "bg-primary-soft text-primary-strong",
+    },
+    {
       href: "/dukan/wholesale",
       label: t("tiles.wholesale"),
       icon: Truck,
@@ -61,16 +67,10 @@ async function DashboardContent() {
       href: "/dukan/customer-orders",
       label: t("tiles.orders"),
       icon: ShoppingBag,
-      tone: "bg-primary-soft text-primary-strong",
+      tone: "bg-subtle text-ink",
       badge: dash.counts.new,
     },
     { href: "/dukan/ledger", label: t("tiles.khata"), icon: BookOpen, tone: "bg-subtle text-ink" },
-    {
-      href: "/dukan/chat",
-      label: t("tiles.chat"),
-      icon: MessageCircle,
-      tone: "bg-subtle text-ink",
-    },
   ];
 
   return (

@@ -1,7 +1,12 @@
 import "server-only";
 import { notFound } from "next/navigation";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
-import { orgCatalogSchema, referenceSchema, type CatalogFilter } from "./schemas";
+import {
+  orgCatalogSchema,
+  orgStarterPackSchema,
+  referenceSchema,
+  type CatalogFilter,
+} from "./schemas";
 
 /** Server-side catalog reads, as the signed-in distributor member. */
 
@@ -36,4 +41,15 @@ export async function getCatalogReference() {
   if (brands.error) throw new Error(brands.error.message);
   if (categories.error) throw new Error(categories.error.message);
   return referenceSchema.parse({ brands: brands.data, categories: categories.data });
+}
+
+/** Common catalogue products this distributor does not list yet. */
+export async function getOrgStarterPack(orgId: string, limit = 16) {
+  const supabase = await getSupabaseServerClient();
+  const { data, error } = await supabase.rpc("org_starter_pack", {
+    p_org_id: orgId,
+    p_limit: limit,
+  });
+  if (error) throw new Error(error.message);
+  return orgStarterPackSchema.parse(data);
 }

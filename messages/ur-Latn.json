@@ -67,7 +67,8 @@
     "catalog": "Catalog",
     "nearby": "Qareeb",
     "wholesale": "Wholesale",
-    "stockOrders": "Stock orders"
+    "stockOrders": "Stock orders",
+    "products": "Products"
   },
   "roles": {
     "customer": "Gaahak",
@@ -315,7 +316,8 @@
     "notConfigured": "Jawab dene ke liye Munshi ko AI key chahiye. TezDukan ka baqi sab kaam maamool ke mutabiq chal raha hai.",
     "unavailable": "Munshi abhi dastiyab nahi. App ke safhat istemal karein, sab kuch maamool ke mutabiq kaam kar raha hai.",
     "offline": "Aap offline hain. Munshi ko internet chahiye, baqi safhat kaam kar rahe hain.",
-    "micDenied": "Mic band hai. Browser ki setting mein ijazat dein ya likh kar poochein."
+    "micDenied": "Mic band hai. Browser ki setting mein ijazat dein ya likh kar poochein.",
+    "transcribing": "Aap ki baat samajh raha hoon…"
   },
   "pwa": {
     "installTitle": "TezDukan install karein",
@@ -1097,6 +1099,16 @@
         "generic": "Save nahi hua. Dobara koshish karein.",
         "offline": "Aap offline hain. Internet aane par dobara koshish karein."
       }
+    },
+    "starter": {
+      "title": "Aam products ek tap mein list karein",
+      "hint": "{count, plural, one {# product} other {# products}} jo har dukan maangti hai. Trade price MRP se thori kam rakhi hai; har ek check kar lein.",
+      "stockEach": "Har ek ka stock (pieces)",
+      "mrp": "MRP {price}",
+      "tradeFor": "{name} ki trade price",
+      "add": "{count, plural, one {# product list karein} other {# products list karein}}",
+      "fixPrices": "Laal nishan wali qeematein theek karein (MRP ya kam)",
+      "added": "{count, plural, one {# product list ho gaya} other {# products list ho gaye}}"
     }
   },
   "onboarding": {
@@ -1351,7 +1363,8 @@
       "wholesale": "Maal khareedein",
       "orders": "Orders",
       "khata": "Khata",
-      "chat": "Chat"
+      "chat": "Chat",
+      "products": "Products"
     },
     "liveOrders": "Live orders",
     "newCount": "{count, plural, one {# naya} other {# naye}}",
@@ -1377,6 +1390,68 @@
       "packed": "Pack ho gaya",
       "out_for_delivery": "Rawana karein",
       "delivered": "Deliver ho gaya"
+    }
+  },
+  "shopProducts": {
+    "title": "Meri products",
+    "subtitle": "{count, plural, one {# product} other {# products}} · {low, number} ka stock kam",
+    "actions": {
+      "add": "Product add karein",
+      "speak": "Bol kar",
+      "common": "Aam products"
+    },
+    "starter": {
+      "title": "Aam products ek tap mein add karein",
+      "hint": "Wo cheezein jo zyada tar dukanein rakhti hain. Qeemat MRP par hai; pehle koi hata dein ya qeemat badal dein.",
+      "stockEach": "Har ek ka stock",
+      "add": "{count, plural, one {# product add karein} other {# products add karein}}",
+      "fixPrices": "Laal nishan wali qeematein bharein"
+    },
+    "priceFor": "{name} ki qeemat-e-farokht",
+    "added": "{count, plural, one {# product add ho gaya} other {# products add ho gaye}}",
+    "addedOne": "{name} add ho gaya",
+    "saved": "{name} update ho gaya",
+    "removed": "{name} aap ki products se hata diya",
+    "emptyTitle": "Abhi koi product nahi",
+    "emptyHint": "Aam products ek tap mein add karein, baqi likh kar ya bol kar.",
+    "searchMine": "Meri products mein dhoondein",
+    "clear": "Search saaf karein",
+    "filters": {
+      "all": "Sab {count, number}",
+      "low": "Kam stock {count, number}",
+      "hidden": "Chhupi hui {count, number}"
+    },
+    "noMatch": "Kuch nahi mila. Doosra naam try karein ya naya product add karein.",
+    "out": "Stock khatam",
+    "inStock": "{count, number} stock mein",
+    "hiddenBadge": "Chhupi hui",
+    "mrp": "MRP {price}",
+    "sellPrice": "Bechne ki qeemat",
+    "onShelf": "Shelf par",
+    "showOnline": "Customers ko dikhayein",
+    "showOnlineHint": "Customer ise aap ki online dukan se mangwa sakenge.",
+    "save": "Save karein",
+    "remove": "Product hatayein",
+    "less": "{name} ek kam",
+    "more": "{name} ek zyada",
+    "addTitle": "Product add karein",
+    "addHint": "Naam likhein ya bolein. Tasveer aur tafseel TezDukan khud bhar dega.",
+    "detailsHint": "Apni qeemat aur tadaad likhein.",
+    "ownTitle": "Apna product add karein",
+    "searchCatalog": "Naam, brand ya barcode",
+    "speak": "Naam bolein",
+    "stopListening": "Sunna band karein",
+    "listening": "Sun raha hoon… product ka naam bolein",
+    "addOwn": "List mein nahi? Apna product add karein",
+    "name": "Product ka naam",
+    "packSize": "Pack size",
+    "packSizeHint": "Maslan 1 kg ya 500 ml",
+    "addButton": "Product add karein",
+    "back": "Wapas",
+    "errors": {
+      "generic": "Save nahi hua. Internet check kar ke dobara koshish karein.",
+      "not_allowed": "Aap ka account is dukan ki products nahi badal sakta.",
+      "invalid": "Qeemat aur stock check kar ke dobara koshish karein."
     }
   }
 }

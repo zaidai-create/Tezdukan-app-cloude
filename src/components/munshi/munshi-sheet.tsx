@@ -18,7 +18,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { useMediaQuery } from "@/hooks/use-media-query";
-import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
+import { useVoiceInput } from "@/hooks/use-voice-input";
 import { speechLang } from "@/i18n/locales";
 import { usePathname } from "@/i18n/navigation";
 import type { AppRole } from "@/lib/auth/roles";
@@ -82,7 +82,7 @@ function MunshiPanel({
     }
   };
 
-  const speech = useSpeechRecognition(speechLang[locale], {
+  const speech = useVoiceInput(speechLang[locale], {
     onEnd: (heard) => {
       if (heard) void send(heard);
     },
@@ -163,6 +163,12 @@ function MunshiPanel({
               <SpeedLines animated className="w-16" />
               <p className="text-sm font-semibold text-primary-strong">{t("listening")}</p>
               <p className="min-h-7 text-lg text-ink">{speech.transcript || t("speakNow")}</p>
+            </div>
+          ) : null}
+          {speech.status === "working" ? (
+            <div className="flex items-center gap-2 self-center rounded-lg bg-subtle px-3.5 py-3 text-sm text-muted">
+              <SpeedLines animated className="w-7" />
+              {t("transcribing")}
             </div>
           ) : null}
           {speech.status === "denied" ? (
