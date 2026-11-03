@@ -4,6 +4,16 @@ All notable changes, newest first. Dates are Asia/Karachi.
 
 ## Unreleased
 
+### Play Store readiness, account deletion, Google sign-in (2026-11-03)
+
+- Delete my account (Account page) and the public page /data-deletion, as Google Play requires.
+- Play Store kit in docs/play-store: signed app bundle steps, listing texts in English and Urdu,
+  feature graphic, screenshots, Data safety answers and the publishing checklist. The privacy
+  policy now covers voice, AI processing, crash reports and Google sign-in.
+- Google sign-in is switched on (Supabase provider and the app's button). It starts working
+  once the Supabase callback address is added to the Google Cloud OAuth client.
+- Fixed: shop staff without khata access (cashier, stock helper) saw an error on Home.
+
 ### Munshi answers with AI (2026-11-03)
 
 - Munshi now answers questions and does simple jobs with Google's Gemini (official API, a free
