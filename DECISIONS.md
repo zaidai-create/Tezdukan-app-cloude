@@ -260,3 +260,23 @@ section. Format: **decision** — reason (date).
   dependency order, leaving real data untouched. (2026-10-25)
 - **uuid v4 (`gen_random_uuid()`) primary keys** — Postgres 17 has no built-in uuidv7.
   Client-generated UUIDs make offline writes idempotent. (2026-10-25)
+
+## AI
+
+- **Munshi runs on Google's official Gemini API with a free AI Studio key** — one
+  `GEMINI_API_KEY` powers Munshi, voice-to-text and (later) the support assistant. We do not use
+  "web to API" tools that drive the consumer Gemini website with a person's login cookies: they
+  break Google's terms, can get the owner's Google account blocked, and stop working without
+  notice. (2026-11-03)
+- **A list of models, tried in order** — the free tier's newest models are often overloaded
+  (HTTP 503) or slow, so `GEMINI_MODEL_AGENT` is a comma-separated list (default
+  `gemini-3.5-flash`, then the lite models, then the newest flash); a busy, rate-limited,
+  retired or slow model falls through to the next, within about 40 seconds. When all are busy
+  Munshi says so plainly. Paid billing on the AI Studio project removes most of this. (2026-11-03)
+- **Munshi acts with the person's own session** — every tool calls the same RLS-protected
+  queries and RPCs as the screens, so the model can never read or change more than the person
+  could by hand. Writes (price, stock, adding products) are done when asked and reported back
+  exactly. (2026-11-03)
+- **Replies are plain text** — the app shows short sentences, not markdown; a read-aloud
+  button helps people who read slowly. (2026-11-03)
+
