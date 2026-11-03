@@ -7,7 +7,7 @@ import { messages } from "./support/messages";
  * verify, sign in to each role's home, stay signed in, switch roles without signing out, and
  * sign out.
  */
-const { auth, roles, home, common } = messages.en;
+const { auth, roles, home, common, shopDash } = messages.en;
 const DEMO_PASSWORD = "TezDukan-Demo-1";
 
 async function signIn(page: Page, phone: string) {
@@ -59,6 +59,8 @@ test("one account switches roles without signing out", async ({ page }, testInfo
   await page.getByRole("button", { name: roles.switchRole }).first().click();
   await page.getByRole("button", { name: /TezDukan/ }).click();
   await expect(page).toHaveURL(/\/dukan$/);
+  // Staff without khata access still get a working Home, not an error.
+  await expect(page.getByRole("heading", { name: shopDash.liveOrders })).toBeVisible();
 
   // Back to shopping, which is also where the next run starts.
   await page.getByRole("button", { name: roles.switchRole }).first().click();

@@ -45,10 +45,16 @@ async function DashboardContent() {
     getTranslations("shopDash"),
     getTranslations("home"),
     getShopDashboard(shopId),
-    getShopDistributors(shopId),
+    // Staff without khata access (a cashier, a stock helper) still get the rest of Home.
+    getShopDistributors(shopId).catch((error: unknown) => {
+      if (error instanceof Error && error.message === "not_allowed") return null;
+      throw error;
+    }),
   ]);
   const firstName = session.fullName.split(" ")[0] ?? "";
-  const owed = distributors.reduce((sum, d) => sum + Math.max(d.balance_paisa, 0), 0);
+  const owed = distributors
+    ? distributors.reduce((sum, d) => sum + Math.max(d.balance_paisa, 0), 0)
+    : null;
   const peak = Math.max(...dash.week.map((d) => d.sales_paisa), 1);
 
   const tiles: Tile[] = [
@@ -226,10 +232,12 @@ async function DashboardContent() {
             {t("khataTitle")}
           </h2>
           <dl className="num grid grid-cols-2 gap-3">
-            <div className="rounded-md bg-subtle p-3">
-              <dt className="text-sm text-muted">{t("owed")}</dt>
-              <dd className="font-heading text-xl font-bold text-ink">{formatRs(owed)}</dd>
-            </div>
+            {owed === null ? null : (
+              <div className="rounded-md bg-subtle p-3">
+                <dt className="text-sm text-muted">{t("owed")}</dt>
+                <dd className="font-heading text-xl font-bold text-ink">{formatRs(owed)}</dd>
+              </div>
+            )}
             <div className="rounded-md bg-subtle p-3">
               <dt className="text-sm text-muted">{t("incoming")}</dt>
               <dd className="font-heading text-xl font-bold text-ink">
