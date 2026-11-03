@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Bike,
   BookOpen,
   Boxes,
   ChevronRight,
@@ -20,8 +21,8 @@ import {
   Store,
   Sun,
   SunMoon,
+  Trash2,
   Truck,
-  Bike,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
@@ -367,6 +368,16 @@ function AccountView({ session }: { session: ShellSession }) {
           tone="awning"
           label={t("account.joinRider")}
           hint={t("account.joinRiderHint")}
+        />
+      </Group>
+
+      <Group>
+        <LinkRow
+          href="/data-deletion"
+          icon={Trash2}
+          tone="danger"
+          label={t("account.deleteAccount")}
+          hint={t("account.deleteAccountHint")}
         />
       </Group>
 

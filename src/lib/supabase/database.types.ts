@@ -8312,6 +8312,7 @@ export type Database = {
         }[];
       };
       mark_conversation_read: { Args: { p_conversation_id: string }; Returns: undefined };
+      my_account_deletion: { Args: Record<PropertyKey, never>; Returns: Json };
       my_conversations: {
         Args: { p_org_id?: string; p_shop_id?: string; p_support_queue?: boolean };
         Returns: Json;
@@ -8582,6 +8583,7 @@ export type Database = {
         };
       };
       reorder: { Args: { p_order_id: string }; Returns: Json };
+      request_account_deletion: { Args: { p_reason?: string }; Returns: Json };
       request_return: {
         Args: { p_items: Json; p_notes?: string; p_order_id: string; p_photo_paths?: string[] };
         Returns: {

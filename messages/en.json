@@ -256,7 +256,9 @@
     "registerDukan": "Become a shopkeeper",
     "becomeDistributor": "Become a distributor",
     "joinRider": "Join as a delivery rider",
-    "joinRiderHint": "Talk to our team"
+    "joinRiderHint": "Talk to our team",
+    "deleteAccount": "Delete my account",
+    "deleteAccountHint": "Remove your account and personal data"
   },
   "command": {
     "title": "Search and commands",
@@ -1522,5 +1524,39 @@
       "listedSub": "Ready for orders",
       "cashCollected": "Cash collected"
     }
+  },
+  "dataDeletion": {
+    "title": "Delete your TezDukan account",
+    "back": "Back",
+    "intro": "You can ask us to delete your TezDukan account and your personal data at any time.",
+    "deletedTitle": "What we delete",
+    "deleted": {
+      "profile": "Your name, photo and account",
+      "phone": "Your phone number and sign-in details",
+      "addresses": "Saved addresses",
+      "cart": "Your cart and saved items",
+      "chats": "Your chat messages and notifications",
+      "devices": "Notification settings on your phones"
+    },
+    "keptTitle": "What we must keep",
+    "kept": {
+      "orders": "Orders, invoices and payments, kept for accounting and tax as the law requires, no longer linked to your name",
+      "khata": "Khata entries a dukan or distributor holds with you, which belong to their books"
+    },
+    "timeline": "We finish deleting within 30 days. You are signed out right away.",
+    "signedOutTitle": "Sign in to ask for deletion",
+    "signedOutBody": "To protect your account, sign in with your phone number first. If you cannot sign in, message us on WhatsApp from the same number.",
+    "signIn": "Sign in",
+    "whatsapp": "Ask on WhatsApp",
+    "whatsappText": "Please delete my TezDukan account. My phone number is:",
+    "reasonLabel": "Why are you leaving? (optional)",
+    "reasonPlaceholder": "Tell us in a few words",
+    "confirm": "I understand my account will be deleted and this cannot be undone.",
+    "button": "Delete my account",
+    "error": "Could not send the request. Check your internet and try again.",
+    "requestedTitle": "Request received on {date}",
+    "requestedBody": "Your account will be deleted within 30 days. Message support if you change your mind.",
+    "doneTitle": "Your request is in",
+    "doneBody": "We have signed you out. Your account and personal data will be deleted within 30 days."
   }
 }

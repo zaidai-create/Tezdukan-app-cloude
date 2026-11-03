@@ -256,7 +256,9 @@
     "registerDukan": "Dukandar banein",
     "becomeDistributor": "Distributor banein",
     "joinRider": "Delivery rider banein",
-    "joinRiderHint": "Hamari team se baat karein"
+    "joinRiderHint": "Hamari team se baat karein",
+    "deleteAccount": "Mera account delete karein",
+    "deleteAccountHint": "Account aur zaati data hatayein"
   },
   "command": {
     "title": "Talaash aur commands",
@@ -1522,5 +1524,39 @@
       "listedSub": "Order ke liye tayyar",
       "cashCollected": "Cash wusool"
     }
+  },
+  "dataDeletion": {
+    "title": "Apna TezDukan account delete karein",
+    "back": "Wapas",
+    "intro": "Aap kisi bhi waqt hum se apna TezDukan account aur zaati data delete karwa sakte hain.",
+    "deletedTitle": "Hum kya delete karte hain",
+    "deleted": {
+      "profile": "Aap ka naam, tasveer aur account",
+      "phone": "Aap ka phone number aur sign in ki tafseel",
+      "addresses": "Mehfooz pate",
+      "cart": "Aap ki cart aur mehfooz cheezein",
+      "chats": "Aap ke chat messages aur notifications",
+      "devices": "Aap ke phones par notification ki settings"
+    },
+    "keptTitle": "Humein kya rakhna zaroori hai",
+    "kept": {
+      "orders": "Orders, invoice aur payments, qanoon ke mutabiq hisaab aur tax ke liye, aap ke naam ke baghair",
+      "khata": "Kisi dukan ya distributor ke paas aap ke khate ki entries, jo un ke hisaab ka hissa hain"
+    },
+    "timeline": "Hum 30 din ke andar delete kar dete hain. Aap foran sign out ho jate hain.",
+    "signedOutTitle": "Delete karwane ke liye sign in karein",
+    "signedOutBody": "Aap ke account ki hifazat ke liye pehle phone number se sign in karein. Sign in na ho sake to usi number se humein WhatsApp karein.",
+    "signIn": "Sign in karein",
+    "whatsapp": "WhatsApp par kahein",
+    "whatsappText": "Baraye meharbani mera TezDukan account delete karein. Mera phone number hai:",
+    "reasonLabel": "Aap kyun ja rahe hain? (ikhtiyari)",
+    "reasonPlaceholder": "Chand lafzon mein batayein",
+    "confirm": "Main samajhta hoon ke mera account delete ho jayega aur ye wapas nahi ho sakta.",
+    "button": "Mera account delete karein",
+    "error": "Request nahi bheji ja saki. Internet check kar ke dobara koshish karein.",
+    "requestedTitle": "Request {date} ko mili",
+    "requestedBody": "Aap ka account 30 din ke andar delete ho jayega. Iraada badle to support ko message karein.",
+    "doneTitle": "Aap ki request mil gayi",
+    "doneBody": "Humne aap ko sign out kar diya hai. Aap ka account aur zaati data 30 din ke andar delete ho jayega."
   }
 }

@@ -41,6 +41,6 @@ GENERAL
 - Munshi is the in-app helper: tap the mic to speak or type a question.
 - Android app: download from tezdukan.vercel.app. The TezDukan team answers support chats from
   9 am to 9 pm; the WhatsApp button in support reaches the team too.
-- Delete account: Account -> Delete my account, or the page tezdukan.vercel.app/delete-account.
+- Delete account: Account -> Delete my account, or the page tezdukan.vercel.app/data-deletion.
 - Policies: tezdukan.vercel.app/terms, /privacy and /refund-policy.
 `.trim();
