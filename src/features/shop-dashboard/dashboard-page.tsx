@@ -14,6 +14,7 @@ import { Suspense } from "react";
 import { cn } from "cn";
 import { Skeleton } from "@/components/ui/skeleton";
 import { NotificationPrompt } from "@/features/notifications/components/notification-prompt";
+import { DukanPosters } from "@/features/posters/posters";
 import { getShopDistributors, requireDukan } from "@/features/ordering/data";
 import { Link } from "@/i18n/navigation";
 import { formatRs } from "@/lib/money";
@@ -179,6 +180,8 @@ async function DashboardContent() {
           </p>
         )}
       </section>
+
+      <DukanPosters />
 
       <div className="grid gap-4 lg:grid-cols-2">
         {dash.low_stock.length > 0 ? (

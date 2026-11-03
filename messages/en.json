@@ -996,20 +996,17 @@
     "haveAccount": "I already have an account",
     "slideOf": "{current, number} of {total, number}",
     "slides": {
-      "doorstep": {
-        "title": "We deliver grocery to your doorstep",
-        "body": "Order stock from Hyderabad's distributors. It reaches your dukan the next day.",
-        "alt": "A delivery rider holding a bag of groceries"
+      "customers": {
+        "title": "Your mohalla dukan, on your phone",
+        "body": "Order from dukans close by, follow every step, and pay cash at the door."
       },
-      "distributors": {
-        "title": "Trade prices and schemes, side by side",
-        "body": "Compare rates, see your profit on every product, and order in a few taps.",
-        "alt": "A loaded delivery van in a distributor's warehouse"
+      "dukandar": {
+        "title": "Your dukan, online in minutes",
+        "body": "Add products in one tap, get orders with a sound, and keep your khata in one place."
       },
-      "products": {
-        "title": "Khata, orders and chat in one app",
-        "body": "Know what you owe, follow every delivery live, or just tell Munshi what you need.",
-        "alt": "Tapal Danedar tea and Dalda cooking oil on a counter"
+      "distributor": {
+        "title": "Wholesale, made simple",
+        "body": "Take orders from dukans, dispatch on time, and know who owes what."
       }
     }
   },
@@ -1452,6 +1449,76 @@
       "generic": "Could not save. Check your internet and try again.",
       "not_allowed": "Your account cannot change products for this dukan.",
       "invalid": "Check the price and stock, then try again."
+    }
+  },
+  "posters": {
+    "label": "Offers and tips",
+    "slideOf": "{current, number} of {total, number}",
+    "customer": {
+      "nearby": {
+        "eyebrow": "Near you",
+        "title": "Your mohalla dukan, on your phone",
+        "body": "Order from dukans close by and pay cash at the door.",
+        "cta": "Find dukans"
+      },
+      "track": {
+        "eyebrow": "Live",
+        "title": "Know where your order is",
+        "body": "Accepted, packed, on the way: every step as it happens.",
+        "cta": "My orders"
+      },
+      "sell": {
+        "eyebrow": "For shopkeepers",
+        "title": "Bring your dukan online",
+        "body": "Orders from your street, straight to your phone.",
+        "cta": "Become a shopkeeper"
+      }
+    },
+    "dukan": {
+      "products": {
+        "eyebrow": "New",
+        "title": "16 common products, one tap",
+        "body": "Fill your online shelf in seconds. Change any price later.",
+        "cta": "Add products"
+      },
+      "wholesale": {
+        "eyebrow": "Wholesale",
+        "title": "Stock at trade price",
+        "body": "Compare distributors, see your margin, order in a few taps.",
+        "cta": "Buy stock"
+      }
+    },
+    "distributor": {
+      "catalog": {
+        "eyebrow": "Catalog",
+        "title": "List common products in one tap",
+        "body": "Set your trade prices and start taking orders today.",
+        "cta": "Open catalog"
+      },
+      "orders": {
+        "eyebrow": "Orders",
+        "title": "Every dukan's order in one inbox",
+        "body": "Confirm, pack, dispatch and collect cash, step by step.",
+        "cta": "See orders"
+      }
+    },
+    "chips": {
+      "onTheWay": "On the way",
+      "onTheWaySub": "Rider is near",
+      "cashOnDelivery": "Cash on delivery",
+      "accepted": "Order accepted",
+      "acceptedSub": "The dukan is packing",
+      "newOrder": "New order",
+      "newOrderSub": "From your street",
+      "fromDukan": "From a dukan",
+      "added": "16 products added",
+      "addedSub": "Prices at MRP",
+      "margin": "Your margin",
+      "marginSub": "On every product",
+      "delivery": "Delivered to your dukan",
+      "listed": "Products listed",
+      "listedSub": "Ready for orders",
+      "cashCollected": "Cash collected"
     }
   }
 }

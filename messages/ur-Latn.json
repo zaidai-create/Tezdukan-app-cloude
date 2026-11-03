@@ -996,20 +996,17 @@
     "haveAccount": "Mera account pehle se hai",
     "slideOf": "{total, number} mein se {current, number}",
     "slides": {
-      "doorstep": {
-        "title": "Hum sauda aap ki dukan tak pahunchate hain",
-        "body": "Hyderabad ke distributors se maal mangwayein. Agle din aap ki dukan par.",
-        "alt": "Delivery rider saude ka thaila uthaye hue"
+      "customers": {
+        "title": "Mohalle ki dukan, aap ke phone par",
+        "body": "Qareebi dukanon se mangwayein, har qadam dekhein, aur darwaze par cash dein."
       },
-      "distributors": {
-        "title": "Trade rate aur schemes, ek saath",
-        "body": "Rate milayein, har cheez par apna munafa dekhein, aur chand tap mein order karein.",
-        "alt": "Distributor ke godown mein ladi hui gaari"
+      "dukandar": {
+        "title": "Aap ki dukan, minton mein online",
+        "body": "Ek tap mein products add karein, awaaz ke saath order paayein, aur khata ek jagah rakhein."
       },
-      "products": {
-        "title": "Khata, order aur chat ek app mein",
-        "body": "Baqaya janein, har delivery live dekhein, ya Munshi ko bas bata dein kya chahiye.",
-        "alt": "Counter par Tapal Danedar chai aur Dalda cooking oil"
+      "distributor": {
+        "title": "Wholesale, aasaan",
+        "body": "Dukanon se order lein, waqt par rawana karein, aur jaanein kis ka kitna baqaya hai."
       }
     }
   },
@@ -1452,6 +1449,76 @@
       "generic": "Save nahi hua. Internet check kar ke dobara koshish karein.",
       "not_allowed": "Aap ka account is dukan ki products nahi badal sakta.",
       "invalid": "Qeemat aur stock check kar ke dobara koshish karein."
+    }
+  },
+  "posters": {
+    "label": "Offers aur mashware",
+    "slideOf": "{total, number} mein se {current, number}",
+    "customer": {
+      "nearby": {
+        "eyebrow": "Aap ke qareeb",
+        "title": "Mohalle ki dukan, aap ke phone par",
+        "body": "Qareebi dukanon se mangwayein aur darwaze par cash dein.",
+        "cta": "Dukanein dekhein"
+      },
+      "track": {
+        "eyebrow": "Live",
+        "title": "Order kahan hai, sab pata",
+        "body": "Qubool, pack, raste mein: har qadam usi waqt.",
+        "cta": "Mere orders"
+      },
+      "sell": {
+        "eyebrow": "Dukandaron ke liye",
+        "title": "Apni dukan online laayein",
+        "body": "Gali ke orders seedhe aap ke phone par.",
+        "cta": "Dukandar banein"
+      }
+    },
+    "dukan": {
+      "products": {
+        "eyebrow": "Naya",
+        "title": "16 aam products, ek tap",
+        "body": "Online shelf seconds mein bharein. Qeemat baad mein badlein.",
+        "cta": "Products add karein"
+      },
+      "wholesale": {
+        "eyebrow": "Wholesale",
+        "title": "Maal trade price par",
+        "body": "Distributors ka muqabla karein, munafa dekhein, chand tap mein order karein.",
+        "cta": "Maal khareedein"
+      }
+    },
+    "distributor": {
+      "catalog": {
+        "eyebrow": "Catalog",
+        "title": "Aam products ek tap mein list karein",
+        "body": "Trade price rakhein aur aaj hi order lena shuru karein.",
+        "cta": "Catalog kholein"
+      },
+      "orders": {
+        "eyebrow": "Orders",
+        "title": "Har dukan ka order ek inbox mein",
+        "body": "Tasdeeq, packing, rawangi aur cash wusooli, qadam ba qadam.",
+        "cta": "Orders dekhein"
+      }
+    },
+    "chips": {
+      "onTheWay": "Raste mein",
+      "onTheWaySub": "Rider qareeb hai",
+      "cashOnDelivery": "Delivery par cash",
+      "accepted": "Order qubool",
+      "acceptedSub": "Dukan pack kar rahi hai",
+      "newOrder": "Naya order",
+      "newOrderSub": "Aap ki gali se",
+      "fromDukan": "Ek dukan se",
+      "added": "16 products add",
+      "addedSub": "Qeemat MRP par",
+      "margin": "Aap ka munafa",
+      "marginSub": "Har product par",
+      "delivery": "Dukan par delivery",
+      "listed": "Products list ho gaye",
+      "listedSub": "Order ke liye tayyar",
+      "cashCollected": "Cash wusool"
     }
   }
 }

@@ -23,6 +23,7 @@ import {
   getStorefrontShop,
 } from "./data";
 import type { StorefrontCategory } from "./schemas";
+import { CustomerPosters } from "@/features/posters/posters";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 const first = (value: string | string[] | undefined) => (Array.isArray(value) ? value[0] : value);
@@ -98,6 +99,8 @@ async function HomeContent() {
       </header>
 
       <SearchBar />
+
+      <CustomerPosters showSell={!hasDukan} />
 
       {stocked.length > 0 ? (
         <section className="flex flex-col gap-3">

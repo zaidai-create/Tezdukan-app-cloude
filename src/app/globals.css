@@ -282,7 +282,18 @@
   --animate-pop: pop 200ms var(--ease-out-soft) both;
   --animate-shake: shake 360ms var(--ease-out-soft) both;
   --animate-unroll: unroll 480ms var(--ease-out-soft) both;
+  --animate-float: float 6s ease-in-out infinite;
 
+  /* Poster chips drift a few pixels, like cards resting on water. */
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-6px);
+    }
+  }
   @keyframes shimmer {
     0% {
       background-position: 100% 0;

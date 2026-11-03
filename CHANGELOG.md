@@ -4,6 +4,16 @@ All notable changes, newest first. Dates are Asia/Karachi.
 
 ## Unreleased
 
+### New posters (2026-11-03)
+
+- New poster designs made from the app's real screens in tilted 3D phones, with floating
+  "moment" cards (New order, On the way, Cash on delivery) and one clear action each.
+- Posters on the customer home (shop nearby, follow your order, become a shopkeeper), the
+  dukandar home (16 common products, stock at trade price) and the distributor dashboard
+  (list common products, one order inbox). They swipe on phones, show two at a time on wide
+  screens, and move on by themselves unless reduced motion is on.
+- The welcome screens use the new posters instead of the old pictures.
+
 ### Products for dukandars, common-product packs, better voice, Android 0.1.4 (2026-11-03)
 
 - New Products tab for dukandars (Home, Orders, Products, Khata, Account): search the shelf,

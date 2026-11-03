@@ -19,7 +19,10 @@ export function NotificationPrompt({ audience }: { audience: Audience }) {
 
   if (state === "off") {
     return (
-      <section className="flex items-center gap-3 rounded-lg border border-primary/30 bg-primary-soft p-4 shadow-card">
+      <section
+        data-slot="notification-prompt"
+        className="flex items-center gap-3 rounded-lg border border-primary/30 bg-primary-soft p-4 shadow-card"
+      >
         <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-surface text-primary-strong shadow-card">
           <BellRing aria-hidden className="size-6" strokeWidth={1.75} />
         </span>
@@ -45,7 +48,10 @@ export function NotificationPrompt({ audience }: { audience: Audience }) {
 
   if (state === "blocked") {
     return (
-      <section className="flex items-start gap-3 rounded-lg border border-awning/40 bg-awning-soft p-4">
+      <section
+        data-slot="notification-prompt"
+        className="flex items-start gap-3 rounded-lg border border-awning/40 bg-awning-soft p-4"
+      >
         <Settings aria-hidden className="mt-0.5 size-5 shrink-0 text-awning-ink" />
         <span className="min-w-0 flex-1">
           <span className="block font-semibold text-ink">{t("prompt.blockedTitle")}</span>

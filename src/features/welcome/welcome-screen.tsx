@@ -1,23 +1,49 @@
 "use client";
 
 import { cn } from "cn";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Banknote, BellRing, Bike, PackagePlus, Truck, Wallet } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { Awning } from "@/components/brand/awning";
 import { LogoMark, Wordmark } from "@/components/brand/logo";
+import { PhoneFrame } from "@/components/posters/phone-frame";
+import { PosterChipCard } from "@/components/posters/poster";
 import { SpeedLines } from "@/components/brand/speed-lines";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
 import { WELCOMED_COOKIE } from "@/lib/auth/roles";
 import { haptic } from "@/lib/haptics";
 
+// One poster per side of TezDukan: the real screen in a phone, and the moment it's about.
 const slides = [
-  { key: "doorstep", image: "/welcome/doorstep.webp" },
-  { key: "distributors", image: "/welcome/distributors.webp" },
-  { key: "products", image: "/welcome/products.webp" },
+  {
+    key: "customers",
+    screen: "/posters/customer-home.webp",
+    tone: "bg-forest",
+    chips: [
+      { icon: Bike, title: "onTheWay", sub: "onTheWaySub" },
+      { icon: Banknote, title: "cashOnDelivery" },
+    ],
+  },
+  {
+    key: "dukandar",
+    screen: "/posters/dukan-dashboard.webp",
+    tone: "bg-mint-soft",
+    chips: [
+      { icon: BellRing, title: "newOrder", sub: "newOrderSub" },
+      { icon: PackagePlus, title: "added" },
+    ],
+  },
+  {
+    key: "distributor",
+    screen: "/posters/distributor-dashboard.webp",
+    tone: "bg-awning-soft",
+    chips: [
+      { icon: Truck, title: "delivery" },
+      { icon: Wallet, title: "cashCollected" },
+    ],
+  },
 ] as const;
 
 function rememberWelcome() {
@@ -33,6 +59,7 @@ const SWIPE = 60;
  */
 export function WelcomeScreen() {
   const t = useTranslations("welcome");
+  const tChips = useTranslations("posters.chips");
   const reduceMotion = useReducedMotion();
   const [splash, setSplash] = useState(true);
   const [index, setIndex] = useState(0);
@@ -113,16 +140,33 @@ export function WelcomeScreen() {
             >
               <div className="relative mx-auto w-full max-w-md overflow-hidden rounded-3xl bg-surface shadow-raised">
                 <Awning height={14} stripe={18} className="absolute inset-x-0 top-0 z-10" />
-                <div className="relative aspect-[4/3.2] w-full">
-                  <Image
-                    src={slide.image}
-                    alt={t(`slides.${slide.key}.alt`)}
-                    fill
+                <div className={cn("relative aspect-[4/3.2] w-full overflow-hidden", slide.tone)}>
+                  <PhoneFrame
+                    src={slide.screen}
                     priority={index === 0}
-                    sizes="(min-width: 640px) 448px, 100vw"
-                    className="object-cover"
-                    draggable={false}
+                    sizes="200px"
+                    tilt={index % 2 === 0 ? "end" : "start"}
+                    className={cn(
+                      "absolute top-[16%] w-[42%]",
+                      index % 2 === 0 ? "end-[12%]" : "start-[12%]",
+                    )}
                   />
+                  {slide.chips.map((chip, chipIndex) => (
+                    <PosterChipCard
+                      key={chip.title}
+                      tone={slide.key === "distributor" ? "awning" : "mint"}
+                      chip={{
+                        icon: chip.icon,
+                        title: tChips(chip.title),
+                        sub: "sub" in chip ? tChips(chip.sub) : undefined,
+                      }}
+                      className={cn(
+                        "absolute z-10",
+                        chipIndex === 0 ? "top-[30%]" : "top-[62%] [animation-delay:-3s]",
+                        (index % 2 === 0) === (chipIndex === 0) ? "start-[8%]" : "end-[8%]",
+                      )}
+                    />
+                  ))}
                 </div>
               </div>
               <div className="mx-auto w-full max-w-md">

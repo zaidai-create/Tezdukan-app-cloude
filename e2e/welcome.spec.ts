@@ -12,15 +12,13 @@ test.beforeEach(async ({ context, baseURL }) => {
 test("a new device sees the welcome posters once, then signs in", async ({ page }) => {
   await page.goto("/");
   await expect(page).toHaveURL(/\/welcome$/);
-  await expect(page.getByRole("heading", { name: welcome.slides.doorstep.title })).toBeVisible();
+  await expect(page.getByRole("heading", { name: welcome.slides.customers.title })).toBeVisible();
   await expectAccessible(page);
 
   await page.getByRole("button", { name: welcome.next, exact: true }).click();
-  await expect(
-    page.getByRole("heading", { name: welcome.slides.distributors.title }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: welcome.slides.dukandar.title })).toBeVisible();
   await page.getByRole("button", { name: welcome.next, exact: true }).click();
-  await expect(page.getByRole("heading", { name: welcome.slides.products.title })).toBeVisible();
+  await expect(page.getByRole("heading", { name: welcome.slides.distributor.title })).toBeVisible();
   await page.getByRole("link", { name: welcome.haveAccount }).click();
 
   await expect(page).toHaveURL(/\/login$/);

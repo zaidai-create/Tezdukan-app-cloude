@@ -15,6 +15,7 @@ import { EmptyState } from "@/components/states/empty-state";
 import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { NotificationPrompt } from "@/features/notifications/components/notification-prompt";
+import { DistributorPosters } from "@/features/posters/posters";
 import { Link } from "@/i18n/navigation";
 import { activeContextOf } from "@/lib/auth/session-types";
 import { formatRs } from "@/lib/money";
@@ -171,6 +172,8 @@ async function DashboardContent() {
       <Suspense fallback={<InsightsSkeleton />}>
         <DashboardInsights orgId={orgId} />
       </Suspense>
+
+      <DistributorPosters />
 
       <div className="grid gap-5 lg:grid-cols-5">
         <section className="rounded-lg border border-border/70 bg-surface p-4 shadow-card lg:col-span-3">
