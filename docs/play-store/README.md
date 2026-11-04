@@ -7,7 +7,7 @@ account, so they are listed in order below.
 
 | Item | Where |
 | --- | --- |
-| App bundle (`.aab`, signed with the upload key) | Built with `./gradlew bundleRelease` in `android/` (0.1.4, versionCode 5). The upload keystore lives outside the repo; keep it safe, every update must be signed with it. |
+| App bundle (`.aab`, signed with the upload key) | Built with `./gradlew bundleRelease` in `android/` (0.1.5, versionCode 6). The upload keystore lives outside the repo; keep it safe, every update must be signed with it. |
 | App icon 512×512 | `assets/app-icon-512.png` |
 | Feature graphic 1024×500 | `assets/feature-graphic-1024x500.png` |
 | Phone screenshots 1080×1920 | `assets/phone-screenshot-1.png` … `-6.png` |
@@ -130,3 +130,11 @@ Google Gemini (Tez and voice) are service providers.
 - Tez answers by voice or text
 - Order alerts as phone notifications
 - New design and posters
+
+## Release notes for 0.1.5
+
+- Order alerts now pop up on the phone even while TezDukan is open
+- Dukans show only to customers inside their delivery area; dukandars set their pin and how far they deliver
+- "Use my current location" works even when Chrome has no location permission
+- A full-screen TezDukan splash while the app opens
+

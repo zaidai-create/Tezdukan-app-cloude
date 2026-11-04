@@ -312,3 +312,23 @@ section. Format: **decision** — reason (date).
   default is now https://tezdukan.vercel.app, with localhost only in the redirect allow-list.
   (2026-11-04)
 
+## Delivery areas and location
+
+- **A dukan is shown only where it delivers** — `private.delivers_to` checks the shopper's
+  point against the dukan's pin and `delivery_radius_m` (or `serves_all_city`). Dukandars choose
+  1 to 5 km (the spec's mohalla range); admins can set up to 15 km or the whole city. Orders are
+  checked again before they are placed. (2026-11-05)
+- **The shopper's point lives in a cookie** (`td_loc`), set by the phone from GPS, a saved
+  address or an area centre, so server-rendered screens can filter without asking every time.
+  Without it, the default saved address with a map point is used; otherwise the app asks before
+  showing any dukan. (2026-11-05)
+- **Location through the app, not Chrome** — Android 0.1.5 registers androidbrowserhelper's
+  location delegation, so the TWA uses the app's own location permission. (2026-11-05)
+
+## Notifications
+
+- **Alerts always reach the phone screen** — the service worker no longer skips the system
+  notification when TezDukan is open (owner's call: a dukandar must not miss an order). A
+  pg_cron + pg_net job calls `/api/push/flush` every minute (secret in Supabase Vault, set up by
+  `hosted:setup` when CRON_SECRET is given); it also keeps the server warm. (2026-11-05)
+

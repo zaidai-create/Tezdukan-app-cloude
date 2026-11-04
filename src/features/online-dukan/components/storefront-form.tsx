@@ -10,7 +10,7 @@ import { PriceField, rupeesText } from "@/features/shop-products/components/fiel
 import { haptic } from "@/lib/haptics";
 import { parseRupees } from "@/lib/money";
 import { saveStorefront } from "../actions";
-import { etaOptions, type ShopStorefront } from "../schemas";
+import { etaOptions, radiusOptions, type ShopStorefront } from "../schemas";
 
 /** Rupees from a price field: empty is 0, anything unreadable is null. */
 const rupees = (text: string) => (text.trim() === "" ? 0 : parseRupees(text));
@@ -24,6 +24,10 @@ export function StorefrontForm({ store }: { store: ShopStorefront }) {
   const [minOrder, setMinOrder] = useState(rupeesText(store.min_order_paisa));
   const [freeAbove, setFreeAbove] = useState(rupeesText(store.free_delivery_above_paisa));
   const [tagline, setTagline] = useState(store.tagline ?? "");
+  const [radius, setRadius] = useState(String(Math.min(store.delivery_radius_m, 5000)));
+  const radii = [...new Set([...radiusOptions, Math.min(store.delivery_radius_m, 5000)])]
+    .sort((a, b) => a - b)
+    .map(String);
   const options = [...new Set([...etaOptions, store.eta_minutes])]
     .sort((a, b) => a - b)
     .map(String);
@@ -43,6 +47,7 @@ export function StorefrontForm({ store }: { store: ShopStorefront }) {
         min_order_paisa: values.minOrder ?? 0,
         free_delivery_above_paisa: values.freeAbove ?? 0,
         tagline,
+        delivery_radius_m: Number(radius),
       });
       if (!result.ok) {
         haptic("warning");
@@ -66,6 +71,18 @@ export function StorefrontForm({ store }: { store: ShopStorefront }) {
           label={t("eta")}
           render={(value) => t("etaOption", { minutes: Number(value) })}
         />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <p className="text-sm font-semibold text-ink">{t("radius")}</p>
+        <ChoiceChips
+          options={radii}
+          value={radius}
+          onChange={setRadius}
+          label={t("radius")}
+          render={(value) => t("radiusOption", { km: Number(value) / 1000 })}
+        />
+        <p className="text-sm text-muted">{t("radiusHint")}</p>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

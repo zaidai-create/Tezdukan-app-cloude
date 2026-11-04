@@ -1334,6 +1334,21 @@
       "summary": "{rating} from {count, plural, one {# rating} other {# ratings}}",
       "stars": "{count, plural, one {# star} other {# stars}} out of 5",
       "verified": "Delivered order"
+    },
+    "location": {
+      "title": "Where should we deliver?",
+      "hint": "TezDukan shows only the dukans that deliver to you.",
+      "useCurrent": "Use my current location",
+      "locating": "Finding you…",
+      "found": "Location set",
+      "current": "Current location",
+      "denied": "Location is off for TezDukan. Turn it on in your phone's settings, or choose your area below.",
+      "failed": "Could not find your location. Go outside or near a window and try again, or choose your area below.",
+      "saved": "Saved addresses",
+      "areas": "Or choose your area",
+      "sheetTitle": "Delivery location",
+      "noDukans": "No dukan delivers here yet",
+      "noDukansHint": "Try another area, or check back soon as new dukans join."
     }
   },
   "customerOrders": {
@@ -1410,7 +1425,8 @@
       "order_not_found": "This order isn't available.",
       "generic": "Something went wrong. Please try again.",
       "not_delivered": "You can rate the order once it is delivered.",
-      "invalid_rating": "Choose 1 to 5 stars."
+      "invalid_rating": "Choose 1 to 5 stars.",
+      "out_of_area": "This dukan does not deliver to your location. Choose a dukan near you."
     },
     "hero": {
       "placed": "Waiting for {shop} to accept",
@@ -1751,7 +1767,25 @@
       "not_allowed": "Only the dukan owner can change this.",
       "no_products": "Add at least one product in stock before going online.",
       "not_approved": "Your dukan is waiting for approval from the TezDukan team.",
-      "invalid": "Please check the amounts and try again."
+      "invalid": "Please check the amounts and try again.",
+      "invalid_location": "That location is outside Pakistan. Try again inside your dukan."
+    },
+    "radius": "How far you deliver",
+    "radiusOption": "{km, number} km",
+    "radiusHint": "Customers outside this distance will not see your dukan.",
+    "area": {
+      "title": "Delivery area",
+      "radius": "You deliver up to {km, number} km from your dukan.",
+      "allCity": "The TezDukan team has set your dukan to deliver across the city.",
+      "noPin": "Your dukan has no location yet, so customers cannot find it. Set it now.",
+      "setPin": "Set dukan location",
+      "movePin": "Update dukan location",
+      "seeOnMap": "See on map",
+      "standInShop": "Stand inside your dukan and tap the button, so the location is exact.",
+      "saved": "Dukan location saved",
+      "denied": "Location is off for TezDukan. Turn it on in your phone's settings.",
+      "failed": "Could not get your location. Try again near a window.",
+      "outside": "That location is outside Pakistan."
     }
   },
   "admin": {
@@ -1954,6 +1988,15 @@
           "update": "App switch changed"
         }
       }
+    },
+    "delivery": {
+      "title": "Delivery area",
+      "radius": "Up to {km, number} km",
+      "allCity": "Whole city",
+      "noPin": "no location set",
+      "km": "{km, number} km",
+      "cityToggle": "Deliver across the whole city",
+      "save": "Save delivery area"
     }
   }
 }

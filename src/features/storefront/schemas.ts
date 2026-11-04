@@ -45,6 +45,15 @@ const shopTerms = {
   rating_count: z.number().int().nonnegative(),
 };
 
+export const deliveryZoneSchema = z.object({
+  id: z.uuid(),
+  name: z.string(),
+  name_ur: z.string().nullable(),
+  lat: z.number(),
+  lng: z.number(),
+});
+export type DeliveryZone = z.infer<typeof deliveryZoneSchema>;
+
 export const shopReviewSchema = z.object({
   id: z.uuid(),
   rating: z.number().int().min(1).max(5),
@@ -82,6 +91,7 @@ export const nearbyShopSchema = z.object({
   area_name: z.string().nullable(),
   area_name_ur: z.string().nullable(),
   distance_m: z.number().nullable(),
+  delivery_radius_m: z.number().int().optional(),
   ...shopTerms,
 });
 export type NearbyShop = z.infer<typeof nearbyShopSchema>;

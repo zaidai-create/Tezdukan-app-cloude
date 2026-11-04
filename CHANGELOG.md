@@ -4,6 +4,21 @@ All notable changes, newest first. Dates are Asia/Karachi.
 
 ## Unreleased
 
+### Delivery areas, phone alerts, faster open, admin panel (2026-11-05)
+
+- Delivery areas: every dukan has a pin and delivers 1 to 5 km (the TezDukan team can set up to
+  15 km or the whole city). Customers choose where to deliver (phone location, a saved address
+  or an area) and see only the dukans and products that deliver there; an order outside the
+  area is refused. Dukandars set their pin and distance on Online dukan.
+- Location: "Use my current location" asks for high accuracy, explains what to do when location
+  is off, and offers Hyderabad's areas as a fallback. App 0.1.5 answers location requests with
+  the app's own permission, so it works even when Chrome has no location access.
+- Order alerts now show as phone notifications even while TezDukan is open. A scheduled job
+  sends any waiting alert every minute and keeps the server warm so the app opens faster.
+- App 0.1.5: a full-screen TezDukan splash while the app opens.
+- Admin panel (website and phone): overview, approvals with the auto-approve switch, dukans
+  (pause, start again, delivery area), distributors, users, orders, app switches, audit log.
+
 ### Bug fixes, Online dukan, and Tez (2026-11-04)
 
 - Fixed: Google sign-in on phones ended on "localhost refused to connect". The hosted Auth site

@@ -1334,6 +1334,21 @@
       "summary": "{count, plural, one {# rating} other {# ratings}} se {rating}",
       "stars": "5 mein se {count, plural, one {# sitara} other {# sitare}}",
       "verified": "Deliver shuda order"
+    },
+    "location": {
+      "title": "Delivery kahan chahiye?",
+      "hint": "TezDukan sirf woh dukanein dikhata hai jo aap tak deliver karti hain.",
+      "useCurrent": "Meri maujooda location",
+      "locating": "Location dhoond rahe hain…",
+      "found": "Location lag gayi",
+      "current": "Maujooda location",
+      "denied": "TezDukan ke liye location band hai. Phone ki settings mein chalu karein, ya neeche apna ilaqa chunein.",
+      "failed": "Location nahi mil saki. Khidki ke paas ja kar dobara koshish karein, ya neeche apna ilaqa chunein.",
+      "saved": "Mehfooz pate",
+      "areas": "Ya apna ilaqa chunein",
+      "sheetTitle": "Delivery ki jagah",
+      "noDukans": "Yahan abhi koi dukan deliver nahi karti",
+      "noDukansHint": "Koi aur ilaqa aazmayein, nayi dukanein jald shamil hongi."
     }
   },
   "customerOrders": {
@@ -1410,7 +1425,8 @@
       "order_not_found": "Ye order available nahi.",
       "generic": "Kuch ghalat ho gaya. Dobara koshish karein.",
       "not_delivered": "Order deliver hone ke baad rating de sakte hain.",
-      "invalid_rating": "1 se 5 sitare chunein."
+      "invalid_rating": "1 se 5 sitare chunein.",
+      "out_of_area": "Ye dukan aap ki jagah tak deliver nahi karti. Qareebi dukan chunein."
     },
     "hero": {
       "placed": "{shop} ke qubool karne ka intezar",
@@ -1751,7 +1767,25 @@
       "not_allowed": "Ye sirf dukan ka malik badal sakta hai.",
       "no_products": "Online hone se pehle kam az kam ek product stock mein daalein.",
       "not_approved": "Aap ki dukan TezDukan team ki manzoori ka intezar kar rahi hai.",
-      "invalid": "Raqam check kar ke dobara koshish karein."
+      "invalid": "Raqam check kar ke dobara koshish karein.",
+      "invalid_location": "Ye location Pakistan se bahar hai. Dukan ke andar se dobara koshish karein."
+    },
+    "radius": "Kitni door tak delivery",
+    "radiusOption": "{km, number} km",
+    "radiusHint": "Is faasle se bahar ke gahakon ko aap ki dukan nazar nahi aayegi.",
+    "area": {
+      "title": "Delivery ka ilaqa",
+      "radius": "Aap dukan se {km, number} km tak deliver karte hain.",
+      "allCity": "TezDukan team ne aap ki dukan ko poore shehar mein delivery par rakha hai.",
+      "noPin": "Aap ki dukan ki location nahi lagi, is liye gahak ise nahi dekh sakte. Abhi lagayein.",
+      "setPin": "Dukan ki location lagayein",
+      "movePin": "Dukan ki location badlein",
+      "seeOnMap": "Naqshe par dekhein",
+      "standInShop": "Dukan ke andar khade ho kar button dabayein taake location bilkul theek lage.",
+      "saved": "Dukan ki location mehfooz ho gayi",
+      "denied": "TezDukan ke liye location band hai. Phone ki settings mein chalu karein.",
+      "failed": "Location nahi mil saki. Khidki ke paas dobara koshish karein.",
+      "outside": "Ye location Pakistan se bahar hai."
     }
   },
   "admin": {
@@ -1954,6 +1988,15 @@
           "update": "App ka switch badla gaya"
         }
       }
+    },
+    "delivery": {
+      "title": "Delivery ka ilaqa",
+      "radius": "{km, number} km tak",
+      "allCity": "Poora shehar",
+      "noPin": "location nahi lagi",
+      "km": "{km, number} km",
+      "cityToggle": "Poore shehar mein delivery",
+      "save": "Delivery ka ilaqa save karein"
     }
   }
 }

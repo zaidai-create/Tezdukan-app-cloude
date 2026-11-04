@@ -19,6 +19,7 @@ import { formatDate } from "@/lib/format";
 import { formatRs } from "@/lib/money";
 import { formatPkMobile } from "@/lib/phone";
 import type { Target } from "../actions";
+import { DeliveryControl } from "./delivery-control";
 import { EntityActions } from "./entity-actions";
 
 export type EntitySummary = {
@@ -40,6 +41,9 @@ export type EntitySummary = {
   rating?: number | null;
   ratingCount?: number;
   dukans30d?: number;
+  radiusM?: number;
+  allCity?: boolean;
+  hasPin?: boolean;
 };
 
 const tone: Record<string, StatusTone> = {
@@ -193,6 +197,15 @@ export function EntityRow({ entity, canEdit }: { entity: EntitySummary; canEdit:
                   </a>
                 ) : null}
               </div>
+            ) : null}
+            {entity.target === "shop" && entity.radiusM !== undefined ? (
+              <DeliveryControl
+                shopId={entity.id}
+                radiusM={entity.radiusM}
+                allCity={entity.allCity ?? false}
+                hasPin={entity.hasPin ?? false}
+                canEdit={canEdit}
+              />
             ) : null}
             {canEdit ? (
               <EntityActions

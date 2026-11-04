@@ -6,6 +6,7 @@ import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { requireDukan } from "@/features/ordering/data";
 import { Link } from "@/i18n/navigation";
+import { DeliveryArea } from "./components/delivery-area";
 import { ShareCard } from "./components/share-card";
 import { StoreStatus } from "./components/store-status";
 import { StorefrontForm } from "./components/storefront-form";
@@ -53,6 +54,7 @@ async function OnlineDukanContent() {
         </div>
       </header>
       <StoreStatus store={store} />
+      <DeliveryArea store={store} />
       {store.is_live ? <ShareCard url={url} name={store.name} /> : null}
       <StorefrontForm store={store} />
     </div>

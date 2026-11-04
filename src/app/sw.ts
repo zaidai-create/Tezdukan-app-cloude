@@ -126,23 +126,22 @@ function readPush(event: PushEvent): PushMessage | null {
   return null;
 }
 
-// A push while the app is open and in front is already shown in-app (Realtime toast), so the
-// phone only gets a notification when TezDukan is in the background or closed.
+// Every push becomes a phone notification, even with TezDukan open: a new order must reach the
+// dukandar's screen like any other app alert (owner's call, Nov 2026). The tag replaces an
+// earlier alert for the same order instead of stacking, and renotify sounds it again.
 self.addEventListener("push", (event) => {
   const message = readPush(event);
   if (!message) return;
   event.waitUntil(
-    (async () => {
-      const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
-      if (windows.some((client) => client.visibilityState === "visible" && client.focused)) return;
-      await self.registration.showNotification(message.title, {
-        body: message.body,
-        icon: "/icons/icon-192.png",
-        badge: "/icons/icon-192.png",
-        tag: message.tag,
-        data: { link: message.link },
-      });
-    })(),
+    self.registration.showNotification(message.title, {
+      body: message.body,
+      icon: "/icons/icon-192.png",
+      badge: "/icons/icon-192.png",
+      tag: message.tag,
+      renotify: Boolean(message.tag),
+      vibrate: [200, 100, 200],
+      data: { link: message.link },
+    } as NotificationOptions),
   );
 });
 

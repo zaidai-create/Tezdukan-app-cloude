@@ -15,11 +15,14 @@ import { CartView } from "./components/cart-view";
 import { CustomerCartBar } from "./components/customer-cart-bar";
 import { ProductGrid, ProductRail } from "./components/product-grid";
 import { DeliveryPill } from "./components/checkout/address-section";
+import { LocationPrompt } from "./components/location-picker";
+import { getCustomerLocation } from "./location";
 import { SearchBar } from "./components/search-bar";
 import { ShopCard } from "./components/shop-card";
 import { ShopHeader } from "./components/shop-header";
 import { ShopReviews } from "./components/shop-reviews";
 import {
+  getDeliveryZones,
   getNearbyShops,
   getStorefrontCategories,
   getStorefrontProducts,
@@ -84,7 +87,7 @@ const categoryName = (category: StorefrontCategory, locale: string) =>
 async function HomeContent() {
   await connection();
   const session = await requireRole("customer", "/");
-  const [t, locale, categories, shops, allProducts, addresses, orders, buyAgain] =
+  const [t, locale, categories, shops, allProducts, addresses, orders, buyAgain, location, zones] =
     await Promise.all([
       getTranslations(),
       getLocale(),
@@ -94,6 +97,8 @@ async function HomeContent() {
       getMyAddresses(),
       getMyCustomerOrders(session.userId),
       getBuyAgain(10),
+      getCustomerLocation(),
+      getDeliveryZones(),
     ]);
   const products = allProducts.slice(0, 24);
   const active = orders.find((order) => isActive(order.status));
@@ -121,8 +126,25 @@ async function HomeContent() {
         <h1 className="font-heading text-xl font-bold text-ink lg:text-2xl">
           {firstName ? t("home.greetingNamed", { name: firstName }) : t("home.greeting")}
         </h1>
-        <DeliveryPill addresses={addresses} etaMinutes={fastest} />
+        {location ? (
+          <DeliveryPill
+            addresses={addresses}
+            zones={zones}
+            locationLabel={location.label}
+            etaMinutes={fastest}
+          />
+        ) : null}
       </header>
+
+      {/* Dukans deliver only so far: nothing is shown until we know where the shopper is. */}
+      {location ? null : <LocationPrompt addresses={addresses} zones={zones} />}
+      {location && shops.length === 0 ? (
+        <EmptyState
+          icon={Store}
+          title={t("storefront.location.noDukans")}
+          description={t("storefront.location.noDukansHint")}
+        />
+      ) : null}
 
       <SearchBar />
 
@@ -285,11 +307,20 @@ async function CategoriesContent({ searchParams }: { searchParams: SearchParams 
   const params = await searchParams;
   const query = first(params.q)?.trim().slice(0, 80) || undefined;
   const categoryParam = first(params.c);
-  const [t, locale, categories] = await Promise.all([
+  const [t, locale, categories, location] = await Promise.all([
     getTranslations("storefront"),
     getLocale(),
     getStorefrontCategories(),
+    getCustomerLocation(),
   ]);
+  if (!location) {
+    const [addresses, zones] = await Promise.all([getMyAddresses(), getDeliveryZones()]);
+    return (
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-5">
+        <LocationPrompt addresses={addresses} zones={zones} />
+      </div>
+    );
+  }
   const stocked = categories.filter((category) => category.product_count > 0);
   const selected = stocked.find((category) => category.id === categoryParam);
   const products = await getStorefrontProducts({
@@ -368,13 +399,32 @@ export function StorefrontCategoriesPage({ searchParams }: { searchParams: Searc
 async function ShopsContent() {
   await connection();
   await requireRole("customer", "/shops");
-  const [t, shops] = await Promise.all([getTranslations("storefront"), getNearbyShops()]);
+  const [t, shops, location, addresses, zones] = await Promise.all([
+    getTranslations("storefront"),
+    getNearbyShops(),
+    getCustomerLocation(),
+    getMyAddresses(),
+    getDeliveryZones(),
+  ]);
+  if (!location) {
+    return (
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-5">
+        <LocationPrompt addresses={addresses} zones={zones} />
+      </div>
+    );
+  }
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-5">
       <header>
         <h1 className="font-heading text-2xl font-bold text-ink lg:text-3xl">{t("shops.title")}</h1>
         <p className="text-base text-muted">{t("shops.subtitle")}</p>
       </header>
+      <DeliveryPill
+        addresses={addresses}
+        zones={zones}
+        locationLabel={location.label}
+        etaMinutes={null}
+      />
       {shops.length > 0 ? (
         <div className="flex flex-col gap-3">
           {shops.map((shop) => (
@@ -382,7 +432,11 @@ async function ShopsContent() {
           ))}
         </div>
       ) : (
-        <EmptyState icon={Store} title={t("shops.empty")} description={t("shops.emptyHint")} />
+        <EmptyState
+          icon={Store}
+          title={t("location.noDukans")}
+          description={t("location.noDukansHint")}
+        />
       )}
       <CustomerCartBar />
     </div>

@@ -48,6 +48,9 @@ async function DirectoryContent({
           orders30d: shop.orders_30d,
           sales30d: shop.sales_30d,
           live: shop.is_live,
+          radiusM: shop.delivery_radius_m,
+          allCity: shop.serves_all_city,
+          hasPin: shop.lat !== null && shop.lng !== null,
           rating: shop.rating,
           ratingCount: shop.rating_count,
         }))

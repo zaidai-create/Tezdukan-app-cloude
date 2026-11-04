@@ -25,6 +25,8 @@ import {
   type SavedAddress,
 } from "@/features/addresses/schemas";
 import { haptic } from "@/lib/haptics";
+import type { DeliveryZone } from "../../schemas";
+import { LocationSheet } from "../location-picker";
 import { useCustomerCart } from "../../cart-store";
 
 const labelKey = (label: string): AddressLabel =>
@@ -270,12 +272,19 @@ export function AddressSection({ addresses }: { addresses: SavedAddress[] }) {
   );
 }
 
-/** Home's "Deliver to" pill: the chosen address in one line, tap to change or add one. */
+/**
+ * Home's "Deliver to" pill: where dukans are shown for, in one line. Tap to use the phone's
+ * location, a saved address or an area.
+ */
 export function DeliveryPill({
   addresses,
+  zones,
+  locationLabel,
   etaMinutes,
 }: {
   addresses: SavedAddress[];
+  zones: DeliveryZone[];
+  locationLabel: string | null;
   etaMinutes: number | null;
 }) {
   const t = useTranslations("storefront.cart");
@@ -303,7 +312,7 @@ export function DeliveryPill({
             <ChevronDown aria-hidden className="size-4 text-muted" />
           </span>
           <span className="block truncate text-sm text-muted">
-            {selected ? addressText(selected) : tHome("addAddressHint")}
+            {locationLabel ?? (selected ? addressText(selected) : tHome("addAddressHint"))}
           </span>
         </span>
         {etaMinutes ? (
@@ -313,7 +322,7 @@ export function DeliveryPill({
           </span>
         ) : null}
       </button>
-      <AddressSheet addresses={addresses} open={open} onOpenChange={setOpen} />
+      <LocationSheet addresses={addresses} zones={zones} open={open} onOpenChange={setOpen} />
     </>
   );
 }

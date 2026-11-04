@@ -1,7 +1,9 @@
 "use server";
 
 import { refresh } from "next/cache";
+import { after } from "next/server";
 import { z } from "zod";
+import { flushPushOutboxQuietly } from "@/features/notifications/dispatch";
 import { requireRole } from "@/lib/auth/session";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -25,6 +27,8 @@ async function run(fn: string, args: Record<string, unknown>): Promise<AdminResu
   const supabase = await getSupabaseServerClient();
   const { error } = await supabase.rpc(fn as "admin_set_flag", args as never);
   if (error) return { ok: false, error: errorKey(error.message) };
+  // Approvals and pauses notify the owner; send the push now rather than on the next sweep.
+  after(flushPushOutboxQuietly);
   refresh();
   return { ok: true };
 }
@@ -81,4 +85,21 @@ export async function setFlag(key: string, enabled: boolean): Promise<AdminResul
   const input = parsed.safeParse({ key, enabled });
   if (!input.success) return { ok: false, error: "invalid" };
   return run("admin_set_flag", { p_key: input.data.key, p_enabled: input.data.enabled });
+}
+
+/** How far a dukan delivers (0.5 to 15 km), or across the whole city. */
+export async function setShopDelivery(
+  shopId: string,
+  radiusM: number,
+  allCity: boolean,
+): Promise<AdminResult> {
+  const input = z
+    .object({ id, radius: z.number().int().min(500).max(15_000), allCity: z.boolean() })
+    .safeParse({ id: shopId, radius: radiusM, allCity });
+  if (!input.success) return { ok: false, error: "invalid" };
+  return run("admin_set_shop_delivery", {
+    p_shop_id: input.data.id,
+    p_radius_m: input.data.radius,
+    p_all_city: input.data.allCity,
+  });
 }

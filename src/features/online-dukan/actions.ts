@@ -14,7 +14,7 @@ import {
 /** Online-dukan writes for the dukandar's active dukan; the dukan always comes from the session. */
 
 export type StorefrontError =
-  "generic" | "not_allowed" | "no_products" | "not_approved" | "invalid";
+  "generic" | "not_allowed" | "no_products" | "not_approved" | "invalid" | "invalid_location";
 export type StorefrontResult =
   { ok: true; data: ShopStorefront } | { ok: false; error: StorefrontError };
 
@@ -22,7 +22,13 @@ function errorKey(message: string | undefined): StorefrontError {
   if (message === "not_allowed") return "not_allowed";
   if (message === "no_products") return "no_products";
   if (message === "shop_not_approved") return "not_approved";
-  if (message === "invalid_eta" || message === "invalid_amount" || message === "invalid_input") {
+  if (message === "invalid_location") return "invalid_location";
+  if (
+    message === "invalid_eta" ||
+    message === "invalid_amount" ||
+    message === "invalid_input" ||
+    message === "invalid_radius"
+  ) {
     return "invalid";
   }
   return "generic";
@@ -35,6 +41,7 @@ async function update(args: {
   p_delivery_fee_paisa?: number;
   p_free_delivery_above_paisa?: number;
   p_tagline?: string;
+  p_delivery_radius_m?: number;
 }): Promise<StorefrontResult> {
   const { shopId } = await requireDukan("/dukan/store");
   const supabase = await getSupabaseServerClient();
@@ -71,5 +78,26 @@ export async function saveStorefront(
     p_delivery_fee_paisa: parsed.data.delivery_fee_paisa,
     p_free_delivery_above_paisa: parsed.data.free_delivery_above_paisa,
     p_tagline: parsed.data.tagline,
+    p_delivery_radius_m: parsed.data.delivery_radius_m,
   });
+}
+
+/** Puts the dukan's pin where the dukandar is standing (the phone's location). */
+export async function setShopLocation(lat: number, lng: number): Promise<StorefrontResult> {
+  const point = z
+    .object({ lat: z.number().min(23).max(37.5), lng: z.number().min(60).max(78) })
+    .safeParse({ lat, lng });
+  if (!point.success) return { ok: false, error: "invalid_location" };
+  const { shopId } = await requireDukan("/dukan/store");
+  const supabase = await getSupabaseServerClient();
+  const { data, error } = await supabase.rpc("update_shop_location", {
+    p_shop_id: shopId,
+    p_lat: point.data.lat,
+    p_lng: point.data.lng,
+  });
+  if (error) return { ok: false, error: errorKey(error.message) };
+  const result = shopStorefrontSchema.safeParse(data);
+  if (!result.success) return { ok: false, error: "generic" };
+  refresh();
+  return { ok: true, data: result.data };
 }

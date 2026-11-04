@@ -8101,6 +8101,10 @@ export type Database = {
         Args: { p_org_id: string; p_reason?: string; p_status: string };
         Returns: Json;
       };
+      admin_set_shop_delivery: {
+        Args: { p_all_city: boolean; p_radius_m: number; p_shop_id: string };
+        Returns: Json;
+      };
       admin_set_shop_status: {
         Args: { p_reason?: string; p_shop_id: string; p_status: string };
         Returns: Json;
@@ -8337,6 +8341,7 @@ export type Database = {
           slot_start: string;
         }[];
       };
+      delivery_zones: { Args: Record<PropertyKey, never>; Returns: Json };
       mark_conversation_read: { Args: { p_conversation_id: string }; Returns: undefined };
       my_account_deletion: { Args: Record<PropertyKey, never>; Returns: Json };
       my_buy_again: { Args: { p_limit?: number }; Returns: Json };
@@ -8848,6 +8853,10 @@ export type Database = {
       };
       set_shop_stock: { Args: { p_inventory_id: string; p_qty: number }; Returns: number };
       shop_dashboard: { Args: { p_shop_id: string }; Returns: Json };
+      shop_delivers_to: {
+        Args: { p_lat: number; p_lng: number; p_shop_id: string };
+        Returns: boolean;
+      };
       shop_distributors: {
         Args: { p_shop_id: string };
         Returns: {
@@ -8876,7 +8885,14 @@ export type Database = {
       shop_storefront: { Args: { p_shop_id: string }; Returns: Json };
       storefront_categories: { Args: Record<PropertyKey, never>; Returns: Json };
       storefront_products: {
-        Args: { p_category_id?: string; p_limit?: number; p_query?: string; p_shop_id?: string };
+        Args: {
+          p_category_id?: string;
+          p_lat?: number;
+          p_limit?: number;
+          p_lng?: number;
+          p_query?: string;
+          p_shop_id?: string;
+        };
         Returns: Json;
       };
       storefront_shop: { Args: { p_slug: string }; Returns: Json };
@@ -8942,9 +8958,14 @@ export type Database = {
         };
         Returns: Json;
       };
+      update_shop_location: {
+        Args: { p_lat: number; p_lng: number; p_shop_id: string };
+        Returns: Json;
+      };
       update_shop_storefront: {
         Args: {
           p_delivery_fee_paisa?: number;
+          p_delivery_radius_m?: number;
           p_eta_minutes?: number;
           p_free_delivery_above_paisa?: number;
           p_is_live: boolean;

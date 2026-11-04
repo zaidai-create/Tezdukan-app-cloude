@@ -5,6 +5,10 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!-- Only to send crash reports; the app itself runs in the browser engine. -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- The site asks for location (nearest dukans, the dukan's pin); the app answers it with its
+         own permission, so it works even when Chrome has no location access. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <queries>
         <intent>
@@ -67,7 +71,7 @@
                 android:resource="@drawable/splash" />
             <meta-data
                 android:name="android.support.customtabs.trusted.SPLASH_SCREEN_BACKGROUND_COLOR"
-                android:resource="@color/surface" />
+                android:resource="@color/splash_background" />
             <meta-data
                 android:name="android.support.customtabs.trusted.SPLASH_SCREEN_FADE_OUT_DURATION"
                 android:value="300" />
@@ -111,8 +115,12 @@
                 android:resource="@xml/filepaths" />
         </provider>
 
+        <activity
+            android:name="com.google.androidbrowserhelper.locationdelegation.PermissionRequestActivity"
+            android:exported="false" />
+
         <service
-            android:name="com.google.androidbrowserhelper.trusted.DelegationService"
+            android:name=".DelegationService"
             android:enabled="true"
             android:exported="true">
             <meta-data

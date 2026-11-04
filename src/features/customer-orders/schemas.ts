@@ -89,6 +89,7 @@ export const orderErrors = [
   "order_not_found",
   "not_delivered",
   "invalid_rating",
+  "out_of_area",
   "generic",
 ] as const;
 export type OrderError = (typeof orderErrors)[number];
