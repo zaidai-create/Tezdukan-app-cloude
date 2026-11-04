@@ -70,7 +70,11 @@
     "stockOrders": "Stock orders",
     "products": "Products",
     "reports": "Hisab",
-    "store": "Online dukan"
+    "store": "Online dukan",
+    "shops": "Dukans",
+    "users": "Users",
+    "settings": "Settings",
+    "audit": "Audit log"
   },
   "roles": {
     "customer": "Customer",
@@ -1748,6 +1752,208 @@
       "no_products": "Add at least one product in stock before going online.",
       "not_approved": "Your dukan is waiting for approval from the TezDukan team.",
       "invalid": "Please check the amounts and try again."
+    }
+  },
+  "admin": {
+    "status": {
+      "pending": "Waiting",
+      "approved": "Active",
+      "suspended": "Paused",
+      "rejected": "Rejected",
+      "draft": "Draft"
+    },
+    "statusPlural": {
+      "pending": "Waiting",
+      "approved": "Active",
+      "suspended": "Paused",
+      "rejected": "Rejected"
+    },
+    "list": {
+      "orders": "{count, plural, one {# order} other {# orders}}",
+      "online": "Takes online orders",
+      "offline": "Not taking online orders",
+      "dukan": "Dukan",
+      "distributor": "Distributor",
+      "sales30": "Sales, 30 days",
+      "orders30": "Orders, 30 days",
+      "products": "Products",
+      "rating": "Rating",
+      "ratingCount": "({count, number})",
+      "noRating": "Not rated yet",
+      "dukans30": "Dukans ordering, 30 days",
+      "owner": "Owner: {owner}",
+      "takesOrders": "Online dukan is on",
+      "noOrders": "Online dukan is off",
+      "joined": "Joined {date}",
+      "reason": "Reason: {reason}",
+      "call": "Call",
+      "whatsapp": "WhatsApp"
+    },
+    "actions": {
+      "approve": "Approve",
+      "reject": "Reject",
+      "pause": "Pause",
+      "restart": "Start again",
+      "rejectReason": "Why reject? The owner sees this.",
+      "pauseReason": "Why pause? The owner sees this.",
+      "reasonPlaceholder": "e.g. Shop photo and address do not match",
+      "back": "Back",
+      "confirmReject": "Reject",
+      "confirmPause": "Pause",
+      "approved": "Approved. The owner has been told.",
+      "rejected": "Rejected. The owner has been told.",
+      "paused": "Paused. It no longer takes orders.",
+      "restarted": "Active again.",
+      "saved": "Saved",
+      "errors": {
+        "generic": "Could not save. Please try again.",
+        "not_allowed": "Only an admin can do this.",
+        "reason_required": "Please write a reason (at least 3 letters).",
+        "invalid": "This cannot be done in its current state."
+      }
+    },
+    "overview": {
+      "title": "Overview",
+      "subtitle": "Everything happening on TezDukan"
+    },
+    "ranges": {
+      "label": "Period",
+      "today": "Today",
+      "week": "7 days",
+      "month": "30 days"
+    },
+    "change": {
+      "up": "{percent, number}% up",
+      "down": "{percent, number}% down",
+      "same": "Same as before"
+    },
+    "kpi": {
+      "gmv": "Sales (all orders)",
+      "customerOrders": "Customer orders",
+      "b2bOrders": "Dukan orders",
+      "newUsers": "New users"
+    },
+    "attention": {
+      "title": "Needs attention",
+      "allClear": "All clear. Nothing is waiting.",
+      "approvals": "Dukans and distributors waiting for approval",
+      "stuckCustomer": "Customer orders not accepted for 20 minutes",
+      "stuckB2b": "Dukan orders not confirmed for 2 hours",
+      "support": "Support chats waiting for a reply",
+      "deletions": "Account deletion requests"
+    },
+    "chart": {
+      "title": "Sales, last 14 days",
+      "customer": "Customer orders",
+      "b2b": "Dukan orders",
+      "day": "Day"
+    },
+    "feed": {
+      "title": "Newest orders",
+      "all": "All orders",
+      "empty": "No orders yet."
+    },
+    "top": {
+      "title": "Top dukans",
+      "empty": "No delivered orders in this period.",
+      "orders": "{count, plural, one {# order} other {# orders}}"
+    },
+    "totals": {
+      "title": "On TezDukan",
+      "liveDukans": "Dukans online",
+      "distributors": "Distributors",
+      "users": "Users",
+      "customers": "Customers who ordered"
+    },
+    "approvals": {
+      "title": "Approvals",
+      "subtitle": "New dukans and distributors waiting for a decision",
+      "autoTitle": "Approve new sign-ups automatically",
+      "autoHint": "For testing. Turn off before launch so the team checks every new dukan.",
+      "empty": "Nothing is waiting",
+      "emptyHint": "New dukans and distributors appear here when they register.",
+      "dukans": "{count, plural, one {# dukan} other {# dukans}} waiting",
+      "distributors": "{count, plural, one {# distributor} other {# distributors}} waiting",
+      "map": "Map"
+    },
+    "directory": {
+      "shopsTitle": "Dukans",
+      "orgsTitle": "Distributors",
+      "count": "{count, plural, one {# shown} other {# shown}}",
+      "search": "Search",
+      "searchShops": "Dukan, owner, area or phone",
+      "searchOrgs": "Distributor, owner or phone",
+      "filter": "Filter",
+      "all": "All",
+      "empty": "Nothing found",
+      "emptySearch": "Try another name or phone number."
+    },
+    "users": {
+      "title": "Users",
+      "search": "Name or phone number",
+      "noName": "No name yet",
+      "joined": "Joined {date}",
+      "orders": "{count, plural, one {# order} other {# orders}}",
+      "role": {
+        "admin": "Admin",
+        "support": "Support"
+      }
+    },
+    "orders": {
+      "title": "Orders",
+      "subtitle": "Customer orders and dukan orders, newest first",
+      "kind": {
+        "all": "All",
+        "customer": "Customers",
+        "b2b": "Dukans"
+      },
+      "search": "Order number, dukan, customer or phone",
+      "empty": "No orders found",
+      "items": "{count, plural, one {# item} other {# items}}"
+    },
+    "settings": {
+      "title": "Settings",
+      "subtitle": "Switches that change the app for everyone, at once",
+      "switches": "App switches",
+      "more": "More",
+      "distributors": "Distributors",
+      "users": "Users",
+      "support": "Support chats",
+      "audit": "Audit log"
+    },
+    "flags": {
+      "auto_approve_registrations": {
+        "title": "Approve new sign-ups automatically",
+        "hint": "New dukans and distributors go live without a check. For testing."
+      },
+      "sindhi_ui": {
+        "title": "Sindhi language",
+        "hint": "Show Sindhi in the language picker once translations are checked."
+      }
+    },
+    "audit": {
+      "title": "Audit log",
+      "subtitle": "Every change by the team, newest first",
+      "empty": "No changes yet.",
+      "by": "By {name}",
+      "system": "the system",
+      "actions": {
+        "shop": {
+          "approved": "Dukan approved",
+          "rejected": "Dukan rejected",
+          "suspended": "Dukan paused",
+          "reactivated": "Dukan started again"
+        },
+        "organization": {
+          "approved": "Distributor approved",
+          "rejected": "Distributor rejected",
+          "suspended": "Distributor paused",
+          "reactivated": "Distributor started again"
+        },
+        "feature_flags": {
+          "update": "App switch changed"
+        }
+      }
     }
   }
 }

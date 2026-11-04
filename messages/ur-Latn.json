@@ -70,7 +70,11 @@
     "stockOrders": "Stock orders",
     "products": "Products",
     "reports": "Hisab",
-    "store": "Online dukan"
+    "store": "Online dukan",
+    "shops": "Dukanein",
+    "users": "Users",
+    "settings": "Settings",
+    "audit": "Audit log"
   },
   "roles": {
     "customer": "Gaahak",
@@ -1748,6 +1752,208 @@
       "no_products": "Online hone se pehle kam az kam ek product stock mein daalein.",
       "not_approved": "Aap ki dukan TezDukan team ki manzoori ka intezar kar rahi hai.",
       "invalid": "Raqam check kar ke dobara koshish karein."
+    }
+  },
+  "admin": {
+    "status": {
+      "pending": "Muntazir",
+      "approved": "Active",
+      "suspended": "Ruki hui",
+      "rejected": "Mustarad",
+      "draft": "Na-mukammal"
+    },
+    "statusPlural": {
+      "pending": "Muntazir",
+      "approved": "Active",
+      "suspended": "Ruki hui",
+      "rejected": "Mustarad"
+    },
+    "list": {
+      "orders": "{count, plural, one {# order} other {# orders}}",
+      "online": "Online orders leti hai",
+      "offline": "Online orders nahi leti",
+      "dukan": "Dukan",
+      "distributor": "Distributor",
+      "sales30": "Sale, 30 din",
+      "orders30": "Orders, 30 din",
+      "products": "Products",
+      "rating": "Rating",
+      "ratingCount": "({count, number})",
+      "noRating": "Abhi rating nahi",
+      "dukans30": "Order dene wali dukanein, 30 din",
+      "owner": "Malik: {owner}",
+      "takesOrders": "Online dukan chalu hai",
+      "noOrders": "Online dukan band hai",
+      "joined": "Shamil hue {date}",
+      "reason": "Wajah: {reason}",
+      "call": "Call",
+      "whatsapp": "WhatsApp"
+    },
+    "actions": {
+      "approve": "Manzoor karein",
+      "reject": "Mustarad karein",
+      "pause": "Rokein",
+      "restart": "Dobara chalu karein",
+      "rejectReason": "Mustarad karne ki wajah? Malik ye dekhega.",
+      "pauseReason": "Rokne ki wajah? Malik ye dekhega.",
+      "reasonPlaceholder": "Maslan: dukan ki tasveer aur pata nahi milte",
+      "back": "Wapas",
+      "confirmReject": "Mustarad karein",
+      "confirmPause": "Rokein",
+      "approved": "Manzoor ho gaya. Malik ko bata diya gaya.",
+      "rejected": "Mustarad ho gaya. Malik ko bata diya gaya.",
+      "paused": "Rok diya gaya. Ab orders nahi legi.",
+      "restarted": "Dobara active ho gaya.",
+      "saved": "Save ho gaya",
+      "errors": {
+        "generic": "Save nahi ho saka. Dobara koshish karein.",
+        "not_allowed": "Ye sirf admin kar sakta hai.",
+        "reason_required": "Wajah likhein (kam az kam 3 huroof).",
+        "invalid": "Maujooda haalat mein ye nahi ho sakta."
+      }
+    },
+    "overview": {
+      "title": "Jaiza",
+      "subtitle": "TezDukan par jo kuch ho raha hai"
+    },
+    "ranges": {
+      "label": "Muddat",
+      "today": "Aaj",
+      "week": "7 din",
+      "month": "30 din"
+    },
+    "change": {
+      "up": "{percent, number}% zyada",
+      "down": "{percent, number}% kam",
+      "same": "Pehle jitna"
+    },
+    "kpi": {
+      "gmv": "Sale (tamam orders)",
+      "customerOrders": "Gahakon ke orders",
+      "b2bOrders": "Dukanon ke orders",
+      "newUsers": "Naye users"
+    },
+    "attention": {
+      "title": "Tawajjo talab",
+      "allClear": "Sab theek hai. Kuch intezar mein nahi.",
+      "approvals": "Manzoori ki muntazir dukanein aur distributors",
+      "stuckCustomer": "20 minute se qubool na hone wale gahakon ke orders",
+      "stuckB2b": "2 ghante se confirm na hone wale dukanon ke orders",
+      "support": "Jawab ki muntazir support chats",
+      "deletions": "Account delete karne ki darkhwastein"
+    },
+    "chart": {
+      "title": "Sale, pichle 14 din",
+      "customer": "Gahakon ke orders",
+      "b2b": "Dukanon ke orders",
+      "day": "Din"
+    },
+    "feed": {
+      "title": "Taaza tareen orders",
+      "all": "Tamam orders",
+      "empty": "Abhi koi order nahi."
+    },
+    "top": {
+      "title": "Behtareen dukanein",
+      "empty": "Is muddat mein koi order deliver nahi hua.",
+      "orders": "{count, plural, one {# order} other {# orders}}"
+    },
+    "totals": {
+      "title": "TezDukan par",
+      "liveDukans": "Online dukanein",
+      "distributors": "Distributors",
+      "users": "Users",
+      "customers": "Order karne wale gahak"
+    },
+    "approvals": {
+      "title": "Manzooriyan",
+      "subtitle": "Nayi dukanein aur distributors faisle ke muntazir",
+      "autoTitle": "Nayi registration khud ba khud manzoor karein",
+      "autoHint": "Testing ke liye. Launch se pehle band karein taake team har nayi dukan check kare.",
+      "empty": "Kuch intezar mein nahi",
+      "emptyHint": "Nayi dukanein aur distributors register hote hi yahan aayenge.",
+      "dukans": "{count, plural, one {# dukan} other {# dukanein}} muntazir",
+      "distributors": "{count, plural, one {# distributor} other {# distributors}} muntazir",
+      "map": "Naqsha"
+    },
+    "directory": {
+      "shopsTitle": "Dukanein",
+      "orgsTitle": "Distributors",
+      "count": "{count, plural, one {# dikhai gayi} other {# dikhai gayin}}",
+      "search": "Talash",
+      "searchShops": "Dukan, malik, ilaqa ya phone",
+      "searchOrgs": "Distributor, malik ya phone",
+      "filter": "Filter",
+      "all": "Tamam",
+      "empty": "Kuch nahi mila",
+      "emptySearch": "Koi aur naam ya phone number aazmayein."
+    },
+    "users": {
+      "title": "Users",
+      "search": "Naam ya phone number",
+      "noName": "Abhi naam nahi",
+      "joined": "Shamil hue {date}",
+      "orders": "{count, plural, one {# order} other {# orders}}",
+      "role": {
+        "admin": "Admin",
+        "support": "Support"
+      }
+    },
+    "orders": {
+      "title": "Orders",
+      "subtitle": "Gahakon aur dukanon ke orders, taaza tareen pehle",
+      "kind": {
+        "all": "Tamam",
+        "customer": "Gahak",
+        "b2b": "Dukanein"
+      },
+      "search": "Order number, dukan, gahak ya phone",
+      "empty": "Koi order nahi mila",
+      "items": "{count, plural, one {# cheez} other {# cheezein}}"
+    },
+    "settings": {
+      "title": "Settings",
+      "subtitle": "Ye switch sab ke liye app foran badal dete hain",
+      "switches": "App ke switch",
+      "more": "Mazeed",
+      "distributors": "Distributors",
+      "users": "Users",
+      "support": "Support chats",
+      "audit": "Audit log"
+    },
+    "flags": {
+      "auto_approve_registrations": {
+        "title": "Nayi registration khud ba khud manzoor karein",
+        "hint": "Nayi dukanein aur distributors baghair check ke chalu ho jate hain. Testing ke liye."
+      },
+      "sindhi_ui": {
+        "title": "Sindhi zaban",
+        "hint": "Tarjuma check hone ke baad zaban ki fehrist mein Sindhi dikhayein."
+      }
+    },
+    "audit": {
+      "title": "Audit log",
+      "subtitle": "Team ki har tabdeeli, taaza tareen pehle",
+      "empty": "Abhi koi tabdeeli nahi.",
+      "by": "{name} ne",
+      "system": "System",
+      "actions": {
+        "shop": {
+          "approved": "Dukan manzoor hui",
+          "rejected": "Dukan mustarad hui",
+          "suspended": "Dukan roki gayi",
+          "reactivated": "Dukan dobara chalu hui"
+        },
+        "organization": {
+          "approved": "Distributor manzoor hua",
+          "rejected": "Distributor mustarad hua",
+          "suspended": "Distributor roka gaya",
+          "reactivated": "Distributor dobara chalu hua"
+        },
+        "feature_flags": {
+          "update": "App ka switch badla gaya"
+        }
+      }
     }
   }
 }

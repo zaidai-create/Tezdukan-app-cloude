@@ -36,7 +36,11 @@ export type NavLabel =
   | "verifications"
   | "wholesale"
   | "stockOrders"
-  | "products";
+  | "products"
+  | "shops"
+  | "users"
+  | "settings"
+  | "audit";
 
 /** Icon names, resolved to Lucide components in client code (components cannot be passed
  * from the server shell to client components as props). */
@@ -57,7 +61,11 @@ export type NavIcon =
   | "today"
   | "admin"
   | "wholesale"
-  | "stockOrders";
+  | "stockOrders"
+  | "approvals"
+  | "users"
+  | "settings"
+  | "audit";
 
 export type NavItem = { href: string; label: NavLabel; icon: NavIcon; exact?: boolean };
 export type NavGroup = { label: "main" | "account"; items: NavItem[] };
@@ -87,6 +95,14 @@ export const mobileTabs: Partial<Record<AppRole, NavItem[]>> = {
   rider: [
     { href: "/rider", label: "today", icon: "today", exact: true },
     { href: "/rider/account", label: "account", icon: "account" },
+  ],
+  // The owner runs the admin panel from a phone too: the five screens used most.
+  admin: [
+    { href: "/admin", label: "overview", icon: "dashboard", exact: true },
+    { href: "/admin/approvals", label: "verifications", icon: "approvals" },
+    { href: "/admin/shops", label: "shops", icon: "dukan" },
+    { href: "/admin/orders", label: "orders", icon: "orders" },
+    { href: "/admin/settings", label: "settings", icon: "settings" },
   ],
   // Distributors run the portal from a phone as often as from a desk.
   distributor: [
@@ -131,8 +147,15 @@ export const sidebarGroups: Partial<Record<AppRole, NavGroup[]>> = {
     {
       label: "main",
       items: [
-        { href: "/admin", label: "overview", icon: "admin", exact: true },
+        { href: "/admin", label: "overview", icon: "dashboard", exact: true },
+        { href: "/admin/approvals", label: "verifications", icon: "approvals" },
+        { href: "/admin/shops", label: "shops", icon: "dukan" },
+        { href: "/admin/distributors", label: "distributors", icon: "wholesale" },
+        { href: "/admin/users", label: "users", icon: "users" },
+        { href: "/admin/orders", label: "orders", icon: "orders" },
         { href: "/admin/support", label: "support", icon: "support" },
+        { href: "/admin/settings", label: "settings", icon: "settings" },
+        { href: "/admin/audit", label: "audit", icon: "audit" },
       ],
     },
     { label: "account", items: [{ href: "/admin/account", label: "account", icon: "account" }] },

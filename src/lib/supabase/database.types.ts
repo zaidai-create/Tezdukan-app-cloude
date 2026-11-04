@@ -8084,6 +8084,32 @@ export type Database = {
     };
     Functions: {
       add_shop_products: { Args: { p_items: Json; p_shop_id: string }; Returns: Json };
+      admin_approvals: { Args: Record<PropertyKey, never>; Returns: Json };
+      admin_audit: { Args: { p_before?: string; p_limit?: number }; Returns: Json };
+      admin_flags: { Args: Record<PropertyKey, never>; Returns: Json };
+      admin_orders: {
+        Args: { p_kind?: string; p_limit?: number; p_query?: string; p_status?: string };
+        Returns: Json;
+      };
+      admin_organizations: {
+        Args: { p_limit?: number; p_query?: string; p_status?: string };
+        Returns: Json;
+      };
+      admin_overview: { Args: { p_range?: string }; Returns: Json };
+      admin_set_flag: { Args: { p_enabled: boolean; p_key: string }; Returns: Json };
+      admin_set_org_status: {
+        Args: { p_org_id: string; p_reason?: string; p_status: string };
+        Returns: Json;
+      };
+      admin_set_shop_status: {
+        Args: { p_reason?: string; p_shop_id: string; p_status: string };
+        Returns: Json;
+      };
+      admin_shops: {
+        Args: { p_limit?: number; p_query?: string; p_status?: string };
+        Returns: Json;
+      };
+      admin_users: { Args: { p_limit?: number; p_query?: string }; Returns: Json };
       approve_organization: {
         Args: { p_org_id: string };
         Returns: {

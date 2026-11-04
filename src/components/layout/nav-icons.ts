@@ -1,7 +1,9 @@
 import {
+  BadgeCheck,
   Bike,
   Boxes,
   CircleUserRound,
+  History,
   House,
   LayoutDashboard,
   LayoutGrid,
@@ -13,8 +15,10 @@ import {
   PackageOpen,
   ShieldCheck,
   ShoppingBasket,
+  SlidersHorizontal,
   Store,
   Truck,
+  Users,
   Wallet,
 } from "lucide-react";
 import type { NavIcon } from "./nav-config";
@@ -37,4 +41,8 @@ export const navIcons: Record<NavIcon, LucideIcon> = {
   admin: ShieldCheck,
   wholesale: Truck,
   stockOrders: PackageOpen,
+  approvals: BadgeCheck,
+  users: Users,
+  settings: SlidersHorizontal,
+  audit: History,
 };
