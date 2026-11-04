@@ -92,3 +92,22 @@ export async function searchCatalog(query: string): Promise<MasterMatch[]> {
   const parsed = masterMatchSchema.safeParse(data);
   return parsed.success ? parsed.data : [];
 }
+
+/** Puts a photo the dukandar uploaded (into the dukan's own folder) on one of its products. */
+export async function setProductImage(id: string, path: string): Promise<ProductsResult<null>> {
+  const parsed = z
+    .object({ id: z.uuid(), path: z.string().min(10).max(300) })
+    .safeParse({ id, path });
+  if (!parsed.success) return { ok: false, error: "invalid" };
+  const { shopId } = await requireDukan("/dukan/products");
+  if (!parsed.data.path.startsWith(`shop/${shopId}/`)) return { ok: false, error: "invalid" };
+  const supabase = await getSupabaseServerClient();
+  const { error } = await supabase
+    .from("shop_inventory")
+    .update({ image_path: parsed.data.path })
+    .eq("id", parsed.data.id)
+    .eq("shop_id", shopId);
+  if (error) return { ok: false, error: errorKey(error.message) };
+  refresh();
+  return { ok: true, data: null };
+}

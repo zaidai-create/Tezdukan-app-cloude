@@ -1572,6 +1572,12 @@
       "generic": "Save nahi hua. Internet check kar ke dobara koshish karein.",
       "not_allowed": "Aap ka account is dukan ki products nahi badal sakta.",
       "invalid": "Qeemat aur stock check kar ke dobara koshish karein."
+    },
+    "photo": {
+      "add": "Tasveer lagayein",
+      "change": "Tasveer badlein",
+      "saved": "Tasveer mehfooz ho gayi",
+      "failed": "Tasveer upload nahi ho saki. Dobara koshish karein."
     }
   },
   "posters": {
@@ -1786,6 +1792,22 @@
       "denied": "TezDukan ke liye location band hai. Phone ki settings mein chalu karein.",
       "failed": "Location nahi mil saki. Khidki ke paas dobara koshish karein.",
       "outside": "Ye location Pakistan se bahar hai."
+    },
+    "profile": {
+      "subtitle": "Gahak aap ki dukan aise dekhte hain",
+      "bannerHint": "Banner lagayein: dukan ki tasveer, koi offer ya aap ki cheezein",
+      "addBanner": "Banner lagayein",
+      "changeBanner": "Banner badlein",
+      "addLogo": "Logo lagayein",
+      "changeLogo": "Logo badlein",
+      "about": "Dukan ke baare mein",
+      "aboutPlaceholder": "Maslan: 1998 se khandani kiryana. Har subah taaza doodh, gali mein free delivery.",
+      "saveAbout": "Save karein",
+      "aboutSaved": "Save ho gaya",
+      "bannerSaved": "Banner save ho gaya",
+      "logoSaved": "Logo save ho gaya",
+      "uploadFailed": "Tasveer upload nahi ho saki. Dobara koshish karein.",
+      "failed": "Save nahi ho saka. Dobara koshish karein."
     }
   },
   "admin": {

@@ -4,9 +4,9 @@
  * hand out a cached older file.
  */
 export const androidRelease = {
-  versionCode: 6,
-  versionName: "0.1.5",
-  path: "/download/TezDukan-0.1.5.apk",
+  versionCode: 7,
+  versionName: "0.1.6",
+  path: "/download/TezDukan-0.1.6.apk",
 } as const;
 
 /** Chrome sets this referrer when the installed Android app opens the site. */

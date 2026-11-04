@@ -4,6 +4,16 @@ All notable changes, newest first. Dates are Asia/Karachi.
 
 ## Unreleased
 
+### Photos, dukan profile, app 0.1.6 (2026-11-05)
+
+- Dukandars add product photos from the gallery or camera (tap the photo on a product). Photos
+  are shrunk on the phone before upload.
+- Dukan profile on Online dukan, like a Daraz store page: banner, logo and "about"; customers
+  see them on the dukan page.
+- Location: GPS first, then the network position when GPS cannot get a fix indoors.
+- App 0.1.6: location works again (0.1.5's location delegation is removed; Chrome handles it as
+  in 0.1.4), and the light line above the phone's navigation bar is gone.
+
 ### Delivery areas, phone alerts, faster open, admin panel (2026-11-05)
 
 - Delivery areas: every dukan has a pin and delivers 1 to 5 km (the TezDukan team can set up to

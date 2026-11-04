@@ -101,3 +101,33 @@ export async function setShopLocation(lat: number, lng: number): Promise<Storefr
   refresh();
   return { ok: true, data: result.data };
 }
+
+/**
+ * The dukan's logo, banner and "about". Photos are already uploaded into the dukan's folder;
+ * only the fields given change.
+ */
+export async function saveShopProfile(input: {
+  photoPath?: string;
+  coverPath?: string;
+  description?: string;
+}): Promise<StorefrontResult | { ok: true; data: null }> {
+  const parsed = z
+    .object({
+      photoPath: z.string().max(300).optional(),
+      coverPath: z.string().max(300).optional(),
+      description: z.string().trim().max(500).optional(),
+    })
+    .safeParse(input);
+  if (!parsed.success) return { ok: false, error: "invalid" };
+  const { shopId } = await requireDukan("/dukan/store");
+  const supabase = await getSupabaseServerClient();
+  const { error } = await supabase.rpc("update_shop_profile", {
+    p_shop_id: shopId,
+    p_photo_path: parsed.data.photoPath,
+    p_cover_path: parsed.data.coverPath,
+    p_description: parsed.data.description,
+  });
+  if (error) return { ok: false, error: errorKey(error.message) };
+  refresh();
+  return { ok: true, data: null };
+}

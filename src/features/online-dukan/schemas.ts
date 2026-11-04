@@ -17,6 +17,9 @@ export const shopStorefrontSchema = z.object({
   lat: z.coerce.number().nullable(),
   lng: z.coerce.number().nullable(),
   address_line: z.string().nullable(),
+  photo_path: z.string().nullable(),
+  cover_path: z.string().nullable(),
+  description: z.string().nullable(),
   visible_products: z.number().int().nonnegative(),
   can_edit: z.boolean(),
 });

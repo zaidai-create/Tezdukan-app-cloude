@@ -71,6 +71,7 @@ export const storefrontShopSchema = z.object({
   phone: z.string().nullable(),
   whatsapp: z.string().nullable(),
   photo_path: z.string().nullable(),
+  cover_path: z.string().nullable().optional(),
   area_name: z.string().nullable(),
   area_name_ur: z.string().nullable(),
   pickup_enabled: z.boolean(),

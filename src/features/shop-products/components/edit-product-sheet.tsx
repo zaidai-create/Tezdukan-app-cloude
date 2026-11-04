@@ -1,9 +1,10 @@
 "use client";
 
-import { Trash2 } from "lucide-react";
+import { Camera, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
+import { PhotoPicker } from "@/components/commerce/photo-picker";
 import { ProductImage } from "@/components/commerce/product-image";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,19 +20,35 @@ import { Switch } from "@/components/ui/switch";
 import { storageUrl } from "@/features/ordering/images";
 import { haptic } from "@/lib/haptics";
 import { formatRs, parseRupees } from "@/lib/money";
-import { removeProduct, updateProduct } from "../actions";
+import { removeProduct, setProductImage, updateProduct } from "../actions";
 import type { ShopProduct } from "../schemas";
 import { PriceField, QtyField, rupeesText } from "./fields";
 
 /** Change one product's price, stock and whether customers see it. */
 export function EditProductSheet({
   product,
+  shopId,
   onClose,
 }: {
   product: ShopProduct;
+  shopId: string;
   onClose: () => void;
 }) {
   const t = useTranslations("shopProducts");
+  const [photo, setPhoto] = useState<string | null>(storageUrl(product.image_path));
+
+  const photoUploaded = (path: string, preview: string) => {
+    setPhoto(preview);
+    startTransition(async () => {
+      const result = await setProductImage(product.id, path);
+      if (!result.ok) {
+        toast.error(t("photo.failed"));
+        return;
+      }
+      haptic("success");
+      toast.success(t("photo.saved"));
+    });
+  };
   const [price, setPrice] = useState(rupeesText(product.selling_price_paisa));
   const [qty, setQty] = useState(Math.max(0, Math.floor(product.qty_on_hand)));
   const [online, setOnline] = useState(product.is_visible_online);
@@ -73,12 +90,24 @@ export function EditProductSheet({
       <SheetContent>
         <SheetHeader>
           <div className="flex items-center gap-3">
-            <ProductImage
-              src={storageUrl(product.image_path)}
-              alt={product.name}
-              sizes="56px"
-              className="size-14 shrink-0 rounded-md"
-            />
+            <PhotoPicker
+              bucket="product-images"
+              folder={`shop/${shopId}/products`}
+              label={photo ? t("photo.change") : t("photo.add")}
+              onUploaded={photoUploaded}
+              onError={() => toast.error(t("photo.failed"))}
+              className="shrink-0 rounded-md"
+            >
+              <ProductImage
+                src={photo}
+                alt={product.name}
+                sizes="80px"
+                className="size-20 rounded-md"
+              />
+              <span className="absolute -end-1 -bottom-1 flex size-8 items-center justify-center rounded-full bg-action text-on-action shadow-raised">
+                <Camera aria-hidden className="size-4" strokeWidth={1.75} />
+              </span>
+            </PhotoPicker>
             <div className="min-w-0 text-start">
               <SheetTitle className="line-clamp-2">{product.name}</SheetTitle>
               <SheetDescription>

@@ -7,7 +7,7 @@ account, so they are listed in order below.
 
 | Item | Where |
 | --- | --- |
-| App bundle (`.aab`, signed with the upload key) | Built with `./gradlew bundleRelease` in `android/` (0.1.5, versionCode 6). The upload keystore lives outside the repo; keep it safe, every update must be signed with it. |
+| App bundle (`.aab`, signed with the upload key) | Built with `./gradlew bundleRelease` in `android/` (0.1.6, versionCode 7). The upload keystore lives outside the repo; keep it safe, every update must be signed with it. |
 | App icon 512×512 | `assets/app-icon-512.png` |
 | Feature graphic 1024×500 | `assets/feature-graphic-1024x500.png` |
 | Phone screenshots 1080×1920 | `assets/phone-screenshot-1.png` … `-6.png` |
@@ -137,4 +137,10 @@ Google Gemini (Tez and voice) are service providers.
 - Dukans show only to customers inside their delivery area; dukandars set their pin and how far they deliver
 - "Use my current location" works even when Chrome has no location permission
 - A full-screen TezDukan splash while the app opens
+
+## Release notes for 0.1.6
+
+- Dukandars add product photos from the gallery or camera, and a logo and banner for their dukan
+- "Use my current location" works again (the location change in 0.1.5 is undone)
+- No more light line above the phone's navigation bar
 

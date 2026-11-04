@@ -45,7 +45,7 @@ async function ProductsContent() {
   return (
     <>
       {offline}
-      <ProductsView products={products} starter={starter} />
+      <ProductsView products={products} starter={starter} shopId={shopId} />
     </>
   );
 }

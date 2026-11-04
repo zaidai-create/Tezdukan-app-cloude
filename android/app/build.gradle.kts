@@ -63,5 +63,4 @@ android {
 
 dependencies {
     implementation("com.google.androidbrowserhelper:androidbrowserhelper:2.7.4")
-    implementation("com.google.androidbrowserhelper:locationdelegation:1.1.1")
 }

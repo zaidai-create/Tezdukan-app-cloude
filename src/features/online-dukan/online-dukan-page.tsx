@@ -8,6 +8,7 @@ import { requireDukan } from "@/features/ordering/data";
 import { Link } from "@/i18n/navigation";
 import { DeliveryArea } from "./components/delivery-area";
 import { ShareCard } from "./components/share-card";
+import { ShopProfile } from "./components/shop-profile";
 import { StoreStatus } from "./components/store-status";
 import { StorefrontForm } from "./components/storefront-form";
 import { getShopStorefront } from "./data";
@@ -53,6 +54,7 @@ async function OnlineDukanContent() {
           <p className="truncate text-sm text-muted">{t("subtitle")}</p>
         </div>
       </header>
+      <ShopProfile store={store} />
       <StoreStatus store={store} />
       <DeliveryArea store={store} />
       {store.is_live ? <ShareCard url={url} name={store.name} /> : null}

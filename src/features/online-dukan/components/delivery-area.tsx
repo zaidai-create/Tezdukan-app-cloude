@@ -4,6 +4,7 @@ import { ExternalLink, Loader2, LocateFixed, MapPin } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
+import { GeolocationProblem, getPosition } from "@/lib/geolocation";
 import { haptic } from "@/lib/haptics";
 import { setShopLocation } from "../actions";
 import type { ShopStorefront } from "../schemas";
@@ -19,33 +20,30 @@ export function DeliveryArea({ store }: { store: ShopStorefront }) {
   const hasPin = store.lat !== null && store.lng !== null;
   const km = store.delivery_radius_m / 1000;
 
-  const pin = () => {
-    if (!("geolocation" in navigator)) {
-      toast.error(t("failed"));
-      return;
-    }
+  const pin = async () => {
     setLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setLocating(false);
-        startTransition(async () => {
-          const result = await setShopLocation(position.coords.latitude, position.coords.longitude);
-          if (!result.ok) {
-            haptic("warning");
-            toast.error(result.error === "invalid_location" ? t("outside") : t("failed"));
-            return;
-          }
-          haptic("success");
-          toast.success(t("saved"));
-        });
-      },
-      (error) => {
-        setLocating(false);
-        haptic("warning");
-        toast.error(error.code === error.PERMISSION_DENIED ? t("denied") : t("failed"));
-      },
-      { enableHighAccuracy: true, timeout: 20_000, maximumAge: 0 },
-    );
+    try {
+      const position = await getPosition();
+      startTransition(async () => {
+        const result = await setShopLocation(position.lat, position.lng);
+        if (!result.ok) {
+          haptic("warning");
+          toast.error(result.error === "invalid_location" ? t("outside") : t("failed"));
+          return;
+        }
+        haptic("success");
+        toast.success(t("saved"));
+      });
+    } catch (error) {
+      haptic("warning");
+      toast.error(
+        error instanceof GeolocationProblem && error.problem === "denied"
+          ? t("denied")
+          : t("failed"),
+      );
+    } finally {
+      setLocating(false);
+    }
   };
 
   return (
@@ -75,7 +73,7 @@ export function DeliveryArea({ store }: { store: ShopStorefront }) {
       {store.can_edit ? (
         <button
           type="button"
-          onClick={pin}
+          onClick={() => void pin()}
           disabled={locating || pending}
           className="flex min-h-12 items-center justify-center gap-2 rounded-md bg-primary-soft px-4 font-semibold text-primary-strong disabled:opacity-60"
         >

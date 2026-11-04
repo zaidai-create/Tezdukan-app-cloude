@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/sheet";
 import type { SavedAddress } from "@/features/addresses/schemas";
 import { useRouter } from "@/i18n/navigation";
+import { GeolocationProblem, getPosition } from "@/lib/geolocation";
 import { haptic } from "@/lib/haptics";
 import { useCustomerCart } from "../cart-store";
 import { formatLocation, LOCATION_COOKIE, LOCATION_LABEL_COOKIE } from "../location-cookie";
@@ -62,33 +63,26 @@ export function LocationOptions({
     onDone?.();
   };
 
-  const locate = () => {
-    if (!("geolocation" in navigator)) {
-      setProblem("failed");
-      return;
-    }
+  const locate = async () => {
     setLocating(true);
     setProblem(null);
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setLocating(false);
-        choose(position.coords.latitude, position.coords.longitude, t("current"));
-        toast.success(t("found"));
-      },
-      (error) => {
-        setLocating(false);
-        haptic("warning");
-        setProblem(error.code === error.PERMISSION_DENIED ? "denied" : "failed");
-      },
-      { enableHighAccuracy: true, timeout: 15_000, maximumAge: 60_000 },
-    );
+    try {
+      const position = await getPosition();
+      choose(position.lat, position.lng, t("current"));
+      toast.success(t("found"));
+    } catch (error) {
+      haptic("warning");
+      setProblem(error instanceof GeolocationProblem ? error.problem : "failed");
+    } finally {
+      setLocating(false);
+    }
   };
 
   return (
     <div className="flex flex-col gap-4">
       <button
         type="button"
-        onClick={locate}
+        onClick={() => void locate()}
         disabled={locating || pending}
         className="sheen flex min-h-14 items-center justify-center gap-2 rounded-md bg-action px-4 text-base font-semibold text-on-action shadow-glow inset-shadow-edge disabled:opacity-70"
       >

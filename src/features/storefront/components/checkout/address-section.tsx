@@ -24,6 +24,7 @@ import {
   type AddressLabel,
   type SavedAddress,
 } from "@/features/addresses/schemas";
+import { getPosition } from "@/lib/geolocation";
 import { haptic } from "@/lib/haptics";
 import type { DeliveryZone } from "../../schemas";
 import { LocationSheet } from "../location-picker";
@@ -43,22 +44,18 @@ function useLocate() {
   const t = useTranslations("storefront.cart");
   const setDelivery = useCustomerCart((state) => state.setDelivery);
   const [locating, setLocating] = useState(false);
-  const locate = () => {
-    if (!("geolocation" in navigator)) return toast.error(t("locationFailed"));
+  const locate = async () => {
     setLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setLocating(false);
-        haptic("success");
-        setDelivery({ coords: { lat: position.coords.latitude, lng: position.coords.longitude } });
-        toast.success(t("locationAdded"));
-      },
-      () => {
-        setLocating(false);
-        toast.error(t("locationFailed"));
-      },
-      { enableHighAccuracy: true, timeout: 12_000 },
-    );
+    try {
+      const position = await getPosition();
+      haptic("success");
+      setDelivery({ coords: { lat: position.lat, lng: position.lng } });
+      toast.success(t("locationAdded"));
+    } catch {
+      toast.error(t("locationFailed"));
+    } finally {
+      setLocating(false);
+    }
   };
   return { locate, locating };
 }
@@ -106,7 +103,7 @@ function AddressFields({ idPrefix }: { idPrefix: string }) {
         type="button"
         variant={coords ? "soft" : "secondary"}
         loading={locating}
-        onClick={locate}
+        onClick={() => void locate()}
         className="self-start"
       >
         {coords ? <Check aria-hidden /> : <LocateFixed aria-hidden />}

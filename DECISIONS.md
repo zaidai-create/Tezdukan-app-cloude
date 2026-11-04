@@ -322,8 +322,14 @@ section. Format: **decision** — reason (date).
   address or an area centre, so server-rendered screens can filter without asking every time.
   Without it, the default saved address with a map point is used; otherwise the app asks before
   showing any dukan. (2026-11-05)
-- **Location through the app, not Chrome** — Android 0.1.5 registers androidbrowserhelper's
-  location delegation, so the TWA uses the app's own location permission. (2026-11-05)
+- **Location through Chrome, not delegation** — 0.1.5 added androidbrowserhelper's location
+  delegation; on the owner's phone it never returned a position ("Could not find your
+  location") while 0.1.4 had worked, so 0.1.6 removes it and Chrome answers the site's location
+  requests again. The site also falls back from GPS to the network position. (2026-11-05)
+- **Dukandar photos in their own folders** — product photos go to product-images under
+  shop/<shop_id>/ (inventory staff), logo and banner to shop-media under shop/<shop_id>/;
+  update_shop_profile only accepts paths in the dukan's own folder. Photos are resized to WebP
+  on the phone before upload. (2026-11-05)
 
 ## Notifications
 

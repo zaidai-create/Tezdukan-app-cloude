@@ -1572,6 +1572,12 @@
       "generic": "Could not save. Check your internet and try again.",
       "not_allowed": "Your account cannot change products for this dukan.",
       "invalid": "Check the price and stock, then try again."
+    },
+    "photo": {
+      "add": "Add a photo",
+      "change": "Change photo",
+      "saved": "Photo saved",
+      "failed": "Could not upload the photo. Try again."
     }
   },
   "posters": {
@@ -1786,6 +1792,22 @@
       "denied": "Location is off for TezDukan. Turn it on in your phone's settings.",
       "failed": "Could not get your location. Try again near a window.",
       "outside": "That location is outside Pakistan."
+    },
+    "profile": {
+      "subtitle": "This is how customers see your dukan",
+      "bannerHint": "Add a banner: a photo of your dukan front, an offer or your products",
+      "addBanner": "Add banner",
+      "changeBanner": "Change banner",
+      "addLogo": "Add logo",
+      "changeLogo": "Change logo",
+      "about": "About your dukan",
+      "aboutPlaceholder": "e.g. Family kiryana since 1998. Fresh doodh every morning, free delivery in our gali.",
+      "saveAbout": "Save",
+      "aboutSaved": "Saved",
+      "bannerSaved": "Banner saved",
+      "logoSaved": "Logo saved",
+      "uploadFailed": "Could not upload the photo. Try again.",
+      "failed": "Could not save. Please try again."
     }
   },
   "admin": {

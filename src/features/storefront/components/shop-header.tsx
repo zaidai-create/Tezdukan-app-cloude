@@ -1,4 +1,5 @@
 import { Bike, Clock3, MessageSquareShare, Phone, ShoppingBag } from "lucide-react";
+import Image from "next/image";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Awning } from "@/components/brand/awning";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -19,7 +20,20 @@ export async function ShopHeader({ shop }: { shop: StorefrontShop }) {
 
   return (
     <header className="overflow-hidden rounded-xl border border-border/60 bg-surface shadow-raised">
-      <Awning className="text-awning" height={16} />
+      {shop.cover_path ? (
+        <div className="relative aspect-[16/7] w-full bg-subtle">
+          <Image
+            src={storageUrl(shop.cover_path, "shop-media") ?? ""}
+            alt=""
+            fill
+            priority
+            sizes="(min-width: 1024px) 960px, 100vw"
+            className="object-cover"
+          />
+        </div>
+      ) : (
+        <Awning className="text-awning" height={16} />
+      )}
       <div className="flex flex-col gap-4 p-4">
         <div className="flex items-center gap-4">
           <Avatar className="size-16 rounded-lg">
@@ -37,6 +51,11 @@ export async function ShopHeader({ shop }: { shop: StorefrontShop }) {
           </div>
         </div>
         {shop.tagline ? <p className="text-base text-ink/80">{shop.tagline}</p> : null}
+        {shop.description ? (
+          <p dir="auto" className="text-sm whitespace-pre-line text-muted">
+            {shop.description}
+          </p>
+        ) : null}
         {shop.is_live ? (
           <div className="flex flex-wrap gap-1.5">
             {shop.eta_minutes ? (

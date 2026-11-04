@@ -8962,6 +8962,15 @@ export type Database = {
         Args: { p_lat: number; p_lng: number; p_shop_id: string };
         Returns: Json;
       };
+      update_shop_profile: {
+        Args: {
+          p_cover_path?: string;
+          p_description?: string;
+          p_photo_path?: string;
+          p_shop_id: string;
+        };
+        Returns: Json;
+      };
       update_shop_storefront: {
         Args: {
           p_delivery_fee_paisa?: number;

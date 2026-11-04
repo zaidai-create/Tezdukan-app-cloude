@@ -23,9 +23,11 @@ type Filter = "all" | "low" | "hidden";
 export function ProductsView({
   products,
   starter,
+  shopId,
 }: {
   products: ShopProduct[];
   starter: StarterItem[];
+  shopId: string;
 }) {
   const t = useTranslations("shopProducts");
   const [query, setQuery] = useState("");
@@ -226,7 +228,12 @@ export function ProductsView({
         <AddProductSheet listenOnOpen={adding === "voice"} onClose={() => setAdding("off")} />
       ) : null}
       {editing ? (
-        <EditProductSheet key={editing.id} product={editing} onClose={() => setEditing(null)} />
+        <EditProductSheet
+          key={editing.id}
+          product={editing}
+          shopId={shopId}
+          onClose={() => setEditing(null)}
+        />
       ) : null}
     </div>
   );
