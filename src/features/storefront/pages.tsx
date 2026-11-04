@@ -18,6 +18,7 @@ import { DeliveryPill } from "./components/checkout/address-section";
 import { SearchBar } from "./components/search-bar";
 import { ShopCard } from "./components/shop-card";
 import { ShopHeader } from "./components/shop-header";
+import { ShopReviews } from "./components/shop-reviews";
 import {
   getNearbyShops,
   getStorefrontCategories,
@@ -423,6 +424,7 @@ async function ShopContent({ params }: { params: Promise<{ slug: string }> }) {
           description={shop.is_live ? t("shop.emptyHint") : undefined}
         />
       )}
+      <ShopReviews reviews={shop.reviews} rating={shop.rating} count={shop.rating_count} />
       <CustomerCartBar />
     </div>
   );

@@ -7,6 +7,7 @@ import { Link } from "@/i18n/navigation";
 import { telHref, whatsappHref } from "@/lib/contact";
 import { formatRs } from "@/lib/money";
 import type { NearbyShop } from "../schemas";
+import { RatingBadge } from "./rating-badge";
 
 const contact =
   "flex size-11 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary-strong";
@@ -40,6 +41,7 @@ export async function ShopCard({ shop, compact = false }: { shop: NearbyShop; co
         </span>
       </Link>
       <div className="flex flex-wrap items-center gap-1.5 text-sm">
+        <RatingBadge rating={shop.rating} count={shop.rating_count} />
         {shop.is_live ? (
           <>
             {shop.eta_minutes ? (

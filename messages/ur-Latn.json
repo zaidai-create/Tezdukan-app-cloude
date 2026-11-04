@@ -1312,7 +1312,18 @@
     "percentOff": "{percent, number}% kam",
     "youSaveRs": "Aap ki bachat {amount}",
     "soldBy": "Bechne aur pohanchane wali dukan",
-    "freshPromise": "Rawangi se pehle dukan check karti hai. Pohanchne par adaigi karein."
+    "freshPromise": "Rawangi se pehle dukan check karti hai. Pohanchne par adaigi karein.",
+    "rating": {
+      "new": "Nayi",
+      "label": "{count, plural, one {# order} other {# orders}} se 5 mein se {rating} rating",
+      "count": "({count, number})"
+    },
+    "reviews": {
+      "title": "Gahak kya kehte hain",
+      "summary": "{count, plural, one {# rating} other {# ratings}} se {rating}",
+      "stars": "5 mein se {count, plural, one {# sitara} other {# sitare}}",
+      "verified": "Deliver shuda order"
+    }
   },
   "customerOrders": {
     "title": "Mere orders",
@@ -1471,7 +1482,8 @@
       "packed": "Pack ho gaya",
       "out_for_delivery": "Rawana karein",
       "delivered": "Deliver ho gaya"
-    }
+    },
+    "report": "Poora hisab dekhein"
   },
   "shopProducts": {
     "title": "Meri products",
@@ -1638,5 +1650,53 @@
     "requestedBody": "Aap ka account 30 din ke andar delete ho jayega. Iraada badle to support ko message karein.",
     "doneTitle": "Aap ki request mil gayi",
     "doneBody": "Humne aap ko sign out kar diya hai. Aap ka account aur zaati data 30 din ke andar delete ho jayega."
+  },
+  "shopReport": {
+    "title": "Hisab",
+    "subtitle": "Online orders: sale, munafa aur rush ka waqt",
+    "back": "Home par wapas",
+    "rangesLabel": "Muddat",
+    "ranges": {
+      "today": "Aaj",
+      "yesterday": "Kal",
+      "week": "7 din",
+      "month": "30 din"
+    },
+    "sales": "Sale",
+    "vs": {
+      "today": "kal isi waqt tak ke muqable mein",
+      "yesterday": "parson ke muqable mein",
+      "week": "pichle 7 din ke muqable mein",
+      "month": "pichle 30 din ke muqable mein"
+    },
+    "up": "{percent, number}% zyada",
+    "down": "{percent, number}% kam",
+    "same": "Pehle jitni",
+    "inProgress": "{count, plural, one {# order} other {# orders}} raste mein: {amount}",
+    "orders": "Orders",
+    "avgBill": "Average bill",
+    "profit": "Munafa",
+    "margin": "{percent, number}% margin",
+    "noCost": "Khareed ki qeemat daalein",
+    "customers": "Gahak",
+    "cancelled": "{count, number} cancel",
+    "chartDay": "Waqt ke hisab se sale",
+    "chartDays": "Rozana sale",
+    "busiest": "Sab se zyada rush: {time}",
+    "barOrders": "{count, plural, one {# order} other {# orders}}",
+    "topTitle": "Sab se zyada bikne wali cheezein",
+    "topEmpty": "Is muddat mein abhi koi order deliver nahi hua.",
+    "soldPieces": "{count, plural, one {# adad bika} other {# adad bike}}",
+    "soldWeight": "{qty} {unit} bika",
+    "coverage": "Munafa sirf un cheezon ka hai jin ki khareed ki qeemat likhi hai.",
+    "coverageAction": "Khareed ki qeemat daalein",
+    "emptyTitle": "Is muddat mein koi online order nahi",
+    "emptyHint": "Jab gahak aap ki online dukan se order karenge to hisab yahan nazar aayega.",
+    "emptyAction": "Orders dekhein",
+    "noAccessTitle": "Hisab sirf dukan ka malik dekh sakta hai",
+    "noAccessHint": "Dukan ke malik se report dekhne ki ijazat lein.",
+    "tableCaption": "Is muddat ki sale",
+    "time": "Waqt",
+    "day": "Din"
   }
 }

@@ -8845,6 +8845,7 @@ export type Database = {
         Args: { p_from?: string; p_org_id: string; p_shop_id: string; p_to?: string };
         Returns: Json;
       };
+      shop_sales_report: { Args: { p_range?: string; p_shop_id: string }; Returns: Json };
       shop_starter_pack: { Args: { p_limit?: number; p_shop_id: string }; Returns: Json };
       storefront_categories: { Args: Record<PropertyKey, never>; Returns: Json };
       storefront_products: {

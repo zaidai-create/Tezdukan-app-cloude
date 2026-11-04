@@ -1312,7 +1312,18 @@
     "percentOff": "{percent, number}% off",
     "youSaveRs": "You save {amount}",
     "soldBy": "Sold and delivered by",
-    "freshPromise": "Checked by the dukan before it leaves. Pay when it arrives."
+    "freshPromise": "Checked by the dukan before it leaves. Pay when it arrives.",
+    "rating": {
+      "new": "New",
+      "label": "Rated {rating} out of 5 from {count, plural, one {# order} other {# orders}}",
+      "count": "({count, number})"
+    },
+    "reviews": {
+      "title": "What customers say",
+      "summary": "{rating} from {count, plural, one {# rating} other {# ratings}}",
+      "stars": "{count, plural, one {# star} other {# stars}} out of 5",
+      "verified": "Delivered order"
+    }
   },
   "customerOrders": {
     "title": "My orders",
@@ -1471,7 +1482,8 @@
       "packed": "Mark packed",
       "out_for_delivery": "Send out",
       "delivered": "Delivered"
-    }
+    },
+    "report": "See full hisab"
   },
   "shopProducts": {
     "title": "My products",
@@ -1638,5 +1650,53 @@
     "requestedBody": "Your account will be deleted within 30 days. Message support if you change your mind.",
     "doneTitle": "Your request is in",
     "doneBody": "We have signed you out. Your account and personal data will be deleted within 30 days."
+  },
+  "shopReport": {
+    "title": "Hisab",
+    "subtitle": "Online orders: sales, profit and busy times",
+    "back": "Back to Home",
+    "rangesLabel": "Period",
+    "ranges": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "week": "7 days",
+      "month": "30 days"
+    },
+    "sales": "Sales",
+    "vs": {
+      "today": "vs yesterday by this time",
+      "yesterday": "vs the day before",
+      "week": "vs the 7 days before",
+      "month": "vs the 30 days before"
+    },
+    "up": "{percent, number}% up",
+    "down": "{percent, number}% down",
+    "same": "Same as before",
+    "inProgress": "{count, plural, one {# order} other {# orders}} on the way: {amount}",
+    "orders": "Orders",
+    "avgBill": "Average bill",
+    "profit": "Profit",
+    "margin": "{percent, number}% margin",
+    "noCost": "Add buying prices",
+    "customers": "Customers",
+    "cancelled": "{count, number} cancelled",
+    "chartDay": "Sales by time of day",
+    "chartDays": "Sales by day",
+    "busiest": "Busiest: {time}",
+    "barOrders": "{count, plural, one {# order} other {# orders}}",
+    "topTitle": "Best sellers",
+    "topEmpty": "No delivered orders yet in this period.",
+    "soldPieces": "{count, plural, one {# piece sold} other {# pieces sold}}",
+    "soldWeight": "{qty} {unit} sold",
+    "coverage": "Profit counts only products that have a buying price.",
+    "coverageAction": "Set buying prices",
+    "emptyTitle": "No online orders in this period",
+    "emptyHint": "When customers order from your online dukan, the hisab shows here.",
+    "emptyAction": "See orders",
+    "noAccessTitle": "Only the owner can see the hisab",
+    "noAccessHint": "Ask the dukan owner to give you report access.",
+    "tableCaption": "Sales in this period",
+    "time": "Time",
+    "day": "Day"
   }
 }

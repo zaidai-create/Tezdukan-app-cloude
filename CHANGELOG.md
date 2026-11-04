@@ -4,6 +4,15 @@ All notable changes, newest first. Dates are Asia/Karachi.
 
 ## Unreleased
 
+### Dukan ratings and the dukandar's Hisab (2026-11-04)
+
+- Customers see each dukan's stars from delivered orders ("4.8 (23)", or "New") on dukan cards
+  and the dukan page, and the latest comments under "What customers say".
+- Hisab for dukandars (Home -> See full hisab): sales, orders, average bill, profit from buying
+  prices, customers, each compared with the period before; sales by time of day (3-hour slots)
+  or by day, with the busiest time marked; best sellers. Today, yesterday, 7 days or 30 days.
+  Staff without report access see a clear message instead.
+
 ### Premium customer side (2026-11-04)
 
 - Home: "Deliver to" pill with the chosen address and the fastest delivery time, a live card

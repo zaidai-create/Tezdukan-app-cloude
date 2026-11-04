@@ -6,6 +6,7 @@ import { storageUrl } from "@/features/ordering/images";
 import { telHref, whatsappHref } from "@/lib/contact";
 import { formatRs } from "@/lib/money";
 import type { StorefrontShop } from "../schemas";
+import { RatingBadge } from "./rating-badge";
 
 const pill = "num inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-sm font-semibold";
 
@@ -32,6 +33,7 @@ export async function ShopHeader({ shop }: { shop: StorefrontShop }) {
             <p className="truncate text-sm text-muted">
               {[area, shop.address_line].filter(Boolean).join(" · ")}
             </p>
+            <RatingBadge rating={shop.rating} count={shop.rating_count} className="mt-1.5" />
           </div>
         </div>
         {shop.tagline ? <p className="text-base text-ink/80">{shop.tagline}</p> : null}

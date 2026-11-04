@@ -1312,7 +1312,18 @@
     "percentOff": "{percent, number}% کم",
     "youSaveRs": "آپ کی بچت {amount}",
     "soldBy": "بیچنے اور پہنچانے والی دکان",
-    "freshPromise": "روانگی سے پہلے دکان چیک کرتی ہے۔ پہنچنے پر ادائیگی کریں۔"
+    "freshPromise": "روانگی سے پہلے دکان چیک کرتی ہے۔ پہنچنے پر ادائیگی کریں۔",
+    "rating": {
+      "new": "نئی",
+      "label": "{count, plural, one {# آرڈر} other {# آرڈرز}} سے 5 میں سے {rating} ریٹنگ",
+      "count": "({count, number})"
+    },
+    "reviews": {
+      "title": "گاہک کیا کہتے ہیں",
+      "summary": "{count, plural, one {# ریٹنگ} other {# ریٹنگز}} سے {rating}",
+      "stars": "5 میں سے {count, plural, one {# ستارہ} other {# ستارے}}",
+      "verified": "ڈیلیور شدہ آرڈر"
+    }
   },
   "customerOrders": {
     "title": "میرے آرڈرز",
@@ -1471,7 +1482,8 @@
       "packed": "پیک ہو گیا",
       "out_for_delivery": "روانہ کریں",
       "delivered": "ڈیلیور ہو گیا"
-    }
+    },
+    "report": "پورا حساب دیکھیں"
   },
   "shopProducts": {
     "title": "میری پروڈکٹس",
@@ -1638,5 +1650,53 @@
     "requestedBody": "آپ کا اکاؤنٹ 30 دن کے اندر ڈیلیٹ ہو جائے گا۔ ارادہ بدلے تو سپورٹ کو میسج کریں۔",
     "doneTitle": "آپ کی درخواست مل گئی",
     "doneBody": "ہم نے آپ کو سائن آؤٹ کر دیا ہے۔ آپ کا اکاؤنٹ اور ذاتی ڈیٹا 30 دن کے اندر ڈیلیٹ ہو جائے گا۔"
+  },
+  "shopReport": {
+    "title": "حساب",
+    "subtitle": "آن لائن آرڈر: سیل، منافع اور رش کا وقت",
+    "back": "ہوم پر واپس",
+    "rangesLabel": "مدت",
+    "ranges": {
+      "today": "آج",
+      "yesterday": "کل",
+      "week": "7 دن",
+      "month": "30 دن"
+    },
+    "sales": "سیل",
+    "vs": {
+      "today": "کل اسی وقت تک کے مقابلے میں",
+      "yesterday": "پرسوں کے مقابلے میں",
+      "week": "پچھلے 7 دن کے مقابلے میں",
+      "month": "پچھلے 30 دن کے مقابلے میں"
+    },
+    "up": "{percent, number}% زیادہ",
+    "down": "{percent, number}% کم",
+    "same": "پہلے جتنی",
+    "inProgress": "{count, plural, one {# آرڈر} other {# آرڈرز}} راستے میں: {amount}",
+    "orders": "آرڈرز",
+    "avgBill": "اوسط بل",
+    "profit": "منافع",
+    "margin": "{percent, number}% مارجن",
+    "noCost": "خرید کی قیمت ڈالیں",
+    "customers": "گاہک",
+    "cancelled": "{count, number} منسوخ",
+    "chartDay": "وقت کے حساب سے سیل",
+    "chartDays": "روزانہ سیل",
+    "busiest": "سب سے زیادہ رش: {time}",
+    "barOrders": "{count, plural, one {# آرڈر} other {# آرڈرز}}",
+    "topTitle": "سب سے زیادہ بکنے والی چیزیں",
+    "topEmpty": "اس مدت میں ابھی کوئی آرڈر ڈیلیور نہیں ہوا۔",
+    "soldPieces": "{count, plural, one {# عدد بکا} other {# عدد بکے}}",
+    "soldWeight": "{qty} {unit} بکا",
+    "coverage": "منافع صرف ان چیزوں کا ہے جن کی خرید کی قیمت درج ہے۔",
+    "coverageAction": "خرید کی قیمت ڈالیں",
+    "emptyTitle": "اس مدت میں کوئی آن لائن آرڈر نہیں",
+    "emptyHint": "جب گاہک آپ کی آن لائن دکان سے آرڈر کریں گے تو حساب یہاں نظر آئے گا۔",
+    "emptyAction": "آرڈر دیکھیں",
+    "noAccessTitle": "حساب صرف دکان کا مالک دیکھ سکتا ہے",
+    "noAccessHint": "دکان کے مالک سے رپورٹ دیکھنے کی اجازت لیں۔",
+    "tableCaption": "اس مدت کی سیل",
+    "time": "وقت",
+    "day": "دن"
   }
 }

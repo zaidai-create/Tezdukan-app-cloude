@@ -40,7 +40,18 @@ const shopTerms = {
   min_order_paisa: z.number().int().nonnegative(),
   delivery_fee_paisa: z.number().int().nonnegative(),
   free_delivery_above_paisa: z.number().int().nonnegative().nullable(),
+  /** Average stars from delivered orders, one decimal; null until the first rating. */
+  rating: z.number().min(1).max(5).nullable(),
+  rating_count: z.number().int().nonnegative(),
 };
+
+export const shopReviewSchema = z.object({
+  id: z.uuid(),
+  rating: z.number().int().min(1).max(5),
+  comment: z.string(),
+  created_at: z.string(),
+});
+export type ShopReview = z.infer<typeof shopReviewSchema>;
 
 export const storefrontShopSchema = z.object({
   id: z.uuid(),
@@ -54,6 +65,7 @@ export const storefrontShopSchema = z.object({
   area_name: z.string().nullable(),
   area_name_ur: z.string().nullable(),
   pickup_enabled: z.boolean(),
+  reviews: z.array(shopReviewSchema),
   products: z.array(storefrontProductSchema),
   ...shopTerms,
 });

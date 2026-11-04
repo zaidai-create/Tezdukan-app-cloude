@@ -9,6 +9,8 @@ CUSTOMERS (people at home)
 - See dukans (kiryana shops) near them, each with its delivery time, delivery fee, minimum
   order and the amount above which delivery is free. Tabs: Home, Categories, Nearby, Cart, Account.
 - Add products to the cart (one bill per dukan) and tap Place order. Payment is cash on delivery.
+- Each dukan shows its star rating from delivered orders. After delivery the customer can rate
+  the order (1 to 5 stars and an optional comment) on the order screen.
 - Order steps: Placed -> Accepted -> Packed -> On the way -> Delivered. A dukan can also reject
   an order (the customer is told why). Orders are in Account -> Orders, with a notification at
   every step if notifications are on.
@@ -20,6 +22,8 @@ DUKANDARS (shopkeepers)
 - Tabs: Home, Orders, Products, Khata, Account.
 - Home: today's sales, live customer orders with one-tap next steps (Accept, Mark packed,
   Send out, Delivered), low stock, and khata totals.
+- Hisab (Home -> See full hisab): online sales, orders, average bill, profit (from buying
+  prices), busiest time of day and best sellers, for today, yesterday, 7 days or 30 days.
 - Products: add the 16 common products in one tap (priced at MRP, change later), add a product
   by typing or saying its name (TezDukan fills in the photo and details), or add their own
   product by name. Tap any product to change its price, count its stock, or hide it from customers.

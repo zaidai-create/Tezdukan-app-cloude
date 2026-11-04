@@ -1,6 +1,7 @@
 import {
   BookOpen,
   Boxes,
+  ChartColumn,
   ChevronRight,
   type LucideIcon,
   PackageOpen,
@@ -116,6 +117,14 @@ async function DashboardContent() {
               {t("todayOrders", { count: dash.today.orders })} ·{" "}
               {t("delivered", { count: dash.today.delivered })}
             </p>
+            <Link
+              href="/dukan/reports"
+              className="mt-3 inline-flex min-h-12 items-center gap-1.5 rounded-full bg-on-forest/15 px-4 text-sm font-semibold text-on-forest transition-transform duration-150 ease-out active:scale-[0.97]"
+            >
+              <ChartColumn aria-hidden className="size-4" strokeWidth={1.75} />
+              {t("report")}
+              <ChevronRight aria-hidden className="size-4 rtl:-scale-x-100" />
+            </Link>
           </div>
           <div className="flex h-16 items-end gap-1.5" role="img" aria-label={t("weekChart")}>
             {dash.week.map((day, index) => (
