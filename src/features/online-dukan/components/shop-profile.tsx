@@ -54,7 +54,8 @@ export function ShopProfile({ store }: { store: ShopStorefront }) {
         ) : (
           <div className="flex size-full flex-col">
             <Awning className="text-awning" height={18} />
-            <p className="flex flex-1 items-center justify-center px-6 text-center text-sm font-semibold text-primary-strong">
+            {/* Bottom padding keeps the hint clear of the logo and the Add banner button. */}
+            <p className="flex flex-1 items-center justify-center px-6 pb-14 text-center text-sm font-semibold text-balance text-primary-strong">
               {t("bannerHint")}
             </p>
           </div>
@@ -79,7 +80,9 @@ export function ShopProfile({ store }: { store: ShopStorefront }) {
       </div>
 
       <div className="flex flex-col gap-4 px-4 pb-4">
-        <div className="-mt-10 flex items-end gap-3">
+        {/* Only the logo overlaps the banner; the name starts below it, since the banner is
+            positioned and would paint over plain text. */}
+        <div className="-mt-10 flex items-start gap-3">
           {store.can_edit ? (
             <PhotoPicker
               bucket="shop-media"
@@ -101,7 +104,7 @@ export function ShopProfile({ store }: { store: ShopStorefront }) {
           ) : (
             <LogoTile src={logo} name={store.name} />
           )}
-          <div className="min-w-0 pb-1">
+          <div className="min-w-0 pt-11">
             <h2 className="truncate font-heading text-xl font-bold text-ink">{store.name}</h2>
             <p className="text-sm text-muted">{t("subtitle")}</p>
           </div>

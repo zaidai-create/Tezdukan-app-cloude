@@ -10,6 +10,8 @@ All notable changes, newest first. Dates are Asia/Karachi.
   are shrunk on the phone before upload.
 - Dukan profile on Online dukan, like a Daraz store page: banner, logo and "about"; customers
   see them on the dukan page.
+- Dukan profile layout: the dukan name sits below the banner (it was hidden behind it) and the
+  banner hint no longer runs under the Add banner button.
 - Location: GPS first, then the network position when GPS cannot get a fix indoors.
 - App 0.1.6: location works again (0.1.5's location delegation is removed; Chrome handles it as
   in 0.1.4), and the light line above the phone's navigation bar is gone.
