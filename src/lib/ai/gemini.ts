@@ -3,7 +3,7 @@ import { z } from "zod";
 
 /**
  * Minimal client for Google's official Gemini API (generativelanguage.googleapis.com), used
- * by Munshi and the support assistant. A free key from Google AI Studio is enough. Model
+ * by Tez (the in-app assistant) and the support assistant. A free key from Google AI Studio is enough. Model
  * parts are passed back exactly as received, so tool calls keep any signature the model adds.
  */
 
@@ -28,6 +28,9 @@ const geminiEnvSchema = z.object({
     .string()
     .min(1)
     .default("gemini-3.5-flash-lite,gemini-3.5-flash,gemini-flash-lite-latest"),
+  // Measured on the free tier (Nov 2026): gemini-3.5-flash answers a short question in about
+  // 1.2 s with "minimal" thinking against 3.2 s with "low", and a tool call needs two answers.
+  GEMINI_THINKING: z.enum(["minimal", "low", "medium", "high"]).default("minimal"),
 });
 
 export function modelList(value: string): string[] {
@@ -44,6 +47,7 @@ export function geminiEnv() {
     GEMINI_API_KEY: process.env.GEMINI_API_KEY || undefined,
     GEMINI_MODEL_AGENT: process.env.GEMINI_MODEL_AGENT || undefined,
     GEMINI_MODEL_FAST: process.env.GEMINI_MODEL_FAST || undefined,
+    GEMINI_THINKING: process.env.GEMINI_THINKING || undefined,
   });
 }
 
@@ -111,8 +115,8 @@ export async function geminiGenerate({
     contents,
     generationConfig: {
       temperature,
-      // Shopkeepers wait on the answer: a little thinking is enough for these short tasks.
-      thinkingConfig: { thinkingLevel: "low" },
+      // Shopkeepers wait on the answer, and these are short tasks: think as little as possible.
+      thinkingConfig: { thinkingLevel: env.GEMINI_THINKING },
       ...(jsonSchema ? { responseMimeType: "application/json", responseSchema: jsonSchema } : {}),
     },
   };

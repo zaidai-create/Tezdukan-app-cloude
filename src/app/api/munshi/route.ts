@@ -30,6 +30,8 @@ const screenLabels = [
   "stockOrders",
   "chat",
   "catalog",
+  "reports",
+  "store",
 ] as const;
 type ScreenLabel = (typeof screenLabels)[number];
 const isScreenLabel = (value: string): value is ScreenLabel =>
@@ -65,7 +67,7 @@ export async function POST(request: Request) {
       history: parsed.data.history,
       screen: parsed.data.screen,
     });
-    if (!answer.reply && !answer.link) {
+    if (!answer.reply && !answer.link && answer.cart.length === 0) {
       return NextResponse.json({ error: "agent_unavailable" }, { status: 503, headers: noStore });
     }
     const tNav = await getTranslations({ locale: parsed.data.locale, namespace: "nav" });
@@ -75,7 +77,9 @@ export async function POST(request: Request) {
           label: isScreenLabel(answer.link.screen) ? tNav(answer.link.screen) : answer.link.screen,
         }
       : null;
-    return NextResponse.json({ reply: answer.reply, link }, { headers: noStore });
+    // Only a shopper has a cart; other roles never get one back.
+    const cart = session.activeRole === "customer" ? answer.cart : [];
+    return NextResponse.json({ reply: answer.reply, link, cart }, { headers: noStore });
   } catch (error) {
     // Google's free tier is often busy (503) or rate-limited (429): tell people to try again.
     const busy = error instanceof GeminiError && (error.status === 429 || error.status === 503);

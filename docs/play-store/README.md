@@ -69,7 +69,7 @@ For dukandars
 • Orders arrive with a sound and a notification; accept, pack and send out in one tap
 • Change prices and count stock from your phone
 • Buy stock from distributors at trade price and keep your khata in one place
-• Munshi, the voice helper: "Aaj ki sale kitni hui?", "Tapal ka rate 1250 kar do"
+• Tez, the voice helper: "Aaj ki sale kitni hui?", "Tapal ka rate 1250 kar do", "Doodh mangwa do"
 
 For distributors
 • Orders from every dukan in one inbox, with confirmation calls for big orders
@@ -84,7 +84,7 @@ Made for Hyderabad, in English, Urdu and Roman Urdu.
 
 **Full description**:
 
-ٹیز دکان آپ کے محلے کی کریانہ دکانیں آپ کے فون پر لاتا ہے، اور ہر دکاندار کو ایک آسان دکان ایپ دیتا ہے۔
+تیز دکان آپ کے محلے کی کریانہ دکانیں آپ کے فون پر لاتا ہے، اور ہر دکاندار کو ایک آسان دکان ایپ دیتا ہے۔
 
 گاہکوں کے لیے
 • قریبی دکانیں، ڈیلیوری کا وقت، ڈیلیوری فیس اور کم از کم آرڈر کے ساتھ
@@ -97,7 +97,7 @@ Made for Hyderabad, in English, Urdu and Roman Urdu.
 • نیا آرڈر آواز اور نوٹیفکیشن کے ساتھ، ایک ٹیپ میں قبول، پیک اور روانہ
 • فون سے قیمت بدلیں اور اسٹاک گنیں
 • ڈسٹری بیوٹرز سے ٹریڈ قیمت پر مال خریدیں اور کھاتہ ایک جگہ رکھیں
-• منشی، بول کر کام کرنے والا مددگار
+• تیز، بول کر کام کرنے والا مددگار
 
 ڈسٹری بیوٹرز کے لیے
 • ہر دکان کا آرڈر ایک ان باکس میں
@@ -108,7 +108,7 @@ Made for Hyderabad, in English, Urdu and Roman Urdu.
 
 Data is encrypted in transit (HTTPS). Users can request deletion (link above). No data is sold
 or shared with third parties for their own use; Supabase (database), Vercel (hosting) and
-Google Gemini (Munshi and voice) are service providers.
+Google Gemini (Tez and voice) are service providers.
 
 | Data type | Collected | Shared | Why | Optional |
 | --- | --- | --- | --- | --- |
@@ -118,7 +118,7 @@ Google Gemini (Munshi and voice) are service providers.
 | Approximate and precise location | Yes (shop and delivery address) | No | App functionality (nearby dukans, delivery) | Yes |
 | Purchase history | Yes (orders) | No | App functionality | No |
 | In-app messages | Yes (order and support chat) | No | App functionality, customer support | Yes |
-| Voice recordings | Yes, only when the mic is used; processed to text and not stored | No | App functionality (Munshi) | Yes |
+| Voice recordings | Yes, only when the mic is used; processed to text and not stored | No | App functionality (Tez) | Yes |
 | Photos | Only product and shop photos the user uploads | No | App functionality | Yes |
 | App interactions | Yes | No | Analytics, app functionality | No |
 | Crash logs and diagnostics | Yes (Android crash reports) | No | App functionality, analytics | No |
@@ -127,6 +127,6 @@ Google Gemini (Munshi and voice) are service providers.
 ## Release notes for 0.1.4
 
 - Products tab for dukandars: add common products in one tap, change prices and stock
-- Munshi answers by voice or text
+- Tez answers by voice or text
 - Order alerts as phone notifications
 - New design and posters

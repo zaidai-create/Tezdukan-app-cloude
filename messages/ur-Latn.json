@@ -39,8 +39,8 @@
     "primary": "Main menu",
     "home": "Home",
     "categories": "Categories",
-    "munshi": "Munshi",
-    "munshiHint": "Munshi: tap kar ke likhein ya bolein, daba kar rakhein aur bolein",
+    "munshi": "Tez",
+    "munshiHint": "Tez: tap kar ke likhein ya bolein, daba kar rakhein aur bolein",
     "orders": "Orders",
     "dukan": "Dukan",
     "account": "Account",
@@ -68,7 +68,9 @@
     "nearby": "Qareeb",
     "wholesale": "Wholesale",
     "stockOrders": "Stock orders",
-    "products": "Products"
+    "products": "Products",
+    "reports": "Hisab",
+    "store": "Online dukan"
   },
   "roles": {
     "customer": "Gaahak",
@@ -100,7 +102,7 @@
     "panelTitle": "Jaldi maal mangwayein. Poori dukan ek app se chalayein.",
     "panelPoint1": "Distributor se minton mein order, saaf munafa aur scheme ke saath.",
     "panelPoint2": "Bill, stock aur khata, internet ke baghair bhi.",
-    "panelPoint3": "Munshi se Urdu, Roman Urdu ya English mein poochein.",
+    "panelPoint3": "Tez se Urdu, Roman Urdu ya English mein poochein.",
     "panelFooter": "Hyderabad ki dukanon ke liye banaya gaya.",
     "loginTitle": "Sign in",
     "loginSubtitle": "Apna mobile number aur password likhein.",
@@ -233,7 +235,8 @@
       "dukans": "Dukanein",
       "home": "Home",
       "help": "Madad",
-      "myOrders": "Orders"
+      "myOrders": "Orders",
+      "onlineDukan": "Online dukan"
     },
     "completeTitle": "Dukandar banein",
     "completeHint": "Distributors se trade rate, agle din delivery",
@@ -261,16 +264,16 @@
   },
   "command": {
     "title": "Talaash aur commands",
-    "description": "Kisi safhe par jayein, setting badlein ya Munshi se poochein.",
-    "placeholder": "Talaash karein ya Munshi se poochein…",
-    "empty": "Kuch nahi mila. Munshi se poochne ke liye Enter dabayein.",
-    "askMunshi": "Munshi se poochein: {query}",
+    "description": "Kisi safhe par jayein, setting badlein ya Tez se poochein.",
+    "placeholder": "Talaash karein ya Tez se poochein…",
+    "empty": "Kuch nahi mila. Tez se poochne ke liye Enter dabayein.",
+    "askMunshi": "Tez se poochein: {query}",
     "goTo": "Jayein"
   },
   "munshi": {
-    "title": "Munshi",
+    "title": "Tez",
     "subtitle": "Urdu, Roman Urdu ya English mein bol kar ya likh kar poochein.",
-    "greeting": "Assalam-o-Alaikum! Main Munshi hoon. Batayein kya kaam hai.",
+    "greeting": "Assalam-o-Alaikum! Main Tez hoon. Batayein kya kaam hai.",
     "tryThese": "Aise bolein:",
     "suggestions": {
       "customer": {
@@ -281,12 +284,12 @@
       "dukandar": {
         "s1": "Aaj ki sale kitni hui?",
         "s2": "Kaunsi cheezein khatam hone wali hain?",
-        "s3": "Pichla order dobara mangwa do"
+        "s3": "Is hafte ka hisab batao"
       },
       "distributor": {
         "s1": "Aaj ke pending orders dikhao",
-        "s2": "Kis dukan ka payment 30 din se zyada pending hai?",
-        "s3": "Is hafte ke top 10 SKU batao"
+        "s2": "Kaunsi dukanein chup ho gayi hain?",
+        "s3": "Is mahine ki sale pichle mahine se kitni hai?"
       },
       "booker": {
         "s1": "Aaj ki beat ki dukanein dikhao",
@@ -304,22 +307,22 @@
         "s3": "Naye distributors dikhao"
       }
     },
-    "thinking": "Munshi soch raha hai…",
+    "thinking": "Tez soch raha hai…",
     "listening": "Sun raha hoon…",
     "speakNow": "Ab bolein",
     "cancel": "Cancel",
     "done": "Ho gaya",
-    "inputLabel": "Munshi ke liye message",
+    "inputLabel": "Tez ke liye message",
     "placeholder": "Likhein ya mic dabayein…",
-    "talk": "Munshi se baat karein",
+    "talk": "Tez se baat karein",
     "send": "Bhejein",
     "sandbox": "Sandbox",
-    "notConfigured": "Jawab dene ke liye Munshi ko AI key chahiye. TezDukan ka baqi sab kaam maamool ke mutabiq chal raha hai.",
-    "unavailable": "Munshi abhi dastiyab nahi. App ke safhat istemal karein, sab kuch maamool ke mutabiq kaam kar raha hai.",
-    "offline": "Aap offline hain. Munshi ko internet chahiye, baqi safhat kaam kar rahe hain.",
+    "notConfigured": "Jawab dene ke liye Tez ko AI key chahiye. TezDukan ka baqi sab kaam maamool ke mutabiq chal raha hai.",
+    "unavailable": "Tez abhi dastiyab nahi. App ke safhat istemal karein, sab kuch maamool ke mutabiq kaam kar raha hai.",
+    "offline": "Aap offline hain. Tez ko internet chahiye, baqi safhat kaam kar rahe hain.",
     "micDenied": "Mic band hai. Browser ki setting mein ijazat dein ya likh kar poochein.",
     "transcribing": "Aap ki baat samajh raha hoon…",
-    "busy": "Munshi abhi bohat masroof hai. Ek minute baad dobara koshish karein.",
+    "busy": "Tez abhi bohat masroof hai. Ek minute baad dobara koshish karein.",
     "readAloud": "Ye parh kar sunayein"
   },
   "pwa": {
@@ -354,7 +357,7 @@
     "searchHint": "Product, brand ya barcode talash karein",
     "searchLabel": "Products talash karein",
     "searchFor": "Talash karein “{name}”",
-    "askMunshi": "Munshi se awaz mein poochein",
+    "askMunshi": "Tez se awaz mein poochein",
     "scanBarcode": "Barcode scan karein",
     "deliveryPromise": "Delivery {day}, {window}",
     "deliveryBy": "{name} ki taraf se",
@@ -422,7 +425,7 @@
     "noProductsHint": "Doosri category dekhein ya filter hata dein.",
     "clearFilters": "Filter hatayein",
     "searchEmptyTitle": "“{query}” nahi mila",
-    "searchEmptyHint": "Spelling check karein, brand ka naam likhein, ya Munshi se poochein.",
+    "searchEmptyHint": "Spelling check karein, brand ka naam likhein, ya Tez se poochein.",
     "searchStartTitle": "Aaj kya chahiye?",
     "recentSearches": "Haaliya talash",
     "clearRecent": "Saaf karein",
@@ -1025,7 +1028,7 @@
       "inactive": "Chhupi hui"
     },
     "empty": "Abhi koi product nahi",
-    "emptyHint": "Apni pehli product shamil karein. Munshi ek line ya photo se form bhar sakta hai.",
+    "emptyHint": "Apni pehli product shamil karein. Tez ek line ya photo se form bhar sakta hai.",
     "noResults": "“{query}” se koi product nahi mili.",
     "inStock": "{count, number} stock mein",
     "outOfStock": "Stock khatam",
@@ -1040,14 +1043,14 @@
       "newTitle": "Product shamil karein",
       "editTitle": "Product mein tabdeeli",
       "back": "Catalog par wapas",
-      "munshiTitle": "Munshi se bharwayein",
+      "munshiTitle": "Tez se bharwayein",
       "munshiHint": "Waise hi likhein jaise bolte hain, ya pack ki photo lein.",
       "munshiPlaceholder": "Tapal Danedar 950g, carton 12, rate 1750, MRP 1950",
       "munshiFill": "Form bharein",
       "munshiPhoto": "Photo parhein",
-      "munshiFilled": "Munshi ne form bhar diya. Save karne se pehle check kar lein.",
+      "munshiFilled": "Tez ne form bhar diya. Save karne se pehle check kar lein.",
       "munshiSandbox": "Sandbox: aap ke alfaz se baghair AI ke bhara gaya. Photo ke liye AI key zaroori hai.",
-      "munshiNothing": "Munshi ko is mein product ki tafseel nahi mili. Naam, size aur qeemat likhein.",
+      "munshiNothing": "Tez ko is mein product ki tafseel nahi mili. Naam, size aur qeemat likhein.",
       "photoNeedsAi": "Photo parhne ke liye AI key zaroori hai. Tafseel likh dein.",
       "findTitle": "TezDukan catalog mein dhoondein",
       "findHint": "Chunein to naam, Urdu naam, brand, category, size aur photo aa jayegi.",
@@ -1186,7 +1189,7 @@
       },
       "s3": {
         "title": "Kaun dekh sakta hai",
-        "body": "Jis dukan ya distributor se aap order karein, wo us order ke liye aap ka naam, phone aur delivery ka pata dekhta hai. Hum aap ka data kabhi nahi bechte. Service providers sirf hamare liye kaam karte hain: Supabase (database), Vercel (hosting), SMS service, aur Google Gemini jo Munshi ke jawab deta hai aur awaaz ko likhai mein badalta hai."
+        "body": "Jis dukan ya distributor se aap order karein, wo us order ke liye aap ka naam, phone aur delivery ka pata dekhta hai. Hum aap ka data kabhi nahi bechte. Service providers sirf hamare liye kaam karte hain: Supabase (database), Vercel (hosting), SMS service, aur Google Gemini jo Tez ke jawab deta hai aur awaaz ko likhai mein badalta hai."
       },
       "s4": {
         "title": "Aap ke ikhtiyarat",
@@ -1698,5 +1701,49 @@
     "tableCaption": "Is muddat ki sale",
     "time": "Waqt",
     "day": "Din"
+  },
+  "onlineDukan": {
+    "title": "Online dukan",
+    "subtitle": "Online orders lein aur delivery tay karein",
+    "back": "Home par wapas",
+    "liveTitle": "Aap online hain",
+    "liveHint": "Qareeb ke gahak aap ki cheezein dekh kar order kar sakte hain.",
+    "offlineTitle": "Aap ki dukan offline hai",
+    "offlineHint": "Gahak aap ki dukan dekh sakte hain magar order nahi kar sakte. Order lene ke liye online ho jayein.",
+    "offlineNeedsProducts": "Pehle products daalein, phir online hon taake gahak order kar sakein.",
+    "goOnline": "Online ho jayein",
+    "switchLabel": "Online orders lein",
+    "addProducts": "Products daalein",
+    "nowOnline": "Aap online hain. Gahak ab order kar sakte hain.",
+    "nowOffline": "Aap offline hain. Gahak order nahi kar sakte.",
+    "undo": "Wapas karein",
+    "ownerOnly": "Ye sirf dukan ka malik badal sakta hai.",
+    "products": "{count, plural, one {# product} other {# products}} gahak khareed sakte hain",
+    "shareTitle": "Apni dukan share karein",
+    "shareHint": "Ye link WhatsApp par apne gahakon ko bhejein.",
+    "shareText": "{name} se TezDukan par order karein: {url}",
+    "shareWhatsapp": "WhatsApp par bhejein",
+    "copy": "Link copy karein",
+    "copied": "Link copy ho gaya",
+    "termsTitle": "Delivery",
+    "eta": "Delivery ka waqt",
+    "etaOption": "{minutes, number} min",
+    "fee": "Delivery fee",
+    "feeHint": "Rs 0 ka matlab free delivery.",
+    "minOrder": "Kam az kam order",
+    "minOrderHint": "Rs 0 ka matlab koi had nahi.",
+    "freeAbove": "Is se zyada par free delivery",
+    "freeAboveHint": "Agar free delivery nahi dete to khaali chhor dein.",
+    "tagline": "Dukan ke baare mein ek line",
+    "taglinePlaceholder": "Maslan: har subah taaza doodh aur double roti",
+    "save": "Save karein",
+    "saved": "Save ho gaya",
+    "errors": {
+      "generic": "Save nahi ho saka. Dobara koshish karein.",
+      "not_allowed": "Ye sirf dukan ka malik badal sakta hai.",
+      "no_products": "Online hone se pehle kam az kam ek product stock mein daalein.",
+      "not_approved": "Aap ki dukan TezDukan team ki manzoori ka intezar kar rahi hai.",
+      "invalid": "Raqam check kar ke dobara koshish karein."
+    }
   }
 }

@@ -15,6 +15,7 @@ import { Suspense } from "react";
 import { cn } from "cn";
 import { Skeleton } from "@/components/ui/skeleton";
 import { NotificationPrompt } from "@/features/notifications/components/notification-prompt";
+import { GoOnlineCard } from "@/features/online-dukan/components/go-online-card";
 import { DukanPosters } from "@/features/posters/posters";
 import { getShopDistributors, requireDukan } from "@/features/ordering/data";
 import { Link } from "@/i18n/navigation";
@@ -91,9 +92,10 @@ async function DashboardContent() {
             </p>
             <h1 className="truncate font-heading text-2xl font-bold">{dash.shop.name}</h1>
           </div>
-          <span
+          <Link
+            href="/dukan/store"
             className={cn(
-              "inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-sm font-bold",
+              "inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-sm font-bold",
               dash.shop.is_live ? "bg-mint text-forest" : "bg-on-forest/15 text-on-forest",
             )}
           >
@@ -105,7 +107,8 @@ async function DashboardContent() {
               )}
             />
             {dash.shop.is_live ? t("online") : t("offline")}
-          </span>
+            <ChevronRight aria-hidden className="size-4 rtl:-scale-x-100" />
+          </Link>
         </div>
         <div className="mt-5 flex flex-wrap items-end justify-between gap-4">
           <div>
@@ -140,6 +143,8 @@ async function DashboardContent() {
           </div>
         </div>
       </section>
+
+      {dash.shop.is_live ? null : <GoOnlineCard hasProducts={dash.stock.products > 0} />}
 
       <NotificationPrompt audience="dukandar" />
 

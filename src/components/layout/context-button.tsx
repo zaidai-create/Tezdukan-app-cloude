@@ -31,7 +31,8 @@ function ContextButton({ session, className }: { session: ShellSession; classNam
         )}
       >
         {active?.name ? (
-          <Avatar className="size-10 rounded-md">
+          // On phones the shop's initials give way to its name, which matters more.
+          <Avatar className="size-10 rounded-md max-[439px]:hidden">
             {active.imageUrl ? <AvatarImage src={active.imageUrl} alt="" /> : null}
             <AvatarFallback name={active.name} className="rounded-md" />
           </Avatar>

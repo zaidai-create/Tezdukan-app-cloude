@@ -3,7 +3,11 @@ import { z } from "zod";
 import { getInbox, getDashboard, getInsights } from "@/features/distributor/data";
 import { getMyCustomerOrders } from "@/features/customer-orders/data";
 import { getShopDashboard } from "@/features/shop-dashboard/data";
+import { getSalesReport } from "@/features/shop-report/data";
+import { peakIndex, slotLabel } from "@/features/shop-report/figures";
+import { reportRanges } from "@/features/shop-report/schemas";
 import { getNearbyShops, getStorefrontProducts } from "@/features/storefront/data";
+import type { StorefrontProduct } from "@/features/storefront/schemas";
 import { geminiGenerate, type FunctionDeclaration, type GeminiContent } from "@/lib/ai/gemini";
 import { TEZDUKAN_KNOWLEDGE } from "@/lib/ai/knowledge";
 import type { AppRole } from "@/lib/auth/roles";
@@ -13,18 +17,26 @@ import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { plain } from "./text";
 
 /**
- * Munshi: a tool-using assistant for the signed-in person's active role. Every tool runs with
- * the person's own session, so database permissions (RLS) decide what it can read or change.
+ * Tez (named Munshi in the spec and in this code): a tool-using assistant for the signed-in
+ * person's active role. Every tool runs with the person's own session, so database permissions
+ * (RLS) decide what it can read or change.
  */
 
-type ToolContext = { session: ShellSession; contextId: string | null };
+export type CartAddition = { product: StorefrontProduct; quantity: number };
+type ToolContext = {
+  session: ShellSession;
+  contextId: string | null;
+  /** Products this turn's searches returned, so add_to_cart can only add real, current items. */
+  found: Map<string, StorefrontProduct>;
+  cart: CartAddition[];
+};
 type Tool = {
   declaration: FunctionDeclaration;
   run: (args: Record<string, unknown>, ctx: ToolContext) => Promise<unknown>;
 };
 
 export type MunshiLink = { screen: string; href: string };
-export type MunshiAnswer = { reply: string; link: MunshiLink | null };
+export type MunshiAnswer = { reply: string; link: MunshiLink | null; cart: CartAddition[] };
 
 const screens: Partial<Record<AppRole, Record<string, string>>> = {
   customer: {
@@ -38,6 +50,8 @@ const screens: Partial<Record<AppRole, Record<string, string>>> = {
   dukandar: {
     home: "/dukan",
     orders: "/dukan/customer-orders",
+    reports: "/dukan/reports",
+    store: "/dukan/store",
     products: "/dukan/products",
     wholesale: "/dukan/wholesale",
     ledger: "/dukan/ledger",
@@ -122,6 +136,70 @@ const dukandarTools: Tool[] = [
         total: formatRs(order.total_paisa),
         items: order.items_preview,
       }));
+    },
+  },
+  {
+    declaration: {
+      name: "sales_report",
+      description:
+        "The dukan's online sales for a period: sales, orders, average bill, profit, customers, the change against the period before, the busiest time and the best sellers.",
+      parameters: {
+        type: "object",
+        properties: { range: { type: "string", enum: [...reportRanges] } },
+        required: ["range"],
+      },
+    },
+    run: async (args, ctx) => {
+      const range = z.enum(reportRanges).parse(args.range);
+      const report = await getSalesReport(ctx.contextId ?? "", range);
+      if (!report) return { error: "no_report_access" };
+      const { totals, previous } = report;
+      const peak = peakIndex(report.series.map((entry) => entry.sales_paisa));
+      const busiest = peak >= 0 ? report.series[peak] : undefined;
+      return {
+        period: report.from === report.to ? report.from : `${report.from} to ${report.to}`,
+        sales: formatRs(totals.sales_paisa),
+        sales_before: formatRs(previous.sales_paisa),
+        orders: totals.orders,
+        orders_before: previous.orders,
+        delivered: totals.delivered,
+        cancelled: totals.cancelled,
+        still_on_the_way: totals.in_progress,
+        average_bill: formatRs(totals.avg_bill_paisa),
+        profit:
+          totals.costed_paisa > 0 ? formatRs(totals.profit_paisa) : "unknown (no buying prices)",
+        customers: totals.customers,
+        busiest:
+          busiest && busiest.start_hour !== null
+            ? slotLabel(busiest.start_hour)
+            : (busiest?.day ?? null),
+        best_sellers: report.top_products.map(
+          (product) => `${product.name}: ${formatRs(product.sales_paisa)}`,
+        ),
+      };
+    },
+  },
+  {
+    declaration: {
+      name: "set_online",
+      description:
+        "Switch the dukan's online orders on (customers can order) or off. Only when the dukandar asks for it.",
+      parameters: {
+        type: "object",
+        properties: { online: { type: "boolean" } },
+        required: ["online"],
+      },
+    },
+    run: async (args, ctx) => {
+      const online = z.boolean().parse(args.online);
+      const supabase = await getSupabaseServerClient();
+      const { data, error } = await supabase.rpc("update_shop_storefront", {
+        p_shop_id: ctx.contextId ?? "",
+        p_is_live: online,
+      });
+      if (error) return { done: false, error: error.message };
+      const live = z.object({ is_live: z.boolean() }).safeParse(data);
+      return { done: true, online: live.success ? live.data.is_live : online };
     },
   },
   {
@@ -343,14 +421,58 @@ const customerTools: Tool[] = [
         required: ["query"],
       },
     },
-    run: async (args) => {
+    run: async (args, ctx) => {
       const products = await getStorefrontProducts({ query: text().parse(args.query), limit: 8 });
+      for (const product of products) ctx.found.set(product.id, product);
       return products.map((product) => ({
+        id: product.id,
         name: product.name,
         pack: product.pack_size_label,
         price: formatRs(product.selling_price_paisa),
         dukan: product.shop_name,
       }));
+    },
+  },
+  {
+    declaration: {
+      name: "add_to_cart",
+      description:
+        "Put products in the customer's cart when they ask to order or buy something. Use ids from search_products in this turn; prefer one dukan so there is one delivery.",
+      parameters: {
+        type: "object",
+        properties: {
+          items: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: { id: { type: "string" }, quantity: { type: "integer" } },
+              required: ["id", "quantity"],
+            },
+          },
+        },
+        required: ["items"],
+      },
+    },
+    run: async (args, ctx) => {
+      const items = z
+        .array(z.object({ id: z.string(), quantity: z.number().int().min(1).max(20) }))
+        .min(1)
+        .max(10)
+        .parse(args.items);
+      const added: string[] = [];
+      const missing: string[] = [];
+      for (const item of items) {
+        const product = ctx.found.get(item.id);
+        if (!product) {
+          missing.push(item.id);
+          continue;
+        }
+        ctx.cart.push({ product, quantity: item.quantity });
+        added.push(`${item.quantity} x ${product.name} (${product.shop_name})`);
+      }
+      return missing.length > 0
+        ? { added, not_found: missing, hint: "search_products first" }
+        : { added };
     },
   },
   {
@@ -436,7 +558,7 @@ function systemPrompt(
   contextName: string | null,
   screen: string | undefined,
 ): string {
-  return `You are Munshi, the helper inside the TezDukan app. You talk to ${session.fullName}, who is
+  return `You are Tez, the helper inside the TezDukan app. You talk to ${session.fullName}, who is
 using the app as a ${session.activeRole}${contextName ? ` for "${contextName}"` : ""}. They are on the
 screen ${screen ?? "unknown"}.
 
@@ -449,6 +571,10 @@ How to answer:
 - When they ask to change a price or stock or to add products, do it with the tools (find the
   product first) and then say exactly what changed. If two products match, ask which one.
 - When a screen does what they want, call open_screen so they get a button.
+- When a customer asks for things ("doodh aur double roti mangwa do"), search for each, pick
+  the best match from one nearby dukan, add them with add_to_cart, then say what you added and
+  from which dukan. If nothing matches, say so and suggest a close item.
+- Call several tools at once when you need several facts.
 - Only help with TezDukan and their shop. For anything else, say politely that you can only
   help with TezDukan.
 
@@ -479,7 +605,12 @@ export async function runMunshi({
   const context = session.contexts.find(
     (c) => c.role === session.activeRole && c.contextId === session.activeContextId,
   );
-  const ctx: ToolContext = { session, contextId: session.activeContextId };
+  const ctx: ToolContext = {
+    session,
+    contextId: session.activeContextId,
+    found: new Map(),
+    cart: [],
+  };
   const tools = toolsFor(session.activeRole);
   const byName = new Map(tools.map((tool) => [tool.declaration.name, tool]));
   const contents: GeminiContent[] = [
@@ -498,32 +629,39 @@ export async function runMunshi({
       tools: tools.map((tool) => tool.declaration),
     });
     if (result.calls.length === 0) {
-      return { reply: plain(result.text), link };
+      // Something went into the cart: offer the cart button unless another screen was chosen.
+      const cartLink =
+        ctx.cart.length > 0 && !link && screens.customer?.cart
+          ? { screen: "cart", href: screens.customer.cart }
+          : link;
+      return { reply: plain(result.text), link: cartLink, cart: ctx.cart };
     }
     contents.push({ role: "model", parts: result.parts });
-    const responses = [];
-    for (const call of result.calls) {
-      const tool = byName.get(call.name);
-      let output: unknown;
-      try {
-        output = tool ? await tool.run(call.args, ctx) : { error: "unknown_tool" };
-        if (call.name === "open_screen" && tool) {
-          const screenName = String(call.args.screen);
-          const href = screens[session.activeRole]?.[screenName];
-          if (href) link = { screen: screenName, href };
+    // Independent tool calls run together, so a question that needs three facts waits once.
+    const responses = await Promise.all(
+      result.calls.map(async (call) => {
+        const tool = byName.get(call.name);
+        let output: unknown;
+        try {
+          output = tool ? await tool.run(call.args, ctx) : { error: "unknown_tool" };
+          if (call.name === "open_screen" && tool) {
+            const screenName = String(call.args.screen);
+            const href = screens[session.activeRole]?.[screenName];
+            if (href) link = { screen: screenName, href };
+          }
+        } catch (error) {
+          output = { error: error instanceof Error ? error.message : "failed" };
         }
-      } catch (error) {
-        output = { error: error instanceof Error ? error.message : "failed" };
-      }
-      responses.push({
-        functionResponse: {
-          ...(call.id ? { id: call.id } : {}),
-          name: call.name,
-          response: { result: output },
-        },
-      });
-    }
+        return {
+          functionResponse: {
+            ...(call.id ? { id: call.id } : {}),
+            name: call.name,
+            response: { result: output },
+          },
+        };
+      }),
+    );
     contents.push({ role: "user", parts: responses });
   }
-  return { reply: "", link };
+  return { reply: "", link, cart: ctx.cart };
 }

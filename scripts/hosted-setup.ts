@@ -15,7 +15,7 @@
  *
  * Env: SUPABASE_ACCESS_TOKEN (a personal access token from supabase.com/dashboard/account/tokens),
  *      SUPABASE_PROJECT_REF (default: the TezDukan project), SITE_URL (the deployed app,
- *      default http://localhost:3000), GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET (optional).
+ *      default https://tezdukan.vercel.app), GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET (optional).
  * Safe to re-run: applied migrations are skipped and the Auth settings are simply set again.
  */
 import { spawn } from "node:child_process";
@@ -29,7 +29,10 @@ const RETIRED_FUNCTIONS = ["voice-parse"];
 
 const token = process.env.SUPABASE_ACCESS_TOKEN;
 const ref = process.env.SUPABASE_PROJECT_REF ?? "vgdwsisihixwsuuikhvp";
-const siteUrl = (process.env.SITE_URL ?? "http://localhost:3000").replace(/\/$/, "");
+// The hosted project serves the deployed app. Defaulting to localhost here once sent every
+// Google sign-in back to "localhost refused to connect" on phones, so the default is the live
+// address and localhost stays only in the redirect allow-list for local development.
+const siteUrl = (process.env.SITE_URL ?? "https://tezdukan.vercel.app").replace(/\/$/, "");
 const withSeed = process.argv.includes("--seed");
 
 if (!token) {

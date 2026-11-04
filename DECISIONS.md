@@ -279,4 +279,31 @@ section. Format: **decision** — reason (date).
   exactly. (2026-11-03)
 - **Replies are plain text** — the app shows short sentences, not markdown; a read-aloud
   button helps people who read slowly. (2026-11-03)
+- **The assistant is called Tez** — the owner renamed Munshi to Tez (2026-11-04). Every name
+  people see (messages, the system prompt, the store listing) says Tez; code keeps the
+  `munshi` identifiers and the `/api/munshi` route so nothing else has to move.
+- **Minimal thinking** — measured on the free tier: `gemini-3.5-flash` answers a short
+  question in about 1.2 s with `thinkingLevel: minimal` and 3.2 s with `low`, and a question
+  that needs a tool takes two or three answers. `GEMINI_THINKING` (default `minimal`) can raise
+  it later. Tool calls in one step run in parallel. (2026-11-04)
+- **No FreeLLMAPI** — the owner suggested github.com/tashfeenahmed/freellmapi for keys. It holds
+  no keys: it is a self-hosted router where you add your own key for each provider's free tier,
+  and its own disclaimer says it is for personal experiments, not production. A Play Store app
+  stays on one official API it is allowed to use (Gemini). A faster provider such as Groq can be
+  added later with the owner's own key. (2026-11-04)
+- **Tez can fill a shopper's cart** — `add_to_cart` only accepts products that a search in the
+  same turn returned, and the phone adds them to its own cart (the cart lives on the device).
+  The shopper still reviews the cart and places the order. (2026-11-04)
+
+## Online dukan
+
+- **A dukan goes online by its own choice, with products to sell** — `update_shop_storefront`
+  refuses to go online with no product in stock, so customers never meet an empty dukan. Until
+  2026-11-04 nothing in the app could switch a dukan online, which left every new dukan telling
+  customers "doesn't take online orders"; Home and Products now show a one-tap Go online card
+  while a dukan is offline.
+- **The hosted Auth site URL is the live app** — `scripts/hosted-setup.ts` defaulted `SITE_URL`
+  to localhost, which sent Google sign-in on phones to "localhost refused to connect". The
+  default is now https://tezdukan.vercel.app, with localhost only in the redirect allow-list.
+  (2026-11-04)
 

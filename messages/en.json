@@ -39,8 +39,8 @@
     "primary": "Main navigation",
     "home": "Home",
     "categories": "Categories",
-    "munshi": "Munshi",
-    "munshiHint": "Munshi: tap to type or talk, hold to start talking",
+    "munshi": "Tez",
+    "munshiHint": "Tez: tap to type or talk, hold to start talking",
     "orders": "Orders",
     "dukan": "Dukan",
     "account": "Account",
@@ -68,7 +68,9 @@
     "nearby": "Nearby",
     "wholesale": "Wholesale",
     "stockOrders": "Stock orders",
-    "products": "Products"
+    "products": "Products",
+    "reports": "Hisab",
+    "store": "Online dukan"
   },
   "roles": {
     "customer": "Customer",
@@ -100,7 +102,7 @@
     "panelTitle": "Order stock fast. Run your whole dukan from one app.",
     "panelPoint1": "Order from distributors in minutes, with clear margins and schemes.",
     "panelPoint2": "Billing, stock and khata that work even without internet.",
-    "panelPoint3": "Ask Munshi in Urdu, Roman Urdu or English.",
+    "panelPoint3": "Ask Tez in Urdu, Roman Urdu or English.",
     "panelFooter": "Made for the dukans of Hyderabad.",
     "loginTitle": "Sign in",
     "loginSubtitle": "Use your mobile number and password.",
@@ -233,7 +235,8 @@
       "dukans": "Dukans",
       "home": "Home",
       "help": "Help",
-      "myOrders": "Orders"
+      "myOrders": "Orders",
+      "onlineDukan": "Online dukan"
     },
     "completeTitle": "Become a shopkeeper",
     "completeHint": "Trade prices from distributors, delivered next day",
@@ -261,16 +264,16 @@
   },
   "command": {
     "title": "Search and commands",
-    "description": "Jump to a page, change settings or ask Munshi.",
-    "placeholder": "Search or ask Munshi…",
-    "empty": "Nothing found. Press Enter to ask Munshi.",
-    "askMunshi": "Ask Munshi: {query}",
+    "description": "Jump to a page, change settings or ask Tez.",
+    "placeholder": "Search or ask Tez…",
+    "empty": "Nothing found. Press Enter to ask Tez.",
+    "askMunshi": "Ask Tez: {query}",
     "goTo": "Go to"
   },
   "munshi": {
-    "title": "Munshi",
+    "title": "Tez",
     "subtitle": "Ask by voice or type in Urdu, Roman Urdu or English.",
-    "greeting": "Assalam-o-Alaikum! I am Munshi. Tell me what you need.",
+    "greeting": "Assalam-o-Alaikum! I am Tez. Tell me what you need.",
     "tryThese": "Try saying:",
     "suggestions": {
       "customer": {
@@ -281,12 +284,12 @@
       "dukandar": {
         "s1": "Aaj ki sale kitni hui?",
         "s2": "Kaunsi cheezein khatam hone wali hain?",
-        "s3": "Pichla order dobara mangwa do"
+        "s3": "Is hafte ka hisab batao"
       },
       "distributor": {
         "s1": "Aaj ke pending orders dikhao",
-        "s2": "Kis dukan ka payment 30 din se zyada pending hai?",
-        "s3": "Is hafte ke top 10 SKU batao"
+        "s2": "Kaunsi dukanein chup ho gayi hain?",
+        "s3": "Is mahine ki sale pichle mahine se kitni hai?"
       },
       "booker": {
         "s1": "Aaj ki beat ki dukanein dikhao",
@@ -304,22 +307,22 @@
         "s3": "Naye distributors dikhao"
       }
     },
-    "thinking": "Munshi is thinking…",
+    "thinking": "Tez is thinking…",
     "listening": "Listening…",
     "speakNow": "Speak now",
     "cancel": "Cancel",
     "done": "Done",
-    "inputLabel": "Message to Munshi",
+    "inputLabel": "Message to Tez",
     "placeholder": "Type or tap the mic…",
-    "talk": "Talk to Munshi",
+    "talk": "Talk to Tez",
     "send": "Send",
     "sandbox": "Sandbox",
-    "notConfigured": "Munshi needs an AI key before it can answer. Everything else in TezDukan works as normal.",
-    "unavailable": "Munshi is not available right now. Please use the app screens, everything works as normal.",
-    "offline": "You are offline. Munshi needs the internet; your screens still work.",
+    "notConfigured": "Tez needs an AI key before it can answer. Everything else in TezDukan works as normal.",
+    "unavailable": "Tez is not available right now. Please use the app screens, everything works as normal.",
+    "offline": "You are offline. Tez needs the internet; your screens still work.",
     "micDenied": "Microphone is blocked. Allow it in your browser settings, or type instead.",
     "transcribing": "Getting what you said…",
-    "busy": "Munshi is very busy right now. Please try again in a minute.",
+    "busy": "Tez is very busy right now. Please try again in a minute.",
     "readAloud": "Read this aloud"
   },
   "pwa": {
@@ -353,7 +356,7 @@
     "searchPlaceholder": "Search Tapal, Dalda, Surf...",
     "searchHint": "Search products, brands or barcode",
     "searchLabel": "Search products",
-    "askMunshi": "Ask Munshi by voice",
+    "askMunshi": "Ask Tez by voice",
     "scanBarcode": "Scan barcode",
     "deliveryPromise": "Delivery {day}, {window}",
     "deliveryBy": "by {name}",
@@ -420,7 +423,7 @@
     "noProductsHint": "Try another category or clear the filters.",
     "clearFilters": "Clear filters",
     "searchEmptyTitle": "No match for “{query}”",
-    "searchEmptyHint": "Check the spelling, try the brand name, or ask Munshi.",
+    "searchEmptyHint": "Check the spelling, try the brand name, or ask Tez.",
     "searchStartTitle": "What do you need today?",
     "recentSearches": "Recent searches",
     "clearRecent": "Clear",
@@ -1025,7 +1028,7 @@
       "inactive": "Hidden"
     },
     "empty": "No products yet",
-    "emptyHint": "Add your first product. Munshi can fill the form from one line or a photo.",
+    "emptyHint": "Add your first product. Tez can fill the form from one line or a photo.",
     "noResults": "No products match “{query}”.",
     "inStock": "{count, number} in stock",
     "outOfStock": "Out of stock",
@@ -1040,14 +1043,14 @@
       "newTitle": "Add a product",
       "editTitle": "Edit product",
       "back": "Back to catalog",
-      "munshiTitle": "Let Munshi fill it",
+      "munshiTitle": "Let Tez fill it",
       "munshiHint": "Write it the way you'd say it, or take a photo of the pack.",
       "munshiPlaceholder": "Tapal Danedar 950g, carton 12, rate 1750, MRP 1950",
       "munshiFill": "Fill the form",
       "munshiPhoto": "Read a photo",
-      "munshiFilled": "Munshi filled the form. Check it before saving.",
+      "munshiFilled": "Tez filled the form. Check it before saving.",
       "munshiSandbox": "Sandbox: filled from your words without AI. Photos need the AI key.",
-      "munshiNothing": "Munshi couldn't find product details in that. Try name, size and price.",
+      "munshiNothing": "Tez couldn't find product details in that. Try name, size and price.",
       "photoNeedsAi": "Reading photos needs the AI key. Type the details instead.",
       "findTitle": "Find in TezDukan catalog",
       "findHint": "Pick it to copy the name, Urdu name, brand, category, size and photo.",
@@ -1186,7 +1189,7 @@
       },
       "s3": {
         "title": "Who can see it",
-        "body": "The dukan or distributor you order from sees your name, phone and delivery address for that order. We never sell your data. Service providers process it only for us: Supabase (database), Vercel (hosting), SMS providers, and Google Gemini, which answers Munshi and turns voice into text."
+        "body": "The dukan or distributor you order from sees your name, phone and delivery address for that order. We never sell your data. Service providers process it only for us: Supabase (database), Vercel (hosting), SMS providers, and Google Gemini, which answers Tez and turns voice into text."
       },
       "s4": {
         "title": "Your choices",
@@ -1698,5 +1701,49 @@
     "tableCaption": "Sales in this period",
     "time": "Time",
     "day": "Day"
+  },
+  "onlineDukan": {
+    "title": "Online dukan",
+    "subtitle": "Take online orders and set how you deliver",
+    "back": "Back to Home",
+    "liveTitle": "You are online",
+    "liveHint": "Customers near you can see your products and order.",
+    "offlineTitle": "Your dukan is offline",
+    "offlineHint": "Customers can see your dukan but cannot order. Go online to start getting orders.",
+    "offlineNeedsProducts": "Add products first, then go online so customers can order.",
+    "goOnline": "Go online",
+    "switchLabel": "Take online orders",
+    "addProducts": "Add products",
+    "nowOnline": "You are online. Customers can order now.",
+    "nowOffline": "You are offline. Customers cannot order.",
+    "undo": "Undo",
+    "ownerOnly": "Only the dukan owner can change this.",
+    "products": "{count, plural, one {# product} other {# products}} customers can buy",
+    "shareTitle": "Share your dukan",
+    "shareHint": "Send this link to your customers on WhatsApp.",
+    "shareText": "Order from {name} on TezDukan: {url}",
+    "shareWhatsapp": "Share on WhatsApp",
+    "copy": "Copy link",
+    "copied": "Link copied",
+    "termsTitle": "Delivery",
+    "eta": "Delivery time",
+    "etaOption": "{minutes, number} min",
+    "fee": "Delivery fee",
+    "feeHint": "Rs 0 means free delivery.",
+    "minOrder": "Minimum order",
+    "minOrderHint": "Rs 0 means no minimum.",
+    "freeAbove": "Free delivery above",
+    "freeAboveHint": "Leave empty if you do not offer free delivery.",
+    "tagline": "One line about your dukan",
+    "taglinePlaceholder": "e.g. Fresh doodh and bread every morning",
+    "save": "Save",
+    "saved": "Saved",
+    "errors": {
+      "generic": "Could not save. Please try again.",
+      "not_allowed": "Only the dukan owner can change this.",
+      "no_products": "Add at least one product in stock before going online.",
+      "not_approved": "Your dukan is waiting for approval from the TezDukan team.",
+      "invalid": "Please check the amounts and try again."
+    }
   }
 }

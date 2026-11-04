@@ -4,6 +4,21 @@ All notable changes, newest first. Dates are Asia/Karachi.
 
 ## Unreleased
 
+### Bug fixes, Online dukan, and Tez (2026-11-04)
+
+- Fixed: Google sign-in on phones ended on "localhost refused to connect". The hosted Auth site
+  URL had been set to localhost by the setup script; it is now the live app.
+- Fixed: a new dukan could never go online, so customers saw "This dukan doesn't take online
+  orders yet" even after the dukandar added products. New Online dukan screen (Home -> Online /
+  Offline, or Account): the online switch, the dukan's link to share on WhatsApp, delivery time,
+  fee, minimum order, free delivery above an amount and a one-line tagline. Home and Products
+  show a one-tap Go online card while the dukan is offline.
+- Fixed: the header cut the dukan's name to two letters on phones.
+- The assistant is now called Tez. It answers about three times faster (minimal thinking, tools
+  in parallel) and can do more: the dukandar's hisab for any period, switching the dukan online
+  or offline, and for shoppers, putting what they ask for straight into the cart.
+- Urdu: the brand is spelled تیز دکان everywhere.
+
 ### Dukan ratings and the dukandar's Hisab (2026-11-04)
 
 - Customers see each dukan's stars from delivered orders ("4.8 (23)", or "New") on dukan cards

@@ -5,9 +5,9 @@ import { messages } from "./support/messages";
 
 /**
  * A new dukandar stocks the shop from Products: the common-products pack adds a dozen items
- * in one tap, then one is re-priced and its stock counted.
+ * in one tap, then one is re-priced and its stock counted, and the dukan goes online.
  */
-const { auth, shopProducts: p } = messages.en;
+const { auth, shopProducts: p, onlineDukan: o } = messages.en;
 const PASSWORD = "dukan-e2e-123";
 
 const throwawayNumber = () => `0399${String(Math.floor(1_000_000 + Math.random() * 8_999_999))}`;
@@ -56,5 +56,16 @@ test.describe("products", () => {
     await page.getByRole("dialog").getByRole("button", { name: p.save }).click();
     await expect(page.getByText(/updated$/)).toBeVisible();
     await expect(shelf).toContainText("Rs 999");
+
+    // A new dukan stays offline until the dukandar goes online, and Products says so.
+    await expect(page.getByRole("heading", { name: o.offlineTitle })).toBeVisible();
+    await page.getByRole("button", { name: o.goOnline }).click();
+    await expect(page.getByText(o.nowOnline)).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole("heading", { name: o.offlineTitle })).toBeHidden();
+
+    await page.goto("/dukan/store", { waitUntil: "networkidle" });
+    await expect(page.getByRole("switch", { name: o.switchLabel })).toBeChecked();
+    await expect(page.getByRole("heading", { name: o.shareTitle })).toBeVisible();
+    await expectAccessible(page);
   });
 });

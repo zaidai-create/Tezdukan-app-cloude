@@ -154,10 +154,16 @@ function AccountView({ session }: { session: ShellSession }) {
     role === "dukandar"
       ? [
           {
+            href: "/dukan/store",
+            icon: Store,
+            label: t("account.tiles.onlineDukan"),
+            tone: "primary",
+          },
+          {
             href: "/dukan/orders",
             icon: Package,
             label: t("account.tiles.orders"),
-            tone: "primary",
+            tone: "neutral",
           },
           {
             href: "/dukan/ledger",

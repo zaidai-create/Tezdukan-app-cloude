@@ -8847,6 +8847,7 @@ export type Database = {
       };
       shop_sales_report: { Args: { p_range?: string; p_shop_id: string }; Returns: Json };
       shop_starter_pack: { Args: { p_limit?: number; p_shop_id: string }; Returns: Json };
+      shop_storefront: { Args: { p_shop_id: string }; Returns: Json };
       storefront_categories: { Args: Record<PropertyKey, never>; Returns: Json };
       storefront_products: {
         Args: { p_category_id?: string; p_limit?: number; p_query?: string; p_shop_id?: string };
@@ -8912,6 +8913,18 @@ export type Database = {
           p_order_id: string;
           p_phone_confirmed?: boolean;
           p_to_status: Database["public"]["Enums"]["order_status"];
+        };
+        Returns: Json;
+      };
+      update_shop_storefront: {
+        Args: {
+          p_delivery_fee_paisa?: number;
+          p_eta_minutes?: number;
+          p_free_delivery_above_paisa?: number;
+          p_is_live: boolean;
+          p_min_order_paisa?: number;
+          p_shop_id: string;
+          p_tagline?: string;
         };
         Returns: Json;
       };

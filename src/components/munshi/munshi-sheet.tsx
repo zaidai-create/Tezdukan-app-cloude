@@ -18,6 +18,8 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { useCustomerCart } from "@/features/storefront/cart-store";
+import { storefrontProductSchema } from "@/features/storefront/schemas";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { useVoiceInput } from "@/hooks/use-voice-input";
 import { speechLang } from "@/i18n/locales";
@@ -33,6 +35,12 @@ type NewMessage =
 const replySchema = z.object({
   reply: z.string(),
   link: z.object({ href: z.string().startsWith("/"), label: z.string() }).nullable(),
+  // Products Tez put in a shopper's cart; added here because the cart lives on the phone.
+  cart: z
+    .array(
+      z.object({ product: storefrontProductSchema, quantity: z.number().int().min(1).max(20) }),
+    )
+    .catch([]),
 });
 
 /** Reads a reply aloud for people who read slowly (the phone's own voice, no network). */
@@ -95,6 +103,11 @@ function MunshiPanel({
       const error = z.object({ error: z.string() }).safeParse(body);
       const answer = replySchema.safeParse(body);
       if (response.ok && answer.success) {
+        const cart = useCustomerCart.getState();
+        for (const { product, quantity } of answer.data.cart) {
+          const already = cart.lines.find((line) => line.id === product.id)?.quantity ?? 0;
+          cart.setQuantity(product, already + quantity);
+        }
         push({ from: "munshi", kind: "reply", text: answer.data.reply, link: answer.data.link });
       } else if (error.success && error.data.error === "ai_not_configured") {
         push({ from: "munshi", kind: "notice", text: t("notConfigured"), sandbox: true });

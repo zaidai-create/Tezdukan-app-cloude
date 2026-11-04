@@ -2,6 +2,8 @@ import { connection } from "next/server";
 import { Suspense } from "react";
 import { ListRowSkeleton } from "@/components/states/skeletons";
 import { Skeleton } from "@/components/ui/skeleton";
+import { GoOnlineCard } from "@/features/online-dukan/components/go-online-card";
+import { getShopStorefront } from "@/features/online-dukan/data";
 import { requireDukan } from "@/features/ordering/data";
 import { ProductsView } from "./components/products-view";
 import { getShopProducts, getStarterPack } from "./data";
@@ -28,8 +30,24 @@ function ProductsSkeleton() {
 async function ProductsContent() {
   await connection();
   const { shopId } = await requireDukan("/dukan/products");
-  const [products, starter] = await Promise.all([getShopProducts(shopId), getStarterPack(shopId)]);
-  return <ProductsView products={products} starter={starter} />;
+  const [products, starter, store] = await Promise.all([
+    getShopProducts(shopId),
+    getStarterPack(shopId),
+    getShopStorefront(shopId),
+  ]);
+  // Products alone do not reach customers: until the dukan is online, say so above the list.
+  const offline =
+    !store.is_live && store.can_edit && products.length > 0 ? (
+      <div className="mx-auto w-full max-w-5xl px-4 pt-5">
+        <GoOnlineCard hasProducts={store.visible_products > 0} />
+      </div>
+    ) : null;
+  return (
+    <>
+      {offline}
+      <ProductsView products={products} starter={starter} />
+    </>
+  );
 }
 
 /** The dukandar's products: add (type, speak or the common pack), re-price, count stock. */

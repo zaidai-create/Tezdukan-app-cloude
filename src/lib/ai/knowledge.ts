@@ -1,5 +1,5 @@
 /**
- * What TezDukan's assistants know about the app. Kept to what the app really does, so Munshi
+ * What TezDukan's assistants know about the app. Kept to what the app really does, so Tez
  * and the support assistant never promise a feature, a fee or a time we do not have.
  */
 export const TEZDUKAN_KNOWLEDGE = `
@@ -27,7 +27,10 @@ DUKANDARS (shopkeepers)
 - Products: add the 16 common products in one tap (priced at MRP, change later), add a product
   by typing or saying its name (TezDukan fills in the photo and details), or add their own
   product by name. Tap any product to change its price, count its stock, or hide it from customers.
-- The online dukan must be switched on (Account) to receive customer orders.
+- Online dukan (Home -> the Online/Offline button, or Account -> Online dukan): switch online
+  orders on or off, set delivery time, delivery fee, minimum order and free delivery above an
+  amount, and share the dukan's link on WhatsApp. A new dukan is offline until the dukandar
+  goes online, and it needs at least one product in stock first.
 - Buy stock (Wholesale): order from distributors at trade price, see the margin, choose a
   delivery slot. Khata shows what the dukan owes each distributor.
 - Order alerts: turn on notifications to hear a sound when an order comes in.
@@ -42,7 +45,9 @@ DISTRIBUTORS
 GENERAL
 - Sign in with phone number and password (SMS code to verify), or with Google.
 - Languages: English, Urdu and Roman Urdu (Account -> Language).
-- Munshi is the in-app helper: tap the mic to speak or type a question.
+- Tez is the in-app helper: tap the mic to speak or type a question. Tez can answer questions
+  about orders and sales, change prices and stock, switch the dukan online, and put products in
+  a customer's cart.
 - Android app: download from tezdukan.vercel.app. The TezDukan team answers support chats from
   9 am to 9 pm; the WhatsApp button in support reaches the team too.
 - Delete account: Account -> Delete my account, or the page tezdukan.vercel.app/data-deletion.
