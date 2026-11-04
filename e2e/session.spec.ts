@@ -11,7 +11,8 @@ const { auth, roles, home, common, shopDash } = messages.en;
 const DEMO_PASSWORD = "TezDukan-Demo-1";
 
 async function signIn(page: Page, phone: string) {
-  await page.goto("/login");
+  // Wait for the form to come alive: typing into it before hydration can be wiped.
+  await page.goto("/login", { waitUntil: "networkidle" });
   await page.getByLabel(auth.phoneLabel).fill(phone);
   await page.getByLabel(auth.passwordLabel, { exact: true }).fill(DEMO_PASSWORD);
   await page.getByRole("button", { name: auth.signIn }).click();
