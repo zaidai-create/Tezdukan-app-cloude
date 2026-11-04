@@ -437,7 +437,7 @@ const customerTools: Tool[] = [
     declaration: {
       name: "add_to_cart",
       description:
-        "Put products in the customer's cart when they ask to order or buy something. Use ids from search_products in this turn; prefer one dukan so there is one delivery.",
+        "Put what the customer asks to order into their cart. List each item in English as it is written on the pack (doodh -> milk, double roti -> bread, cheeni -> sugar, chai -> tea) with a quantity. The app picks the best match at an open nearby dukan, one dukan where it can, and says what it added.",
       parameters: {
         type: "object",
         properties: {
@@ -445,8 +445,8 @@ const customerTools: Tool[] = [
             type: "array",
             items: {
               type: "object",
-              properties: { id: { type: "string" }, quantity: { type: "integer" } },
-              required: ["id", "quantity"],
+              properties: { name: { type: "string" }, quantity: { type: "integer" } },
+              required: ["name", "quantity"],
             },
           },
         },
@@ -455,24 +455,38 @@ const customerTools: Tool[] = [
     },
     run: async (args, ctx) => {
       const items = z
-        .array(z.object({ id: z.string(), quantity: z.number().int().min(1).max(20) }))
+        .array(z.object({ name: text(60), quantity: z.number().int().min(1).max(20) }))
         .min(1)
         .max(10)
         .parse(args.items);
-      const added: string[] = [];
-      const missing: string[] = [];
-      for (const item of items) {
-        const product = ctx.found.get(item.id);
-        if (!product) {
-          missing.push(item.id);
-          continue;
+      // The search runs here, not in the model, so what Tez says it added is what was added.
+      const matches = await Promise.all(
+        items.map((item) => getStorefrontProducts({ query: item.name, limit: 8 })),
+      );
+      // One delivery where possible: the dukan that has the most of the asked-for items.
+      const coverage = new Map<string, number>();
+      for (const found of matches) {
+        for (const shopId of new Set(found.map((product) => product.shop_id))) {
+          coverage.set(shopId, (coverage.get(shopId) ?? 0) + 1);
         }
-        ctx.cart.push({ product, quantity: item.quantity });
-        added.push(`${item.quantity} x ${product.name} (${product.shop_name})`);
       }
-      return missing.length > 0
-        ? { added, not_found: missing, hint: "search_products first" }
-        : { added };
+      const best = [...coverage.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
+      const added: string[] = [];
+      const notFound: string[] = [];
+      items.forEach((item, index) => {
+        const found = matches[index] ?? [];
+        const product = found.find((candidate) => candidate.shop_id === best) ?? found[0];
+        if (!product) {
+          notFound.push(item.name);
+          return;
+        }
+        ctx.found.set(product.id, product);
+        ctx.cart.push({ product, quantity: item.quantity });
+        added.push(
+          `${item.quantity} x ${product.name} from ${product.shop_name} (${formatRs(product.selling_price_paisa)} each)`,
+        );
+      });
+      return { added, not_found: notFound };
     },
   },
   {
@@ -571,9 +585,9 @@ How to answer:
 - When they ask to change a price or stock or to add products, do it with the tools (find the
   product first) and then say exactly what changed. If two products match, ask which one.
 - When a screen does what they want, call open_screen so they get a button.
-- When a customer asks for things ("doodh aur double roti mangwa do"), search for each, pick
-  the best match from one nearby dukan, add them with add_to_cart, then say what you added and
-  from which dukan. If nothing matches, say so and suggest a close item.
+- When a customer asks for things ("doodh aur double roti mangwa do"), call add_to_cart once
+  with every item, then say exactly what it added and from which dukan, and what it could not
+  find. Never say something is in the cart unless add_to_cart listed it as added.
 - Call several tools at once when you need several facts.
 - Only help with TezDukan and their shop. For anything else, say politely that you can only
   help with TezDukan.

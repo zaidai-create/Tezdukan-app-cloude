@@ -20,14 +20,16 @@ export type FunctionCall = { id?: string; name: string; args: Record<string, unk
 // (HTTP 503), so a busy, rate-limited or retired model falls through to the next one.
 const geminiEnvSchema = z.object({
   GEMINI_API_KEY: z.string().min(1).optional(),
+  // Lite first: on the free tier it answers in about half a second and has the larger quota,
+  // while gemini-3.5-flash took 4 s for a greeting and ran out of quota (429) on the live app.
   GEMINI_MODEL_AGENT: z
     .string()
     .min(1)
-    .default("gemini-3.5-flash,gemini-3.5-flash-lite,gemini-flash-lite-latest,gemini-3.8-flash"),
+    .default("gemini-3.5-flash-lite,gemini-flash-lite-latest,gemini-3.5-flash"),
   GEMINI_MODEL_FAST: z
     .string()
     .min(1)
-    .default("gemini-3.5-flash-lite,gemini-3.5-flash,gemini-flash-lite-latest"),
+    .default("gemini-3.5-flash-lite,gemini-flash-lite-latest,gemini-3.5-flash"),
   // Measured on the free tier (Nov 2026): gemini-3.5-flash answers a short question in about
   // 1.2 s with "minimal" thinking against 3.2 s with "low", and a tool call needs two answers.
   GEMINI_THINKING: z.enum(["minimal", "low", "medium", "high"]).default("minimal"),
@@ -41,6 +43,11 @@ export function modelList(value: string): string[] {
 }
 
 const RETRYABLE = new Set([404, 429, 500, 503]);
+
+// A model that just said its quota is used up (429) is skipped for a minute: asking it again
+// only adds a round trip. Kept per server instance; a fresh instance simply tries it again.
+const cooling = new Map<string, number>();
+const COOL_MS = 60_000;
 
 export function geminiEnv() {
   return geminiEnvSchema.parse({
@@ -95,8 +102,8 @@ export async function geminiGenerate({
   jsonSchema,
   model = "agent",
   temperature = 0.3,
-  attemptMs = 12_000,
-  totalMs = 40_000,
+  attemptMs = 8_000,
+  totalMs = 30_000,
 }: {
   system?: string;
   contents: GeminiContent[];
@@ -123,16 +130,24 @@ export async function geminiGenerate({
   if (system) body.systemInstruction = { parts: [{ text: system }] };
   if (tools?.length) body.tools = [{ functionDeclarations: tools }];
 
-  // The first model gets one quick second try (most 503s clear in a second), then each fallback.
-  // A slow answer is treated like a busy one: the free tier sometimes queues for half a minute.
-  const attempts = models.length > 0 ? [models[0] as string, ...models] : [];
+  // Models out of quota wait their minute (unless every model is). The first model gets one
+  // quick second try only when it was busy (503 usually clears in a second); quota errors and
+  // retired models move straight on. A slow answer is treated like a busy one.
+  const now = Date.now();
+  const ready = models.filter((name) => (cooling.get(name) ?? 0) <= now);
+  const order = ready.length > 0 ? ready : models;
+  const attempts = order.length > 0 ? [order[0] as string, ...order] : [];
   const deadline = Date.now() + totalMs;
   let response: Response | null = null;
   let timedOut = false;
+  let lastStatus = 0;
   for (const [index, name] of attempts.entries()) {
     const remaining = deadline - Date.now();
     if (remaining < 1500) break;
-    if (index === 1) await new Promise((resolve) => setTimeout(resolve, 700));
+    if (index === 1) {
+      if (lastStatus !== 503) continue;
+      await new Promise((resolve) => setTimeout(resolve, 700));
+    }
     try {
       response = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(name)}:generateContent`,
@@ -154,6 +169,8 @@ export async function geminiGenerate({
       }
       throw error;
     }
+    lastStatus = response.status;
+    if (response.status === 429) cooling.set(name, Date.now() + COOL_MS);
     if (response.ok || !RETRYABLE.has(response.status)) break;
   }
   if (!response && timedOut) throw new GeminiError("gemini_timeout", 503);
