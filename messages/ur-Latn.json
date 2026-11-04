@@ -1175,6 +1175,10 @@
       "s5": {
         "title": "Sahi istemal",
         "body": "App ka ghalat istemal, ghalat maloomat ya doosron ke data tak pohanchne ki koshish na karein. Rules torne wale accounts band ho sakte hain."
+      },
+      "s6": {
+        "title": "Products ki tasveerein",
+        "body": "Kuch products ki tasveerein Open Food Facts aur Open Beauty Facts ke contributors ki hain, CC BY-SA 3.0 license ke tehat. Brand ke naam aur packing un ke maalikon ki hain."
       }
     },
     "privacy": {

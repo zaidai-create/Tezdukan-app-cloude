@@ -18,6 +18,9 @@ All notable changes, newest first. Dates are Asia/Karachi.
   in parallel) and can do more: the dukandar's hisab for any period, switching the dukan online
   or offline, and for shoppers, putting what they ask for straight into the cart.
 - Urdu: the brand is spelled تیز دکان everywhere.
+- Product photos: ten more common products have a real photo (Open Food Facts contributors,
+  CC BY-SA, credited in Terms). Products without a photo show their category icon and brand
+  name instead of two initials.
 
 ### Dukan ratings and the dukandar's Hisab (2026-11-04)
 

@@ -5,7 +5,7 @@ import { Link } from "@/i18n/navigation";
 export type LegalDoc = "terms" | "privacy" | "refund";
 
 const sections = {
-  terms: ["terms.s1", "terms.s2", "terms.s3", "terms.s4", "terms.s5"],
+  terms: ["terms.s1", "terms.s2", "terms.s3", "terms.s4", "terms.s5", "terms.s6"],
   privacy: ["privacy.s1", "privacy.s2", "privacy.s3", "privacy.s4", "privacy.s5"],
   refund: ["refund.s1", "refund.s2", "refund.s3"],
 } as const;

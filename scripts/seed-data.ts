@@ -227,6 +227,16 @@ const productImages: readonly string[] = [
   "shan-biryani-50g",
   "olpers-1l",
   "surf-excel-1kg",
+  "close-up-red-hot-140g",
+  "falak-basmati-1kg",
+  "guard-basmati-1kg",
+  "knorr-chatt-patta-noodles-66g",
+  "lays-french-cheese-40g",
+  "national-biryani-50g",
+  "national-ketchup-800g",
+  "prince-half-roll",
+  "sensodyne-fresh-mint-70g",
+  "shezan-mango-250ml",
 ];
 
 const categoryDefs = [

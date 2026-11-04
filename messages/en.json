@@ -1175,6 +1175,10 @@
       "s5": {
         "title": "Fair use",
         "body": "Do not misuse the app, post false information or try to access other people's data. We may suspend accounts that break these rules."
+      },
+      "s6": {
+        "title": "Product photos",
+        "body": "Some product photos come from Open Food Facts and Open Beauty Facts contributors, licensed under CC BY-SA 3.0. Brand names and packs belong to their owners."
       }
     },
     "privacy": {

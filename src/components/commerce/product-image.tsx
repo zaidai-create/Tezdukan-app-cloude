@@ -1,10 +1,11 @@
 "use client";
 
 import { cn } from "cn";
-import type { LucideIcon } from "lucide-react";
+import { type LucideIcon, Package } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
-import { initialsOf, tintFor } from "@/components/ui/avatar";
+import { tintFor } from "@/components/ui/avatar";
+import { shortName } from "./short-name";
 
 type ProductImageProps = {
   src?: string | null;
@@ -26,8 +27,8 @@ const BLUR =
 
 /**
  * Square product photo on a soft surface, object-contain, lazy, AVIF/WebP via next/image. If there is
- * no image or it fails to load, a branded tile with the product initials takes its place —
- * never a broken-image icon.
+ * no image or it fails to load, a tile with the category's icon (or a pack) and the brand name
+ * takes its place: it reads as "no photo yet", never as a broken image or a pair of initials.
  */
 function ProductImage({
   src,
@@ -36,7 +37,7 @@ function ProductImage({
   priority = false,
   className,
   surface = "white",
-  fallbackIcon: FallbackIcon,
+  fallbackIcon: FallbackIcon = Package,
   fallbackCaption,
 }: ProductImageProps) {
   const [failed, setFailed] = useState(false);
@@ -55,25 +56,17 @@ function ProductImage({
           aria-label={alt}
           role="img"
           className={cn(
-            "flex size-full flex-col items-center justify-center gap-1.5 font-heading font-bold tracking-tight",
+            "@container flex size-full flex-col items-center justify-center gap-1.5 font-heading font-bold tracking-tight",
             tintFor(alt),
           )}
         >
-          {FallbackIcon ? (
-            <>
-              <span className="flex size-14 items-center justify-center rounded-full bg-surface/70 shadow-card">
-                <FallbackIcon aria-hidden className="size-7" />
-              </span>
-              {fallbackCaption ? (
-                <span className="max-w-[85%] truncate text-sm">{fallbackCaption}</span>
-              ) : null}
-            </>
-          ) : (
-            // Decorative: the name is already the image's label.
-            <span aria-hidden className="text-3xl">
-              {initialsOf(alt)}
-            </span>
-          )}
+          <span className="flex aspect-square w-[56%] max-w-16 items-center justify-center rounded-full bg-surface/70 shadow-card @min-[7rem]:w-[44%]">
+            <FallbackIcon aria-hidden className="size-1/2" strokeWidth={1.75} />
+          </span>
+          {/* Decorative: the name is already the image's label. Thumbnails keep the icon only. */}
+          <span aria-hidden className="hidden max-w-[85%] truncate text-sm @min-[7rem]:block">
+            {fallbackCaption ?? shortName(alt)}
+          </span>
         </div>
       ) : (
         <Image

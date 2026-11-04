@@ -253,6 +253,11 @@ section. Format: **decision** — reason (date).
 - **Product photos for the demo come from the owner's Stitch designs** — cropped WebP files in
   `scripts/seed-images/`, uploaded to the `product-images` bucket under `seed/` by `pnpm seed`.
   Real distributor photos replace them later. (2026-10-28)
+- **More photos from Open Food Facts, only when clean and correct** — 27 front-of-pack photos
+  were found on Open Food / Beauty Facts (CC BY-SA 3.0); only the 10 that show the right product
+  clearly were kept (others were the wrong pack, a back label, a hand or a dark shelf). They are
+  credited in `scripts/seed-images/products/CREDITS.md` and on the Terms page. A product with no
+  photo shows its category icon and brand name, never initials. (2026-11-04)
 - **Name snapshots on cross-tenant records** (`placed_by_name`, `changed_by_name`) — a
   distributor needs to see who placed an order without read access to other tenants' profiles.
   (2026-10-25)
