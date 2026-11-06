@@ -4,6 +4,13 @@ All notable changes, newest first. Dates are Asia/Karachi.
 
 ## Unreleased
 
+### Code graph for Claude (2026-11-06)
+
+- graphify maps the code into a knowledge graph (`graphify-out/`, not committed) that Claude
+  queries before searching files: `pnpm graph:install`, then `pnpm graph` to build or refresh.
+  The graphify skill (`/graphify`) and a CLAUDE.md section are added; `.graphifyignore` keeps
+  generated files, translations and images out. Its Claude Code hooks are not committed yet.
+
 ### Photos, dukan profile, app 0.1.6 (2026-11-05)
 
 - Dukandars add product photos from the gallery or camera (tap the photo on a product). Photos

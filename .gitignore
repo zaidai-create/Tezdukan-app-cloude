@@ -62,3 +62,6 @@ next-env.d.ts
 
 # Built Android app, served for testers; never committed
 /public/download/
+
+# Code graph (graphify): rebuilt locally with `pnpm graph`, never committed.
+graphify-out/

@@ -1,0 +1,13 @@
+# Keeps the code graph to the code: generated, binary and translation files only add noise.
+# Syntax is the same as .gitignore. Rebuild with `graphify update .` (see CLAUDE.md).
+src/lib/supabase/database.types.ts
+messages/
+pnpm-lock.yaml
+public/
+scripts/seed-images/
+docs/brand/
+docs/play-store/
+docs/design/
+android/app/src/main/res/
+e2e/__screenshots__/
+.claude/

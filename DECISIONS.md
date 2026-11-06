@@ -31,6 +31,11 @@ section. Format: **decision** — reason (date).
   used as-is. shadcn's `cn` package replaces `clsx` + `tailwind-merge`. (2026-10-25)
 - **Brand rules enforced by ESLint** — custom rules reject emoji, hex colours and Tailwind palette
   classes in components, and `react/jsx-no-literals` rejects hard-coded UI text. (2026-10-25)
+- **Code graph with graphify, built locally and not committed** — `graphify-out/graph.json`
+  maps the code (tree-sitter, no LLM) so Claude can query where things live instead of
+  grepping. It is 8 MB and rewritten on every build, while a fresh build takes about 8 s, so
+  `graphify-out/` is gitignored and rebuilt with `pnpm graph`. `GRAPHIFY_BACKEND=none` keeps
+  docs from being sent to an LLM. The CLI is pinned (`pnpm graph:install`). (2026-11-06)
 
 ## Internationalisation
 

@@ -9,3 +9,5 @@ test-results
 playwright-report
 supabase/.temp
 supabase/tests
+graphify-out
+.claude
