@@ -50,7 +50,7 @@ export function PreviewPanel({
               className="h-[75vh] w-full"
             >
               <div className="p-10 text-center text-sm text-ink-muted">
-                Your browser can't inline this PDF.{" "}
+                Your browser cannot inline this PDF.{" "}
                 <a className="text-accent underline" href={`/api/projects/${projectId}/documents/${pdf.id}/preview`}>Open it</a>.
               </div>
             </object>

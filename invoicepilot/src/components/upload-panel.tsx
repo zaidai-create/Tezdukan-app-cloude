@@ -116,7 +116,7 @@ export function UploadPanel(props: {
           onClick={onMarkImagesDone}
           className="w-full rounded-xl border border-line bg-surface px-4 py-3 text-sm font-medium hover:bg-surface-panel"
         >
-          That's all the images — continue
+          That is all the images — continue
         </button>
       )}
     </div>
