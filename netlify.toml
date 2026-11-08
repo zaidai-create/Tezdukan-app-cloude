@@ -1,0 +1,8 @@
+# InvoicePilot AI is built from the invoicepilot/ subdirectory of this repo.
+# (This branch, ccr-5358293a-i4qvli, is the InvoicePilot working branch.)
+[build]
+  base = "invoicepilot"
+  command = "npm run build"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
