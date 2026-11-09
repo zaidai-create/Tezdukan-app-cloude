@@ -21,9 +21,12 @@ export default async function SettingsPage() {
       <section className="mt-4 rounded-2xl bg-surface p-5 shadow-card">
         <h2 className="text-sm font-medium text-ink-muted">AI model</h2>
         <p className="mt-1 text-sm">
-          The processing model is configured on the server through the
-          <code className="mx-1 rounded bg-surface-panel px-1 py-0.5 text-xs">OPENAI_MODEL</code>
-          environment variable (default: <code className="rounded bg-surface-panel px-1 py-0.5 text-xs">gpt-4o-mini</code>).
+          Document understanding runs on the server. The provider is set with
+          <code className="mx-1 rounded bg-surface-panel px-1 py-0.5 text-xs">AI_PROVIDER</code>
+          (<code className="rounded bg-surface-panel px-1 py-0.5 text-xs">gemini</code> or
+          <code className="mx-1 rounded bg-surface-panel px-1 py-0.5 text-xs">openai</code>) and the model with
+          <code className="mx-1 rounded bg-surface-panel px-1 py-0.5 text-xs">GEMINI_MODEL</code> /
+          <code className="mx-1 rounded bg-surface-panel px-1 py-0.5 text-xs">OPENAI_MODEL</code>.
         </p>
       </section>
     </div>

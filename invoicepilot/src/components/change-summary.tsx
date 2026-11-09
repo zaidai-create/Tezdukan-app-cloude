@@ -47,12 +47,12 @@ export function ChangeSummary({
                     <div className="text-xs text-ink-muted">PDF page {c.target.source_page}</div>
                   ) : null}
                 </div>
-                <table className="w-full text-sm">
+                <table className="w-full table-fixed text-sm">
                   <tbody className="divide-y divide-line">
                     {rows.map(([k, v]) => (
                       <tr key={k}>
-                        <td className="w-1/3 px-4 py-2 text-ink-muted">{k}</td>
-                        <td className="px-4 py-2">{v}</td>
+                        <td className="w-2/5 px-4 py-2 align-top text-ink-muted">{k}</td>
+                        <td className="px-4 py-2 break-words">{v}</td>
                       </tr>
                     ))}
                     {annotations.length > 0 && (

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
-import { runAgent } from "@/lib/openai/agent";
+import { runAgent } from "@/lib/ai";
 import { PostMessageInput } from "@/lib/schemas";
 import { canTransition } from "@/lib/state/machine";
 import type { Message, ProjectStatus } from "@/lib/supabase/types";

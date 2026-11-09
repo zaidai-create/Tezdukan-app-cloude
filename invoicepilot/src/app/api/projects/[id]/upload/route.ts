@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { extractPdfPages, pdfTextProbe } from "@/lib/pdf/engine";
-import { analyzeInvoiceImage } from "@/lib/openai/agent";
+import { analyzeInvoiceImage } from "@/lib/ai";
 import { canTransition } from "@/lib/state/machine";
 
 const MAX_PDF = 25 * 1024 * 1024;
