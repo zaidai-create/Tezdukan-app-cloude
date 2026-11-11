@@ -3,9 +3,30 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MotionConfig } from "motion/react";
 import { Direction } from "radix-ui";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { syncThemeColor } from "@/lib/theme/use-theme";
+
+/**
+ * Keeps the browser's bars in the app's theme. The page's theme-color tag is written by the
+ * framework in the light colour, again after first paint and on navigation; left alone, dark
+ * mode on an iPhone shows a white strip under the navigation dock.
+ */
+function ThemeColorKeeper() {
+  useEffect(() => {
+    syncThemeColor();
+    const observer = new MutationObserver(syncThemeColor);
+    observer.observe(document.head, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["content"],
+    });
+    return () => observer.disconnect();
+  }, []);
+  return null;
+}
 
 function makeQueryClient() {
   return new QueryClient({
@@ -30,6 +51,7 @@ export function Providers({ children, dir }: { children: ReactNode; dir: "ltr" |
       <MotionConfig reducedMotion="user">
         <Direction.Provider dir={dir}>
           <TooltipProvider>
+            <ThemeColorKeeper />
             {children}
             <Toaster dir={dir} />
           </TooltipProvider>

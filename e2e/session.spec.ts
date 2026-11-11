@@ -1,6 +1,7 @@
 import { expect, type Page, test } from "@playwright/test";
 import { createConfirmedUser, deleteUserByPhone } from "./support/admin";
 import { messages } from "./support/messages";
+import { openRoleSwitcher } from "./support/roles";
 
 /**
  * Phase 1 exit journeys against the local stack with the demo seed (`pnpm seed`): sign up and
@@ -9,6 +10,7 @@ import { messages } from "./support/messages";
  */
 const { auth, roles, home, common, shopDash } = messages.en;
 const DEMO_PASSWORD = "TezDukan-Demo-1";
+const switcherLabels = { switchRole: roles.switchRole, menu: common.menu };
 
 async function signIn(page: Page, phone: string) {
   // Wait for the form to come alive: typing into it before hydration can be wiped.
@@ -53,18 +55,18 @@ test("one account switches roles without signing out", async ({ page }, testInfo
   await signIn(page, testInfo.project.name === "mobile" ? "0300 0000007" : "0300 0000008");
   await expect(page).toHaveURL(/\/(dukan|distributor)?$/);
 
-  await page.getByRole("button", { name: roles.switchRole }).first().click();
+  await openRoleSwitcher(page, switcherLabels);
   await page.getByRole("button", { name: /Indus Traders/ }).click();
   await expect(page).toHaveURL(/\/distributor$/);
 
-  await page.getByRole("button", { name: roles.switchRole }).first().click();
+  await openRoleSwitcher(page, switcherLabels);
   await page.getByRole("button", { name: /TezDukan/ }).click();
   await expect(page).toHaveURL(/\/dukan$/);
   // Staff without khata access still get a working Home, not an error.
   await expect(page.getByRole("heading", { name: shopDash.liveOrders })).toBeVisible();
 
   // Back to shopping, which is also where the next run starts.
-  await page.getByRole("button", { name: roles.switchRole }).first().click();
+  await openRoleSwitcher(page, switcherLabels);
   await page.getByRole("button", { name: roles.customer }).click();
   await expect(page).toHaveURL(/\/$/);
 });

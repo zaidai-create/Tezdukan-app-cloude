@@ -29,14 +29,25 @@ function resolve(preference: ThemePreference): ResolvedTheme {
     : "light";
 }
 
+/**
+ * Paints the browser's own bars (status bar, and the strip under the page on an iPhone) in the
+ * app's theme. Every theme-color tag is set, and only when it differs: the framework streams
+ * a second tag in after first paint and writes them again on navigation.
+ */
+export function syncThemeColor(): void {
+  const dark = document.documentElement.classList.contains("dark");
+  const wanted = dark ? themeColor.dark : themeColor.light;
+  for (const tag of document.querySelectorAll('meta[name="theme-color"]')) {
+    if (tag.getAttribute("content") !== wanted) tag.setAttribute("content", wanted);
+  }
+}
+
 export function applyTheme(preference: ThemePreference): void {
   const resolved = resolve(preference);
   const root = document.documentElement;
   root.classList.toggle("dark", resolved === "dark");
   root.style.colorScheme = resolved;
-  document
-    .querySelector('meta[name="theme-color"]')
-    ?.setAttribute("content", resolved === "dark" ? themeColor.dark : themeColor.light);
+  syncThemeColor();
 }
 
 function subscribe(listener: () => void) {

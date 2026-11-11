@@ -1,12 +1,13 @@
 import { expect, type Page, test } from "@playwright/test";
 import { messages } from "../support/messages";
+import { openRoleSwitcher } from "../support/roles";
 
 /**
  * Screenshots of the signed-in shells for design review (`pnpm screenshots`): every role's home,
  * the account page, the role switcher, the Munshi sheet, notifications, chat and the distributor
  * portal. Needs the demo seed (`pnpm seed`).
  */
-const { auth, roles, nav, notifications } = messages.en;
+const { auth, nav, notifications } = messages.en;
 const ur = messages.ur;
 const DEMO_PASSWORD = "TezDukan-Demo-1";
 
@@ -74,8 +75,8 @@ for (const variant of variants) {
   test(`role switcher (${variant.id})`, async ({ page, baseURL }, testInfo) => {
     // Opens the switcher without choosing, so the shared demo profile is unchanged.
     await signIn(page, baseURL, "0300 0000007", variant);
-    const label = variant.locale === "ur" ? ur.roles.switchRole : roles.switchRole;
-    await page.getByRole("button", { name: label }).first().click();
+    const text = variant.locale === "ur" ? ur : messages.en;
+    await openRoleSwitcher(page, { switchRole: text.roles.switchRole, menu: text.common.menu });
     await expect(page.getByRole("dialog")).toBeVisible();
     await capture(
       page,

@@ -283,7 +283,20 @@
   --animate-shake: shake 360ms var(--ease-out-soft) both;
   --animate-unroll: unroll 480ms var(--ease-out-soft) both;
   --animate-float: float 6s ease-in-out infinite;
+  --animate-breathe: breathe 2.4s ease-in-out infinite;
 
+  /* Tez's orb while the mic is open: slow, like breathing. */
+  @keyframes breathe {
+    0%,
+    100% {
+      transform: scale(0.86);
+      opacity: 0.85;
+    }
+    50% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
   /* Poster chips drift a few pixels, like cards resting on water. */
   @keyframes float {
     0%,

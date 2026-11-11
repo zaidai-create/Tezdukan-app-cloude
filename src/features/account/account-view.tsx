@@ -312,24 +312,32 @@ function AccountView({ session }: { session: ShellSession }) {
       ) : null}
 
       <Group title={t("account.groups.preferences")}>
-        <div className="flex flex-wrap items-center gap-3 px-4 py-3">
-          <RowIcon icon={SunMoon} tone="neutral" />
-          <RowBody label={t("settings.appearance")} />
+        {/* The choice sits under its label, full width: beside it, the three options squeezed
+            the word "Appearance" down to a few letters on a phone. */}
+        <div className="flex flex-col gap-3 px-4 py-3">
+          <div className="flex items-center gap-3">
+            <RowIcon icon={SunMoon} tone="neutral" />
+            <RowBody label={t("settings.appearance")} />
+          </div>
           <ToggleGroup
             type="single"
             value={preference}
             onValueChange={setTheme}
             aria-label={t("settings.appearance")}
+            className="grid w-full grid-cols-3"
           >
-            <ToggleGroupItem value="light" aria-label={t("account.appearanceLight")}>
+            <ToggleGroupItem value="light" className="h-11">
               <Sun aria-hidden />
-              <span className="max-[399px]:sr-only">{t("account.appearanceLight")}</span>
+              {t("account.appearanceLight")}
             </ToggleGroupItem>
-            <ToggleGroupItem value="dark" aria-label={t("account.appearanceDark")}>
+            <ToggleGroupItem value="dark" className="h-11">
               <Moon aria-hidden />
-              <span className="max-[399px]:sr-only">{t("account.appearanceDark")}</span>
+              {t("account.appearanceDark")}
             </ToggleGroupItem>
-            <ToggleGroupItem value="system">{t("account.appearanceAuto")}</ToggleGroupItem>
+            <ToggleGroupItem value="system" className="h-11">
+              <SunMoon aria-hidden />
+              {t("account.appearanceAuto")}
+            </ToggleGroupItem>
           </ToggleGroup>
         </div>
         <div className="flex flex-col gap-3 px-4 py-3">

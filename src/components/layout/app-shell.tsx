@@ -7,6 +7,7 @@ import { AppUpdatePrompt } from "@/components/pwa/app-update-prompt";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
 import { OfflineBanner } from "@/components/states/offline-banner";
 import type { AppRole } from "@/lib/auth/roles";
+import { getShellSession } from "@/lib/auth/session";
 import { BottomNav, BottomNavView } from "./bottom-nav";
 import { MobileHeaderSkeleton } from "./mobile-header";
 import { mobileTabs, sidebarGroups } from "./nav-config";
@@ -65,12 +66,19 @@ async function AppShell({ role, children }: { role: AppRole; children: ReactNode
       ) : null}
       <MunshiFab className={tabs ? (groups ? "hidden lg:flex" : "hidden") : undefined} />
       <Suspense fallback={null}>
-        <MunshiSheet role={role} />
+        <TezSheet role={role} />
       </Suspense>
       <InstallPrompt />
       <AppUpdatePrompt />
     </div>
   );
+}
+
+/** Tez greets by first name, which is request data: it streams in behind the shell. */
+async function TezSheet({ role }: { role: AppRole }) {
+  const session = await getShellSession();
+  const firstName = session?.fullName.trim().split(/\s+/)[0] ?? "";
+  return <MunshiSheet role={role} name={firstName} />;
 }
 
 export { AppShell };
