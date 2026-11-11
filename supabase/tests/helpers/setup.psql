@@ -158,6 +158,26 @@ begin
 end;
 $$;
 
+-- A delivery address for a customer. The default pin is about 700 m from the test dukans.
+create or replace function tests.make_address(
+  p_alias text,
+  p_user text,
+  p_lat numeric default 25.395,
+  p_lng numeric default 68.365
+)
+returns uuid
+language plpgsql
+as $$
+declare
+  v_id uuid;
+begin
+  insert into public.addresses (user_id, label, line1, line2, lat, lng, created_by)
+  values (tests.id(p_user), 'Home', 'Street 2, Qasimabad, Hyderabad', 'House 1', p_lat, p_lng, tests.id(p_user))
+  returning id into v_id;
+  return tests.remember(p_alias, v_id);
+end;
+$$;
+
 create or replace function tests.make_shop(
   p_alias text,
   p_owner text default null,

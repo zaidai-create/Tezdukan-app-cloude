@@ -8397,7 +8397,7 @@ export type Database = {
       org_starter_pack: { Args: { p_limit?: number; p_org_id: string }; Returns: Json };
       place_customer_order: {
         Args: {
-          p_address: string;
+          p_address_id: string;
           p_items: Json;
           p_note?: string;
           p_request_id?: string;

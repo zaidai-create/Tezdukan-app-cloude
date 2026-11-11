@@ -25,8 +25,12 @@ export const shopStorefrontSchema = z.object({
 });
 export type ShopStorefront = z.infer<typeof shopStorefrontSchema>;
 
-/** How far a dukan delivers, in metres; the spec's mohalla dukans cover 1 to 5 km. */
-export const radiusOptions = [1000, 2000, 3000, 4000, 5000] as const;
+/**
+ * How far a dukan delivers, in metres. A dukandar picks 1 to 6 km (a dense mohalla needs
+ * less, a spread-out one more); the TezDukan team can set a wider area from the admin panel.
+ */
+export const radiusOptions = [1000, 2000, 3000, 4000, 5000, 6000] as const;
+export const MAX_OWNER_RADIUS_M = 6000;
 
 /** Delivery times offered as chips; a dukan's own value is added when it is not one of these. */
 export const etaOptions = [15, 20, 30, 45, 60] as const;
@@ -38,6 +42,6 @@ export const storefrontTermsSchema = z.object({
   /** 0 means no free-delivery offer. */
   free_delivery_above_paisa: z.number().int().min(0).max(10_000_000),
   tagline: z.string().trim().max(120),
-  delivery_radius_m: z.number().int().min(500).max(5000),
+  delivery_radius_m: z.number().int().min(500).max(MAX_OWNER_RADIUS_M),
 });
 export type StorefrontTerms = z.infer<typeof storefrontTermsSchema>;

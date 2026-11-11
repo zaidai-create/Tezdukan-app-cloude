@@ -7,6 +7,7 @@ select tests.create_user('owner');
 select tests.create_user('shopper');
 select tests.create_user('stranger');
 select tests.make_shop('kiryana', 'owner');
+select tests.make_address('home', 'shopper');
 grant insert, update on tests.refs to authenticated;
 
 insert into public.storefront_settings (shop_id, is_live) values (tests.id('kiryana'), true);
@@ -17,7 +18,7 @@ returning tests.remember('chai', id);
 select tests.authenticate_as('shopper');
 select public.place_customer_order(
   tests.id('kiryana'), jsonb_build_array(jsonb_build_object('inventory_id', tests.id('chai'), 'qty', 1)),
-  'House 1, Street 2'
+  tests.id('home')
 );
 
 select tests.authenticate_as('owner');

@@ -44,7 +44,7 @@ select is(
 );
 select throws_ok(
   format($$ select public.update_shop_storefront(%L, true, null, null, null, null, null, 9000) $$, tests.id('pin_mart')),
-  '22023', 'invalid_radius', 'but not beyond 5 km'
+  '22023', 'invalid_radius', 'but not beyond 6 km'
 );
 select is(
   (public.update_shop_location(tests.id('pin_mart'), 25.40, 68.37) ->> 'lat')::numeric, 25.400000,

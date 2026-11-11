@@ -4,6 +4,7 @@ import {
   ChevronRight,
   Clock3,
   MapPin,
+  Navigation,
   Package,
   PartyPopper,
   Store,
@@ -94,8 +95,14 @@ export async function OrderProgress({ order }: { order: CustomerOrder }) {
   );
 }
 
-/** The lines and the bill. */
-export async function OrderSummary({ order }: { order: CustomerOrder }) {
+/** The lines and the bill. `forShop` adds what the dukan needs to deliver: a map link. */
+export async function OrderSummary({
+  order,
+  forShop = false,
+}: {
+  order: CustomerOrder;
+  forShop?: boolean;
+}) {
   const [t, locale] = await Promise.all([getTranslations("customerOrders"), getLocale()]);
   return (
     <section className="overflow-hidden rounded-lg border border-border/60 bg-surface shadow-card">
@@ -138,10 +145,30 @@ export async function OrderSummary({ order }: { order: CustomerOrder }) {
       </dl>
       <div className="flex flex-col gap-2 border-t border-border/70 px-4 py-3 text-sm">
         {order.delivery_address?.text ? (
-          <p className="flex items-start gap-2 text-ink">
+          <div className="flex items-start gap-2 text-ink">
             <MapPin aria-hidden className="mt-0.5 size-4 shrink-0 text-primary" />
-            <span>{order.delivery_address.text}</span>
-          </p>
+            <div className="min-w-0 flex-1">
+              <p dir="auto">{order.delivery_address.text}</p>
+              {order.delivery_address.landmark ? (
+                <p className="text-muted" dir="auto">
+                  {t("landmark", { landmark: order.delivery_address.landmark })}
+                </p>
+              ) : null}
+            </div>
+          </div>
+        ) : null}
+        {forShop &&
+        order.delivery_address?.lat !== undefined &&
+        order.delivery_address.lng !== undefined ? (
+          <a
+            href={`https://www.google.com/maps/dir/?api=1&destination=${order.delivery_address.lat},${order.delivery_address.lng}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex min-h-12 w-fit items-center gap-2 rounded-full bg-primary-soft px-4 text-sm font-semibold text-primary-strong"
+          >
+            <Navigation aria-hidden className="size-4" strokeWidth={1.75} />
+            {t("openMap")}
+          </a>
         ) : null}
         <p className="flex items-center gap-2 text-ink">
           <Wallet aria-hidden className="size-4 shrink-0 text-primary" />

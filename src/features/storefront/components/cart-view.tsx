@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, ShoppingBasket, Store } from "lucide-react";
+import { CircleAlert, Plus, ShoppingBasket, Store, Trash2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRef, useTransition } from "react";
 import { toast } from "sonner";
@@ -10,15 +10,14 @@ import { EmptyState } from "@/components/states/empty-state";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { StickyActionBar } from "@/components/ui/sticky-action-bar";
-import { saveAddress } from "@/features/addresses/actions";
-import { addressText, type SavedAddress } from "@/features/addresses/schemas";
+import type { SavedAddress } from "@/features/addresses/schemas";
 import { placeCustomerOrder } from "@/features/customer-orders/actions";
 import { storageUrl } from "@/features/ordering/images";
 import { Link, useRouter } from "@/i18n/navigation";
 import { haptic } from "@/lib/haptics";
 import { formatRs } from "@/lib/money";
 import { useCustomerCart, type CartLine } from "../cart-store";
-import type { NearbyShop } from "../schemas";
+import type { DeliveryZone, NearbyShop } from "../schemas";
 import { AddressSection } from "./checkout/address-section";
 import { InstructionsSection, PaymentSection } from "./checkout/instructions-section";
 
@@ -61,8 +60,19 @@ function billFor(group: Group, shop: NearbyShop | undefined) {
   };
 }
 
-/** Places one dukan's part of the cart with the chosen address, instructions and note. */
-function usePlaceOrder(group: Group, addresses: SavedAddress[]) {
+/**
+ * Whether this dukan can take the order at the chosen address. The list of nearby dukans is
+ * already filtered by that address, so a dukan missing from it does not deliver there.
+ */
+type Reach = "ok" | "out" | "closed" | "unknown";
+function reachOf(shop: NearbyShop | undefined, address: SavedAddress | null): Reach {
+  if (!address) return "unknown";
+  if (!shop) return "out";
+  return shop.is_live ? "ok" : "closed";
+}
+
+/** Places one dukan's part of the cart at the chosen address, with instructions and note. */
+function usePlaceOrder(group: Group, address: SavedAddress | null) {
   const t = useTranslations("storefront.cart");
   const tOrders = useTranslations("customerOrders");
   const router = useRouter();
@@ -73,16 +83,12 @@ function usePlaceOrder(group: Group, addresses: SavedAddress[]) {
 
   const place = () => {
     const state = useCustomerCart.getState();
-    const saved = addresses.find((a) => a.id === state.addressId) ?? addresses[0] ?? null;
-    const typed = [state.address, state.addressExtra]
-      .map((part) => part.trim())
-      .filter(Boolean)
-      .join(", ");
-    const address = saved ? addressText(saved) : typed;
-    if (address.length < 5) {
+    if (!address) {
       haptic("warning");
       toast.error(t("addressNeeded"));
-      document.getElementById("cart-address")?.focus();
+      const section = document.getElementById("cart-address");
+      section?.scrollIntoView({ block: "center" });
+      section?.focus({ preventScroll: true });
       return;
     }
     const note = [...state.instructions.map((item) => t(`instructions.${item}`)), state.note.trim()]
@@ -93,7 +99,7 @@ function usePlaceOrder(group: Group, addresses: SavedAddress[]) {
       const result = await placeCustomerOrder({
         shopId: group.shopId,
         items: group.lines.map((line) => ({ inventoryId: line.id, qty: line.quantity })),
-        address,
+        addressId: address.id,
         note: note || undefined,
         requestId: requestId.current,
       });
@@ -104,17 +110,6 @@ function usePlaceOrder(group: Group, addresses: SavedAddress[]) {
       }
       haptic("success");
       requestId.current = crypto.randomUUID();
-      // The first typed address is kept for next time, without an extra step.
-      if (!saved) {
-        void saveAddress({
-          label: state.addressLabel,
-          line1: state.address.trim(),
-          line2: state.addressExtra.trim() || undefined,
-          lat: state.coords?.lat,
-          lng: state.coords?.lng,
-          makeDefault: true,
-        }).catch(() => undefined);
-      }
       clearShop(group.shopId);
       router.push(`/orders/${result.data.id}?placed=1`);
     });
@@ -123,10 +118,27 @@ function usePlaceOrder(group: Group, addresses: SavedAddress[]) {
 }
 
 /** The shopper's cart: address, one card per dukan, instructions, payment, and Place order. */
-export function CartView({ shops, addresses }: { shops: NearbyShop[]; addresses: SavedAddress[] }) {
+export function CartView({
+  shops,
+  addresses,
+  zones,
+  selectedAddressId,
+}: {
+  /** Dukans that deliver to the chosen delivery point. */
+  shops: NearbyShop[];
+  addresses: SavedAddress[];
+  zones: DeliveryZone[];
+  selectedAddressId: string | null;
+}) {
   const t = useTranslations("storefront.cart");
   const lines = useCustomerCart((state) => state.lines);
   const groups = groupByShop(lines);
+  // Orders need a pin; an older address without one has to be placed on the map first.
+  const address =
+    addresses.find(
+      (candidate) =>
+        candidate.id === selectedAddressId && candidate.lat !== null && candidate.lng !== null,
+    ) ?? null;
 
   if (groups.length === 0) {
     return (
@@ -160,14 +172,14 @@ export function CartView({ shops, addresses }: { shops: NearbyShop[]; addresses:
         ) : null}
       </header>
 
-      <AddressSection addresses={addresses} />
+      <AddressSection addresses={addresses} zones={zones} selected={address} />
 
       {groups.map((group) => (
         <ShopCartCard
           key={group.shopId}
           group={group}
           shop={shops.find((shop) => shop.id === group.shopId)}
-          addresses={addresses}
+          address={address}
           ownButton={!single}
         />
       ))}
@@ -179,7 +191,7 @@ export function CartView({ shops, addresses }: { shops: NearbyShop[]; addresses:
         <SinglePlaceBar
           group={single}
           shop={shops.find((shop) => shop.id === single.shopId)}
-          addresses={addresses}
+          address={address}
         />
       ) : null}
     </div>
@@ -190,18 +202,26 @@ export function CartView({ shops, addresses }: { shops: NearbyShop[]; addresses:
 function SinglePlaceBar({
   group,
   shop,
-  addresses,
+  address,
 }: {
   group: Group;
   shop: NearbyShop | undefined;
-  addresses: SavedAddress[];
+  address: SavedAddress | null;
 }) {
   const t = useTranslations("storefront.cart");
   const bill = billFor(group, shop);
-  const { place, placing } = usePlaceOrder(group, addresses);
+  const reach = reachOf(shop, address);
+  const blocked = reach === "out" || reach === "closed";
+  const { place, placing } = usePlaceOrder(group, address);
   return (
     <StickyActionBar>
-      <Button size="lg" block loading={placing} disabled={bill.short > 0} onClick={place}>
+      <Button
+        size="lg"
+        block
+        loading={placing}
+        disabled={bill.short > 0 || blocked}
+        onClick={place}
+      >
         <span className="num">
           {bill.short > 0
             ? t("addMoreToOrder", { amount: formatRs(bill.short) })
@@ -215,20 +235,23 @@ function SinglePlaceBar({
 function ShopCartCard({
   group,
   shop,
-  addresses,
+  address,
   ownButton,
 }: {
   group: Group;
   shop: NearbyShop | undefined;
-  addresses: SavedAddress[];
+  address: SavedAddress | null;
   ownButton: boolean;
 }) {
   const t = useTranslations("storefront.cart");
   const tShop = useTranslations("storefront");
   const locale = useLocale();
   const setQuantity = useCustomerCart((state) => state.setQuantity);
+  const clearShop = useCustomerCart((state) => state.clearShop);
   const bill = billFor(group, shop);
-  const { place, placing } = usePlaceOrder(group, addresses);
+  const reach = reachOf(shop, address);
+  const blocked = reach === "out" || reach === "closed";
+  const { place, placing } = usePlaceOrder(group, address);
 
   return (
     <section className="overflow-hidden rounded-lg border border-border/60 bg-surface shadow-card">
@@ -303,53 +326,71 @@ function ShopCartCard({
         ))}
       </ul>
 
-      <div className="flex flex-col gap-3 border-t border-border/70 px-4 py-4">
-        {bill.freeAbove !== null && bill.fee > 0 ? (
-          <div className="flex flex-col gap-1.5">
-            <p className="num text-sm font-semibold text-primary-strong">
-              {t("addMoreForFree", { amount: formatRs(bill.freeAbove - bill.itemTotal) })}
-            </p>
-            <Progress value={Math.min((bill.itemTotal / bill.freeAbove) * 100, 100)} />
-          </div>
-        ) : bill.freeAbove !== null ? (
-          <p className="text-sm font-semibold text-primary-strong">{t("freeUnlocked")}</p>
-        ) : null}
-
-        <dl
-          className="num flex flex-col gap-1.5 text-base"
-          dir={locale === "ur" ? "rtl" : undefined}
-        >
-          <div className="flex justify-between gap-3">
-            <dt className="text-muted">{t("itemTotal")}</dt>
-            <dd className="text-ink">{formatRs(bill.itemTotal)}</dd>
-          </div>
-          <div className="flex justify-between gap-3">
-            <dt className="text-muted">{t("delivery")}</dt>
-            <dd className={bill.fee === 0 ? "font-semibold text-primary-strong" : "text-ink"}>
-              {bill.fee === 0 ? t("free") : formatRs(bill.fee)}
-            </dd>
-          </div>
-          <div className="flex justify-between gap-3 border-t border-border/70 pt-2 font-heading text-lg font-bold">
-            <dt className="text-ink">{t("toPay")}</dt>
-            <dd className="text-ink">{formatRs(bill.total)}</dd>
-          </div>
-        </dl>
-        {bill.savings > 0 ? (
-          <p className="num rounded-md bg-primary-soft px-3 py-2 text-sm font-semibold text-primary-strong">
-            {t("savings", { amount: formatRs(bill.savings) })}
+      {blocked ? (
+        <div className="flex flex-col gap-3 border-t border-border/70 px-4 py-4">
+          <p
+            role="status"
+            className="flex items-start gap-2 rounded-md bg-awning-soft px-3 py-2.5 text-sm font-semibold text-awning-ink"
+          >
+            <CircleAlert aria-hidden className="mt-0.5 size-5 shrink-0" strokeWidth={1.75} />
+            {reach === "out"
+              ? t("notDelivering", { shop: group.shopName })
+              : t("notOpen", { shop: group.shopName })}
           </p>
-        ) : null}
-        {bill.short > 0 ? (
-          <p className="rounded-md bg-awning-soft px-3 py-2 text-sm font-semibold text-awning-ink">
-            {t("belowMin", { amount: formatRs(bill.minOrder), short: formatRs(bill.short) })}
-          </p>
-        ) : null}
-        {ownButton ? (
-          <Button size="lg" block loading={placing} disabled={bill.short > 0} onClick={place}>
-            <span className="num">{t("placeOrder", { total: formatRs(bill.total) })}</span>
+          <Button variant="secondary" onClick={() => clearShop(group.shopId)}>
+            <Trash2 aria-hidden />
+            {t("removeItems")}
           </Button>
-        ) : null}
-      </div>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-3 border-t border-border/70 px-4 py-4">
+          {bill.freeAbove !== null && bill.fee > 0 ? (
+            <div className="flex flex-col gap-1.5">
+              <p className="num text-sm font-semibold text-primary-strong">
+                {t("addMoreForFree", { amount: formatRs(bill.freeAbove - bill.itemTotal) })}
+              </p>
+              <Progress value={Math.min((bill.itemTotal / bill.freeAbove) * 100, 100)} />
+            </div>
+          ) : bill.freeAbove !== null ? (
+            <p className="text-sm font-semibold text-primary-strong">{t("freeUnlocked")}</p>
+          ) : null}
+
+          <dl
+            className="num flex flex-col gap-1.5 text-base"
+            dir={locale === "ur" ? "rtl" : undefined}
+          >
+            <div className="flex justify-between gap-3">
+              <dt className="text-muted">{t("itemTotal")}</dt>
+              <dd className="text-ink">{formatRs(bill.itemTotal)}</dd>
+            </div>
+            <div className="flex justify-between gap-3">
+              <dt className="text-muted">{t("delivery")}</dt>
+              <dd className={bill.fee === 0 ? "font-semibold text-primary-strong" : "text-ink"}>
+                {bill.fee === 0 ? t("free") : formatRs(bill.fee)}
+              </dd>
+            </div>
+            <div className="flex justify-between gap-3 border-t border-border/70 pt-2 font-heading text-lg font-bold">
+              <dt className="text-ink">{t("toPay")}</dt>
+              <dd className="text-ink">{formatRs(bill.total)}</dd>
+            </div>
+          </dl>
+          {bill.savings > 0 ? (
+            <p className="num rounded-md bg-primary-soft px-3 py-2 text-sm font-semibold text-primary-strong">
+              {t("savings", { amount: formatRs(bill.savings) })}
+            </p>
+          ) : null}
+          {bill.short > 0 ? (
+            <p className="rounded-md bg-awning-soft px-3 py-2 text-sm font-semibold text-awning-ink">
+              {t("belowMin", { amount: formatRs(bill.minOrder), short: formatRs(bill.short) })}
+            </p>
+          ) : null}
+          {ownButton ? (
+            <Button size="lg" block loading={placing} disabled={bill.short > 0} onClick={place}>
+              <span className="num">{t("placeOrder", { total: formatRs(bill.total) })}</span>
+            </Button>
+          ) : null}
+        </div>
+      )}
     </section>
   );
 }

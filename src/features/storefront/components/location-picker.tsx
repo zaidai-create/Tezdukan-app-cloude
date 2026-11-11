@@ -3,7 +3,7 @@
 import { cn } from "cn";
 import { Loader2, LocateFixed, MapPin } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import {
   Sheet,
@@ -13,63 +13,51 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { describePin } from "@/features/addresses/actions";
+import { AddressChoices } from "@/features/addresses/components/address-list";
 import type { SavedAddress } from "@/features/addresses/schemas";
-import { useRouter } from "@/i18n/navigation";
+import { usePathname } from "@/i18n/navigation";
 import { GeolocationProblem, getPosition } from "@/lib/geolocation";
 import { haptic } from "@/lib/haptics";
-import { useCustomerCart } from "../cart-store";
-import { formatLocation, LOCATION_COOKIE, LOCATION_LABEL_COOKIE } from "../location-cookie";
 import type { DeliveryZone } from "../schemas";
-
-const YEAR = 60 * 60 * 24 * 365;
-
-/** Saves the delivery point for the server (cookie) and reloads what the screen shows. */
-function useSetLocation() {
-  const router = useRouter();
-  const [pending, startTransition] = useTransition();
-  const set = (lat: number, lng: number, label: string) => {
-    const value = encodeURIComponent(formatLocation(lat, lng));
-    document.cookie = `${LOCATION_COOKIE}=${value}; path=/; max-age=${YEAR}; samesite=lax`;
-    document.cookie = `${LOCATION_LABEL_COOKIE}=${encodeURIComponent(label.slice(0, 80))}; path=/; max-age=${YEAR}; samesite=lax`;
-    haptic("success");
-    startTransition(() => router.refresh());
-  };
-  return { set, pending };
-}
+import { useDeliveryPoint } from "../use-delivery-point";
 
 /**
- * The ways to say where delivery should go: the phone's location (most accurate), a saved
- * address with a map point, or one of the city's areas when GPS is off or refused.
+ * The ways to say where delivery should go: a saved address (the usual choice), the phone's
+ * location for a quick look around, or one of the city's areas when GPS is off or refused.
  */
 export function LocationOptions({
   addresses,
   zones,
+  selectedId,
   onDone,
 }: {
   addresses: SavedAddress[];
   zones: DeliveryZone[];
+  /** The saved address orders go to now, if any. */
+  selectedId: string | null;
   onDone?: () => void;
 }) {
   const t = useTranslations("storefront.location");
   const locale = useLocale();
-  const setDelivery = useCustomerCart((state) => state.setDelivery);
-  const { set, pending } = useSetLocation();
+  const pathname = usePathname();
+  const { set, pending } = useDeliveryPoint();
   const [locating, setLocating] = useState(false);
   const [problem, setProblem] = useState<"denied" | "failed" | null>(null);
-  const withPoint = addresses.filter((address) => address.lat !== null && address.lng !== null);
-
-  const choose = (lat: number, lng: number, label: string) => {
-    set(lat, lng, label);
-    onDone?.();
-  };
 
   const locate = async () => {
     setLocating(true);
     setProblem(null);
     try {
       const position = await getPosition();
-      choose(position.lat, position.lng, t("current"));
+      // "Near Latifabad" says more than "Current location"; it is worth a short wait.
+      const described = await describePin(position).catch(() => null);
+      const label = described?.ok
+        ? (described.data.area ?? described.data.line ?? t("current"))
+        : t("current");
+      set({ lat: position.lat, lng: position.lng, label });
       toast.success(t("found"));
+      onDone?.();
     } catch (error) {
       haptic("warning");
       setProblem(error instanceof GeolocationProblem ? error.problem : "failed");
@@ -79,64 +67,54 @@ export function LocationOptions({
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      <button
-        type="button"
-        onClick={() => void locate()}
-        disabled={locating || pending}
-        className="sheen flex min-h-14 items-center justify-center gap-2 rounded-md bg-action px-4 text-base font-semibold text-on-action shadow-glow inset-shadow-edge disabled:opacity-70"
-      >
-        {locating || pending ? (
-          <Loader2 aria-hidden className="size-5 animate-spin motion-reduce:animate-none" />
-        ) : (
-          <LocateFixed aria-hidden className="size-5" strokeWidth={1.75} />
-        )}
-        {locating ? t("locating") : t("useCurrent")}
-      </button>
-      {problem ? (
-        <p role="alert" className="rounded-md bg-awning-soft px-3 py-2 text-sm text-awning-ink">
-          {problem === "denied" ? t("denied") : t("failed")}
-        </p>
-      ) : null}
+    <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-2">
+        <button
+          type="button"
+          onClick={() => void locate()}
+          disabled={locating || pending}
+          className="sheen flex min-h-14 items-center justify-center gap-2 rounded-md bg-action px-4 text-base font-semibold text-on-action shadow-glow inset-shadow-edge disabled:opacity-70"
+        >
+          {locating || pending ? (
+            <Loader2 aria-hidden className="size-5 animate-spin motion-reduce:animate-none" />
+          ) : (
+            <LocateFixed aria-hidden className="size-5" strokeWidth={1.75} />
+          )}
+          {locating ? t("locating") : t("useCurrent")}
+        </button>
+        {problem ? (
+          <p role="alert" className="rounded-md bg-awning-soft px-3 py-2 text-sm text-awning-ink">
+            {problem === "denied" ? t("denied") : t("failed")}
+          </p>
+        ) : null}
+      </div>
 
-      {withPoint.length > 0 ? (
-        <section className="flex flex-col gap-2">
-          <h3 className="text-sm font-semibold text-muted">{t("saved")}</h3>
-          <ul className="flex flex-col gap-2">
-            {withPoint.map((address) => (
-              <li key={address.id}>
-                <button
-                  type="button"
-                  disabled={pending}
-                  onClick={() => {
-                    setDelivery({ addressId: address.id });
-                    choose(address.lat ?? 0, address.lng ?? 0, address.line1);
-                  }}
-                  className="flex min-h-12 w-full items-center gap-3 rounded-lg border border-border/70 bg-surface px-3 text-start"
-                >
-                  <MapPin aria-hidden className="size-5 shrink-0 text-primary" strokeWidth={1.75} />
-                  <span className="min-w-0 flex-1 truncate text-sm font-semibold text-ink">
-                    {address.line1}
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
+      <section className="flex flex-col gap-2">
+        <h3 className="text-sm font-semibold text-muted">{t("saved")}</h3>
+        <AddressChoices
+          addresses={addresses}
+          selectedId={selectedId}
+          next={pathname}
+          onChosen={onDone}
+        />
+      </section>
 
       {zones.length > 0 ? (
         <section className="flex flex-col gap-2">
           <h3 className="text-sm font-semibold text-muted">{t("areas")}</h3>
           <div className="flex flex-wrap gap-2">
             {zones.map((zone) => {
-              const name = locale === "ur" && zone.name_ur ? zone.name_ur : zone.name;
+              const name =
+                (locale === "ur" || locale === "sd") && zone.name_ur ? zone.name_ur : zone.name;
               return (
                 <button
                   key={zone.id}
                   type="button"
                   disabled={pending}
-                  onClick={() => choose(zone.lat, zone.lng, name)}
+                  onClick={() => {
+                    set({ lat: zone.lat, lng: zone.lng, label: name });
+                    onDone?.();
+                  }}
                   className={cn(
                     "inline-flex min-h-11 items-center rounded-full border border-border bg-surface px-4 text-sm font-semibold text-ink",
                     "transition-colors duration-150 ease-out active:bg-primary-soft",
@@ -171,20 +149,22 @@ export function LocationPrompt({
         <h2 className="font-heading text-xl font-bold text-ink">{t("title")}</h2>
         <p className="text-base text-muted">{t("hint")}</p>
       </div>
-      <LocationOptions addresses={addresses} zones={zones} />
+      <LocationOptions addresses={addresses} zones={zones} selectedId={null} />
     </section>
   );
 }
 
-/** The same choices in a sheet, from Home's "Deliver to" pill. */
+/** The same choices in a sheet, from the "Deliver to" pill and from checkout. */
 export function LocationSheet({
   addresses,
   zones,
+  selectedId,
   open,
   onOpenChange,
 }: {
   addresses: SavedAddress[];
   zones: DeliveryZone[];
+  selectedId: string | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
@@ -197,7 +177,12 @@ export function LocationSheet({
           <SheetDescription>{t("hint")}</SheetDescription>
         </SheetHeader>
         <SheetBody>
-          <LocationOptions addresses={addresses} zones={zones} onDone={() => onOpenChange(false)} />
+          <LocationOptions
+            addresses={addresses}
+            zones={zones}
+            selectedId={selectedId}
+            onDone={() => onOpenChange(false)}
+          />
         </SheetBody>
       </SheetContent>
     </Sheet>

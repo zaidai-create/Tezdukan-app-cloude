@@ -9,7 +9,8 @@ import type { StorefrontProduct } from "./schemas";
 
 /**
  * The shopper's cart, kept on the phone (one per device) and grouped by dukan at checkout.
- * Prices are snapshots for display; the dukan confirms the final bill.
+ * Prices are snapshots for display; the dukan confirms the final bill. The delivery address is
+ * not kept here: it is a saved address chosen with the delivery point (see location-cookie).
  */
 const cartLineSchema = z.object({
   id: z.uuid(),
@@ -30,11 +31,6 @@ export type DeliveryInstruction = (typeof deliveryInstructions)[number];
 
 const storedSchema = z.object({
   lines: z.array(cartLineSchema).catch([]),
-  address: z.string().max(300).catch(""),
-  addressExtra: z.string().max(200).catch(""),
-  addressLabel: z.enum(["Home", "Work", "Other"]).catch("Home"),
-  addressId: z.uuid().nullable().catch(null),
-  coords: z.object({ lat: z.number(), lng: z.number() }).nullable().catch(null),
   instructions: z.array(z.enum(deliveryInstructions)).catch([]),
   note: z.string().max(200).catch(""),
 });
@@ -42,7 +38,6 @@ type Stored = z.infer<typeof storedSchema>;
 
 type CartState = Stored & {
   setQuantity: (product: StorefrontProduct, quantity: number) => void;
-  setAddress: (address: string) => void;
   setDelivery: (patch: Partial<Omit<Stored, "lines">>) => void;
   toggleInstruction: (instruction: DeliveryInstruction) => void;
   clearShop: (shopId: string) => void;
@@ -52,11 +47,6 @@ export const useCustomerCart = create<CartState>()(
   persist(
     (set) => ({
       lines: [],
-      address: "",
-      addressExtra: "",
-      addressLabel: "Home",
-      addressId: null,
-      coords: null,
       instructions: [],
       note: "",
       setQuantity: (product, quantity) =>
@@ -83,7 +73,6 @@ export const useCustomerCart = create<CartState>()(
               : [...state.lines, line],
           };
         }),
-      setAddress: (address) => set({ address: address.slice(0, 300) }),
       setDelivery: (patch) => set(patch),
       toggleInstruction: (instruction) =>
         set((state) => ({
@@ -99,11 +88,6 @@ export const useCustomerCart = create<CartState>()(
       storage: createJSONStorage(() => localStorage),
       partialize: (state): Stored => ({
         lines: state.lines,
-        address: state.address,
-        addressExtra: state.addressExtra,
-        addressLabel: state.addressLabel,
-        addressId: state.addressId,
-        coords: state.coords,
         instructions: state.instructions,
         note: state.note,
       }),

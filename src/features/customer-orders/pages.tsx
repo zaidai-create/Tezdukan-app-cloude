@@ -343,7 +343,7 @@ async function ShopOrderContent({ params }: { params: Promise<{ id: string }> })
       <section className="rounded-lg border border-border/60 bg-surface p-4 shadow-card">
         <OrderProgress order={order} />
       </section>
-      <OrderSummary order={order} />
+      <OrderSummary order={order} forShop />
       <ShopOrderActions orderId={order.id} status={order.status} />
     </div>
   );

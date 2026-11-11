@@ -336,6 +336,30 @@ section. Format: **decision** — reason (date).
   update_shop_profile only accepts paths in the dukan's own folder. Photos are resized to WebP
   on the phone before upload. (2026-11-05)
 
+- **Dukandars may deliver up to 6 km** (was 5) — the owner asked for 3 to 6 km depending on how
+  spread out the area is; the admin panel can still set up to 15 km or the whole city. (2026-11-11)
+- **A saved address with a pin is the only place an order can go** — typed-only addresses
+  left the rider guessing and let an order slip outside a dukan's radius (the check used the
+  browsing point, not the address). Now `place_customer_order` takes an address id, checks it
+  is the caller's, has a pin and is inside the radius, and snapshots text, landmark and pin on
+  the order. The chosen address also is the browsing point (`td_addr` beside `td_loc`), and
+  the address's own pin beats the cookie copy so an edit on another phone is respected. (2026-11-11)
+- **Fixed pin, moving map** — the pin stays in the middle and the person slides the map under
+  it, as delivery apps do: exact, and never hidden under a thumb. Leaflet loads only on the
+  address screen. Its container's class list never changes after mount, because React rewrites
+  the whole attribute and would wipe the classes Leaflet adds (the map went blank). (2026-11-11)
+- **OpenStreetMap tiles and Nominatim, behind settings** — free and good enough for one city;
+  the owner chose it over Google Maps (which needs a billing card). Tiles are cached by the
+  service worker in their own cache. Nominatim allows about one request a second for the whole
+  app and no search-as-you-type, so answers are cached by a pin rounded to 11 m and search runs
+  on submit. `NEXT_PUBLIC_MAP_TILE_URL` and `GEOCODING_PROVIDER` swap either. When the geocoder
+  is off or down the nearest delivery area is used ("Near Latifabad"), never an error. (2026-11-11)
+- **Five addresses, one default, kept by triggers** — a cap stops junk, and the default moves
+  in the same statement that sets it (a unique index allows one), so the app does plain
+  inserts and updates under RLS. (2026-11-11)
+- **Server Actions read the language from the cookie (`actionLocale`)** — `getLocale()` reads
+  a route param, and an action has no route. (2026-11-11)
+
 ## Notifications
 
 - **Alerts always reach the phone screen** — the service worker no longer skips the system

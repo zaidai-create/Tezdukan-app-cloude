@@ -79,6 +79,23 @@ export async function getStorefrontShop(slug: string): Promise<StorefrontShop | 
   return { ...shop, products: shop.products.filter((product) => product.in_stock) };
 }
 
+/**
+ * Whether a dukan delivers to the shopper's delivery point. True while no point is chosen:
+ * there is nothing to refuse yet, and checkout asks for the address.
+ */
+export async function shopDeliversHere(shopId: string): Promise<boolean> {
+  const location = await getCustomerLocation();
+  if (!location) return true;
+  const supabase = await getSupabaseServerClient();
+  const { data, error } = await supabase.rpc("shop_delivers_to", {
+    p_shop_id: shopId,
+    p_lat: location.lat,
+    p_lng: location.lng,
+  });
+  if (error) throw new Error(error.message);
+  return data !== false;
+}
+
 /** Products the shopper ordered before that nearby dukans still have, most ordered first. */
 export async function getBuyAgain(limit = 12): Promise<StorefrontProduct[]> {
   const supabase = await getSupabaseServerClient();

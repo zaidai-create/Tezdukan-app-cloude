@@ -8,6 +8,7 @@ select tests.create_user('owner');
 select tests.create_user('shopper');
 select tests.create_user('stranger');
 select tests.make_shop('kiryana', 'owner');
+select tests.make_address('home', 'shopper');
 grant insert, update on tests.refs to authenticated;
 
 insert into public.storefront_settings (shop_id, is_live, min_order_paisa, delivery_fee_paisa, free_delivery_above_paisa)
@@ -18,18 +19,18 @@ returning tests.remember('chai', id);
 
 select tests.authenticate_as('shopper');
 select throws_ok(
-  format($$ select public.place_customer_order(%L, jsonb_build_array(jsonb_build_object('inventory_id', %L, 'qty', 1)), 'House 1, Street 2') $$,
-         tests.id('kiryana'), tests.id('chai')),
+  format($$ select public.place_customer_order(%L, jsonb_build_array(jsonb_build_object('inventory_id', %L, 'qty', 1)), %L) $$,
+         tests.id('kiryana'), tests.id('chai'), tests.id('home')),
   '55000', 'below_minimum', 'an order below the dukan''s minimum is refused'
 );
 select throws_ok(
-  format($$ select public.place_customer_order(%L, jsonb_build_array(jsonb_build_object('inventory_id', %L, 'qty', 9)), 'House 1, Street 2') $$,
-         tests.id('kiryana'), tests.id('chai')),
+  format($$ select public.place_customer_order(%L, jsonb_build_array(jsonb_build_object('inventory_id', %L, 'qty', 9)), %L) $$,
+         tests.id('kiryana'), tests.id('chai'), tests.id('home')),
   '55000', 'out_of_stock', 'more than the shelf holds is refused'
 );
 select tests.remember('order', (public.place_customer_order(
   tests.id('kiryana'), jsonb_build_array(jsonb_build_object('inventory_id', tests.id('chai'), 'qty', 2)),
-  'House 1, Street 2, Qasimabad', null, 'aaaaaaaa-0000-4000-8000-000000000001'
+  tests.id('home'), null, 'aaaaaaaa-0000-4000-8000-000000000001'
 ) ->> 'id')::uuid);
 select tests.clear_authentication();
 
@@ -50,7 +51,7 @@ select tests.authenticate_as('shopper');
 select is(
   public.place_customer_order(
     tests.id('kiryana'), jsonb_build_array(jsonb_build_object('inventory_id', tests.id('chai'), 'qty', 2)),
-    'House 1, Street 2, Qasimabad', null, 'aaaaaaaa-0000-4000-8000-000000000001'
+    tests.id('home'), null, 'aaaaaaaa-0000-4000-8000-000000000001'
   ) ->> 'id', tests.id('order')::text,
   'retrying with the same request id returns the same order'
 );

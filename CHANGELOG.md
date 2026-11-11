@@ -4,6 +4,22 @@ All notable changes, newest first. Dates are Asia/Karachi.
 
 ## Unreleased
 
+### Addresses with a map (2026-11-11)
+
+- Customers save up to five delivery addresses (Home, Work, Other) on a map: slide the map
+  until the pin is on the door, or tap "Use my current location". The address is read from
+  the pin and can be corrected; house or flat and a landmark are optional. Search finds an
+  area, road or place. The screen says how many dukans deliver to the pin before saving.
+- "My addresses" in Account and the "Deliver to" sheet: pick, edit, delete. The chosen address
+  decides which dukans and products are shown.
+- An order now goes to a saved address and keeps its pin and landmark; the dukandar gets an
+  "Open in Maps" button. The database refuses an order outside the dukan's delivery radius,
+  and the cart says so before the customer tries. A dukan page opened from a shared link warns
+  when it does not deliver to the customer.
+- Dukandars can set their delivery distance up to 6 km (it was 5).
+- Maps are OpenStreetMap tiles drawn with Leaflet, addresses come from Nominatim; both sit
+  behind settings so another provider can replace them.
+
 ### Code graph for Claude (2026-11-06)
 
 - graphify maps the code into a knowledge graph (`graphify-out/`, not committed) that Claude

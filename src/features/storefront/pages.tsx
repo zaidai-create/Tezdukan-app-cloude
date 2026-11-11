@@ -1,4 +1,4 @@
-import { ChevronRight, PackageSearch, Store, Truck } from "lucide-react";
+import { ChevronRight, CircleAlert, PackageSearch, Store, Truck } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { connection } from "next/server";
 import { Suspense } from "react";
@@ -28,6 +28,7 @@ import {
   getStorefrontProducts,
   getStorefrontShop,
   getBuyAgain,
+  shopDeliversHere,
 } from "./data";
 import type { StorefrontCategory } from "./schemas";
 import { CustomerPosters } from "@/features/posters/posters";
@@ -130,6 +131,7 @@ async function HomeContent() {
           <DeliveryPill
             addresses={addresses}
             zones={zones}
+            selectedId={location.addressId}
             locationLabel={location.label}
             etaMinutes={fastest}
           />
@@ -422,6 +424,7 @@ async function ShopsContent() {
       <DeliveryPill
         addresses={addresses}
         zones={zones}
+        selectedId={location.addressId}
         locationLabel={location.label}
         etaMinutes={null}
       />
@@ -463,9 +466,23 @@ async function ShopContent({ params }: { params: Promise<{ slug: string }> }) {
       </div>
     );
   }
+  // A shared link can open a dukan that is too far away: say so before the cart fills up.
+  const deliversHere = await shopDeliversHere(shop.id);
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-5 px-4 py-5">
       <ShopHeader shop={shop} />
+      {deliversHere ? null : (
+        <div
+          role="status"
+          className="flex items-start gap-3 rounded-lg bg-awning-soft p-4 text-awning-ink"
+        >
+          <CircleAlert aria-hidden className="mt-0.5 size-5 shrink-0" strokeWidth={1.75} />
+          <div>
+            <p className="font-semibold">{t("shop.outOfArea")}</p>
+            <p className="text-sm">{t("shop.outOfAreaHint")}</p>
+          </div>
+        </div>
+      )}
       {shop.is_live && shop.products.length > 0 ? (
         <section className="flex flex-col gap-3">
           <SectionHeader title={t("shop.products")} />
@@ -499,8 +516,20 @@ export function ShopPage({ params }: { params: Promise<{ slug: string }> }) {
 async function CartContent() {
   await connection();
   await requireRole("customer", "/cart");
-  const [shops, addresses] = await Promise.all([getNearbyShops(), getMyAddresses()]);
-  return <CartView shops={shops} addresses={addresses} />;
+  const [shops, addresses, zones, location] = await Promise.all([
+    getNearbyShops(),
+    getMyAddresses(),
+    getDeliveryZones(),
+    getCustomerLocation(),
+  ]);
+  return (
+    <CartView
+      shops={shops}
+      addresses={addresses}
+      zones={zones}
+      selectedAddressId={location?.addressId ?? null}
+    />
+  );
 }
 
 export function CustomerCartPage() {

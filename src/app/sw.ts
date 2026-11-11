@@ -68,6 +68,18 @@ const runtimeCaching: RuntimeCaching[] = [
       plugins: [new ExpirationPlugin({ maxEntries: 32, maxAgeSeconds: 365 * DAY })],
     }),
   },
+  // Map tiles for the address picker: a street does not change from one day to the next, and
+  // the free tile servers ask apps to cache. Kept apart so tiles never push out product photos.
+  {
+    matcher: ({ sameOrigin, url, request }) =>
+      !sameOrigin && request.destination === "image" && /(^|\.)tile\./.test(url.hostname),
+    handler: new CacheFirst({
+      cacheName: "map-tiles",
+      plugins: [
+        new ExpirationPlugin({ maxEntries: 400, maxAgeSeconds: 14 * DAY, purgeOnQuotaError: true }),
+      ],
+    }),
+  },
   // Product photos and avatars: show the cached copy, refresh it in the background.
   {
     matcher: ({ request }) => request.destination === "image",

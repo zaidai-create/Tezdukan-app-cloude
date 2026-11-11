@@ -248,7 +248,8 @@
       "roles": "Aap ke roles",
       "preferences": "Settings",
       "support": "Madad aur policies",
-      "opportunities": "TezDukan ke saath aage barhein"
+      "opportunities": "TezDukan ke saath aage barhein",
+      "delivery": "Delivery"
     },
     "switchHint": "Badalne ke liye tap karein",
     "appearanceLight": "Light",
@@ -264,7 +265,9 @@
     "joinRider": "Delivery rider banein",
     "joinRiderHint": "Hamari team se baat karein",
     "deleteAccount": "Mera account delete karein",
-    "deleteAccountHint": "Account aur zaati data hatayein"
+    "deleteAccountHint": "Account aur zaati data hatayein",
+    "addresses": "Mere pate",
+    "addressesHint": "Ghar, daftar aur doosri jagahein jahan order mangwate hain"
   },
   "command": {
     "title": "Talaash aur commands",
@@ -1264,7 +1267,9 @@
       "notLive": "Ye dukan abhi online order nahi leti. Call ya WhatsApp karein.",
       "empty": "Abhi koi cheez online nahi",
       "emptyHint": "Order ke liye dukan ko call ya WhatsApp karein.",
-      "notFound": "Ye dukan TezDukan par nahi"
+      "notFound": "Ye dukan TezDukan par nahi",
+      "outOfArea": "Yeh dukan aap ke pate par deliver nahi karti.",
+      "outOfAreaHint": "Aap dekh sakte hain, lekin order ke liye apne qareeb ki dukan chunein."
     },
     "cart": {
       "title": "Cart",
@@ -1279,31 +1284,19 @@
       "addMoreForFree": "Free delivery ke liye {amount} aur add karein",
       "freeUnlocked": "Free delivery mil gayi",
       "belowMin": "Kam az kam order {amount} hai. {short} aur add karein.",
-      "address": "Makaan aur gali",
-      "addressPlaceholder": "Maslan Makaan 5, Gali 2",
       "placeOrder": "Order karein · {total}",
-      "addressNeeded": "Order ke liye delivery ka pata likhein.",
+      "addressNeeded": "Order se pehle delivery ki jagah chunein.",
       "itemsCount": "{count, plural, one {# cheez} other {# cheezein}}",
       "multiShop": "Har dukan ka alag order aur alag bill.",
       "addMore": "Aur add karein",
       "addMoreToOrder": "Order ke liye {amount} aur add karein",
       "addressTitle": "Yahan pohanchayein",
       "change": "Badlein",
-      "addNew": "Naya pata add karein",
-      "savedTitle": "Aap ke pate",
-      "saveAddress": "Pata save karein",
-      "addressSaved": "Pata save ho gaya",
-      "labelLabel": "Is naam se save karein",
       "labels": {
         "Home": "Ghar",
         "Work": "Daftar",
         "Other": "Doosra"
       },
-      "areaLabel": "Ilaqa ya nishani (ikhtiyari)",
-      "areaPlaceholder": "Maslan Latifabad Unit 6, masjid ke paas",
-      "useLocation": "Meri maujooda location lein",
-      "locationAdded": "Location add ho gayi",
-      "locationFailed": "Location nahi mil saki. Pata likh dein.",
       "instructionsTitle": "Delivery ki hidayaat",
       "instructions": {
         "callOnArrival": "Pohanch kar call karein",
@@ -1314,7 +1307,13 @@
       "notePlaceholder": "Dukan ke liye note (ikhtiyari)",
       "paymentTitle": "Adaigi",
       "codTitle": "Delivery par cash",
-      "codHint": "Order pohanchne par cash ada karein."
+      "codHint": "Order pohanchne par cash ada karein.",
+      "addressMissingTitle": "Delivery kahan chahiye?",
+      "addressMissingHint": "Apna pata ek baar shamil karein. Naqshe ka nishan rider ko aap ke darwaze tak lata hai.",
+      "addAddress": "Delivery ka pata shamil karein",
+      "notDelivering": "{shop} is pate par deliver nahi karti. Doosra pata chunein, ya yeh cheezein hata dein.",
+      "notOpen": "{shop} abhi order nahi le rahi.",
+      "removeItems": "Yeh cheezein hatayein"
     },
     "addAddressHint": "Sahi dukanein aur delivery ka waqt dekhne ke liye apna pata add karein",
     "etaShort": "{minutes, number} min",
@@ -1415,7 +1414,7 @@
     "errors": {
       "shop_not_taking_orders": "Ye dukan abhi order nahi le rahi.",
       "empty_order": "Aap ka cart khali hai.",
-      "address_required": "Order ke liye delivery ka pata likhein.",
+      "address_required": "Order se pehle delivery ki jagah chunein.",
       "invalid_quantity": "Tadaad check karein.",
       "item_unavailable": "Ek cheez ab available nahi. Hata kar dobara koshish karein.",
       "out_of_stock": "Ek cheez ka stock khatam ho gaya. Tadaad kam kar ke dobara koshish karein.",
@@ -1426,7 +1425,8 @@
       "generic": "Kuch ghalat ho gaya. Dobara koshish karein.",
       "not_delivered": "Order deliver hone ke baad rating de sakte hain.",
       "invalid_rating": "1 se 5 sitare chunein.",
-      "out_of_area": "Ye dukan aap ki jagah tak deliver nahi karti. Qareebi dukan chunein."
+      "out_of_area": "Yeh dukan aap ke pate par deliver nahi karti. Doosra pata ya qareeb ki dukan chunein.",
+      "address_location_required": "Is pate par naqshe ka nishan nahi laga. Pata khol kar nishan lagayein."
     },
     "hero": {
       "placed": "{shop} ke qubool karne ka intezar",
@@ -1468,7 +1468,9 @@
       "delivered": "Deliver ho gaya",
       "cancelled": "Mansookh",
       "rejected": "Qubool nahi hua"
-    }
+    },
+    "landmark": "Nishani: {landmark}",
+    "openMap": "Maps mein kholein"
   },
   "shopDash": {
     "online": "Online",
@@ -2020,5 +2022,63 @@
       "cityToggle": "Poore shehar mein delivery",
       "save": "Delivery ka ilaqa save karein"
     }
+  },
+  "map": {
+    "zoomIn": "Qareeb karein",
+    "zoomOut": "Door karein"
+  },
+  "addresses": {
+    "title": "Mere pate",
+    "subtitle": "Jahan aap ke order pohanchte hain",
+    "add": "Naya pata shamil karein",
+    "addTitle": "Pata shamil karein",
+    "editTitle": "Pata badlein",
+    "editNamed": "{label} ka pata badlein",
+    "back": "Wapas",
+    "empty": "Abhi koi pata mehfooz nahi",
+    "emptyHint": "Ghar ya daftar ka pata ek baar shamil karein. Us ke baad bas ek tap.",
+    "notFound": "Yeh pata ab mehfooz nahi hai",
+    "limit": "Aap {count, number} pate mehfooz kar sakte hain. Naya shamil karne ke liye ek hatayein.",
+    "default": "Pehla intikhab",
+    "delete": "Pata hatayein",
+    "keep": "Rehne dein",
+    "deleteConfirmTitle": "Yeh pata hata dein?",
+    "deleted": "Pata hata diya gaya",
+    "needsPin": "Naqshe par nishan nahi laga. Lagane ke liye tap karein.",
+    "nearArea": "{area} ke qareeb, Hyderabad",
+    "search": "Ilaqa ya sarak talash karein",
+    "searchButton": "Talash",
+    "searchEmpty": "Kuch nahi mila. Naqsha hila kar apni jagah par layein.",
+    "mapLabel": "Naqsha. Isay hilayein yahan tak ke nishan aap ke darwaze par aa jaye.",
+    "mapHint": "Nishan apne darwaze par layein",
+    "pinFirst": "Nishan apni jagah par lagayein: naqsha hilayein, ya maujooda location istemal karein.",
+    "useCurrent": "Meri maujooda location",
+    "locating": "Location dhoond rahe hain…",
+    "denied": "TezDukan ke liye location band hai. Phone ki settings mein chalu karein, ya naqsha hila kar apni jagah par layein.",
+    "failed": "Location nahi mil saki. Naqsha hila kar apni jagah par layein.",
+    "looking": "Pata parh rahe hain…",
+    "coverage": "{count, plural, one {# dukan yahan deliver karti hai} other {# dukanein yahan deliver karti hain}}",
+    "noCoverage": "Yahan abhi koi dukan deliver nahi karti. Pata phir bhi mehfooz kar sakte hain.",
+    "line1": "Pata",
+    "line1Hint": "Naqshe se bhara gaya hai. Ghalat ho to theek kar lein.",
+    "line1Typed": "Aap ke apne alfaaz rahenge, nishan hilane par bhi.",
+    "line1Placeholder": "Gali, mohalla, shehar",
+    "fromMap": "Naqshe wala pata lagayein",
+    "line2": "Makan, flat ya manzil (ikhtiyari)",
+    "line2Placeholder": "Maslan Makan 12, doosri manzil",
+    "landmark": "Qareebi nishani (ikhtiyari)",
+    "landmarkPlaceholder": "Maslan masjid ke paas",
+    "landmarkHint": "Rider aap ko jaldi dhoond lega.",
+    "saveAs": "Is naam se mehfooz karein",
+    "save": "Pata mehfooz karein",
+    "saved": "Pata mehfooz ho gaya",
+    "errors": {
+      "invalid": "Pata likhein, kam az kam chand alfaaz.",
+      "too_many": "Aap ke paas pehle hi {count, number} pate hain. Pehle ek hatayein.",
+      "generic": "Pata mehfooz nahi ho saka. Dobara koshish karein."
+    },
+    "sandbox": "Sandbox",
+    "sandboxHint": "Sandbox mein galiyon ke naam band hain, is liye qareebi ilaqa lagaya gaya hai. Apni gali khud likhein.",
+    "offline": "Naqshe ko internet chahiye. Aap pata phir bhi likh sakte hain."
   }
 }

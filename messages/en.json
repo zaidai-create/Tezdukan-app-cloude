@@ -248,7 +248,8 @@
       "roles": "Your roles",
       "preferences": "Preferences",
       "support": "Support and policies",
-      "opportunities": "Grow with TezDukan"
+      "opportunities": "Grow with TezDukan",
+      "delivery": "Delivery"
     },
     "switchHint": "Tap to switch",
     "appearanceLight": "Light",
@@ -264,7 +265,9 @@
     "joinRider": "Join as a delivery rider",
     "joinRiderHint": "Talk to our team",
     "deleteAccount": "Delete my account",
-    "deleteAccountHint": "Remove your account and personal data"
+    "deleteAccountHint": "Remove your account and personal data",
+    "addresses": "My addresses",
+    "addressesHint": "Home, work and other places you order to"
   },
   "command": {
     "title": "Search and commands",
@@ -1264,7 +1267,9 @@
       "notLive": "This dukan doesn't take online orders yet. Call or WhatsApp them.",
       "empty": "No products online yet",
       "emptyHint": "Call or WhatsApp the dukan to order.",
-      "notFound": "This dukan isn't on TezDukan"
+      "notFound": "This dukan isn't on TezDukan",
+      "outOfArea": "This dukan does not deliver to your address.",
+      "outOfAreaHint": "You can look around, but choose a dukan near you to order."
     },
     "cart": {
       "title": "Cart",
@@ -1279,31 +1284,19 @@
       "addMoreForFree": "Add {amount} more for free delivery",
       "freeUnlocked": "Free delivery unlocked",
       "belowMin": "Minimum order is {amount}. Add {short} more.",
-      "address": "House and street",
-      "addressPlaceholder": "e.g. House 5, Street 2",
       "placeOrder": "Place order · {total}",
-      "addressNeeded": "Add your delivery address to order.",
+      "addressNeeded": "Choose where to deliver before you order.",
       "itemsCount": "{count, plural, one {# item} other {# items}}",
       "multiShop": "Each dukan gets its own order and bill.",
       "addMore": "Add more",
       "addMoreToOrder": "Add {amount} more to order",
       "addressTitle": "Deliver to",
       "change": "Change",
-      "addNew": "Add a new address",
-      "savedTitle": "Your addresses",
-      "saveAddress": "Save address",
-      "addressSaved": "Address saved",
-      "labelLabel": "Save as",
       "labels": {
         "Home": "Home",
         "Work": "Work",
         "Other": "Other"
       },
-      "areaLabel": "Area or landmark (optional)",
-      "areaPlaceholder": "e.g. Latifabad Unit 6, near the masjid",
-      "useLocation": "Use my current location",
-      "locationAdded": "Location added",
-      "locationFailed": "Could not get your location. Type the address instead.",
       "instructionsTitle": "Delivery instructions",
       "instructions": {
         "callOnArrival": "Call when you arrive",
@@ -1314,7 +1307,13 @@
       "notePlaceholder": "Note for the dukan (optional)",
       "paymentTitle": "Payment",
       "codTitle": "Cash on delivery",
-      "codHint": "Pay in cash when your order arrives."
+      "codHint": "Pay in cash when your order arrives.",
+      "addressMissingTitle": "Where should we deliver?",
+      "addressMissingHint": "Add your address once. The map pin takes the rider to your door.",
+      "addAddress": "Add delivery address",
+      "notDelivering": "{shop} does not deliver to this address. Choose another address, or remove these items.",
+      "notOpen": "{shop} is not taking orders right now.",
+      "removeItems": "Remove these items"
     },
     "addAddressHint": "Add your address for the right dukans and delivery time",
     "etaShort": "{minutes, number} min",
@@ -1415,7 +1414,7 @@
     "errors": {
       "shop_not_taking_orders": "This dukan isn't taking orders right now.",
       "empty_order": "Your cart is empty.",
-      "address_required": "Add your delivery address to order.",
+      "address_required": "Choose where to deliver before you order.",
       "invalid_quantity": "Check the quantities.",
       "item_unavailable": "An item is no longer available. Remove it and try again.",
       "out_of_stock": "An item ran out of stock. Lower the quantity and try again.",
@@ -1426,7 +1425,8 @@
       "generic": "Something went wrong. Please try again.",
       "not_delivered": "You can rate the order once it is delivered.",
       "invalid_rating": "Choose 1 to 5 stars.",
-      "out_of_area": "This dukan does not deliver to your location. Choose a dukan near you."
+      "out_of_area": "This dukan does not deliver to your address. Choose another address or a dukan near you.",
+      "address_location_required": "This address has no map pin yet. Edit the address and place the pin."
     },
     "hero": {
       "placed": "Waiting for {shop} to accept",
@@ -1468,7 +1468,9 @@
       "delivered": "Delivered",
       "cancelled": "Cancelled",
       "rejected": "Not accepted"
-    }
+    },
+    "landmark": "Landmark: {landmark}",
+    "openMap": "Open in Maps"
   },
   "shopDash": {
     "online": "Online",
@@ -2020,5 +2022,63 @@
       "cityToggle": "Deliver across the whole city",
       "save": "Save delivery area"
     }
+  },
+  "map": {
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out"
+  },
+  "addresses": {
+    "title": "My addresses",
+    "subtitle": "Where your orders are delivered",
+    "add": "Add a new address",
+    "addTitle": "Add address",
+    "editTitle": "Edit address",
+    "editNamed": "Edit {label} address",
+    "back": "Back",
+    "empty": "No address saved yet",
+    "emptyHint": "Add your home or work once. After that it is one tap.",
+    "notFound": "This address is no longer saved",
+    "limit": "You can save up to {count, number} addresses. Delete one to add another.",
+    "default": "Default",
+    "delete": "Delete address",
+    "keep": "Keep it",
+    "deleteConfirmTitle": "Delete this address?",
+    "deleted": "Address deleted",
+    "needsPin": "Map pin missing. Tap to add it.",
+    "nearArea": "Near {area}, Hyderabad",
+    "search": "Search area or road",
+    "searchButton": "Search",
+    "searchEmpty": "Nothing found. Move the map to your place instead.",
+    "mapLabel": "Map. Move it until the pin is on your door.",
+    "mapHint": "Put the pin on your door",
+    "pinFirst": "Put the pin on your place: move the map, or use your current location.",
+    "useCurrent": "Use my current location",
+    "locating": "Finding you…",
+    "denied": "Location is off for TezDukan. Turn it on in your phone's settings, or move the map to your place.",
+    "failed": "Could not find your location. Move the map to your place instead.",
+    "looking": "Reading the address…",
+    "coverage": "{count, plural, one {# dukan delivers here} other {# dukans deliver here}}",
+    "noCoverage": "No dukan delivers here yet. You can still save the address.",
+    "line1": "Address",
+    "line1Hint": "Filled from the map. Fix it if it is not right.",
+    "line1Typed": "Your own words are kept, even if you move the pin.",
+    "line1Placeholder": "Street, mohalla, city",
+    "fromMap": "Use the map's address",
+    "line2": "House, flat or floor (optional)",
+    "line2Placeholder": "e.g. House 12, 2nd floor",
+    "landmark": "Nearby landmark (optional)",
+    "landmarkPlaceholder": "e.g. Near the masjid",
+    "landmarkHint": "Helps the rider find you faster.",
+    "saveAs": "Save as",
+    "save": "Save address",
+    "saved": "Address saved",
+    "errors": {
+      "invalid": "Write the address, at least a few words.",
+      "too_many": "You already have {count, number} addresses. Delete one first.",
+      "generic": "Could not save the address. Please try again."
+    },
+    "sandbox": "Sandbox",
+    "sandboxHint": "Street names are off in Sandbox, so the nearest area is used. Type your street.",
+    "offline": "The map needs the internet. You can still type your address."
   }
 }

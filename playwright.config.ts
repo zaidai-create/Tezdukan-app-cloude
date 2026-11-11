@@ -70,6 +70,8 @@ export default defineConfig({
         command: serverCommand,
         url: baseURL,
         reuseExistingServer: !process.env.CI,
+        // No street-map calls from tests: the address picker falls back to the nearest area.
+        env: { GEOCODING_PROVIDER: "sandbox" },
         timeout: 300_000,
         stdout: "ignore",
         stderr: "pipe",

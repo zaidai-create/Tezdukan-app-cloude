@@ -5,7 +5,6 @@ import { after } from "next/server";
 import { z } from "zod";
 import { flushPushOutboxQuietly } from "@/features/notifications/dispatch";
 import { storefrontProductSchema, type StorefrontProduct } from "@/features/storefront/schemas";
-import { getCustomerLocation } from "@/features/storefront/location";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import {
   customerOrderStatuses,
@@ -26,24 +25,16 @@ export async function placeCustomerOrder(
 ): Promise<OrderResult<{ id: string; orderNumber: string }>> {
   const parsed = placeOrderSchema.safeParse(input);
   if (!parsed.success) {
-    const addressIssue = parsed.error.issues.some((issue) => issue.path[0] === "address");
+    const addressIssue = parsed.error.issues.some((issue) => issue.path[0] === "addressId");
     return { ok: false, error: addressIssue ? "address_required" : "generic" };
   }
   const supabase = await getSupabaseServerClient();
-  // A dukan only delivers within its radius; the shopper's chosen point decides.
-  const location = await getCustomerLocation();
-  if (location) {
-    const { data: delivers } = await supabase.rpc("shop_delivers_to", {
-      p_shop_id: parsed.data.shopId,
-      p_lat: location.lat,
-      p_lng: location.lng,
-    });
-    if (delivers === false) return { ok: false, error: "out_of_area" };
-  }
+  // The database checks the address is the shopper's own, has a pin, and is inside the
+  // dukan's delivery radius.
   const { data, error } = await supabase.rpc("place_customer_order", {
     p_shop_id: parsed.data.shopId,
     p_items: parsed.data.items.map((item) => ({ inventory_id: item.inventoryId, qty: item.qty })),
-    p_address: parsed.data.address,
+    p_address_id: parsed.data.addressId,
     p_note: parsed.data.note || undefined,
     p_request_id: parsed.data.requestId,
   });

@@ -10,6 +10,7 @@ import {
   Languages,
   LifeBuoy,
   LogOut,
+  MapPinned,
   type LucideIcon,
   MessageCircle,
   MessageSquareShare,
@@ -295,6 +296,18 @@ function AccountView({ session }: { session: ShellSession }) {
               </button>
             );
           })}
+        </Group>
+      ) : null}
+
+      {role === "customer" ? (
+        <Group title={t("account.groups.delivery")}>
+          <LinkRow
+            href="/addresses?next=%2Faccount"
+            icon={MapPinned}
+            tone="primary"
+            label={t("account.addresses")}
+            hint={t("account.addressesHint")}
+          />
         </Group>
       ) : null}
 

@@ -9,6 +9,7 @@ select tests.create_user('cashier');
 select tests.create_user('shopper');
 select tests.create_user('stranger');
 select tests.make_shop('kiryana', 'owner');
+select tests.make_address('home', 'shopper');
 select tests.add_shop_staff('kiryana', 'cashier', 'cashier', array['billing']);
 grant insert, update on tests.refs to authenticated;
 
@@ -22,11 +23,11 @@ select slug as kiryana_slug from public.shops where id = tests.id('kiryana') \gs
 select tests.authenticate_as('shopper');
 select tests.remember('order', (public.place_customer_order(
   tests.id('kiryana'), jsonb_build_array(jsonb_build_object('inventory_id', tests.id('chai'), 'qty', 2)),
-  'House 1, Street 2'
+  tests.id('home')
 ) ->> 'id')::uuid);
 select public.place_customer_order(
   tests.id('kiryana'), jsonb_build_array(jsonb_build_object('inventory_id', tests.id('chai'), 'qty', 1)),
-  'House 1, Street 2'
+  tests.id('home')
 );
 
 select tests.clear_authentication();

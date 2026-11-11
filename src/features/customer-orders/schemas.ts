@@ -45,7 +45,16 @@ export const customerOrderSchema = z.object({
   subtotal_paisa: z.number().int(),
   delivery_fee_paisa: z.number().int(),
   total_paisa: z.number().int(),
-  delivery_address: z.object({ text: z.string().optional() }).nullable(),
+  // A snapshot of the address at order time; the pin is there for orders since Nov 2026.
+  delivery_address: z
+    .object({
+      text: z.string().optional(),
+      label: z.string().optional(),
+      landmark: z.string().optional(),
+      lat: z.coerce.number().optional(),
+      lng: z.coerce.number().optional(),
+    })
+    .nullable(),
   notes: z.string().nullable(),
   rejected_reason: z.string().nullable(),
   cancel_reason: z.string().nullable(),
@@ -70,7 +79,8 @@ export const placeOrderSchema = z.object({
     .array(z.object({ inventoryId: z.uuid(), qty: z.number().int().min(1).max(999) }))
     .min(1)
     .max(100),
-  address: z.string().trim().min(5).max(300),
+  /** The saved address the order goes to (it carries the map pin). */
+  addressId: z.uuid(),
   note: z.string().trim().max(300).optional(),
   requestId: z.uuid(),
 });
@@ -80,6 +90,7 @@ export const orderErrors = [
   "shop_not_taking_orders",
   "empty_order",
   "address_required",
+  "address_location_required",
   "invalid_quantity",
   "item_unavailable",
   "out_of_stock",
