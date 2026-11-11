@@ -16,7 +16,8 @@ type AddToCartProps = {
   step?: number;
   max?: number;
   disabled?: boolean;
-  size?: "md" | "lg";
+  /** sm sits on a product photo's corner; md beside a price; lg in a sticky bar. */
+  size?: "sm" | "md" | "lg";
   className?: string;
 };
 
@@ -54,7 +55,7 @@ function AddToCart({
       data-state={added ? "added" : "empty"}
       className={cn(
         "relative isolate inline-flex shrink-0 items-stretch overflow-hidden rounded-full",
-        size === "md" ? "h-10 w-[88px]" : "h-12 w-36",
+        size === "sm" ? "h-9 w-[72px]" : size === "md" ? "h-10 w-[88px]" : "h-12 w-36",
         added && "sheen shadow-glow inset-shadow-edge",
         "after:absolute after:inset-x-0 after:-inset-y-1.5 after:-z-10",
         className,
@@ -89,7 +90,7 @@ function AddToCart({
             <span
               className={cn(
                 "num min-w-6 text-center font-bold",
-                size === "md" ? "text-sm" : "text-lg",
+                size === "lg" ? "text-lg" : "text-sm",
               )}
               aria-live="polite"
               aria-label={t("quantityInCart", { count: quantity })}
@@ -112,7 +113,7 @@ function AddToCart({
             type="button"
             className={cn(
               "flex w-full items-center justify-center gap-1 font-bold tracking-wide text-primary-strong disabled:opacity-50",
-              size === "md" ? "text-sm" : "text-base",
+              size === "lg" ? "text-base" : "text-sm",
             )}
             aria-label={t("addNamed", { name: productName })}
             disabled={disabled}
@@ -123,7 +124,8 @@ function AddToCart({
             onClick={() => change(Math.max(minQuantity, step))}
           >
             {t("add")}
-            <Plus aria-hidden className="size-3.5 stroke-[2.5]" />
+            {/* On a photo's corner there is room for the word only. */}
+            {size === "sm" ? null : <Plus aria-hidden className="size-3.5 stroke-[2.5]" />}
           </motion.button>
         )}
       </AnimatePresence>

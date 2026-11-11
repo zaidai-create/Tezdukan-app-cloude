@@ -60,11 +60,14 @@ function ProductImage({
             tintFor(alt),
           )}
         >
-          <span className="flex aspect-square w-[56%] max-w-16 items-center justify-center rounded-full bg-surface/70 shadow-card @min-[7rem]:w-[44%]">
+          <span className="flex aspect-square w-[56%] max-w-16 items-center justify-center rounded-full bg-surface/70 shadow-card @min-[5.5rem]:w-[40%]">
             <FallbackIcon aria-hidden className="size-1/2" strokeWidth={1.75} />
           </span>
           {/* Decorative: the name is already the image's label. Thumbnails keep the icon only. */}
-          <span aria-hidden className="hidden max-w-[85%] truncate text-sm @min-[7rem]:block">
+          <span
+            aria-hidden
+            className="hidden max-w-[88%] truncate text-xs @min-[5.5rem]:block @min-[9rem]:text-sm"
+          >
             {fallbackCaption ?? shortName(alt)}
           </span>
         </div>

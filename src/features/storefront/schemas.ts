@@ -17,8 +17,59 @@ export const storefrontProductSchema = z.object({
   in_stock: z.boolean(),
   low_stock: z.boolean(),
   image_path: z.string().nullable(),
+  brand_id: z.uuid().nullable().optional(),
+  brand_name: z.string().nullable().optional(),
+  /** Average stars from shoppers who bought it, one decimal; null until the first rating. */
+  rating: z.number().min(1).max(5).nullable().optional(),
+  rating_count: z.number().int().nonnegative().optional(),
+  /** How many sizes of this product the same dukan has in stock (1 = just this one). */
+  sizes: z.number().int().nonnegative().optional(),
+  /** How soon the dukan selling it delivers. */
+  eta_minutes: z.number().int().nullable().optional(),
+  /** Picks the icon shown when the product has no photo. */
+  category_slug: z.string().nullable().optional(),
+  /** How many dukans that deliver here have it (lists across dukans show the best offer). */
+  offers: z.number().int().nonnegative().optional(),
 });
 export type StorefrontProduct = z.infer<typeof storefrontProductSchema>;
+
+export const productSorts = ["relevance", "price_asc", "price_desc", "discount", "rating"] as const;
+export type ProductSort = (typeof productSorts)[number];
+
+/** One product up close: photos, the dukan's terms, its other sizes and similar products. */
+export const productDetailSchema = z.object({
+  product: storefrontProductSchema,
+  description: z.string().nullable(),
+  images: z.array(z.string()),
+  category: z.object({ id: z.uuid(), name: z.string(), name_ur: z.string().nullable() }).nullable(),
+  shop: z.object({
+    id: z.uuid(),
+    name: z.string(),
+    slug: z.string(),
+    photo_path: z.string().nullable(),
+    eta_minutes: z.number().int().nullable(),
+    min_order_paisa: z.number().int().nonnegative(),
+    delivery_fee_paisa: z.number().int().nonnegative(),
+    free_delivery_above_paisa: z.number().int().nonnegative().nullable(),
+    rating: z.number().min(1).max(5).nullable(),
+    rating_count: z.number().int().nonnegative(),
+    delivers_here: z.boolean(),
+  }),
+  sizes: z.array(storefrontProductSchema),
+  /** The same product at other dukans that deliver here, cheapest first. */
+  offers: z.array(storefrontProductSchema),
+  similar: z.array(storefrontProductSchema),
+});
+export type ProductDetail = z.infer<typeof productDetailSchema>;
+
+export const storefrontBrandSchema = z.object({
+  id: z.uuid(),
+  name: z.string(),
+  name_ur: z.string().nullable(),
+  logo_path: z.string().nullable(),
+  product_count: z.number().int(),
+});
+export type StorefrontBrand = z.infer<typeof storefrontBrandSchema>;
 
 export const storefrontCategorySchema = z.object({
   id: z.uuid(),

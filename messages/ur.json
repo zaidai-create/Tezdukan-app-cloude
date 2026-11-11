@@ -281,7 +281,7 @@
     "title": "تیز",
     "subtitle": "اردو، رومن اردو یا انگریزی میں بول کر یا لکھ کر پوچھیں۔",
     "greeting": "السلام علیکم! میں تیز ہوں۔ بتائیں کیا کام ہے۔",
-    "tryThese": "ایسے بولیں:",
+    "tryThese": "یہاں سے شروع کریں",
     "suggestions": {
       "customer": {
         "s1": "میرے پاس والی دکانیں دکھاؤ",
@@ -330,7 +330,10 @@
     "micDenied": "مائیک بند ہے۔ براؤزر کی سیٹنگ میں اجازت دیں یا لکھ کر پوچھیں۔",
     "transcribing": "آپ کی بات سمجھ رہا ہوں…",
     "busy": "تیز ابھی بہت مصروف ہے۔ ایک منٹ بعد دوبارہ کوشش کریں۔",
-    "readAloud": "یہ پڑھ کر سنائیں"
+    "readAloud": "یہ پڑھ کر سنائیں",
+    "hello": "<nb>السلام علیکم،</nb> {name}!",
+    "helloPlain": "السلام علیکم!",
+    "helpLine": "آج میں آپ کے لیے کیا کروں؟"
   },
   "pwa": {
     "installTitle": "تیز دکان انسٹال کریں",
@@ -1252,7 +1255,8 @@
       "resultsFor": "“{query}” کے نتائج",
       "empty": "ابھی یہاں کچھ نہیں",
       "emptyHint": "کوئی اور کیٹیگری چنیں، یا تلاش کریں۔",
-      "count": "{count, plural, one {# چیز} other {# چیزیں}}"
+      "count": "{count, plural, one {# چیز} other {# چیزیں}}",
+      "brandTitle": "{brand} کی چیزیں"
     },
     "shops": {
       "title": "قریبی دکانیں",
@@ -1326,7 +1330,8 @@
     "rating": {
       "new": "نئی",
       "label": "{count, plural, one {# آرڈر} other {# آرڈرز}} سے 5 میں سے {rating} ریٹنگ",
-      "count": "({count, number})"
+      "count": "({count, number})",
+      "productLabel": "5 میں سے {rating}، {count, plural, one {# خریدار} other {# خریداروں}} کی رائے"
     },
     "reviews": {
       "title": "گاہک کیا کہتے ہیں",
@@ -1348,6 +1353,74 @@
       "sheetTitle": "ڈیلیوری کی جگہ",
       "noDukans": "یہاں ابھی کوئی دکان ڈیلیور نہیں کرتی",
       "noDukansHint": "کوئی اور علاقہ آزمائیں، نئی دکانیں جلد شامل ہوں گی۔"
+    },
+    "sizesCount": "{count, plural, one {# سائز} other {# سائز}}",
+    "chooseSizeNamed": "{name} کا سائز چنیں",
+    "backToTop": "اوپر جائیں",
+    "shelfSeeAll": "{category} سب دیکھیں",
+    "header": {
+      "deliverTo": "{place} پر ڈیلیوری",
+      "setLocation": "ڈیلیوری کی جگہ چنیں",
+      "browsing": "آرڈر کے لیے اپنا پتہ شامل کریں"
+    },
+    "search": {
+      "prompt": "تلاش کریں",
+      "hint1": "”آٹا“",
+      "hint2": "”دودھ“",
+      "hint3": "”چائے“",
+      "hint4": "”کوکنگ آئل“",
+      "title": "تلاش",
+      "placeholder": "آٹا، چائے، تیل تلاش کریں…",
+      "clear": "تلاش صاف کریں",
+      "back": "واپس",
+      "recent": "حالیہ تلاش",
+      "clearRecent": "سب ہٹائیں",
+      "browse": "کیٹیگریز دیکھیں",
+      "brands": "مشہور برانڈ",
+      "results": "{count, plural, one {# چیز} other {# چیزیں}}",
+      "empty": "”{query}“ کے لیے کچھ نہیں ملا",
+      "emptyHint": "ہجے دیکھ لیں، یا کوئی آسان لفظ آزمائیں جیسے ”آٹا“ یا ”چائے“۔",
+      "searching": "تلاش ہو رہی ہے…"
+    },
+    "product": {
+      "close": "بند کریں",
+      "share": "شیئر کریں",
+      "shareText": "تیز دکان پر {name}، {price} میں",
+      "linkCopied": "لنک کاپی ہو گیا",
+      "photoOf": "{name}، تصویر {index, number}",
+      "chooseSize": "سائز چنیں",
+      "brand": "برانڈ",
+      "category": "کیٹیگری",
+      "size": "سائز",
+      "soldAs": "فروخت",
+      "loose": "کھلا، وزن کے حساب سے",
+      "about": "اس چیز کے بارے میں",
+      "brandAll": "اس برانڈ کی سب چیزیں دیکھیں",
+      "similar": "ملتی جلتی چیزیں",
+      "addToCart": "کارٹ میں ڈالیں",
+      "loadFailed": "تفصیل نہیں کھل سکی۔ انٹرنیٹ دیکھ کر دوبارہ کھولیں۔",
+      "otherDukans": "یہ چیز دوسری دکانوں پر",
+      "otherDukansHint": "قیمت اور ڈیلیوری کا وقت ملا کر دیکھیں۔"
+    },
+    "sort": {
+      "label": "ترتیب",
+      "relevance": "مقبول",
+      "price_asc": "قیمت: کم سے زیادہ",
+      "price_desc": "قیمت: زیادہ سے کم",
+      "discount": "سب سے زیادہ رعایت",
+      "rating": "بہترین ریٹنگ"
+    },
+    "seeAllProducts": "سب چیزیں دیکھیں",
+    "spotlightsLabel": "دیکھنے کے لیے حصے",
+    "spotlightHint": "قریبی دکانوں سے {count, plural, one {# چیز} other {# چیزیں}}",
+    "shopNow": "ابھی خریدیں",
+    "brandsTitle": "برانڈ کے حساب سے",
+    "brandAllNamed": "{brand} کی سب چیزیں دیکھیں",
+    "groups": {
+      "kitchen": "راشن اور کچن",
+      "snacks": "اسنیکس اور مشروبات",
+      "home": "گھر اور ذاتی صفائی",
+      "more": "مزید"
     }
   },
   "customerOrders": {
@@ -1470,7 +1543,13 @@
       "rejected": "قبول نہیں ہوا"
     },
     "landmark": "نشانی: {landmark}",
-    "openMap": "نقشے میں کھولیں"
+    "openMap": "نقشے میں کھولیں",
+    "rateItems": {
+      "title": "جو خریدا اسے ریٹ کریں",
+      "hint": "آپ کے ستارے دوسرے خریداروں کی مدد کرتے ہیں۔",
+      "saved": "شکریہ۔ آپ کے ستارے محفوظ ہو گئے۔",
+      "starsFor": "{name} کے لیے {count, plural, one {# ستارہ} other {# ستارے}}"
+    }
   },
   "shopDash": {
     "online": "آن لائن",

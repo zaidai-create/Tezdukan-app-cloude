@@ -7,6 +7,6 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("title") };
 }
 
-export default function Page(props: { params: Promise<{ slug: string }> }) {
-  return <ShopPage params={props.params} />;
+export default function Page({ params, searchParams }: PageProps<"/[locale]/shops/[slug]">) {
+  return <ShopPage params={params} searchParams={searchParams} />;
 }

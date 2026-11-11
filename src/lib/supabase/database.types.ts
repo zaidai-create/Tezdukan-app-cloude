@@ -4726,6 +4726,138 @@ export type Database = {
           },
         ];
       };
+      product_rating_stats: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          id: string;
+          rating_count: number;
+          rating_sum: number;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          id: string;
+          rating_count?: number;
+          rating_sum?: number;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          rating_count?: number;
+          rating_sum?: number;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "product_rating_stats_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      product_ratings: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          customer_id: string | null;
+          customer_order_id: string;
+          customer_order_item_id: string;
+          id: string;
+          inventory_id: string | null;
+          master_product_id: string | null;
+          product_key: string;
+          rating: number;
+          shop_id: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          customer_id?: string | null;
+          customer_order_id: string;
+          customer_order_item_id: string;
+          id?: string;
+          inventory_id?: string | null;
+          master_product_id?: string | null;
+          product_key: string;
+          rating: number;
+          shop_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          customer_id?: string | null;
+          customer_order_id?: string;
+          customer_order_item_id?: string;
+          id?: string;
+          inventory_id?: string | null;
+          master_product_id?: string | null;
+          product_key?: string;
+          rating?: number;
+          shop_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "product_ratings_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "product_ratings_customer_id_fkey";
+            columns: ["customer_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "product_ratings_customer_order_id_fkey";
+            columns: ["customer_order_id"];
+            isOneToOne: false;
+            referencedRelation: "customer_orders";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "product_ratings_customer_order_item_id_fkey";
+            columns: ["customer_order_item_id"];
+            isOneToOne: true;
+            referencedRelation: "customer_order_items";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "product_ratings_inventory_id_fkey";
+            columns: ["inventory_id"];
+            isOneToOne: false;
+            referencedRelation: "shop_inventory";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "product_ratings_master_product_id_fkey";
+            columns: ["master_product_id"];
+            isOneToOne: false;
+            referencedRelation: "master_products";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "product_ratings_shop_id_fkey";
+            columns: ["shop_id"];
+            isOneToOne: false;
+            referencedRelation: "shops";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       profiles: {
         Row: {
           active_org_id: string | null;
@@ -8344,7 +8476,7 @@ export type Database = {
       delivery_zones: { Args: Record<PropertyKey, never>; Returns: Json };
       mark_conversation_read: { Args: { p_conversation_id: string }; Returns: undefined };
       my_account_deletion: { Args: Record<PropertyKey, never>; Returns: Json };
-      my_buy_again: { Args: { p_limit?: number }; Returns: Json };
+      my_buy_again: { Args: { p_lat?: number; p_limit?: number; p_lng?: number }; Returns: Json };
       my_conversations: {
         Args: { p_org_id?: string; p_shop_id?: string; p_support_queue?: boolean };
         Returns: Json;
@@ -8428,6 +8560,7 @@ export type Database = {
         Args: { p_comment?: string; p_order_id: string; p_rating: number };
         Returns: undefined;
       };
+      rate_order_items: { Args: { p_order_id: string; p_ratings: Json }; Returns: number };
       register_organization: {
         Args: {
           p_address_line: string;
@@ -8883,15 +9016,21 @@ export type Database = {
       shop_sales_report: { Args: { p_range?: string; p_shop_id: string }; Returns: Json };
       shop_starter_pack: { Args: { p_limit?: number; p_shop_id: string }; Returns: Json };
       shop_storefront: { Args: { p_shop_id: string }; Returns: Json };
-      storefront_categories: { Args: Record<PropertyKey, never>; Returns: Json };
+      storefront_brands: { Args: { p_lat?: number; p_lng?: number }; Returns: Json };
+      storefront_categories:
+        | { Args: Record<PropertyKey, never>; Returns: Json }
+        | { Args: { p_lat: number; p_lng: number }; Returns: Json };
+      storefront_product: { Args: { p_id: string; p_lat?: number; p_lng?: number }; Returns: Json };
       storefront_products: {
         Args: {
+          p_brand_id?: string;
           p_category_id?: string;
           p_lat?: number;
           p_limit?: number;
           p_lng?: number;
           p_query?: string;
           p_shop_id?: string;
+          p_sort?: string;
         };
         Returns: Json;
       };

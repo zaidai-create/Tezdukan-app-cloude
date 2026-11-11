@@ -3,8 +3,9 @@ import { expectAccessible } from "./support/a11y";
 import { messages } from "./support/messages";
 
 /**
- * The customer app end to end: the demo shopper browses, orders from TezDukan in the app, and
- * the demo dukandar accepts it from Online orders. Needs the demo seed (three live dukans).
+ * The customer app end to end: the demo shopper browses and searches, orders from TezDukan in
+ * the app, the demo dukandar accepts and delivers it from Online orders, and the shopper rates
+ * what they bought. Needs the demo seed (three live dukans).
  */
 const { auth, storefront, nav, customerOrders } = messages.en;
 const DEMO_PASSWORD = "TezDukan-Demo-1";
@@ -21,7 +22,7 @@ async function signedIn(browser: Browser, baseURL: string, phone: string) {
   return page;
 }
 
-test("a shopper orders in the app and the dukandar accepts it", async ({
+test("a shopper searches, orders, and rates what the dukandar delivered", async ({
   browser,
   baseURL,
 }, testInfo) => {
@@ -29,13 +30,29 @@ test("a shopper orders in the app and the dukandar accepts it", async ({
   const base = baseURL ?? "";
   const shopper = await signedIn(browser, base, "03000000006");
   await expect(shopper).toHaveURL(/\/$/);
-  await expect(shopper.getByRole("heading", { name: storefront.categoriesTitle })).toBeVisible();
+  await expect(shopper.getByRole("heading", { name: storefront.nearbyTitle })).toBeVisible();
   if (testInfo.project.name === "mobile") {
     for (const label of [nav.home, nav.categories, nav.nearby, nav.cart, nav.account]) {
       await expect(shopper.getByRole("link", { name: label, exact: true }).last()).toBeVisible();
     }
   }
   await expectAccessible(shopper);
+
+  // Categories are grouped the way a shopper thinks of them.
+  await shopper.goto(`${base}/categories`, { waitUntil: "networkidle" });
+  await expect(shopper.getByRole("heading", { name: storefront.groups.kitchen })).toBeVisible();
+
+  // Search understands Roman Urdu: "doodh" finds milk, and a product opens up close.
+  await shopper.goto(`${base}/search`, { waitUntil: "networkidle" });
+  await shopper.getByRole("searchbox", { name: storefront.searchLabel }).fill("doodh");
+  const found = shopper.locator('[data-slot="product-tile"]').filter({ hasText: /milk/i }).first();
+  await expect(found).toBeVisible();
+  await found.getByRole("heading").getByRole("button").click();
+  const sheet = shopper.getByRole("dialog");
+  await expect(sheet.getByRole("button", { name: storefront.product.addToCart })).toBeVisible();
+  await expectAccessible(shopper);
+  await sheet.getByRole("button", { name: storefront.product.close }).click();
+  await expect(sheet).toBeHidden();
 
   await shopper.goto(`${base}/shops/tezdukan`, { waitUntil: "networkidle" });
   await expect(shopper.getByRole("heading", { level: 1, name: "TezDukan" })).toBeVisible();
@@ -46,7 +63,7 @@ test("a shopper orders in the app and the dukandar accepts it", async ({
 
   await expect(shopper).toHaveURL(/\/cart$/);
   // The demo shopper has a saved address, so checkout shows it instead of empty fields.
-  await expect(shopper.getByText(storefront.cart.addressTitle)).toBeVisible();
+  await expect(shopper.getByText(storefront.cart.addressTitle, { exact: true })).toBeVisible();
   await shopper.getByRole("button", { name: storefront.cart.instructions.callOnArrival }).click();
   await shopper.getByRole("button", { name: /^Place order/ }).click();
   await expect(shopper).toHaveURL(/\/orders\/[0-9a-f-]+\?placed=1$/, { timeout: 20_000 });
@@ -65,6 +82,19 @@ test("a shopper orders in the app and the dukandar accepts it", async ({
 
   await shopper.reload({ waitUntil: "networkidle" });
   await expect(shopper.getByText(customerOrders.status.accepted).first()).toBeVisible();
+
+  // Delivered: the shopper gives stars to what they bought, with one tap.
+  await dukandar.getByRole("button", { name: customerOrders.actions.delivered }).click();
+  await expect(dukandar.getByText(customerOrders.moved.delivered)).toBeVisible();
+  await shopper.reload({ waitUntil: "networkidle" });
+  await expect(
+    shopper.getByRole("heading", { name: customerOrders.rateItems.title }),
+  ).toBeVisible();
+  await shopper
+    .getByRole("radio", { name: /^5 stars for/ })
+    .first()
+    .click();
+  await expect(shopper.getByText(customerOrders.rateItems.saved)).toBeVisible();
 
   await dukandar.context().close();
   await shopper.context().close();

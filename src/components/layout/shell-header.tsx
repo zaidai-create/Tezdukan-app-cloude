@@ -2,6 +2,7 @@ import { connection } from "next/server";
 import { ChatUnreadSync } from "@/features/chat/unread";
 import { NotificationsLive } from "@/features/notifications/components/notifications-live";
 import { scopeOf } from "@/features/notifications/schemas";
+import { StorefrontTop } from "@/features/storefront/components/storefront-top";
 import { roleHome, type AppRole } from "@/lib/auth/roles";
 import { requireRole } from "@/lib/auth/session";
 import { MobileHeader } from "./mobile-header";
@@ -21,6 +22,14 @@ async function ShellHeader({ role, desktopFirst }: { role: AppRole; desktopFirst
       {role === "distributor" ? <ChatUnreadSync orgId={context} /> : null}
     </>
   );
+  // Shoppers get the storefront's own top: where the order goes, then search that stays put.
+  if (role === "customer")
+    return (
+      <>
+        {live}
+        <StorefrontTop session={session} />
+      </>
+    );
   if (desktopFirst)
     return (
       <>

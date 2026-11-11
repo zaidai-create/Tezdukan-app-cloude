@@ -16,11 +16,13 @@ import { formatPkMobile } from "@/lib/phone";
 import { CancelOrderButton, ShopOrderActions } from "./components/order-actions";
 import { OrderAgainButton } from "./components/order-again-button";
 import { OrderCelebration } from "./components/order-celebration";
+import { RateItems } from "./components/rate-items";
 import { RateOrder } from "./components/rate-order";
 import { OrderHero, OrderProgress, OrderStatusBadge, OrderSummary } from "./components/order-parts";
 import {
   getCustomerOrder,
   getMyCustomerOrders,
+  getMyItemRatings,
   getMyOrderRating,
   getShopCustomerOrders,
 } from "./data";
@@ -137,9 +139,11 @@ async function MyOrderContent({
     );
   }
   const justPlaced = query.placed === "1" && order.status === "placed";
-  const [shops, myRating] = await Promise.all([
+  const delivered = order.status === "delivered";
+  const [shops, myRating, itemRatings] = await Promise.all([
     getNearbyShops().catch(() => []),
-    order.status === "delivered" ? getMyOrderRating(order.id) : Promise.resolve(null),
+    delivered ? getMyOrderRating(order.id) : Promise.resolve(null),
+    delivered ? getMyItemRatings(order.id) : Promise.resolve({}),
   ]);
   const shop = shops.find((s) => s.id === order.shop_id);
   const call = telHref(shop?.phone);
@@ -187,8 +191,15 @@ async function MyOrderContent({
         </div>
       ) : null}
       <NotificationPrompt audience="customer" />
-      {order.status === "delivered" ? (
-        <RateOrder orderId={order.id} shop={order.shop_name} current={myRating} />
+      {delivered ? (
+        <>
+          <RateOrder orderId={order.id} shop={order.shop_name} current={myRating} />
+          <RateItems
+            orderId={order.id}
+            items={order.customer_order_items ?? []}
+            current={itemRatings}
+          />
+        </>
       ) : null}
       <section className="rounded-lg border border-border/60 bg-surface p-4 shadow-card">
         <OrderProgress order={order} />

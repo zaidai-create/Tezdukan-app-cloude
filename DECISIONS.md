@@ -359,6 +359,28 @@ section. Format: **decision** — reason (date).
   inserts and updates under RLS. (2026-11-11)
 - **Server Actions read the language from the cookie (`actionLocale`)** — `getLocale()` reads
   a route param, and an action has no route. (2026-11-11)
+- **One tile per product across dukans** — three dukans selling Milkpak made three identical
+  tiles. Lists that mix dukans now show the cheapest offer (then the quickest) once, and the
+  product page lists the other dukans with their price and time. Inside one dukan every item
+  shows. The grouping key is the catalogue product; a dukan's own unlinked item stands alone. (2026-11-12)
+- **Product stars only from buyers, shared through the catalogue product** — a rating is tied
+  to a delivered order line, written only by `rate_order_items`, and counts towards the
+  catalogue product so every dukan selling it shows the same stars (a dukan's own item keeps
+  its own). Totals are kept by a trigger in `product_rating_stats`. Nothing is shown at zero
+  ratings; made-up stars would be found out on the first order. (2026-11-12)
+- **Storefront search reuses the catalogue's aliases** — Roman Urdu names, brand nicknames and
+  category words already exist for the dukandar's catalogue (`product_aliases`); the customer
+  search scores against the same table with trigram similarity, so "doodh" finds milk. (2026-11-12)
+- **`storefront_categories()` and `storefront_categories(lat, lng)` are two functions** — the
+  second counts what can be delivered to a place and takes the place without defaults, so a
+  call can never match both. (2026-11-12)
+- **The hosted database keeps a few retired function signatures** — the Supabase connector
+  will not run `drop` without a confirmation the owner cannot give from the phone, so on the
+  hosted project the old `place_customer_order(…, text, …)` only raises `address_required`,
+  and the older `storefront_products` (6 arguments) and `my_buy_again(integer)` remain beside
+  the new ones. The app always sends `p_sort` and the delivery point, which only the new ones
+  accept. The local database (migrations) drops them; a later clean-up with a Supabase access
+  token removes them on the hosted project. (2026-11-12)
 
 ## Notifications
 

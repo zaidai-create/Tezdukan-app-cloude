@@ -63,6 +63,16 @@ export async function countNewShopOrders(shopId: string): Promise<number> {
 }
 
 /** The customer's own rating of an order, if any (RLS: reviewers see their reviews). */
+/** The stars this shopper gave to lines of an order: order line id → 1 to 5. */
+export async function getMyItemRatings(orderId: string): Promise<Record<string, number>> {
+  const supabase = await getSupabaseServerClient();
+  const { data } = await supabase
+    .from("product_ratings")
+    .select("customer_order_item_id, rating")
+    .eq("customer_order_id", orderId);
+  return Object.fromEntries((data ?? []).map((row) => [row.customer_order_item_id, row.rating]));
+}
+
 export async function getMyOrderRating(
   orderId: string,
 ): Promise<{ rating: number; comment: string | null } | null> {

@@ -21,6 +21,8 @@ type CategoryTileProps = {
   /** Shown on the tint when there is no photo. */
   icon?: LucideIcon;
   tint?: CategoryTint;
+  /** The category being looked at now (a ring and a bolder name). */
+  active?: boolean;
   className?: string;
 };
 
@@ -34,17 +36,20 @@ function CategoryTile({
   imageUrl,
   icon: Icon,
   tint = "green",
+  active = false,
   className,
 }: CategoryTileProps) {
   return (
     <Link
       href={href}
       prefetch
+      aria-current={active ? "page" : undefined}
       className={cn("group flex w-full flex-col items-center gap-1.5 rounded-md", className)}
     >
       <span
         className={cn(
-          "relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-lg shadow-card ring-1 ring-border/60 transition-transform duration-200 ease-out group-hover:-translate-y-0.5 group-active:scale-[0.96]",
+          "relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-lg transition-transform duration-200 ease-out group-hover:-translate-y-0.5 group-active:scale-[0.96]",
+          active ? "shadow-raised ring-2 ring-primary" : "shadow-card ring-1 ring-border/60",
           tintClass[tint],
         )}
       >
@@ -69,7 +74,12 @@ function CategoryTile({
           className="pointer-events-none absolute inset-0 rounded-lg bg-[linear-gradient(180deg,rgb(255_255_255/0.28),transparent_45%)] dark:bg-[linear-gradient(180deg,rgb(255_255_255/0.08),transparent_45%)]"
         />
       </span>
-      <span className="line-clamp-2 text-center text-xs leading-4 font-semibold text-ink">
+      <span
+        className={cn(
+          "line-clamp-2 text-center text-xs leading-4",
+          active ? "font-bold text-primary-strong" : "font-semibold text-ink",
+        )}
+      >
         {name}
       </span>
     </Link>

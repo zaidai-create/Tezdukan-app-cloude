@@ -281,7 +281,7 @@
     "title": "Tez",
     "subtitle": "Ask by voice or type in Urdu, Roman Urdu or English.",
     "greeting": "Assalam-o-Alaikum! I am Tez. Tell me what you need.",
-    "tryThese": "Try saying:",
+    "tryThese": "Start asking",
     "suggestions": {
       "customer": {
         "s1": "Mere paas wali dukanein dikhao",
@@ -330,7 +330,10 @@
     "micDenied": "Microphone is blocked. Allow it in your browser settings, or type instead.",
     "transcribing": "Getting what you said…",
     "busy": "Tez is very busy right now. Please try again in a minute.",
-    "readAloud": "Read this aloud"
+    "readAloud": "Read this aloud",
+    "hello": "<nb>Assalam-o-Alaikum,</nb> {name}!",
+    "helloPlain": "Assalam-o-Alaikum!",
+    "helpLine": "What can I do for you today?"
   },
   "pwa": {
     "installTitle": "Install TezDukan",
@@ -1252,7 +1255,8 @@
       "resultsFor": "Results for “{query}”",
       "empty": "Nothing here yet",
       "emptyHint": "Try another category, or search for it.",
-      "count": "{count, plural, one {# item} other {# items}}"
+      "count": "{count, plural, one {# item} other {# items}}",
+      "brandTitle": "{brand} products"
     },
     "shops": {
       "title": "Nearby shops",
@@ -1326,7 +1330,8 @@
     "rating": {
       "new": "New",
       "label": "Rated {rating} out of 5 from {count, plural, one {# order} other {# orders}}",
-      "count": "({count, number})"
+      "count": "({count, number})",
+      "productLabel": "Rated {rating} out of 5 by {count, plural, one {# buyer} other {# buyers}}"
     },
     "reviews": {
       "title": "What customers say",
@@ -1348,6 +1353,74 @@
       "sheetTitle": "Delivery location",
       "noDukans": "No dukan delivers here yet",
       "noDukansHint": "Try another area, or check back soon as new dukans join."
+    },
+    "sizesCount": "{count, plural, one {# size} other {# sizes}}",
+    "chooseSizeNamed": "Choose a size of {name}",
+    "backToTop": "Back to top",
+    "shelfSeeAll": "See all {category}",
+    "header": {
+      "deliverTo": "Deliver to {place}",
+      "setLocation": "Set delivery location",
+      "browsing": "Add your address to order"
+    },
+    "search": {
+      "prompt": "Search",
+      "hint1": "“atta”",
+      "hint2": "“doodh”",
+      "hint3": "“chai”",
+      "hint4": "“cooking oil”",
+      "title": "Search",
+      "placeholder": "Search atta, chai, oil…",
+      "clear": "Clear search",
+      "back": "Back",
+      "recent": "Recent searches",
+      "clearRecent": "Clear all",
+      "browse": "Browse categories",
+      "brands": "Popular brands",
+      "results": "{count, plural, one {# product} other {# products}}",
+      "empty": "Nothing found for “{query}”",
+      "emptyHint": "Check the spelling, or try a simpler word like “atta” or “chai”.",
+      "searching": "Searching…"
+    },
+    "product": {
+      "close": "Close",
+      "share": "Share",
+      "shareText": "{name} for {price} on TezDukan",
+      "linkCopied": "Link copied",
+      "photoOf": "{name}, photo {index, number}",
+      "chooseSize": "Choose size",
+      "brand": "Brand",
+      "category": "Category",
+      "size": "Size",
+      "soldAs": "Sold",
+      "loose": "Loose, by weight",
+      "about": "About this product",
+      "brandAll": "See all products of this brand",
+      "similar": "Similar products",
+      "addToCart": "Add to cart",
+      "loadFailed": "Could not load the details. Check your internet and open it again.",
+      "otherDukans": "Other dukans with this",
+      "otherDukansHint": "Compare the price and the delivery time."
+    },
+    "sort": {
+      "label": "Sort by",
+      "relevance": "Popular",
+      "price_asc": "Price: low to high",
+      "price_desc": "Price: high to low",
+      "discount": "Biggest discount",
+      "rating": "Top rated"
+    },
+    "seeAllProducts": "See all products",
+    "spotlightsLabel": "Aisles to explore",
+    "spotlightHint": "{count, plural, one {# product} other {# products}} from dukans near you",
+    "shopNow": "Shop now",
+    "brandsTitle": "Shop by brand",
+    "brandAllNamed": "See all {brand} products",
+    "groups": {
+      "kitchen": "Grocery & Kitchen",
+      "snacks": "Snacks & Drinks",
+      "home": "Home & Personal Care",
+      "more": "More"
     }
   },
   "customerOrders": {
@@ -1470,7 +1543,13 @@
       "rejected": "Not accepted"
     },
     "landmark": "Landmark: {landmark}",
-    "openMap": "Open in Maps"
+    "openMap": "Open in Maps",
+    "rateItems": {
+      "title": "Rate what you bought",
+      "hint": "Your stars help other shoppers choose.",
+      "saved": "Thanks. Your stars are saved.",
+      "starsFor": "{count, plural, one {# star} other {# stars}} for {name}"
+    }
   },
   "shopDash": {
     "online": "Online",

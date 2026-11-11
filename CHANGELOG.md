@@ -4,6 +4,42 @@ All notable changes, newest first. Dates are Asia/Karachi.
 
 ## Unreleased
 
+### The storefront as a showroom (2026-11-12)
+
+- Customer home, redone: the delivery address and time sit in the header, search opens its own
+  screen, category tabs stay under it, then aisles to explore, deals, a shelf per category
+  with "See all", brands and the dukans nearby.
+- Product tiles are three across with the photo first and ADD on its corner; the price is the
+  biggest thing on the tile. The same product at several dukans is one tile showing the
+  cheapest offer.
+- Tapping a product opens it up close: photos, sizes the dukan has, brand, the dukan's terms,
+  the other dukans selling it (price and time, each with its own ADD) and similar products.
+- Search understands Roman Urdu and spelling mistakes ("doodh", "cheeni", "taapal"), shows
+  results while typing and remembers recent searches on the phone.
+- Categories are grouped (Grocery & Kitchen, Snacks & Drinks, Home & Personal Care); a
+  category page has sort chips (popular, price, discount, top rated) and brand pages.
+- Stars on products are real: after a delivered order the customer taps stars for each item;
+  the average shows on the product at every dukan that sells it. No stars are shown until
+  someone has rated.
+- Categories, brands and "Buy again" count only what can be delivered to the customer.
+
+### Tez, redesigned (2026-11-12)
+
+- Tez opens on a greeting by name and three things to ask, each with an icon; the message
+  field is a single rounded bar with the mic in it.
+- Speaking turns the whole sheet into a listening screen: a breathing orb, a timer, the words
+  heard so far, and two big round buttons (Cancel, Done).
+
+### Fixes (2026-11-12)
+
+- Dark mode on iPhone: the white strip under the navigation dock is gone. The page carried two
+  browser theme-colour tags and only one followed dark mode; now every one does, also after
+  moving between screens.
+- Account > Preferences: "Appearance" is no longer cut to a few letters. Light, Dark and Auto
+  sit under the label, full width.
+- Shoppers who also run a dukan switch role from the avatar menu (the shopping header now
+  shows the delivery address where the role chip was).
+
 ### Addresses with a map (2026-11-11)
 
 - Customers save up to five delivery addresses (Home, Work, Other) on a map: slide the map

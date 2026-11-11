@@ -281,7 +281,7 @@
     "title": "Tez",
     "subtitle": "Urdu, Roman Urdu ya English mein bol kar ya likh kar poochein.",
     "greeting": "Assalam-o-Alaikum! Main Tez hoon. Batayein kya kaam hai.",
-    "tryThese": "Aise bolein:",
+    "tryThese": "Yahan se shuru karein",
     "suggestions": {
       "customer": {
         "s1": "Mere paas wali dukanein dikhao",
@@ -330,7 +330,10 @@
     "micDenied": "Mic band hai. Browser ki setting mein ijazat dein ya likh kar poochein.",
     "transcribing": "Aap ki baat samajh raha hoon…",
     "busy": "Tez abhi bohat masroof hai. Ek minute baad dobara koshish karein.",
-    "readAloud": "Ye parh kar sunayein"
+    "readAloud": "Ye parh kar sunayein",
+    "hello": "<nb>Assalam-o-Alaikum,</nb> {name}!",
+    "helloPlain": "Assalam-o-Alaikum!",
+    "helpLine": "Aaj main aap ke liye kya karoon?"
   },
   "pwa": {
     "installTitle": "TezDukan install karein",
@@ -1252,7 +1255,8 @@
       "resultsFor": "“{query}” ke results",
       "empty": "Abhi yahan kuch nahi",
       "emptyHint": "Koi aur category chunein, ya talash karein.",
-      "count": "{count, plural, one {# cheez} other {# cheezein}}"
+      "count": "{count, plural, one {# cheez} other {# cheezein}}",
+      "brandTitle": "{brand} ki cheezein"
     },
     "shops": {
       "title": "Qareebi dukanein",
@@ -1326,7 +1330,8 @@
     "rating": {
       "new": "Nayi",
       "label": "{count, plural, one {# order} other {# orders}} se 5 mein se {rating} rating",
-      "count": "({count, number})"
+      "count": "({count, number})",
+      "productLabel": "5 mein se {rating}, {count, plural, one {# khareedar} other {# khareedaron}} ki raye"
     },
     "reviews": {
       "title": "Gahak kya kehte hain",
@@ -1348,6 +1353,74 @@
       "sheetTitle": "Delivery ki jagah",
       "noDukans": "Yahan abhi koi dukan deliver nahi karti",
       "noDukansHint": "Koi aur ilaqa aazmayein, nayi dukanein jald shamil hongi."
+    },
+    "sizesCount": "{count, plural, one {# size} other {# size}}",
+    "chooseSizeNamed": "{name} ka size chunein",
+    "backToTop": "Upar jayein",
+    "shelfSeeAll": "{category} sab dekhein",
+    "header": {
+      "deliverTo": "{place} par delivery",
+      "setLocation": "Delivery ki jagah chunein",
+      "browsing": "Order ke liye apna pata shamil karein"
+    },
+    "search": {
+      "prompt": "Talash karein",
+      "hint1": "“atta”",
+      "hint2": "“doodh”",
+      "hint3": "“chai”",
+      "hint4": "“cooking oil”",
+      "title": "Talash",
+      "placeholder": "Atta, chai, tel talash karein…",
+      "clear": "Talash saaf karein",
+      "back": "Wapas",
+      "recent": "Haaliya talash",
+      "clearRecent": "Sab hatayein",
+      "browse": "Categories dekhein",
+      "brands": "Mashhoor brand",
+      "results": "{count, plural, one {# cheez} other {# cheezein}}",
+      "empty": "“{query}” ke liye kuch nahi mila",
+      "emptyHint": "Spelling dekh lein, ya koi aasaan lafz aazmayein jaise “atta” ya “chai”.",
+      "searching": "Talash ho rahi hai…"
+    },
+    "product": {
+      "close": "Band karein",
+      "share": "Share karein",
+      "shareText": "TezDukan par {name}, {price} mein",
+      "linkCopied": "Link copy ho gaya",
+      "photoOf": "{name}, tasveer {index, number}",
+      "chooseSize": "Size chunein",
+      "brand": "Brand",
+      "category": "Category",
+      "size": "Size",
+      "soldAs": "Farokht",
+      "loose": "Khula, wazan ke hisaab se",
+      "about": "Is cheez ke baare mein",
+      "brandAll": "Is brand ki sab cheezein dekhein",
+      "similar": "Milti julti cheezein",
+      "addToCart": "Cart mein dalein",
+      "loadFailed": "Tafseel nahi khul saki. Internet dekh kar dobara kholein.",
+      "otherDukans": "Yeh cheez doosri dukanon par",
+      "otherDukansHint": "Qeemat aur delivery ka waqt mila kar dekhein."
+    },
+    "sort": {
+      "label": "Tarteeb",
+      "relevance": "Maqbool",
+      "price_asc": "Qeemat: kam se zyada",
+      "price_desc": "Qeemat: zyada se kam",
+      "discount": "Sab se zyada riayat",
+      "rating": "Behtareen rating"
+    },
+    "seeAllProducts": "Sab cheezein dekhein",
+    "spotlightsLabel": "Dekhne ke liye hisse",
+    "spotlightHint": "Qareebi dukanon se {count, plural, one {# cheez} other {# cheezein}}",
+    "shopNow": "Abhi khareedein",
+    "brandsTitle": "Brand ke hisaab se",
+    "brandAllNamed": "{brand} ki sab cheezein dekhein",
+    "groups": {
+      "kitchen": "Rashan aur Kitchen",
+      "snacks": "Snacks aur Mashroobat",
+      "home": "Ghar aur Zaati Safai",
+      "more": "Mazeed"
     }
   },
   "customerOrders": {
@@ -1470,7 +1543,13 @@
       "rejected": "Qubool nahi hua"
     },
     "landmark": "Nishani: {landmark}",
-    "openMap": "Maps mein kholein"
+    "openMap": "Maps mein kholein",
+    "rateItems": {
+      "title": "Jo khareeda usay rate karein",
+      "hint": "Aap ke sitare doosre khareedaron ki madad karte hain.",
+      "saved": "Shukriya. Aap ke sitare mehfooz ho gaye.",
+      "starsFor": "{name} ke liye {count, plural, one {# sitara} other {# sitare}}"
+    }
   },
   "shopDash": {
     "online": "Online",

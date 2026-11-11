@@ -1,100 +1,59 @@
 "use client";
 
-import { useLocale, useTranslations } from "next-intl";
+import { cn } from "cn";
 import { useState } from "react";
-import { ProductCard } from "@/components/commerce/product-card";
-import { storageUrl } from "@/features/ordering/images";
-import { haptic } from "@/lib/haptics";
-import { useCustomerCart, useLineQuantity } from "../cart-store";
 import type { StorefrontProduct } from "../schemas";
-import { ProductDetailSheet } from "./product-detail-sheet";
+import { ProductSheet } from "./product-sheet";
+import { ProductTile } from "./product-tile";
 
-function GridItem({
-  product,
-  showShop,
-  priority,
-  onOpen,
-}: {
-  product: StorefrontProduct;
-  showShop: boolean;
-  priority: boolean;
-  onOpen: () => void;
-}) {
-  const t = useTranslations("storefront");
-  const locale = useLocale();
-  const quantity = useLineQuantity(product.id);
-  const setQuantity = useCustomerCart((state) => state.setQuantity);
-  const name = locale === "ur" && product.name_ur ? product.name_ur : product.name;
-  const price = product.selling_price_paisa;
-
-  return (
-    <ProductCard
-      product={{
-        id: product.id,
-        name,
-        packSize: product.pack_size_label ?? "",
-        imageUrl: storageUrl(product.image_path),
-        units: [
-          {
-            id: product.id,
-            label: product.pack_size_label ?? "",
-            baseQty: 1,
-            pricePaisa: price,
-            // Below MRP shows as a "% off" deal for shoppers.
-            regularPricePaisa:
-              product.mrp_paisa && product.mrp_paisa > price ? product.mrp_paisa : null,
-            mrpPaisa: Math.max(product.mrp_paisa ?? price, price),
-          },
-        ],
-        // The selling price is the shopper's price, so no dukandar margin badge.
-        sellingPricePerPiecePaisa: price,
-        inStock: product.in_stock,
-        schemeLabel: product.low_stock ? t("lowStock") : null,
-        etaLabel: showShop ? product.shop_name : null,
-      }}
-      unitId={product.id}
-      onUnitChange={() => undefined}
-      quantity={quantity}
-      onQuantityChange={(next) => {
-        haptic("tap");
-        setQuantity(product, next);
-      }}
-      priorityImage={priority}
-      onOpen={onOpen}
-    />
-  );
-}
-
-/** Products from nearby dukans, two up on phones, with ADD and a stepper; tap for details. */
+/**
+ * A shelf of products: three across on a phone, with ADD on each photo; tap one for its
+ * page. `openId` opens that product straight away (a link shared from the product page).
+ */
 export function ProductGrid({
   products,
   showShop = true,
+  openId,
+  onOpenProduct,
+  className,
 }: {
   products: StorefrontProduct[];
   showShop?: boolean;
+  openId?: string;
+  /** Told when a product is opened (search remembers what led to it). */
+  onOpenProduct?: (product: StorefrontProduct) => void;
+  className?: string;
 }) {
-  const [open, setOpen] = useState<StorefrontProduct | null>(null);
+  const [open, setOpen] = useState<StorefrontProduct | null>(
+    () => products.find((product) => product.id === openId) ?? null,
+  );
   return (
     <>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+      <div
+        className={cn(
+          "grid grid-cols-3 gap-x-2.5 gap-y-5 sm:grid-cols-4 lg:grid-cols-6",
+          className,
+        )}
+      >
         {products.map((product, index) => (
-          <GridItem
+          <ProductTile
             key={product.id}
             product={product}
             showShop={showShop}
-            priority={index < 4}
-            onOpen={() => setOpen(product)}
+            priority={index < 6}
+            onOpen={() => {
+              onOpenProduct?.(product);
+              setOpen(product);
+            }}
           />
         ))}
       </div>
-      {open ? (
-        <ProductDetailSheet key={open.id} product={open} onClose={() => setOpen(null)} />
-      ) : null}
+      {open ? <ProductSheet key={open.id} product={open} onClose={() => setOpen(null)} /> : null}
     </>
   );
 }
 
-/** The same cards in one swipeable row (Buy again, Deals). */
+/** The same tiles in one swipeable row (Buy again, Deals, a category's shelf). */
 export function ProductRail({
   products,
   label,
@@ -107,25 +66,18 @@ export function ProductRail({
   const [open, setOpen] = useState<StorefrontProduct | null>(null);
   return (
     <>
-      {/* relative: badges positioned inside the cards are clipped by this row too. */}
+      {/* relative: the tiles' stretched tap areas are clipped by this row too. */}
       <ul
         aria-label={label}
-        className="relative -mx-4 flex snap-x scroll-px-4 [scrollbar-width:none] gap-3 overflow-x-auto px-4 pb-1"
+        className="relative -mx-4 flex snap-x scroll-px-4 [scrollbar-width:none] gap-2.5 overflow-x-auto px-4 pb-1"
       >
         {products.map((product) => (
-          <li key={product.id} className="w-44 shrink-0 snap-start">
-            <GridItem
-              product={product}
-              showShop={showShop}
-              priority={false}
-              onOpen={() => setOpen(product)}
-            />
+          <li key={product.id} className="w-[29vw] max-w-32 min-w-26 shrink-0 snap-start">
+            <ProductTile product={product} showShop={showShop} onOpen={() => setOpen(product)} />
           </li>
         ))}
       </ul>
-      {open ? (
-        <ProductDetailSheet key={open.id} product={open} onClose={() => setOpen(null)} />
-      ) : null}
+      {open ? <ProductSheet key={open.id} product={open} onClose={() => setOpen(null)} /> : null}
     </>
   );
 }

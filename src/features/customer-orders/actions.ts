@@ -90,6 +90,30 @@ const rateSchema = z.object({
   comment: z.string().trim().max(1000).optional(),
 });
 
+const rateItemsSchema = z.object({
+  orderId: z.uuid(),
+  ratings: z
+    .array(z.object({ itemId: z.uuid(), rating: z.number().int().min(1).max(5) }))
+    .min(1)
+    .max(100),
+});
+
+/** Stars for things bought in a delivered order; they show on the product for every shopper. */
+export async function rateOrderItems(
+  orderId: string,
+  ratings: { itemId: string; rating: number }[],
+): Promise<OrderResult<{ saved: number }>> {
+  const parsed = rateItemsSchema.safeParse({ orderId, ratings });
+  if (!parsed.success) return { ok: false, error: "invalid_rating" };
+  const supabase = await getSupabaseServerClient();
+  const { data, error } = await supabase.rpc("rate_order_items", {
+    p_order_id: parsed.data.orderId,
+    p_ratings: parsed.data.ratings.map((line) => ({ item_id: line.itemId, rating: line.rating })),
+  });
+  if (error) return { ok: false, error: orderErrorKey(error.message) };
+  return { ok: true, data: { saved: z.number().int().catch(0).parse(data) } };
+}
+
 /** Stars (and a few words) for the dukan after a delivered order. */
 export async function rateOrder(
   orderId: string,

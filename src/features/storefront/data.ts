@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { z } from "zod";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getCustomerLocation } from "./location";
@@ -6,20 +7,41 @@ import {
   type DeliveryZone,
   deliveryZoneSchema,
   nearbyShopSchema,
+  type ProductSort,
+  storefrontBrandSchema,
   storefrontCategorySchema,
   storefrontProductSchema,
   storefrontShopSchema,
   type NearbyShop,
+  type StorefrontBrand,
   type StorefrontCategory,
   type StorefrontProduct,
   type StorefrontShop,
 } from "./schemas";
 
+/** Categories with how many products can be delivered to the shopper right now. */
 export async function getStorefrontCategories(): Promise<StorefrontCategory[]> {
+  const location = await getCustomerLocation();
   const supabase = await getSupabaseServerClient();
-  const { data, error } = await supabase.rpc("storefront_categories");
+  // With a delivery point the counts are of what can be delivered there.
+  const { data, error } = location
+    ? await supabase.rpc("storefront_categories", { p_lat: location.lat, p_lng: location.lng })
+    : await supabase.rpc("storefront_categories");
   if (error) throw new Error(error.message);
   return z.array(storefrontCategorySchema).parse(data);
+}
+
+/** Brands with something in stock that can be delivered to the shopper. */
+export async function getStorefrontBrands(): Promise<StorefrontBrand[]> {
+  const location = await getCustomerLocation();
+  if (!location) return [];
+  const supabase = await getSupabaseServerClient();
+  const { data, error } = await supabase.rpc("storefront_brands", {
+    p_lat: location.lat,
+    p_lng: location.lng,
+  });
+  if (error) throw new Error(error.message);
+  return z.array(storefrontBrandSchema).parse(data);
 }
 
 /**
@@ -28,7 +50,9 @@ export async function getStorefrontCategories(): Promise<StorefrontCategory[]> {
  */
 export async function getStorefrontProducts(options: {
   categoryId?: string;
+  brandId?: string;
   query?: string;
+  sort?: ProductSort;
   limit?: number;
 }): Promise<StorefrontProduct[]> {
   const location = await getCustomerLocation();
@@ -36,7 +60,9 @@ export async function getStorefrontProducts(options: {
   const supabase = await getSupabaseServerClient();
   const { data, error } = await supabase.rpc("storefront_products", {
     p_category_id: options.categoryId,
+    p_brand_id: options.brandId,
     p_query: options.query,
+    p_sort: options.sort ?? "relevance",
     p_limit: options.limit ?? 60,
     p_lat: location.lat,
     p_lng: location.lng,
@@ -49,8 +75,11 @@ export async function getStorefrontProducts(options: {
     .filter((product) => product.in_stock);
 }
 
-/** Dukans that deliver to the shopper's location, nearest first; none until there is one. */
-export async function getNearbyShops(): Promise<NearbyShop[]> {
+/**
+ * Dukans that deliver to the shopper's location, nearest first; none until there is one. The
+ * top bar and the page both ask, so the answer is shared within a request.
+ */
+export const getNearbyShops = cache(async (): Promise<NearbyShop[]> => {
   const location = await getCustomerLocation();
   if (!location) return [];
   const supabase = await getSupabaseServerClient();
@@ -61,14 +90,14 @@ export async function getNearbyShops(): Promise<NearbyShop[]> {
   });
   if (error) throw new Error(error.message);
   return z.array(nearbyShopSchema).parse(data);
-}
+});
 
-export async function getDeliveryZones(): Promise<DeliveryZone[]> {
+export const getDeliveryZones = cache(async (): Promise<DeliveryZone[]> => {
   const supabase = await getSupabaseServerClient();
   const { data, error } = await supabase.rpc("delivery_zones");
   if (error) throw new Error(error.message);
   return z.array(deliveryZoneSchema).parse(data);
-}
+});
 
 export async function getStorefrontShop(slug: string): Promise<StorefrontShop | null> {
   const supabase = await getSupabaseServerClient();
@@ -98,8 +127,14 @@ export async function shopDeliversHere(shopId: string): Promise<boolean> {
 
 /** Products the shopper ordered before that nearby dukans still have, most ordered first. */
 export async function getBuyAgain(limit = 12): Promise<StorefrontProduct[]> {
+  const location = await getCustomerLocation();
+  if (!location) return [];
   const supabase = await getSupabaseServerClient();
-  const { data, error } = await supabase.rpc("my_buy_again", { p_limit: limit });
+  const { data, error } = await supabase.rpc("my_buy_again", {
+    p_limit: limit,
+    p_lat: location.lat,
+    p_lng: location.lng,
+  });
   if (error) throw new Error(error.message);
   return z.array(storefrontProductSchema).parse(data);
 }
