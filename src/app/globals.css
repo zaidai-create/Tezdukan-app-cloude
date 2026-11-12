@@ -285,6 +285,15 @@
   --animate-float: float 6s ease-in-out infinite;
   --animate-breathe: breathe 2.4s ease-in-out infinite;
 
+  /* The opening ad's bar: fills while the app loads behind it. */
+  @keyframes launch-progress {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
   /* Tez's orb while the mic is open: slow, like breathing. */
   @keyframes breathe {
     0%,
@@ -589,4 +598,9 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* The opening ad, once a session: the boot script marks <html> when it was already shown. */
+html.td-ad-seen [data-launch-ad] {
+  display: none;
 }

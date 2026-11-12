@@ -7,7 +7,7 @@ account, so they are listed in order below.
 
 | Item | Where |
 | --- | --- |
-| App bundle (`.aab`, signed with the upload key) | Built with `./gradlew bundleRelease` in `android/` (0.1.6, versionCode 7). The upload keystore lives outside the repo; keep it safe, every update must be signed with it. |
+| App bundle (`.aab`, signed with the upload key) | Built with `./gradlew bundleRelease` in `android/` (0.1.7, versionCode 8). The upload keystore lives outside the repo; keep it safe, every update must be signed with it. |
 | App icon 512×512 | `assets/app-icon-512.png` |
 | Feature graphic 1024×500 | `assets/feature-graphic-1024x500.png` |
 | Phone screenshots 1080×1920 | `assets/phone-screenshot-1.png` … `-6.png` |
@@ -27,7 +27,8 @@ account, so they are listed in order below.
    - *App access*: "All or some functionality is restricted". Give reviewers a demo login:
      phone `0300 0000006` (customer) and `0300 0000002` (dukandar), password
      `TezDukan-Demo-1`. Sign in with "Use phone number and password".
-   - *Ads*: No ads.
+   - *Ads*: No ads. (The opening screen shows TezDukan's own poster; it is not an ad network
+     and carries no third-party ads.)
    - *Content rating*: fill the questionnaire (category *Utility, productivity, communication
      or other*). Answer Yes to "users can interact or exchange content" (order chat and support
      chat) and No to violence, sexuality, gambling and the rest. Expect *Everyone / 3+*.
@@ -138,6 +139,12 @@ Google Gemini (Tez and voice) are service providers.
 - Dukans show only to customers inside their delivery area; dukandars set their pin and how far they deliver
 - "Use my current location" works even when Chrome has no location permission
 - A full-screen TezDukan splash while the app opens
+
+## Release notes for 0.1.7
+
+- New opening screen: TezDukan's own poster while the app loads (English and Urdu phones)
+- Shopping redesigned: product tiles, product page with sizes and other dukans, smarter search
+- Rate what you bought; register a dukan with CNIC and shop photo; Tez redesigned
 
 ## Release notes for 0.1.6
 

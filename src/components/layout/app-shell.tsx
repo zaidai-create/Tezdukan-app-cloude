@@ -5,7 +5,10 @@ import { MunshiFab } from "@/components/munshi/munshi-fab";
 import { MunshiSheet } from "@/components/munshi/munshi-sheet";
 import { AppUpdatePrompt } from "@/components/pwa/app-update-prompt";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
+import { ServerOnlyScript } from "@/components/server-only-script";
 import { OfflineBanner } from "@/components/states/offline-banner";
+import { launchAdBootScript } from "@/features/launch-ad/boot";
+import { LaunchAd } from "@/features/launch-ad/launch-ad";
 import type { AppRole } from "@/lib/auth/roles";
 import { getShellSession } from "@/lib/auth/session";
 import { BottomNav, BottomNavView } from "./bottom-nav";
@@ -70,6 +73,12 @@ async function AppShell({ role, children }: { role: AppRole; children: ReactNode
       </Suspense>
       <InstallPrompt />
       <AppUpdatePrompt />
+      {role === "admin" ? null : (
+        <>
+          <ServerOnlyScript code={launchAdBootScript} />
+          <LaunchAd variant={role === "customer" ? "customer" : "business"} />
+        </>
+      )}
     </div>
   );
 }

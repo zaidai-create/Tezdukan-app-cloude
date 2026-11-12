@@ -7,6 +7,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.widget.ImageView;
 
 /**
  * Opens TezDukan in a Trusted Web Activity. It never shows an error screen: if starting the
@@ -31,6 +32,16 @@ public class LauncherActivity extends com.google.androidbrowserhelper.trusted.La
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT);
         }
+    }
+
+    /**
+     * The splash is the opening ad, a full portrait picture: fit it to the screen (the library
+     * would show it at its own size and crop it on small phones). The edges show the splash
+     * background colour, which is the picture's own.
+     */
+    @Override
+    protected ImageView.ScaleType getSplashImageScaleType() {
+        return ImageView.ScaleType.FIT_CENTER;
     }
 
     /** Tells the site which app version opened it, so it can offer an update when one exists. */
