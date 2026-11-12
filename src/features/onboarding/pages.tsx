@@ -20,7 +20,7 @@ function RegisterSkeleton() {
 async function RegisterContent({ kind }: { kind: "dukan" | "distributor" }) {
   await connection();
   const [session, areas] = await Promise.all([requireSession(), getServiceAreas()]);
-  return <RegisterForm kind={kind} areas={areas} phone={session.phone} />;
+  return <RegisterForm kind={kind} areas={areas} phone={session.phone} userId={session.userId} />;
 }
 
 export function RegisterPage({ kind }: { kind: "dukan" | "distributor" }) {

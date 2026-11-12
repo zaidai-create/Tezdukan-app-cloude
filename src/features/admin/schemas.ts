@@ -73,6 +73,18 @@ const placeSchema = {
   created_at: z.string(),
   owner_name: text,
   owner_phone: text,
+  ntn: text.optional(),
+  strn: text.optional(),
+  // CNIC and place photo sent with the registration (paths in the private kyc-documents bucket).
+  documents: z
+    .object({
+      cnic_number: z.string(),
+      cnic_front_path: z.string(),
+      cnic_back_path: z.string(),
+      place_photo_path: z.string(),
+    })
+    .nullable()
+    .optional(),
 };
 
 export const approvalsSchema = z.object({

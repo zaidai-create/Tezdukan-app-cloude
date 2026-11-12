@@ -314,13 +314,15 @@ function MunshiPanel({
             <div className="flex min-h-full flex-col justify-between gap-8 pt-3">
               <div className="font-heading text-3xl leading-tight font-bold text-balance">
                 <p className="text-ink">
-                  {name
-                    ? t.rich("hello", {
-                        name,
-                        // The salaam stays on one line; the name moves down if it must.
-                        nb: (chunks) => <span className="whitespace-nowrap">{chunks}</span>,
-                      })
-                    : t("helloPlain")}
+                  {name ? (
+                    <>
+                      {/* The salaam stays on one line; the name moves down if it must. */}
+                      <span className="whitespace-nowrap">{t("salaam")}</span>{" "}
+                      {t("helloName", { name })}
+                    </>
+                  ) : (
+                    t("helloPlain")
+                  )}
                 </p>
                 <p className="text-muted">{t("helpLine")}</p>
               </div>

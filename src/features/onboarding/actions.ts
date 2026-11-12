@@ -36,23 +36,43 @@ async function locate(areaId: string, lat: number | null, lng: number | null) {
     : HYDERABAD;
 }
 
-/** Registers the person's dukan, and makes it their active role when it is approved. */
+/** Which part of the form a failed parse points at, for a message the person can act on. */
+function parseError(issues: { path: PropertyKey[] }[]): RegistrationError {
+  const field = issues[0]?.path[0];
+  if (field === "cnic") return "invalid_cnic";
+  if (field === "cnicFrontPath" || field === "cnicBackPath" || field === "placePhotoPath")
+    return "documents_required";
+  if (field === "name") return "invalid_name";
+  if (field === "address") return "address_required";
+  if (field === "areaId") return "invalid_area";
+  return "generic";
+}
+
+/**
+ * Applies for a dukan with the owner's CNIC and a photo of the shop. It waits for the TezDukan
+ * team; if auto-approval is switched on (testing) it becomes the person's active role at once.
+ */
 export async function registerDukan(input: RegisterDukanInput): Promise<RegistrationResult> {
   const parsed = registerDukanSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "generic" };
+  if (!parsed.success) return { ok: false, error: parseError(parsed.error.issues) };
   const phone = normalizePkMobile(parsed.data.phone);
   if (!phone) return { ok: false, error: "invalid_phone" };
   const { lat, lng } = await locate(parsed.data.areaId, parsed.data.lat, parsed.data.lng);
 
   const supabase = await getSupabaseServerClient();
-  const { data, error } = await supabase.rpc("register_shop", {
+  const { data, error } = await supabase.rpc("apply_for_dukan", {
     p_name: parsed.data.name,
     p_phone: phone,
     p_address_line: parsed.data.address,
     p_area_id: parsed.data.areaId,
     p_lat: lat,
     p_lng: lng,
-    p_whatsapp: phone,
+    p_cnic_number: parsed.data.cnic,
+    p_cnic_front_path: parsed.data.cnicFrontPath,
+    p_cnic_back_path: parsed.data.cnicBackPath,
+    p_shop_photo_path: parsed.data.placePhotoPath,
+    p_ntn: parsed.data.ntn || undefined,
+    p_strn: parsed.data.strn || undefined,
   });
   const shop = registeredSchema.safeParse(data);
   if (error || !shop.success) return { ok: false, error: registrationErrorKey(error?.message) };
@@ -65,19 +85,19 @@ export async function registerDukan(input: RegisterDukanInput): Promise<Registra
   return { ok: true, data: { approved, home: "/account" } };
 }
 
-/** Registers a distributor business with the areas it delivers to. */
+/** Applies for a distributor business with the areas it delivers to, CNIC and a place photo. */
 export async function registerDistributor(
   input: RegisterDistributorInput,
 ): Promise<RegistrationResult> {
   const parsed = registerDistributorSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "generic" };
+  if (!parsed.success) return { ok: false, error: parseError(parsed.error.issues) };
   const phone = normalizePkMobile(parsed.data.phone);
   if (!phone) return { ok: false, error: "invalid_phone" };
   const { lat, lng } = await locate(parsed.data.areaId, parsed.data.lat, parsed.data.lng);
   const served = [...new Set([parsed.data.areaId, ...parsed.data.servedAreaIds])];
 
   const supabase = await getSupabaseServerClient();
-  const { data, error } = await supabase.rpc("register_organization", {
+  const { data, error } = await supabase.rpc("apply_for_distributor", {
     p_name: parsed.data.name,
     p_phone: phone,
     p_address_line: parsed.data.address,
@@ -85,6 +105,12 @@ export async function registerDistributor(
     p_lat: lat,
     p_lng: lng,
     p_served_area_ids: served,
+    p_cnic_number: parsed.data.cnic,
+    p_cnic_front_path: parsed.data.cnicFrontPath,
+    p_cnic_back_path: parsed.data.cnicBackPath,
+    p_place_photo_path: parsed.data.placePhotoPath,
+    p_ntn: parsed.data.ntn || undefined,
+    p_strn: parsed.data.strn || undefined,
   });
   const org = registeredSchema.safeParse(data);
   if (error || !org.success) return { ok: false, error: registrationErrorKey(error?.message) };

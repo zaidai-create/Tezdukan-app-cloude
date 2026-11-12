@@ -2,7 +2,8 @@
 
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
-export type ImageBucket = "product-images" | "shop-media";
+// kyc-documents is private: CNIC and shop photos sent with a registration, under <uid>/.
+export type ImageBucket = "product-images" | "shop-media" | "kyc-documents";
 
 /**
  * Phone photos are large (4-12 MB) and often sideways: shrink to `maxSide` pixels on the long

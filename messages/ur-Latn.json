@@ -170,7 +170,9 @@
     "orPhone": "ya mobile number se",
     "googleSandboxTitle": "Google se sign in abhi on nahi",
     "googleSandboxBody": "TezDukan ka Google account jurte hi ye on ho jayega. Tab tak mobile number se sign in karein.",
-    "googleFailed": "Google se sign in nahi hua. Dobara koshish karein ya mobile number istemal karein."
+    "googleFailed": "Google se sign in nahi hua. Dobara koshish karein ya mobile number istemal karein.",
+    "businessTitle": "Dukandar ya distributor?",
+    "businessHint": "Pehle sign in karein ya account banayein. Pehle se registered hain? Usi number ya Google se sign in karein, aap ki dukan khul jaye gi."
   },
   "validation": {
     "phoneRequired": "Apna mobile number likhein.",
@@ -267,7 +269,11 @@
     "deleteAccount": "Mera account delete karein",
     "deleteAccountHint": "Account aur zaati data hatayein",
     "addresses": "Mere pate",
-    "addressesHint": "Ghar, daftar aur doosri jagahein jahan order mangwate hain"
+    "addressesHint": "Ghar, daftar aur doosri jagahein jahan order mangwate hain",
+    "application": {
+      "pending": "Registration check ho rahi hai",
+      "rejected": "Registration mein tabdeeli chahiye"
+    }
   },
   "command": {
     "title": "Talaash aur commands",
@@ -331,9 +337,10 @@
     "transcribing": "Aap ki baat samajh raha hoon…",
     "busy": "Tez abhi bohat masroof hai. Ek minute baad dobara koshish karein.",
     "readAloud": "Ye parh kar sunayein",
-    "hello": "<nb>Assalam-o-Alaikum,</nb> {name}!",
     "helloPlain": "Assalam-o-Alaikum!",
-    "helpLine": "Aaj main aap ke liye kya karoon?"
+    "helpLine": "Aaj main aap ke liye kya karoon?",
+    "salaam": "Assalam-o-Alaikum,",
+    "helloName": "{name}!"
   },
   "pwa": {
     "installTitle": "TezDukan install karein",
@@ -1157,8 +1164,41 @@
         "address_required": "Pata likhein.",
         "invalid_area": "Apna area dobara chunein.",
         "too_many_pending_registrations": "Aap ki registrations pehle se approval ke intezar mein hain.",
-        "generic": "Register nahi ho saka. Dobara koshish karein."
-      }
+        "generic": "Register nahi ho saka. Dobara koshish karein.",
+        "invalid_cnic": "Shanakhti card ke poore 13 hindse likhein, jaise 41303-1234567-1.",
+        "documents_required": "Shanakhti card ke dono rukh aur tasveer lagayein, aur har ek par tick aane dein.",
+        "location_required": "Location lagayein ya apna ilaqa dobara chunein."
+      },
+      "stepOf": "Marhala {step, number} az {total, number}",
+      "stepDetails": "Karobar ki tafseel",
+      "stepDocuments": "Malik ke kaghazaat",
+      "next": "Aage"
+    },
+    "documents": {
+      "ownerTitle": "Malik ka shanakhti card",
+      "ownerHint": "Har nayi dukan aur distributor ko live hone se pehle hum check karte hain. Is se jaali dukanein door rehti hain.",
+      "cnic": "CNIC number",
+      "cnicHint": "Card ke saamne wale 13 hindse.",
+      "front": "CNIC ka saamna",
+      "back": "CNIC ki pusht",
+      "shopPhoto": "Dukan ki tasveer",
+      "shopPhotoHint": "Dukan ki bahar se tasveer. Dukan ka naam saaf nazar aaye.",
+      "placePhoto": "Godown ya daftar ki tasveer",
+      "placePhotoHint": "Bahar se tasveer. Karobar ka naam saaf nazar aaye.",
+      "uploading": "Upload ho rahi hai…",
+      "added": "Lag gayi",
+      "failed": "Upload nahi hui. Internet check karein.",
+      "retry": "Dobara koshish karein",
+      "taxTitle": "Tax numbers",
+      "ntn": "NTN",
+      "strn": "STRN",
+      "privacy": "Aap ke kaghazaat sirf TezDukan ki team dekhti hai. Customers ya distributors ko kabhi nahi dikhaye jaate.",
+      "cnicPhotos": "Shanakhti card ki tasveer",
+      "cnicPhotosHint": "Shanakhti card ke saamne aur peeche ki saaf tasveer.",
+      "frontShort": "Saamne",
+      "backShort": "Peeche",
+      "taxHint": "Ikhtiyari. Agar karobar FBR mein registered hai to likhein.",
+      "signExample": "Madina Store"
     }
   },
   "legal": {
@@ -2011,7 +2051,15 @@
       "emptyHint": "Nayi dukanein aur distributors register hote hi yahan aayenge.",
       "dukans": "{count, plural, one {# dukan} other {# dukanein}} muntazir",
       "distributors": "{count, plural, one {# distributor} other {# distributors}} muntazir",
-      "map": "Naqsha"
+      "map": "Naqsha",
+      "documents": "Kaghazaat",
+      "cnic": "CNIC",
+      "cnicFront": "CNIC saamna",
+      "cnicBack": "CNIC pusht",
+      "placePhoto": "Jagah ki tasveer",
+      "noDocuments": "Kaghazaat zaroori hone se pehle register hui. Call par CNIC mangein.",
+      "ntn": "NTN",
+      "strn": "STRN"
     },
     "directory": {
       "shopsTitle": "Dukanein",
@@ -2159,5 +2207,33 @@
     "sandbox": "Sandbox",
     "sandboxHint": "Sandbox mein galiyon ke naam band hain, is liye qareebi ilaqa lagaya gaya hai. Apni gali khud likhein.",
     "offline": "Naqshe ko internet chahiye. Aap pata phir bhi likh sakte hain."
+  },
+  "applications": {
+    "title": "Registration ki surat-e-haal",
+    "back": "Wapas",
+    "sentTitle": "Registration bhej di gayi!",
+    "sentHint": "TezDukan ki team isay aam taur par ek din mein check karti hai. Manzoori par aap ko notification milegi.",
+    "kindDukan": "Dukan",
+    "kindDistributor": "Distributor",
+    "sentOn": "Bheji gayi {date}",
+    "pending": "Check ho rahi hai",
+    "approved": "Manzoor",
+    "rejected": "Tabdeeli chahiye",
+    "paused": "Roki gayi",
+    "pausedHint": "TezDukan ki team ne roki hai. Dobara shuru karne ke liye hum se baat karein.",
+    "stepSent": "Tafseel aur kaghazaat bhej diye",
+    "stepChecking": "TezDukan ki team check kar rahi hai",
+    "checkingHint": "Aam taur par ek din mein. Hum aap ko call kar sakte hain.",
+    "stepReadyDukan": "Aap ki dukan tayyar hai",
+    "stepReadyDistributor": "Aap ka karobar tayyar hai",
+    "reasonTitle": "Kya theek karna hai",
+    "reasonMissing": "Team aap ko chat par bataye gi.",
+    "applyAgain": "Dobara register karein",
+    "openDukan": "Meri dukan kholein",
+    "openBusiness": "Mera karobar kholein",
+    "emptyTitle": "Abhi koi registration nahi",
+    "emptyHint": "Wholesale rate par samaan mangwane ke liye apni dukan register karein.",
+    "registerDukan": "Dukan register karein",
+    "questions": "Koi sawal? Hum se baat karein"
   }
 }

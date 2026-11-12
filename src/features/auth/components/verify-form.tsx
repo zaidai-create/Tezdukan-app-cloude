@@ -22,7 +22,17 @@ const RESEND_SECONDS = 30;
  * Sandbox, a clearly labelled panel shows the code that would have been texted. The server
  * decides whether the panel shows, so it is in the first paint instead of popping in.
  */
-function VerifyForm({ phone, mode, sandbox }: { phone: string; mode: OtpMode; sandbox: boolean }) {
+function VerifyForm({
+  phone,
+  mode,
+  sandbox,
+  next,
+}: {
+  phone: string;
+  mode: OtpMode;
+  sandbox: boolean;
+  next?: string;
+}) {
   const t = useTranslations("auth");
   const router = useRouter();
   const [code, setCode] = useState("");
@@ -54,7 +64,7 @@ function VerifyForm({ phone, mode, sandbox }: { phone: string; mode: OtpMode; sa
     startVerify(async () => {
       setError(null);
       try {
-        const result = await verifyOtpAction({ phone, token: value, mode });
+        const result = await verifyOtpAction({ phone, token: value, mode }, next);
         if (result.ok) {
           haptic("success");
           setVerified(true);

@@ -1,6 +1,8 @@
 "use client";
 
 import {
+  FileWarning,
+  Clock3,
   Bike,
   BookOpen,
   Boxes,
@@ -37,6 +39,7 @@ import { saveThemeAction } from "@/features/auth/actions";
 import { LanguageChips } from "@/features/auth/components/language-chips";
 import { useSignOut } from "@/features/auth/use-sign-out";
 import { PushToggle } from "@/features/notifications/components/push-toggle";
+import type { Application } from "@/features/onboarding/schemas";
 import { Link } from "@/i18n/navigation";
 import { roleHome, type AppRole } from "@/lib/auth/roles";
 import { activeContextOf, type ShellSession } from "@/lib/auth/session-types";
@@ -137,7 +140,58 @@ function supportHref(role: AppRole): string {
 }
 
 /** Profile, roles, preferences, support and sign-out. Shared by every role's account page. */
-function AccountView({ session }: { session: ShellSession }) {
+/**
+ * A registration that is waiting or was sent back: the most important thing on the page for
+ * someone who just applied, so it sits above everything else.
+ */
+function ApplicationCard({ application }: { application: Application }) {
+  const t = useTranslations("account.application");
+  const rejected = application.status === "rejected";
+  return (
+    <Link
+      href="/register/status"
+      className={cn(
+        "flex items-center gap-4 rounded-xl border p-4 shadow-raised",
+        rejected ? "border-danger/30 bg-danger-soft" : "border-awning/40 bg-awning-soft",
+      )}
+    >
+      <span
+        className={cn(
+          "flex size-12 shrink-0 items-center justify-center rounded-full bg-surface",
+          rejected ? "text-danger-ink" : "text-awning-ink",
+        )}
+      >
+        {rejected ? (
+          <FileWarning aria-hidden className="size-6" strokeWidth={1.75} />
+        ) : (
+          <Clock3 aria-hidden className="size-6" strokeWidth={1.75} />
+        )}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate font-heading text-lg font-bold text-ink">
+          {application.name}
+        </span>
+        <span
+          className={cn(
+            "block text-sm font-semibold",
+            rejected ? "text-danger-ink" : "text-awning-ink",
+          )}
+        >
+          {rejected ? t("rejected") : t("pending")}
+        </span>
+      </span>
+      {chevron}
+    </Link>
+  );
+}
+
+function AccountView({
+  session,
+  applications = [],
+}: {
+  session: ShellSession;
+  applications?: Application[];
+}) {
   const t = useTranslations();
   const { preference, setPreference } = useTheme();
   const [switcherOpen, setSwitcherOpen] = useState(false);
@@ -248,7 +302,15 @@ function AccountView({ session }: { session: ShellSession }) {
         ))}
       </nav>
 
-      {hasDukan || hasDistributor ? null : (
+      {applications
+        .filter(
+          (application) => application.status === "pending" || application.status === "rejected",
+        )
+        .map((application) => (
+          <ApplicationCard key={application.id} application={application} />
+        ))}
+
+      {hasDukan || hasDistributor || applications.length > 0 ? null : (
         <Link
           href="/start/dukan"
           className="flex items-center gap-4 rounded-xl border border-border/60 bg-surface p-4 shadow-raised"

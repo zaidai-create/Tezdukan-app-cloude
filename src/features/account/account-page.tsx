@@ -2,6 +2,7 @@ import { connection } from "next/server";
 import { Suspense } from "react";
 import { ListRowSkeleton } from "@/components/states/skeletons";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getMyApplications } from "@/features/onboarding/data";
 import { requireSession } from "@/lib/auth/session";
 import { AccountView } from "./account-view";
 
@@ -30,7 +31,9 @@ function AccountSkeleton() {
 async function AccountContent() {
   await connection();
   const session = await requireSession();
-  return <AccountView session={session} />;
+  // A failed read only hides the application card; the account page itself must open.
+  const applications = await getMyApplications().catch(() => []);
+  return <AccountView session={session} applications={applications} />;
 }
 
 /** Mounted under each role's own path so the role's navigation stays around it. */

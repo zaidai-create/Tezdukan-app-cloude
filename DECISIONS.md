@@ -179,6 +179,15 @@ section. Format: **decision** — reason (date).
   through `register_shop` / `register_organization`. The `auto_approve_registrations` flag (on
   for the test site, off by default and in every pgTAP test) approves them in a before-insert
   trigger, so admin approval is one switch away. (2026-11-02)
+- **Registration needs the owner's CNIC and a photo of the place; the team approves** (owner's
+  call, 2026-11-12) — like the B2B apps shopkeepers already use. `apply_for_dukan` /
+  `apply_for_distributor` create the business and its `registration_documents` row in one
+  transaction, so nothing waits for review without documents. A document path must be in the
+  caller's own folder of the private `kyc-documents` bucket and exist in `storage.objects`, so a
+  person cannot point at someone else's CNIC. The documents table is readable only by the
+  sender and platform staff, and admins see the photos through signed links that expire in 10
+  minutes (never through the image optimiser, which would keep a copy). The auto-approve flag is
+  turned off; the switch stays in the admin panel for testing.
 - **Customer orders go to the dukan on WhatsApp for now** — the cart is kept on the phone and
   each dukan's bill (fee, free-delivery threshold, minimum order) comes from its storefront
   settings; the message lists items, totals, name and address. In-app customer orders, with a

@@ -32,5 +32,13 @@ async function VerifyContent({
   const phone = typeof params.phone === "string" ? normalizePkMobile(params.phone) : null;
   const mode = otpModeSchema.safeParse(params.mode);
   if (!phone || !mode.success) redirect("/signup");
-  return <VerifyForm phone={phone} mode={mode.data} sandbox={sandboxRevealAllowed(mode.data)} />;
+  const next = typeof params.next === "string" ? params.next : undefined;
+  return (
+    <VerifyForm
+      phone={phone}
+      mode={mode.data}
+      sandbox={sandboxRevealAllowed(mode.data)}
+      next={next}
+    />
+  );
 }

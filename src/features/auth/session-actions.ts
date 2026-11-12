@@ -76,11 +76,14 @@ export async function signUpAction(values: SignupValues): Promise<AuthResult<{ p
   return { ok: true, phone };
 }
 
-export async function verifyOtpAction(input: {
-  phone: string;
-  token: string;
-  mode: OtpMode;
-}): Promise<AuthResult<{ redirectTo: string }>> {
+export async function verifyOtpAction(
+  input: {
+    phone: string;
+    token: string;
+    mode: OtpMode;
+  },
+  next?: string,
+): Promise<AuthResult<{ redirectTo: string }>> {
   const parsed = verifySchema.safeParse(input);
   const phone = parsed.success ? normalizePkMobile(parsed.data.phone) : null;
   if (!parsed.success || !phone) return { ok: false, error: "invalidCode" };
@@ -96,7 +99,8 @@ export async function verifyOtpAction(input: {
     await completeSignIn();
     return { ok: true, redirectTo: "/forgot-password/new" };
   }
-  return { ok: true, redirectTo: await completeSignIn() };
+  // completeSignIn only follows a same-site path (safeNextPath).
+  return { ok: true, redirectTo: await completeSignIn(next) };
 }
 
 export async function resendOtpAction(phoneInput: string, mode: OtpMode): Promise<AuthResult> {

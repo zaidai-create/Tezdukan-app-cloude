@@ -24,7 +24,7 @@ import { GoogleButton } from "./google-button";
 import { PasswordInput } from "./password-input";
 import { PhoneInput } from "./phone-input";
 
-function SignupForm() {
+function SignupForm({ next }: { next?: string }) {
   const t = useTranslations("auth");
   const router = useRouter();
   const [error, setError] = useFormError<{ message: string; signIn?: boolean }>();
@@ -43,7 +43,9 @@ function SignupForm() {
         const result = await signUpAction(values);
         if (result.ok) {
           setLeaving(true);
-          router.push(`/verify?${new URLSearchParams({ phone: result.phone, mode: "signup" })}`);
+          const query = new URLSearchParams({ phone: result.phone, mode: "signup" });
+          if (next) query.set("next", next);
+          router.push(`/verify?${query}`);
           return;
         }
         setError({

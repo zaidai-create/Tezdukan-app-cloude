@@ -5143,6 +5143,68 @@ export type Database = {
           },
         ];
       };
+      registration_documents: {
+        Row: {
+          cnic_back_path: string;
+          cnic_front_path: string;
+          cnic_number: string;
+          created_at: string;
+          created_by: string | null;
+          id: string;
+          org_id: string | null;
+          place_photo_path: string;
+          shop_id: string | null;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          cnic_back_path: string;
+          cnic_front_path: string;
+          cnic_number: string;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          org_id?: string | null;
+          place_photo_path: string;
+          shop_id?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          cnic_back_path?: string;
+          cnic_front_path?: string;
+          cnic_number?: string;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          org_id?: string | null;
+          place_photo_path?: string;
+          shop_id?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "registration_documents_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "registration_documents_org_id_fkey";
+            columns: ["org_id"];
+            isOneToOne: true;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "registration_documents_shop_id_fkey";
+            columns: ["shop_id"];
+            isOneToOne: true;
+            referencedRelation: "shops";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       retailer_accounts: {
         Row: {
           assigned_booker_id: string | null;
@@ -8246,6 +8308,41 @@ export type Database = {
         Returns: Json;
       };
       admin_users: { Args: { p_limit?: number; p_query?: string }; Returns: Json };
+      apply_for_distributor: {
+        Args: {
+          p_address_line: string;
+          p_area_id: string;
+          p_cnic_back_path: string;
+          p_cnic_front_path: string;
+          p_cnic_number: string;
+          p_lat: number;
+          p_lng: number;
+          p_name: string;
+          p_ntn?: string;
+          p_phone: string;
+          p_place_photo_path: string;
+          p_served_area_ids: string[];
+          p_strn?: string;
+        };
+        Returns: Json;
+      };
+      apply_for_dukan: {
+        Args: {
+          p_address_line: string;
+          p_area_id: string;
+          p_cnic_back_path: string;
+          p_cnic_front_path: string;
+          p_cnic_number: string;
+          p_lat: number;
+          p_lng: number;
+          p_name: string;
+          p_ntn?: string;
+          p_phone: string;
+          p_shop_photo_path: string;
+          p_strn?: string;
+        };
+        Returns: Json;
+      };
       approve_organization: {
         Args: { p_org_id: string };
         Returns: {
@@ -8476,6 +8573,7 @@ export type Database = {
       delivery_zones: { Args: Record<PropertyKey, never>; Returns: Json };
       mark_conversation_read: { Args: { p_conversation_id: string }; Returns: undefined };
       my_account_deletion: { Args: Record<PropertyKey, never>; Returns: Json };
+      my_applications: { Args: Record<PropertyKey, never>; Returns: Json };
       my_buy_again: { Args: { p_lat?: number; p_limit?: number; p_lng?: number }; Returns: Json };
       my_conversations: {
         Args: { p_org_id?: string; p_shop_id?: string; p_support_queue?: boolean };

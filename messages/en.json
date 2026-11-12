@@ -170,7 +170,9 @@
     "orPhone": "or use your mobile number",
     "googleSandboxTitle": "Google sign-in is not switched on yet",
     "googleSandboxBody": "It turns on once TezDukan's Google account is connected. Until then, sign in with your mobile number.",
-    "googleFailed": "Google sign-in didn't work. Please try again or use your mobile number."
+    "googleFailed": "Google sign-in didn't work. Please try again or use your mobile number.",
+    "businessTitle": "Dukandar or distributor?",
+    "businessHint": "Sign in or create an account first. Already registered? Sign in with the same number or Google and your dukan opens."
   },
   "validation": {
     "phoneRequired": "Enter your mobile number.",
@@ -267,7 +269,11 @@
     "deleteAccount": "Delete my account",
     "deleteAccountHint": "Remove your account and personal data",
     "addresses": "My addresses",
-    "addressesHint": "Home, work and other places you order to"
+    "addressesHint": "Home, work and other places you order to",
+    "application": {
+      "pending": "Registration being checked",
+      "rejected": "Registration needs changes"
+    }
   },
   "command": {
     "title": "Search and commands",
@@ -331,9 +337,10 @@
     "transcribing": "Getting what you said…",
     "busy": "Tez is very busy right now. Please try again in a minute.",
     "readAloud": "Read this aloud",
-    "hello": "<nb>Assalam-o-Alaikum,</nb> {name}!",
     "helloPlain": "Assalam-o-Alaikum!",
-    "helpLine": "What can I do for you today?"
+    "helpLine": "What can I do for you today?",
+    "salaam": "Assalam-o-Alaikum,",
+    "helloName": "{name}!"
   },
   "pwa": {
     "installTitle": "Install TezDukan",
@@ -1157,8 +1164,41 @@
         "address_required": "Write the address.",
         "invalid_area": "Choose your area again.",
         "too_many_pending_registrations": "You already have registrations waiting for approval.",
-        "generic": "Couldn't register. Please try again."
-      }
+        "generic": "Couldn't register. Please try again.",
+        "invalid_cnic": "Write all 13 digits of the CNIC, like 41303-1234567-1.",
+        "documents_required": "Add both sides of the CNIC and the photo, and wait for each to show a tick.",
+        "location_required": "Add the location, or choose your area again."
+      },
+      "stepOf": "Step {step, number} of {total, number}",
+      "stepDetails": "Business details",
+      "stepDocuments": "Owner's documents",
+      "next": "Next"
+    },
+    "documents": {
+      "ownerTitle": "Owner's CNIC",
+      "ownerHint": "We check every new dukan and distributor before it goes live. It keeps fake shops out.",
+      "cnic": "CNIC number",
+      "cnicHint": "The 13 digits on the front of the card.",
+      "front": "CNIC front",
+      "back": "CNIC back",
+      "shopPhoto": "Shop picture",
+      "shopPhotoHint": "A photo of your dukan from outside. The shop name should be clearly visible.",
+      "placePhoto": "Warehouse or office picture",
+      "placePhotoHint": "A photo from outside. The business name should be clearly visible.",
+      "uploading": "Uploading…",
+      "added": "Added",
+      "failed": "Upload failed. Check your internet.",
+      "retry": "Try again",
+      "taxTitle": "Tax numbers",
+      "ntn": "NTN",
+      "strn": "STRN",
+      "privacy": "Only the TezDukan team sees your documents. They are never shown to customers or distributors.",
+      "cnicPhotos": "Your CNIC picture",
+      "cnicPhotosHint": "A clear photo of the front and the back of your CNIC.",
+      "frontShort": "Front",
+      "backShort": "Back",
+      "taxHint": "Optional. Add them if your business is registered with FBR.",
+      "signExample": "Madina Store"
     }
   },
   "legal": {
@@ -2011,7 +2051,15 @@
       "emptyHint": "New dukans and distributors appear here when they register.",
       "dukans": "{count, plural, one {# dukan} other {# dukans}} waiting",
       "distributors": "{count, plural, one {# distributor} other {# distributors}} waiting",
-      "map": "Map"
+      "map": "Map",
+      "documents": "Documents",
+      "cnic": "CNIC",
+      "cnicFront": "CNIC front",
+      "cnicBack": "CNIC back",
+      "placePhoto": "Place photo",
+      "noDocuments": "Registered before documents were needed. Ask for CNIC on a call.",
+      "ntn": "NTN",
+      "strn": "STRN"
     },
     "directory": {
       "shopsTitle": "Dukans",
@@ -2159,5 +2207,33 @@
     "sandbox": "Sandbox",
     "sandboxHint": "Street names are off in Sandbox, so the nearest area is used. Type your street.",
     "offline": "The map needs the internet. You can still type your address."
+  },
+  "applications": {
+    "title": "Registration status",
+    "back": "Back",
+    "sentTitle": "Registration sent!",
+    "sentHint": "The TezDukan team checks it, usually within a day. You get a notification when it is approved.",
+    "kindDukan": "Dukan",
+    "kindDistributor": "Distributor",
+    "sentOn": "Sent {date}",
+    "pending": "Being checked",
+    "approved": "Approved",
+    "rejected": "Needs changes",
+    "paused": "Paused",
+    "pausedHint": "Paused by the TezDukan team. Chat with us to start again.",
+    "stepSent": "Details and documents sent",
+    "stepChecking": "TezDukan team is checking",
+    "checkingHint": "Usually within a day. We may call you.",
+    "stepReadyDukan": "Your dukan is ready",
+    "stepReadyDistributor": "Your business is ready",
+    "reasonTitle": "What to fix",
+    "reasonMissing": "The team will tell you on chat.",
+    "applyAgain": "Register again",
+    "openDukan": "Open my dukan",
+    "openBusiness": "Open my business",
+    "emptyTitle": "No registrations yet",
+    "emptyHint": "Register your dukan to order stock at trade prices.",
+    "registerDukan": "Register dukan",
+    "questions": "Questions? Chat with us"
   }
 }

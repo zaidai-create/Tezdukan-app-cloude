@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Store } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
@@ -21,6 +22,23 @@ import { FormAlert } from "./form-alert";
 import { GoogleButton } from "./google-button";
 import { PasswordInput } from "./password-input";
 import { PhoneInput } from "./phone-input";
+
+/**
+ * Shown when the person came from "Register your dukan": they need an account first, and a
+ * shopkeeper who already registered only has to sign in to get their dukan back.
+ */
+function BusinessNote() {
+  const t = useTranslations("auth");
+  return (
+    <div className="flex items-start gap-3 rounded-[18px] border border-awning/40 bg-awning-soft p-4">
+      <Store aria-hidden className="mt-0.5 size-5 shrink-0 text-awning-ink" strokeWidth={1.75} />
+      <div>
+        <p className="font-semibold text-ink">{t("businessTitle")}</p>
+        <p className="text-sm text-ink/80">{t("businessHint")}</p>
+      </div>
+    </div>
+  );
+}
 
 function LoginForm({ next, oauthFailed = false }: { next?: string; oauthFailed?: boolean }) {
   const t = useTranslations("auth");
@@ -61,6 +79,7 @@ function LoginForm({ next, oauthFailed = false }: { next?: string; oauthFailed?:
   return (
     <Form {...form}>
       <div className="mb-5 flex flex-col gap-4">
+        {next?.startsWith("/start/") ? <BusinessNote /> : null}
         {oauthFailed ? <FormAlert>{t("googleFailed")}</FormAlert> : null}
         <GoogleButton next={next} />
       </div>
@@ -112,7 +131,7 @@ function LoginForm({ next, oauthFailed = false }: { next?: string; oauthFailed?:
         <p className="text-center text-base text-muted">
           {t("noAccount")}{" "}
           <Link
-            href="/signup"
+            href={next ? `/signup?${new URLSearchParams({ next })}` : "/signup"}
             className="font-semibold text-primary-strong underline-offset-4 hover:underline"
           >
             {t("createAccount")}

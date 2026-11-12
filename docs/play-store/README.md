@@ -120,6 +120,7 @@ Google Gemini (Tez and voice) are service providers.
 | In-app messages | Yes (order and support chat) | No | App functionality, customer support | Yes |
 | Voice recordings | Yes, only when the mic is used; processed to text and not stored | No | App functionality (Tez) | Yes |
 | Photos | Only product and shop photos the user uploads | No | App functionality | Yes |
+| Government ID (Personal info → Other info) | Only dukandars and distributors who register: CNIC number and photos of both sides, plus a photo of the shop or warehouse. Stored privately; seen only by the TezDukan team to verify the owner | No | Fraud prevention, security and compliance | Yes (only for business registration) |
 | App interactions | Yes | No | Analytics, app functionality | No |
 | Crash logs and diagnostics | Yes (Android crash reports) | No | App functionality, analytics | No |
 | Device or other IDs | Yes (push notification token) | No | App functionality (order alerts) | Yes |

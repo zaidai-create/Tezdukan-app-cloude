@@ -34,6 +34,22 @@ export const getAdminOverview = (range: AdminRange) =>
 
 export const getApprovals = () => call("admin_approvals", {}, approvalsSchema);
 
+/**
+ * Short-lived links to registration documents. The bucket is private; staff may read it under
+ * their own session, and a link expires after 10 minutes so a copied one goes stale.
+ */
+export async function signKycDocuments(paths: string[]): Promise<Map<string, string>> {
+  if (paths.length === 0) return new Map();
+  const supabase = await getSupabaseServerClient();
+  const { data, error } = await supabase.storage.from("kyc-documents").createSignedUrls(paths, 600);
+  if (error || !data) return new Map();
+  return new Map(
+    data.flatMap((item) =>
+      item.path && item.signedUrl ? [[item.path, item.signedUrl] as const] : [],
+    ),
+  );
+}
+
 export const getAdminShops = (status: AdminStatus | null, query: string) =>
   call(
     "admin_shops",

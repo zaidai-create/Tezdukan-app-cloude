@@ -4,6 +4,22 @@ All notable changes, newest first. Dates are Asia/Karachi.
 
 ## Unreleased
 
+### Dukan and distributor registration with documents (2026-11-12)
+
+- Registering a dukan or distributor is two steps: the business, then the owner's CNIC number,
+  photos of both sides of the CNIC and a photo of the shop (or warehouse). Photos are taken
+  with the camera, shrunk on the phone and uploaded to a private folder; NTN and STRN are
+  optional. Only the TezDukan team can see the documents.
+- Every new registration waits for the TezDukan team (auto-approval is off). Approvals in the
+  admin panel shows the CNIC number and the three photos (links that expire in 10 minutes).
+- "Registration status" page: sent → being checked → ready, the reason when it needs changes
+  with "Register again", and "Open my dukan" once approved. Account shows a card while a
+  registration is waiting or needs changes.
+- Sign-in for businesses: opening "Register your dukan" while signed out explains that an
+  existing shopkeeper only needs to sign in (number or Google) to get their dukan back, and
+  "Create account" carries on to the registration after the SMS code.
+- Alerts for new registrations open the Approvals page (the old link led nowhere).
+
 ### The storefront as a showroom (2026-11-12)
 
 - Customer home, redone: the delivery address and time sit in the header, search opens its own
