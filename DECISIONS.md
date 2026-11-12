@@ -179,6 +179,13 @@ section. Format: **decision** — reason (date).
   through `register_shop` / `register_organization`. The `auto_approve_registrations` flag (on
   for the test site, off by default and in every pgTAP test) approves them in a before-insert
   trigger, so admin approval is one switch away. (2026-11-02)
+- **The admin website is the same app on its own host** (owner's call, 2026-11-12) — a host
+  whose first label is "admin" or ends in "-admin" (`isAdminHost`) sends `/` and the sign-in
+  pages to `/admin`, so one deployment serves both and nothing is duplicated; RLS and the
+  admin RPCs still decide what an account can see. The admin shell is desktop-first (sidebar,
+  top bar, menu sheet on phones), and lists become tables at `lg`. Column classes live in
+  `features/admin/components/columns.ts`: a server page that imports a plain value from a
+  "use client" file gets a client reference instead of the string.
 - **Registration needs the owner's CNIC and a photo of the place; the team approves** (owner's
   call, 2026-11-12) — like the B2B apps shopkeepers already use. `apply_for_dukan` /
   `apply_for_distributor` create the business and its `registration_documents` row in one

@@ -172,7 +172,9 @@
     "googleSandboxBody": "TezDukan ka Google account jurte hi ye on ho jayega. Tab tak mobile number se sign in karein.",
     "googleFailed": "Google se sign in nahi hua. Dobara koshish karein ya mobile number istemal karein.",
     "businessTitle": "Dukandar ya distributor?",
-    "businessHint": "Pehle sign in karein ya account banayein. Pehle se registered hain? Usi number ya Google se sign in karein, aap ki dukan khul jaye gi."
+    "businessHint": "Pehle sign in karein ya account banayein. Pehle se registered hain? Usi number ya Google se sign in karein, aap ki dukan khul jaye gi.",
+    "adminTitle": "TezDukan admin",
+    "adminHint": "TezDukan ki team ke liye. Apne admin number ya Google account se sign in karein."
   },
   "validation": {
     "phoneRequired": "Apna mobile number likhein.",
@@ -2148,6 +2150,17 @@
       "km": "{km, number} km",
       "cityToggle": "Poore shehar mein delivery",
       "save": "Delivery ka ilaqa save karein"
+    },
+    "table": {
+      "area": "Ilaqa",
+      "status": "Haalat",
+      "orders30": "Orders (30 din)",
+      "joined": "Shamil hue",
+      "order": "Order",
+      "fromTo": "Kis se → kis ko",
+      "items": "Cheezein",
+      "total": "Kul",
+      "placed": "Kab diya"
     }
   },
   "map": {

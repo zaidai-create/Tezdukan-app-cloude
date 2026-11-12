@@ -126,6 +126,28 @@ export function OrderTag({ status, label }: { status: string; label: string }) {
 }
 
 /** A single rounded list; rows are separated by hairlines rather than nested cards. */
+/**
+ * Column titles above a list that turns into a table on a wide screen. Hidden from screen
+ * readers: every cell carries its own label.
+ */
+export function TableHead({ columns, labels }: { columns: string; labels: string[] }) {
+  return (
+    <li
+      aria-hidden
+      className={cn(
+        "hidden items-center gap-4 bg-subtle/70 px-4 py-2.5 text-xs font-semibold tracking-wide text-muted uppercase lg:grid",
+        columns,
+      )}
+    >
+      {labels.map((label, index) => (
+        <span key={`${label}-${index}`} className="truncate">
+          {label}
+        </span>
+      ))}
+    </li>
+  );
+}
+
 export function ListCard({ children, label }: { children: ReactNode; label?: string }) {
   return (
     <ul

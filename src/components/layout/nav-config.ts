@@ -96,14 +96,8 @@ export const mobileTabs: Partial<Record<AppRole, NavItem[]>> = {
     { href: "/rider", label: "today", icon: "today", exact: true },
     { href: "/rider/account", label: "account", icon: "account" },
   ],
-  // The owner runs the admin panel from a phone too: the five screens used most.
-  admin: [
-    { href: "/admin", label: "overview", icon: "dashboard", exact: true },
-    { href: "/admin/approvals", label: "verifications", icon: "approvals" },
-    { href: "/admin/shops", label: "shops", icon: "dukan" },
-    { href: "/admin/orders", label: "orders", icon: "orders" },
-    { href: "/admin/settings", label: "settings", icon: "settings" },
-  ],
+  // The admin panel is a web dashboard (owner's call, 12 Nov): sidebar and top bar
+  // everywhere, with the sidebar in a menu sheet on a phone. No bottom dock.
   // Distributors run the portal from a phone as often as from a desk.
   distributor: [
     { href: "/distributor", label: "home", icon: "home", exact: true },

@@ -6,7 +6,8 @@ import { EmptyState } from "@/components/states/empty-state";
 import { ListRowSkeleton } from "@/components/states/skeletons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { requireRole } from "@/lib/auth/session";
-import { AdminHeader, AdminPageShell, LinkTabs, ListCard } from "../components/admin-ui";
+import { AdminHeader, AdminPageShell, LinkTabs, ListCard, TableHead } from "../components/admin-ui";
+import { entityColumns } from "../components/columns";
 import { type EntitySummary, EntityRow } from "../components/entity-row";
 import { SearchBox } from "../components/search-box";
 import { getAdminOrgs, getAdminShops } from "../data";
@@ -109,6 +110,19 @@ async function DirectoryContent({
         />
       ) : (
         <ListCard label={kind === "shops" ? t("directory.shopsTitle") : t("directory.orgsTitle")}>
+          <TableHead
+            columns={entityColumns}
+            labels={[
+              kind === "shops" ? t("list.dukan") : t("list.distributor"),
+              t("table.area"),
+              t("table.status"),
+              t("list.products"),
+              t("table.orders30"),
+              t("list.sales30"),
+              t("table.joined"),
+              "",
+            ]}
+          />
           {entities.map((entity) => (
             <EntityRow key={entity.id} entity={entity} canEdit />
           ))}

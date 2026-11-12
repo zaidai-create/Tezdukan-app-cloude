@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Store } from "lucide-react";
+import { ShieldCheck, Store } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
@@ -35,6 +35,24 @@ function BusinessNote() {
       <div>
         <p className="font-semibold text-ink">{t("businessTitle")}</p>
         <p className="text-sm text-ink/80">{t("businessHint")}</p>
+      </div>
+    </div>
+  );
+}
+
+/** On the admin website: who this sign-in is for. */
+function AdminNote() {
+  const t = useTranslations("auth");
+  return (
+    <div className="flex items-start gap-3 rounded-[18px] border border-primary/30 bg-primary-soft p-4">
+      <ShieldCheck
+        aria-hidden
+        className="mt-0.5 size-5 shrink-0 text-primary-strong"
+        strokeWidth={1.75}
+      />
+      <div>
+        <p className="font-semibold text-ink">{t("adminTitle")}</p>
+        <p className="text-sm text-ink/80">{t("adminHint")}</p>
       </div>
     </div>
   );
@@ -80,6 +98,7 @@ function LoginForm({ next, oauthFailed = false }: { next?: string; oauthFailed?:
     <Form {...form}>
       <div className="mb-5 flex flex-col gap-4">
         {next?.startsWith("/start/") ? <BusinessNote /> : null}
+        {next === "/admin" || next?.startsWith("/admin/") ? <AdminNote /> : null}
         {oauthFailed ? <FormAlert>{t("googleFailed")}</FormAlert> : null}
         <GoogleButton next={next} />
       </div>

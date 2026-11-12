@@ -4,6 +4,7 @@ import { routing } from "@/i18n/routing";
 import { ANDROID_APP_COOKIE } from "@/lib/app-release";
 import {
   CONTEXT_COOKIE,
+  isAdminHost,
   isAuthPath,
   isPublicPath,
   parseContext,
@@ -56,7 +57,12 @@ async function route(request: NextRequest) {
     return res;
   };
 
+  const adminSite = isAdminHost(request.headers.get("host"));
+
   if (!claims) {
+    // The admin website has no welcome posters or shopping: straight to sign-in, then admin.
+    if (adminSite && (pathname === "/" || pathname === "/welcome"))
+      return redirect("/login", { next: "/admin" });
     if (isPublicPath(pathname)) return response;
     // First launch on this device: the welcome posters before sign-in.
     if (pathname === "/" && !request.cookies.has(WELCOMED_COOKIE)) return redirect("/welcome");
@@ -66,6 +72,7 @@ async function route(request: NextRequest) {
   const context = parseContext(request.cookies.get(CONTEXT_COOKIE)?.value);
   const home = roleHome[context?.role ?? "customer"];
 
+  if (adminSite && (pathname === "/" || isAuthPath(pathname))) return redirect("/admin");
   if (isAuthPath(pathname)) return redirect(home);
   if (pathname === "/" && home !== "/") return redirect(home);
 

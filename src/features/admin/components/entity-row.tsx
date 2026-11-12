@@ -19,6 +19,7 @@ import { formatDate } from "@/lib/format";
 import { formatRs } from "@/lib/money";
 import { formatPkMobile } from "@/lib/phone";
 import type { Target } from "../actions";
+import { entityColumns } from "./columns";
 import { DeliveryControl } from "./delivery-control";
 import { EntityActions } from "./entity-actions";
 
@@ -69,12 +70,61 @@ export function EntityRow({ entity, canEdit }: { entity: EntitySummary; canEdit:
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex w-full items-center gap-3 px-4 py-3 text-start transition-colors duration-150 ease-out hover:bg-subtle/60"
+        className={cn(
+          "flex w-full items-center gap-3 px-4 py-3 text-start transition-colors duration-150 ease-out hover:bg-subtle/60 lg:grid lg:gap-4",
+          entityColumns,
+        )}
       >
-        <Avatar className="size-11 shrink-0 rounded-md">
+        {/* Wide screen: one table row. */}
+        <span className="hidden min-w-0 items-center gap-3 lg:flex">
+          <Avatar className="size-9 shrink-0 rounded-md">
+            <AvatarFallback name={entity.name} className="rounded-md text-xs" />
+          </Avatar>
+          <span className="min-w-0">
+            <span className="block truncate font-semibold text-ink">{entity.name}</span>
+            <span className="block truncate text-sm text-muted">{owner}</span>
+          </span>
+        </span>
+        <span className="hidden truncate text-sm text-ink lg:block">{entity.area ?? "—"}</span>
+        <span className="hidden items-center gap-2 lg:flex">
+          <StatusBadge tone={tone[entity.status] ?? "neutral"} icon={null}>
+            {t(`status.${entity.status}` as "status.pending")}
+          </StatusBadge>
+          {entity.live !== undefined ? (
+            <span
+              title={entity.live ? t("list.online") : t("list.offline")}
+              className={cn(
+                "size-2.5 shrink-0 rounded-full",
+                entity.live ? "bg-primary" : "bg-border-strong",
+              )}
+            />
+          ) : null}
+        </span>
+        <span className="num hidden text-sm text-ink lg:block">
+          <span className="sr-only">{t("list.products")}: </span>
+          {entity.products}
+        </span>
+        <span className="num hidden text-sm text-ink lg:block">
+          <span className="sr-only">{t("list.orders30")}: </span>
+          {entity.orders30d}
+        </span>
+        <span className="num hidden text-sm font-bold text-ink lg:block">
+          <span className="sr-only">{t("list.sales30")}: </span>
+          {formatRs(entity.sales30d)}
+        </span>
+        <span className="num hidden text-sm text-muted lg:block">
+          {formatDate(entity.createdAt)}
+        </span>
+        <ChevronRight
+          aria-hidden
+          className="hidden size-4 shrink-0 text-muted lg:block rtl:-scale-x-100"
+        />
+
+        {/* Phone: a compact row. */}
+        <Avatar className="size-11 shrink-0 rounded-md lg:hidden">
           <AvatarFallback name={entity.name} className="rounded-md" />
         </Avatar>
-        <span className="min-w-0 flex-1">
+        <span className="min-w-0 flex-1 lg:hidden">
           <span className="flex items-center gap-2">
             <span className="truncate font-semibold text-ink">{entity.name}</span>
             {entity.status !== "approved" ? (
@@ -87,7 +137,7 @@ export function EntityRow({ entity, canEdit }: { entity: EntitySummary; canEdit:
             {[owner, entity.area].filter(Boolean).join(" · ")}
           </span>
         </span>
-        <span className="flex shrink-0 flex-col items-end gap-0.5">
+        <span className="flex shrink-0 flex-col items-end gap-0.5 lg:hidden">
           <span className="num text-sm font-bold text-ink">{formatRs(entity.sales30d)}</span>
           <span className="num text-xs text-muted">
             {t("list.orders", { count: entity.orders30d })}
@@ -97,12 +147,15 @@ export function EntityRow({ entity, canEdit }: { entity: EntitySummary; canEdit:
           <span
             aria-label={entity.live ? t("list.online") : t("list.offline")}
             className={cn(
-              "size-2.5 shrink-0 rounded-full",
+              "size-2.5 shrink-0 rounded-full lg:hidden",
               entity.live ? "bg-primary" : "bg-border-strong",
             )}
           />
         ) : null}
-        <ChevronRight aria-hidden className="size-4 shrink-0 text-muted rtl:-scale-x-100" />
+        <ChevronRight
+          aria-hidden
+          className="size-4 shrink-0 text-muted lg:hidden rtl:-scale-x-100"
+        />
       </button>
 
       <Sheet open={open} onOpenChange={setOpen}>

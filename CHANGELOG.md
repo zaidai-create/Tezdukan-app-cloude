@@ -4,6 +4,16 @@ All notable changes, newest first. Dates are Asia/Karachi.
 
 ## Unreleased
 
+### Admin dashboard as a website (2026-11-12)
+
+- The admin panel has its own address, tezdukan-admin.vercel.app: it opens straight to an
+  admin sign-in (no welcome posters, no shopping) and then to the dashboard.
+- It is a web dashboard everywhere: sidebar and top bar on a computer, a menu on a phone
+  (the bottom dock is gone).
+- Dukans, Distributors and Orders are tables on a wide screen: name, area, status, products,
+  orders and sales in 30 days, joined date; orders show number, from → to, items, status,
+  total and time. Phones keep the compact rows.
+
 ### Dukan and distributor registration with documents (2026-11-12)
 
 - Registering a dukan or distributor is two steps: the business, then the owner's CNIC number,

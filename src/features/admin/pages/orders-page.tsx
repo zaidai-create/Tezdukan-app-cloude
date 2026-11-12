@@ -8,12 +8,22 @@ import { ListRowSkeleton } from "@/components/states/skeletons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { requireRole } from "@/lib/auth/session";
 import { formatRs } from "@/lib/money";
-import { AdminHeader, AdminPageShell, LinkTabs, ListCard, OrderTag } from "../components/admin-ui";
+import {
+  AdminHeader,
+  AdminPageShell,
+  LinkTabs,
+  ListCard,
+  OrderTag,
+  TableHead,
+} from "../components/admin-ui";
 import { SearchBox } from "../components/search-box";
 import { TimeAgo } from "../components/time-ago";
 import { getAdminOrders } from "../data";
 import { adminOrderKindSchema, adminOrderKinds } from "../schemas";
 import { first, type SearchParams } from "./shared";
+
+// Order, from → to, items, status, total, placed: the table on a wide screen.
+const orderColumns = "lg:grid-cols-[9rem_minmax(0,2.6fr)_6rem_8.5rem_7rem_8rem]";
 
 async function OrdersContent({ searchParams }: { searchParams: SearchParams }) {
   await connection();
@@ -50,11 +60,62 @@ async function OrdersContent({ searchParams }: { searchParams: SearchParams }) {
         <EmptyState icon={Package} title={t("orders.empty")} />
       ) : (
         <ListCard label={t("orders.title")}>
+          <TableHead
+            columns={orderColumns}
+            labels={[
+              t("table.order"),
+              t("table.fromTo"),
+              t("table.items"),
+              t("table.status"),
+              t("table.total"),
+              t("table.placed"),
+            ]}
+          />
           {orders.map((order) => (
-            <li key={`${order.kind}-${order.id}`} className="flex items-center gap-3 px-4 py-3">
+            <li
+              key={`${order.kind}-${order.id}`}
+              className={cn("flex items-center gap-3 px-4 py-3 lg:grid lg:gap-4", orderColumns)}
+            >
+              {/* Wide screen: one table row. */}
+              <span className="num hidden items-center gap-2 text-sm font-semibold text-ink lg:flex">
+                {order.kind === "customer" ? (
+                  <ShoppingBag
+                    aria-hidden
+                    className="size-4 text-primary-strong"
+                    strokeWidth={1.75}
+                  />
+                ) : (
+                  <Truck aria-hidden className="size-4 text-awning-ink" strokeWidth={1.75} />
+                )}
+                {order.number}
+              </span>
+              <span className="hidden truncate text-sm text-ink lg:block">
+                {order.buyer ? `${order.seller} → ${order.buyer}` : order.seller}
+              </span>
+              <span className="num hidden text-sm text-ink lg:block">
+                {t("orders.items", { count: order.items_count })}
+              </span>
+              <span className="hidden lg:block">
+                <OrderTag
+                  status={order.status}
+                  label={
+                    order.kind === "customer"
+                      ? tCustomer(order.status as "placed")
+                      : tB2b(order.status as "new")
+                  }
+                />
+              </span>
+              <span className="num hidden text-sm font-bold text-ink lg:block">
+                {formatRs(order.total_paisa)}
+              </span>
+              <span className="num hidden text-sm text-muted lg:block">
+                <TimeAgo value={order.created_at} />
+              </span>
+
+              {/* Phone: a compact row. */}
               <span
                 className={cn(
-                  "flex size-10 shrink-0 items-center justify-center rounded-md",
+                  "flex size-10 shrink-0 items-center justify-center rounded-md lg:hidden",
                   order.kind === "customer"
                     ? "bg-primary-soft text-primary-strong"
                     : "bg-awning-soft text-awning-ink",
@@ -66,7 +127,7 @@ async function OrdersContent({ searchParams }: { searchParams: SearchParams }) {
                   <Truck aria-hidden className="size-5" strokeWidth={1.75} />
                 )}
               </span>
-              <span className="min-w-0 flex-1">
+              <span className="min-w-0 flex-1 lg:hidden">
                 <span className="block truncate text-sm font-semibold text-ink">
                   {order.buyer ? `${order.seller} → ${order.buyer}` : order.seller}
                 </span>
@@ -78,7 +139,7 @@ async function OrdersContent({ searchParams }: { searchParams: SearchParams }) {
                   <TimeAgo value={order.created_at} />
                 </span>
               </span>
-              <span className="flex shrink-0 flex-col items-end gap-1">
+              <span className="flex shrink-0 flex-col items-end gap-1 lg:hidden">
                 <span className="num text-sm font-bold text-ink">
                   {formatRs(order.total_paisa)}
                 </span>

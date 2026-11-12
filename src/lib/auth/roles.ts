@@ -71,6 +71,16 @@ export function isPublicPath(pathname: string): boolean {
   );
 }
 
+/**
+ * The admin website: the same app served on its own address, which opens straight into the
+ * admin panel. A host counts when its first label is "admin" or ends in "-admin"
+ * (tezdukan-admin.vercel.app, admin.tezdukan.pk).
+ */
+export function isAdminHost(host: string | null | undefined): boolean {
+  const label = (host ?? "").split(":")[0]?.split(".")[0]?.toLowerCase() ?? "";
+  return label === "admin" || label.endsWith("-admin");
+}
+
 /** Auth screens that a signed-in person should be sent away from. */
 export function isAuthPath(pathname: string): boolean {
   return ["/welcome", "/login", "/signup", "/verify"].some((prefix) => hasPrefix(pathname, prefix));

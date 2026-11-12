@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { isAuthPath, isPublicPath, parseContext, roleForPath, serializeContext } from "./roles";
+import {
+  isAdminHost,
+  isAuthPath,
+  isPublicPath,
+  parseContext,
+  roleForPath,
+  serializeContext,
+} from "./roles";
 
 describe("roleForPath", () => {
   it("maps role prefixes", () => {
@@ -54,5 +61,19 @@ describe("context cookie", () => {
     expect(parseContext("superuser")).toBeNull();
     expect(parseContext("dukandar:not-a-uuid")).toEqual({ role: "dukandar", contextId: null });
     expect(parseContext("")).toBeNull();
+  });
+});
+
+describe("isAdminHost", () => {
+  it("recognises the admin website", () => {
+    expect(isAdminHost("tezdukan-admin.vercel.app")).toBe(true);
+    expect(isAdminHost("admin.tezdukan.pk")).toBe(true);
+    expect(isAdminHost("admin.localhost:3000")).toBe(true);
+  });
+  it("leaves the shopping app alone", () => {
+    expect(isAdminHost("tezdukan.vercel.app")).toBe(false);
+    expect(isAdminHost("localhost:3000")).toBe(false);
+    expect(isAdminHost("administrator.example.com")).toBe(false);
+    expect(isAdminHost(null)).toBe(false);
   });
 });

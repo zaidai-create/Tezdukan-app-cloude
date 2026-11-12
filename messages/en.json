@@ -172,7 +172,9 @@
     "googleSandboxBody": "It turns on once TezDukan's Google account is connected. Until then, sign in with your mobile number.",
     "googleFailed": "Google sign-in didn't work. Please try again or use your mobile number.",
     "businessTitle": "Dukandar or distributor?",
-    "businessHint": "Sign in or create an account first. Already registered? Sign in with the same number or Google and your dukan opens."
+    "businessHint": "Sign in or create an account first. Already registered? Sign in with the same number or Google and your dukan opens.",
+    "adminTitle": "TezDukan admin",
+    "adminHint": "For the TezDukan team. Sign in with your admin number or Google account."
   },
   "validation": {
     "phoneRequired": "Enter your mobile number.",
@@ -2148,6 +2150,17 @@
       "km": "{km, number} km",
       "cityToggle": "Deliver across the whole city",
       "save": "Save delivery area"
+    },
+    "table": {
+      "area": "Area",
+      "status": "Status",
+      "orders30": "Orders (30 d)",
+      "joined": "Joined",
+      "order": "Order",
+      "fromTo": "From → To",
+      "items": "Items",
+      "total": "Total",
+      "placed": "Placed"
     }
   },
   "map": {
