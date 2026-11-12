@@ -10,6 +10,7 @@ import {
   LifeBuoy,
   type LucideIcon,
   MapPinned,
+  Megaphone,
   MessageCircle,
   Package,
   PackageOpen,
@@ -45,4 +46,5 @@ export const navIcons: Record<NavIcon, LucideIcon> = {
   users: Users,
   settings: SlidersHorizontal,
   audit: History,
+  broadcast: Megaphone,
 };

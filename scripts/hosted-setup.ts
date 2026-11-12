@@ -16,7 +16,7 @@
  * Env: SUPABASE_ACCESS_TOKEN (a personal access token from supabase.com/dashboard/account/tokens),
  *      SUPABASE_PROJECT_REF (default: the TezDukan project), SITE_URL (the deployed app,
  *      default https://tezdukan.vercel.app), GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET (optional),
- *      CRON_SECRET (the app's secret for /api/push/flush; schedules the every-minute flush).
+ *      CRON_SECRET (optional: lets another scheduler call /api/push/flush).
  * Safe to re-run: applied migrations are skipped and the Auth settings are simply set again.
  */
 import { spawn } from "node:child_process";
@@ -132,43 +132,16 @@ async function configureAuth(): Promise<void> {
 }
 
 /**
- * Every minute the database asks the app to send any push notifications still waiting (a
- * safety net for alerts written outside an app action). The call also keeps the server warm,
- * so the app opens without a cold start. The secret lives in Supabase Vault, never in git.
+ * Push leaves the moment it is queued: the database calls the app's /api/push/flush (pg_net)
+ * with a token it made for itself (migration 20261112140000), and a pg_cron job every minute
+ * sends anything still waiting. Here we only tell the database where the app lives; no secret
+ * is copied. CRON_SECRET still works for any other scheduler.
  */
 async function configureCron(): Promise<boolean> {
-  const secret = process.env.CRON_SECRET;
-  if (!secret) return false;
   const literal = (value: string) => `'${value.replaceAll("'", "''")}'`;
-  await sql("create extension if not exists pg_net");
-  await sql(`
-    do $$
-    begin
-      if exists (select 1 from vault.secrets where name = 'cron_secret') then
-        perform vault.update_secret(
-          (select id from vault.secrets where name = 'cron_secret'), ${literal(secret)}
-        );
-      else
-        perform vault.create_secret(${literal(secret)}, 'cron_secret', 'Bearer for /api/push/flush');
-      end if;
-    end $$;
-  `);
-  await sql(`
-    select cron.schedule(
-      'tezdukan-push-flush',
-      '* * * * *',
-      $job$
-        select net.http_get(
-          url := ${literal(`${siteUrl}/api/push/flush`)},
-          headers := jsonb_build_object(
-            'Authorization',
-            'Bearer ' || (select decrypted_secret from vault.decrypted_secrets where name = 'cron_secret')
-          ),
-          timeout_milliseconds := 10000
-        );
-      $job$
-    );
-  `);
+  await sql(
+    `update private.push_flush set url = ${literal(`${siteUrl}/api/push/flush`)}, last_kick_at = '-infinity'`,
+  );
   return true;
 }
 
@@ -239,7 +212,7 @@ async function main() {
   console.log(
     (await configureCron())
       ? "Cron: push notifications flushed every minute (also keeps the server warm)."
-      : "Cron: skipped (set CRON_SECRET to schedule the push flush).",
+      : "Cron: skipped.",
   );
 
   const removed = await retireFunctions();

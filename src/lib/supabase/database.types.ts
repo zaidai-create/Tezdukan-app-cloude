@@ -740,6 +740,64 @@ export type Database = {
           },
         ];
       };
+      broadcasts: {
+        Row: {
+          audience: Database["public"]["Enums"]["broadcast_audience"];
+          body: string;
+          created_at: string;
+          created_by: string | null;
+          id: string;
+          link: string | null;
+          push_count: number;
+          sent_count: number;
+          title: string;
+          to_user_id: string | null;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          audience: Database["public"]["Enums"]["broadcast_audience"];
+          body: string;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          link?: string | null;
+          push_count?: number;
+          sent_count?: number;
+          title: string;
+          to_user_id?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          audience?: Database["public"]["Enums"]["broadcast_audience"];
+          body?: string;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          link?: string | null;
+          push_count?: number;
+          sent_count?: number;
+          title?: string;
+          to_user_id?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "broadcasts_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "broadcasts_to_user_id_fkey";
+            columns: ["to_user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       campaigns: {
         Row: {
           audience: NonNullable<Json>;
@@ -8379,6 +8437,20 @@ export type Database = {
       add_shop_products: { Args: { p_items: Json; p_shop_id: string }; Returns: Json };
       admin_approvals: { Args: Record<PropertyKey, never>; Returns: Json };
       admin_audit: { Args: { p_before?: string; p_limit?: number }; Returns: Json };
+      admin_broadcast: {
+        Args: {
+          p_audience: Database["public"]["Enums"]["broadcast_audience"];
+          p_body: string;
+          p_link?: string;
+          p_phone?: string;
+          p_title: string;
+        };
+        Returns: Json;
+      };
+      admin_broadcast_reach: {
+        Args: { p_audience: Database["public"]["Enums"]["broadcast_audience"] };
+        Returns: Json;
+      };
       admin_flags: { Args: Record<PropertyKey, never>; Returns: Json };
       admin_orders: {
         Args: { p_kind?: string; p_limit?: number; p_query?: string; p_status?: string };
@@ -8770,6 +8842,7 @@ export type Database = {
         Args: { p_distributor_product_id: string; p_shop_id: string };
         Returns: Json;
       };
+      push_flush_token_ok: { Args: { p_token: string }; Returns: boolean };
       rate_customer_order: {
         Args: { p_comment?: string; p_order_id: string; p_rating: number };
         Returns: Json;
@@ -9450,6 +9523,7 @@ export type Database = {
       area_kind: "city" | "zone";
       banner_placement: "customer_home" | "dukan_home" | "distributor_dashboard" | "storefront";
       billing_interval: "monthly" | "yearly";
+      broadcast_audience: "customers" | "dukandars" | "distributors" | "everyone" | "one";
       campaign_channel: "whatsapp" | "sms" | "push" | "in_app";
       campaign_status: "draft" | "scheduled" | "sending" | "sent" | "cancelled";
       cart_item_source: "manual" | "munshi" | "parchi" | "reorder" | "booker";
@@ -9733,6 +9807,7 @@ export const Constants = {
       area_kind: ["city", "zone"],
       banner_placement: ["customer_home", "dukan_home", "distributor_dashboard", "storefront"],
       billing_interval: ["monthly", "yearly"],
+      broadcast_audience: ["customers", "dukandars", "distributors", "everyone", "one"],
       campaign_channel: ["whatsapp", "sms", "push", "in_app"],
       campaign_status: ["draft", "scheduled", "sending", "sent", "cancelled"],
       cart_item_source: ["manual", "munshi", "parchi", "reorder", "booker"],

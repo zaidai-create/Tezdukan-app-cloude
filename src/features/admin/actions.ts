@@ -8,6 +8,13 @@ import { requireRole } from "@/lib/auth/session";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import type { KycView } from "./components/kyc-documents";
 import { signKycDocuments } from "./data";
+import {
+  type BroadcastAudience,
+  type BroadcastReach,
+  broadcastReachSchema,
+  type SendBroadcastInput,
+  sendBroadcastSchema,
+} from "./schemas";
 
 /** Admin changes. The RPCs check for an admin and write the audit log; these map errors. */
 
@@ -156,4 +163,48 @@ export async function getEntityDocuments(
       place: signed.get(row.place_photo_path) ?? null,
     },
   };
+}
+
+export type BroadcastError = AdminError | "person_not_found" | "rate_limited";
+
+/** How many people an audience reaches, and how many get phone alerts. */
+export async function getBroadcastReach(
+  audience: Exclude<BroadcastAudience, "one">,
+): Promise<{ ok: true; data: BroadcastReach } | { ok: false; error: AdminError }> {
+  await requireRole("admin", "/admin/broadcast");
+  const supabase = await getSupabaseServerClient();
+  const { data, error } = await supabase.rpc("admin_broadcast_reach", { p_audience: audience });
+  if (error) return { ok: false, error: errorKey(error.message) };
+  const reach = broadcastReachSchema.safeParse(data);
+  return reach.success ? { ok: true, data: reach.data } : { ok: false, error: "generic" };
+}
+
+/** Sends a notification (in the app and as a phone alert) to a group or one person. */
+export async function sendBroadcast(
+  input: SendBroadcastInput,
+): Promise<
+  { ok: true; data: { sent: number; push: number } } | { ok: false; error: BroadcastError }
+> {
+  await requireRole("admin", "/admin/broadcast");
+  const parsed = sendBroadcastSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "invalid" };
+  const { audience, title, body, link, phone } = parsed.data;
+  const supabase = await getSupabaseServerClient();
+  const { data, error } = await supabase.rpc("admin_broadcast", {
+    p_audience: audience,
+    p_title: title,
+    p_body: body,
+    p_link: link === "none" ? undefined : link,
+    p_phone: audience === "one" ? phone : undefined,
+  });
+  if (error) {
+    if (error.message === "person_not_found" || error.message === "rate_limited") {
+      return { ok: false, error: error.message };
+    }
+    return { ok: false, error: errorKey(error.message) };
+  }
+  const result = z.object({ sent: z.number().int(), push: z.number().int() }).safeParse(data);
+  after(flushPushOutboxQuietly);
+  refresh();
+  return result.success ? { ok: true, data: result.data } : { ok: false, error: "generic" };
 }

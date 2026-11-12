@@ -4,6 +4,19 @@ All notable changes, newest first. Dates are Asia/Karachi.
 
 ## Unreleased
 
+### Phone alerts arrive at once, and the team can send notifications (2026-11-12)
+
+- Phone alerts no longer wait for someone to open the app. Until now a push went out only when
+  an app action sent the queue, so alerts written any other way waited until TezDukan was next
+  opened. Now the database asks the app to send every new push the moment it is queued, and a
+  check every minute sends anything left waiting. No password has to be copied anywhere: the
+  database makes its own token and the app checks it.
+- Admin > Send notification: write a title and message, choose who gets it (customers,
+  dukandars, distributors, everyone, or one person by mobile number) and what opens when it is
+  tapped. The page shows how it will look on a phone and how many people it reaches (and how
+  many get a phone alert), asks once more, then sends. Earlier messages are listed below.
+  Group messages are limited to five an hour, and every send is in the audit log.
+
 ### Support chat: the AI assistant answers first, the team is one tap away (2026-11-12)
 
 - In the support chat (customers, dukandars and distributors), the TezDukan Assistant answers

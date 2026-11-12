@@ -74,7 +74,8 @@
     "shops": "دکانیں",
     "users": "صارفین",
     "settings": "سیٹنگز",
-    "audit": "تبدیلیوں کا ریکارڈ"
+    "audit": "تبدیلیوں کا ریکارڈ",
+    "broadcast": "نوٹیفکیشن بھیجیں"
   },
   "roles": {
     "customer": "گاہک",
@@ -2299,6 +2300,54 @@
       "items": "چیزیں",
       "total": "کل",
       "placed": "کب دیا"
+    },
+    "broadcast": {
+      "title": "نوٹیفکیشن بھیجیں",
+      "subtitle": "ایپ اور فون کی نوٹیفکیشن بار تک پہنچتا ہے",
+      "to": "کس کو",
+      "audience": {
+        "customers": "گاہک",
+        "dukandars": "دکاندار",
+        "distributors": "ڈسٹری بیوٹر",
+        "everyone": "سب",
+        "one": "ایک شخص"
+      },
+      "phone": "موبائل نمبر",
+      "phoneHint": "وہ نمبر جس سے انہوں نے اکاؤنٹ بنایا",
+      "titleLabel": "عنوان",
+      "titlePlaceholder": "آج ڈیلیوری مفت",
+      "bodyLabel": "پیغام",
+      "bodyPlaceholder": "اپنے قریب کسی بھی دکان سے آرڈر کریں، رات 10 بجے تک ڈیلیوری مفت۔",
+      "linkLabel": "ٹیپ کرنے پر کھلے",
+      "links": {
+        "none": "کچھ نہیں",
+        "home": "ہوم",
+        "orders": "آرڈرز",
+        "support": "سپورٹ چیٹ"
+      },
+      "preview": "ایسا دکھے گا",
+      "now": "ابھی",
+      "reach": "{people, plural, one {# شخص} other {# لوگ}} · {push, plural, one {# کو فون الرٹ ملے گا} other {# کو فون الرٹ ملے گا}}",
+      "reachLoading": "گنتی ہو رہی ہے",
+      "reachOne": "ایک شخص کو جائے گا، ایپ میں اور فون الرٹ آن ہوں تو فون پر بھی",
+      "send": "بھیجیں",
+      "confirmTitle": "یہ نوٹیفکیشن بھیجیں؟",
+      "confirmBody": "یہ ابھی {audience} کو جائے گا اور واپس نہیں ہو سکتا۔",
+      "confirmSend": "جی ہاں، بھیجیں",
+      "cancel": "رہنے دیں",
+      "sent": "{sent, plural, one {# شخص} other {# لوگوں}} کو بھیج دیا ({push, number} فون الرٹ)۔",
+      "history": "پہلے بھیجے گئے",
+      "historyEmpty": "ابھی کچھ نہیں بھیجا",
+      "historyEmptyHint": "آپ کے بھیجے پیغام یہاں نظر آئیں گے۔",
+      "historyLine": "{audience} · {sent, plural, one {# شخص} other {# لوگ}} · {push, number} فون الرٹ",
+      "errors": {
+        "person_not_found": "اس نمبر کا کوئی اکاؤنٹ نہیں۔",
+        "rate_limited": "گروپ کو ایک گھنٹے میں پانچ بار بھیج سکتے ہیں۔ بعد میں کوشش کریں۔",
+        "invalid": "عنوان، پیغام اور نمبر چیک کریں۔",
+        "not_allowed": "صرف ایڈمن نوٹیفکیشن بھیج سکتے ہیں۔",
+        "reason_required": "کچھ رہ گیا ہے۔",
+        "generic": "نہیں بھیج سکے۔ دوبارہ کوشش کریں۔"
+      }
     }
   },
   "map": {

@@ -40,7 +40,8 @@ export type NavLabel =
   | "shops"
   | "users"
   | "settings"
-  | "audit";
+  | "audit"
+  | "broadcast";
 
 /** Icon names, resolved to Lucide components in client code (components cannot be passed
  * from the server shell to client components as props). */
@@ -65,7 +66,8 @@ export type NavIcon =
   | "approvals"
   | "users"
   | "settings"
-  | "audit";
+  | "audit"
+  | "broadcast";
 
 export type NavItem = { href: string; label: NavLabel; icon: NavIcon; exact?: boolean };
 export type NavGroup = { label: "main" | "account"; items: NavItem[] };
@@ -148,6 +150,7 @@ export const sidebarGroups: Partial<Record<AppRole, NavGroup[]>> = {
         { href: "/admin/users", label: "users", icon: "users" },
         { href: "/admin/orders", label: "orders", icon: "orders" },
         { href: "/admin/support", label: "support", icon: "support" },
+        { href: "/admin/broadcast", label: "broadcast", icon: "broadcast" },
         { href: "/admin/settings", label: "settings", icon: "settings" },
         { href: "/admin/audit", label: "audit", icon: "audit" },
       ],

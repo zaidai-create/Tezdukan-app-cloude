@@ -74,7 +74,8 @@
     "shops": "Dukans",
     "users": "Users",
     "settings": "Settings",
-    "audit": "Audit log"
+    "audit": "Audit log",
+    "broadcast": "Send notification"
   },
   "roles": {
     "customer": "Customer",
@@ -2299,6 +2300,54 @@
       "items": "Items",
       "total": "Total",
       "placed": "Placed"
+    },
+    "broadcast": {
+      "title": "Send a notification",
+      "subtitle": "Reaches the app and the phone's notification bar",
+      "to": "Send to",
+      "audience": {
+        "customers": "Customers",
+        "dukandars": "Dukandars",
+        "distributors": "Distributors",
+        "everyone": "Everyone",
+        "one": "One person"
+      },
+      "phone": "Mobile number",
+      "phoneHint": "The number they signed up with",
+      "titleLabel": "Title",
+      "titlePlaceholder": "Free delivery today",
+      "bodyLabel": "Message",
+      "bodyPlaceholder": "Order from any dukan near you and delivery is free until 10 pm.",
+      "linkLabel": "Opens when tapped",
+      "links": {
+        "none": "Nothing",
+        "home": "Home",
+        "orders": "Orders",
+        "support": "Support chat"
+      },
+      "preview": "Preview",
+      "now": "now",
+      "reach": "{people, plural, one {# person} other {# people}} · {push, plural, one {# gets a phone alert} other {# get a phone alert}}",
+      "reachLoading": "Counting people",
+      "reachOne": "Goes to one person, in the app and as a phone alert if they turned alerts on",
+      "send": "Send",
+      "confirmTitle": "Send this notification?",
+      "confirmBody": "It goes to {audience} now and cannot be taken back.",
+      "confirmSend": "Yes, send",
+      "cancel": "Cancel",
+      "sent": "Sent to {sent, plural, one {# person} other {# people}} ({push, number} phone alerts).",
+      "history": "Sent before",
+      "historyEmpty": "Nothing sent yet",
+      "historyEmptyHint": "Messages you send appear here.",
+      "historyLine": "{audience} · {sent, plural, one {# person} other {# people}} · {push, number} phone alerts",
+      "errors": {
+        "person_not_found": "No account has this number.",
+        "rate_limited": "You can send to a group five times an hour. Try again later.",
+        "invalid": "Check the title, message and number.",
+        "not_allowed": "Only admins can send notifications.",
+        "reason_required": "Something is missing.",
+        "generic": "Couldn't send. Please try again."
+      }
     }
   },
   "map": {

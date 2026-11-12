@@ -197,3 +197,45 @@ export const auditEntrySchema = z.object({
   org_name: text,
 });
 export type AuditEntry = z.infer<typeof auditEntrySchema>;
+
+export const broadcastAudiences = [
+  "customers",
+  "dukandars",
+  "distributors",
+  "everyone",
+  "one",
+] as const;
+export type BroadcastAudience = (typeof broadcastAudiences)[number];
+
+export const broadcastReachSchema = z.object({
+  people: z.number().int(),
+  with_push: z.number().int(),
+});
+export type BroadcastReach = z.infer<typeof broadcastReachSchema>;
+
+export const broadcastSchema = z.object({
+  id: z.uuid(),
+  audience: z.enum(broadcastAudiences),
+  title: z.string(),
+  body: z.string(),
+  link: z.string().nullable(),
+  sent_count: z.number().int(),
+  push_count: z.number().int(),
+  created_at: z.string(),
+});
+export type Broadcast = z.infer<typeof broadcastSchema>;
+
+export const sendBroadcastSchema = z
+  .object({
+    audience: z.enum(broadcastAudiences),
+    title: z.string().trim().min(1).max(80),
+    body: z.string().trim().min(1).max(300),
+    link: z.enum(["none", "/", "/orders", "/account/support"]).default("none"),
+    /** E.164, only for one person. */
+    phone: z
+      .string()
+      .regex(/^\+92\d{10}$/)
+      .optional(),
+  })
+  .refine((value) => value.audience !== "one" || Boolean(value.phone), { path: ["phone"] });
+export type SendBroadcastInput = z.input<typeof sendBroadcastSchema>;

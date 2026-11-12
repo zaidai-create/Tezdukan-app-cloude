@@ -74,7 +74,8 @@
     "shops": "Dukanein",
     "users": "Users",
     "settings": "Settings",
-    "audit": "Audit log"
+    "audit": "Audit log",
+    "broadcast": "Notification bhejein"
   },
   "roles": {
     "customer": "Gaahak",
@@ -2299,6 +2300,54 @@
       "items": "Cheezein",
       "total": "Kul",
       "placed": "Kab diya"
+    },
+    "broadcast": {
+      "title": "Notification bhejein",
+      "subtitle": "App aur phone ki notification bar tak pohnchta hai",
+      "to": "Kis ko",
+      "audience": {
+        "customers": "Customers",
+        "dukandars": "Dukandar",
+        "distributors": "Distributors",
+        "everyone": "Sab",
+        "one": "Ek shakhs"
+      },
+      "phone": "Mobile number",
+      "phoneHint": "Wo number jis se unhon ne account banaya",
+      "titleLabel": "Unwan",
+      "titlePlaceholder": "Aaj delivery free",
+      "bodyLabel": "Paigham",
+      "bodyPlaceholder": "Apne qareeb kisi bhi dukan se order karein, raat 10 baje tak delivery free.",
+      "linkLabel": "Tap karne par khule",
+      "links": {
+        "none": "Kuch nahi",
+        "home": "Home",
+        "orders": "Orders",
+        "support": "Support chat"
+      },
+      "preview": "Aisa dikhega",
+      "now": "abhi",
+      "reach": "{people, plural, one {# shakhs} other {# log}} · {push, plural, one {# ko phone alert milega} other {# ko phone alert milega}}",
+      "reachLoading": "Ginti ho rahi hai",
+      "reachOne": "Ek shakhs ko jayega, app mein aur phone alerts on hon to phone par bhi",
+      "send": "Bhejein",
+      "confirmTitle": "Ye notification bhejein?",
+      "confirmBody": "Ye abhi {audience} ko jayega aur wapas nahi ho sakta.",
+      "confirmSend": "Ji haan, bhejein",
+      "cancel": "Rehne dein",
+      "sent": "{sent, plural, one {# shakhs} other {# logon}} ko bhej diya ({push, number} phone alerts).",
+      "history": "Pehle bheje gaye",
+      "historyEmpty": "Abhi kuch nahi bheja",
+      "historyEmptyHint": "Aap ke bheje paigham yahan nazar aayenge.",
+      "historyLine": "{audience} · {sent, plural, one {# shakhs} other {# log}} · {push, number} phone alerts",
+      "errors": {
+        "person_not_found": "Is number ka koi account nahi.",
+        "rate_limited": "Group ko ek ghante mein paanch baar bhej sakte hain. Baad mein koshish karein.",
+        "invalid": "Unwan, paigham aur number check karein.",
+        "not_allowed": "Sirf admin notification bhej sakte hain.",
+        "reason_required": "Kuch reh gaya hai.",
+        "generic": "Nahi bhej sake. Dobara koshish karein."
+      }
     }
   },
   "map": {

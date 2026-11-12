@@ -427,6 +427,23 @@ section. Format: **decision** — reason (date).
 - **The dukan sees the customer's record at its own dukan only** — delivered and
   self-cancelled counts from its own orders (RLS), not across dukans. (2026-11-12)
 
+## Push delivery and broadcasts
+
+- **The database sends push the moment it is queued** — a statement trigger on
+  `message_outbox` calls the app's `/api/push/flush` through pg_net (at most every 3 seconds;
+  a broadcast to thousands makes one call), and pg_cron runs `private.push_flush_sweep()` every
+  minute for anything waiting over 20 seconds. Before, push left only after an app action, so
+  phones lit up when TezDukan was next opened (owner's report, 12 Nov). (2026-11-12)
+- **No hand-copied secret for it** — the database makes a random token (`private.push_flush`)
+  and the app checks it with `push_flush_token_ok()` (service role). The earlier plan needed
+  CRON_SECRET written into Vault, which could not be done from the owner's phone. The hosted
+  project only needs the app's address in `private.push_flush.url`. (2026-11-12)
+- **Broadcasts are notifications, not a separate channel** — `admin_broadcast` writes one
+  notification per person (kind `promotion`, event `broadcast`), so the in-app list, push and
+  read state all work as for any alert. Audiences: customers (no dukan or distributor account),
+  dukandars (active dukan members), distributors (active distributor members), everyone, or one
+  person by phone. Group sends: five an hour per admin; all in the audit log. (2026-11-12)
+
 ## Support
 
 - **The AI answers support first; the team is called only when needed** — the assistant

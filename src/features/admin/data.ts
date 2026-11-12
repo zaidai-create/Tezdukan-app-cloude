@@ -12,6 +12,8 @@ import {
   adminUserSchema,
   approvalsSchema,
   auditEntrySchema,
+  type Broadcast,
+  broadcastSchema,
   flagSchema,
 } from "./schemas";
 
@@ -97,4 +99,16 @@ export async function getDocumentOwners(
       return owner ? [owner] : [];
     }),
   );
+}
+
+/** The latest broadcasts, newest first (RLS: platform staff). */
+export async function getBroadcasts(): Promise<Broadcast[]> {
+  const supabase = await getSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("broadcasts")
+    .select("id, audience, title, body, link, sent_count, push_count, created_at")
+    .order("created_at", { ascending: false })
+    .limit(30);
+  if (error) throw new Error(error.message);
+  return z.array(broadcastSchema).parse(data);
 }
