@@ -5,6 +5,8 @@ import {
   customerOrderSchema,
   ITEM_COLUMNS,
   ORDER_COLUMNS,
+  type OrderChange,
+  orderChangeSchema,
   tabStatuses,
   type CustomerOrder,
   type InboxTab,
@@ -21,6 +23,31 @@ export async function getMyCustomerOrders(userId: string): Promise<CustomerOrder
     .limit(50);
   if (error) throw new Error(error.message);
   return z.array(customerOrderSchema).parse(data);
+}
+
+/** Whether the customer has reported a problem on this order that is still being looked at. */
+export async function hasOpenProblem(orderId: string): Promise<boolean> {
+  const supabase = await getSupabaseServerClient();
+  const { count } = await supabase
+    .from("support_tickets")
+    .select("id", { count: "exact", head: true })
+    .eq("customer_order_id", orderId)
+    .in("status", ["open", "pending"]);
+  return (count ?? 0) > 0;
+}
+
+/** Lines the dukan removed or replaced, oldest first (RLS: the customer and the dukan). */
+export async function getOrderChanges(orderId: string): Promise<OrderChange[]> {
+  const supabase = await getSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("customer_order_changes")
+    .select(
+      "id, kind, item_name, item_name_ur, qty, line_total_paisa, new_name, new_name_ur, new_line_total_paisa, created_at",
+    )
+    .eq("customer_order_id", orderId)
+    .order("created_at");
+  if (error) return [];
+  return z.array(orderChangeSchema).parse(data);
 }
 
 /** One order with its lines; RLS lets the customer and the dukan's order staff read it. */

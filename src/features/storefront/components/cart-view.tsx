@@ -19,7 +19,11 @@ import { formatRs } from "@/lib/money";
 import { useCustomerCart, type CartLine } from "../cart-store";
 import type { DeliveryZone, NearbyShop } from "../schemas";
 import { AddressSection } from "./checkout/address-section";
-import { InstructionsSection, PaymentSection } from "./checkout/instructions-section";
+import {
+  InstructionsSection,
+  PaymentSection,
+  UnavailableSection,
+} from "./checkout/instructions-section";
 
 type Group = { shopId: string; shopName: string; shopSlug: string; lines: CartLine[] };
 
@@ -102,6 +106,7 @@ function usePlaceOrder(group: Group, address: SavedAddress | null) {
         addressId: address.id,
         note: note || undefined,
         requestId: requestId.current,
+        ifUnavailable: state.ifUnavailable,
       });
       if (!result.ok) {
         haptic("warning");
@@ -184,6 +189,7 @@ export function CartView({
         />
       ))}
 
+      <UnavailableSection />
       <InstructionsSection />
       <PaymentSection />
 

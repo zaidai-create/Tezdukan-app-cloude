@@ -1359,7 +1359,17 @@
       "addAddress": "Delivery ka pata shamil karein",
       "notDelivering": "{shop} is pate par deliver nahi karti. Doosra pata chunein, ya yeh cheezein hata dein.",
       "notOpen": "{shop} abhi order nahi le rahi.",
-      "removeItems": "Yeh cheezein hatayein"
+      "removeItems": "Yeh cheezein hatayein",
+      "unavailable": {
+        "title": "Agar koi cheez na mile",
+        "hint": "Kabhi dukan par cheez khatam ho jati hai. Batayein aap kya chahte hain.",
+        "call_me": "Mujhe call karein",
+        "replace": "Milti julti bhejein",
+        "remove": "Hata dein",
+        "call_meHint": "Dukan kuch badalne se pehle aap ko call karegi.",
+        "replaceHint": "Dukan utni ya kam qeemat ki milti julti cheez bhejegi aur aap ko batayegi.",
+        "removeHint": "Dukan woh cheez nikal degi aur aap ka bill kam ho jayega."
+      }
     },
     "addAddressHint": "Sahi dukanein aur delivery ka waqt dekhne ke liye apna pata add karein",
     "etaShort": "{minutes, number} min",
@@ -1541,7 +1551,14 @@
       "not_delivered": "Order deliver hone ke baad rating de sakte hain.",
       "invalid_rating": "1 se 5 sitare chunein.",
       "out_of_area": "Yeh dukan aap ke pate par deliver nahi karti. Doosra pata ya qareeb ki dukan chunein.",
-      "address_location_required": "Is pate par naqshe ka nishan nahi laga. Pata khol kar nishan lagayein."
+      "address_location_required": "Is pate par naqshe ka nishan nahi laga. Pata khol kar nishan lagayein.",
+      "last_item": "Order mein yahi ek cheez hai. Is ke bajaye order reject karein.",
+      "replacement_costs_more": "Badal utni ya kam qeemat ka hona chahiye.",
+      "customer_wants_removal": "Customer ne kaha hai ke na milne wali cheez hata dein, badlein nahi.",
+      "item_not_found": "Yeh cheez ab order mein nahi. Refresh karein.",
+      "invalid_reason": "Batayein kya ghalat hua.",
+      "details_required": "Kuch alfaaz likhein ke kya hua.",
+      "rate_limited": "Bohat zyada messages. Ek minute rukein."
     },
     "hero": {
       "placed": "{shop} ke qubool karne ka intezar",
@@ -1591,6 +1608,48 @@
       "hint": "Aap ke sitare doosre khareedaron ki madad karte hain.",
       "saved": "Shukriya. Aap ke sitare mehfooz ho gaye.",
       "starsFor": "{name} ke liye {count, plural, one {# sitara} other {# sitare}}"
+    },
+    "unavailable": {
+      "title": "Koi cheez shelf par nahi?",
+      "hint": "Usay hatayein ya milti julti cheez bhejein. Bill aur customer khud update ho jayenge.",
+      "customerSays": "Customer kehta hai",
+      "choice": {
+        "call_me": "Pehle mujhe call karein",
+        "replace": "Milti julti cheez bhejein (utni ya kam qeemat)",
+        "remove": "Bas hata dein"
+      },
+      "notAvailable": "Nahi hai",
+      "lastItemHint": "Yeh akeli cheez hai. Agar aap ke paas nahi to order reject karein.",
+      "sheetTitle": "{name} nahi hai",
+      "remove": "Order se hatayein",
+      "replace": "Milti julti cheez bhejein",
+      "noReplaceHint": "Customer ne kaha hai ke na milne wali cheez hata dein, badlein nahi.",
+      "pickTitle": "Badal chunein",
+      "pickHint": "Aap ki usi qisam ki cheezein jo stock mein hain aur utni ya kam qeemat ki hain.",
+      "noOptions": "Utni ya kam qeemat ki milti julti cheez nahi. Usay hata dein.",
+      "removed": "Hata di. Customer ko bata diya gaya.",
+      "replaced": "{name} se badal di. Customer ko bata diya gaya.",
+      "changesTitle": "Dukan ne badla",
+      "removedLine": "nahi thi, {amount} kam kiye gaye"
+    },
+    "problem": {
+      "button": "Masla batayein",
+      "title": "Kya ghalat hua?",
+      "hint": "TezDukan ki team aur dukan dono dekhenge, aur hum support chat mein jawab denge.",
+      "reasons": {
+        "missing_item": "Koi cheez kam hai",
+        "damaged": "Kharab ya expire",
+        "wrong_item": "Ghalat cheez aayi",
+        "late": "Delivery mein der",
+        "other": "Kuch aur"
+      },
+      "details": "Kuch alfaaz (ikhtiyari)",
+      "detailsRequired": "Batayein kya hua",
+      "send": "Bhejein",
+      "sent": "Bhej diya. Hum support chat mein jawab denge.",
+      "reported": "Masla bata diya gaya",
+      "reportedHint": "TezDukan ki team dekh rahi hai.",
+      "openChat": "Chat kholein"
     }
   },
   "shopDash": {
@@ -2248,5 +2307,17 @@
     "emptyHint": "Wholesale rate par samaan mangwane ke liye apni dukan register karein.",
     "registerDukan": "Dukan register karein",
     "questions": "Koi sawal? Hum se baat karein"
+  },
+  "launchAd": {
+    "label": "TezDukan",
+    "skip": "Chhorein",
+    "customer": {
+      "title": "Aap ke mohallay ki dukan, 30 minute mein aap ke darwaze par",
+      "body": "Hyderabad mein qareebi dukanon se sauda. Samaan milne par cash dein."
+    },
+    "business": {
+      "title": "Wholesale rate par samaan, agle din delivery",
+      "body": "Distributors se minton mein order, online orders lein aur khata ek hi app mein rakhein."
+    }
   }
 }

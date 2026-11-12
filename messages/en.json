@@ -1359,7 +1359,17 @@
       "addAddress": "Add delivery address",
       "notDelivering": "{shop} does not deliver to this address. Choose another address, or remove these items.",
       "notOpen": "{shop} is not taking orders right now.",
-      "removeItems": "Remove these items"
+      "removeItems": "Remove these items",
+      "unavailable": {
+        "title": "If something is not available",
+        "hint": "Dukans run out sometimes. Tell them what you want.",
+        "call_me": "Call me",
+        "replace": "Send similar",
+        "remove": "Remove it",
+        "call_meHint": "The dukan calls you before changing anything.",
+        "replaceHint": "The dukan sends a similar item at the same price or less, and tells you.",
+        "removeHint": "The dukan leaves it out and your total goes down."
+      }
     },
     "addAddressHint": "Add your address for the right dukans and delivery time",
     "etaShort": "{minutes, number} min",
@@ -1541,7 +1551,14 @@
       "not_delivered": "You can rate the order once it is delivered.",
       "invalid_rating": "Choose 1 to 5 stars.",
       "out_of_area": "This dukan does not deliver to your address. Choose another address or a dukan near you.",
-      "address_location_required": "This address has no map pin yet. Edit the address and place the pin."
+      "address_location_required": "This address has no map pin yet. Edit the address and place the pin.",
+      "last_item": "This is the only item in the order. Reject the order instead.",
+      "replacement_costs_more": "The replacement must cost the same or less.",
+      "customer_wants_removal": "The customer asked for missing items to be removed, not replaced.",
+      "item_not_found": "This item is no longer in the order. Pull down to refresh.",
+      "invalid_reason": "Choose what went wrong.",
+      "details_required": "Write a few words about what happened.",
+      "rate_limited": "Too many messages. Please wait a minute."
     },
     "hero": {
       "placed": "Waiting for {shop} to accept",
@@ -1591,6 +1608,48 @@
       "hint": "Your stars help other shoppers choose.",
       "saved": "Thanks. Your stars are saved.",
       "starsFor": "{count, plural, one {# star} other {# stars}} for {name}"
+    },
+    "unavailable": {
+      "title": "Something not on the shelf?",
+      "hint": "Remove it or send a similar item. The total and the customer update by themselves.",
+      "customerSays": "The customer says",
+      "choice": {
+        "call_me": "Call me first",
+        "replace": "Send something similar (same price or less)",
+        "remove": "Just remove it"
+      },
+      "notAvailable": "Not available",
+      "lastItemHint": "This is the only item. If you don't have it, reject the order.",
+      "sheetTitle": "{name} is not available",
+      "remove": "Remove from the order",
+      "replace": "Send something similar",
+      "noReplaceHint": "The customer asked for missing items to be removed, not replaced.",
+      "pickTitle": "Pick the replacement",
+      "pickHint": "Your products of the same kind, in stock, at the same price or less.",
+      "noOptions": "Nothing similar at the same price or less. Remove it instead.",
+      "removed": "Removed. The customer has been told.",
+      "replaced": "Replaced with {name}. The customer has been told.",
+      "changesTitle": "Changed by the dukan",
+      "removedLine": "not available, {amount} taken off"
+    },
+    "problem": {
+      "button": "Report a problem",
+      "title": "What went wrong?",
+      "hint": "The TezDukan team and the dukan see it, and we get back to you in the support chat.",
+      "reasons": {
+        "missing_item": "Something is missing",
+        "damaged": "Damaged or expired",
+        "wrong_item": "Wrong item",
+        "late": "Late delivery",
+        "other": "Something else"
+      },
+      "details": "A few words (optional)",
+      "detailsRequired": "Tell us what happened",
+      "send": "Send",
+      "sent": "Sent. We will get back to you in the support chat.",
+      "reported": "Problem reported",
+      "reportedHint": "The TezDukan team is looking into it.",
+      "openChat": "Open chat"
     }
   },
   "shopDash": {
@@ -2248,5 +2307,17 @@
     "emptyHint": "Register your dukan to order stock at trade prices.",
     "registerDukan": "Register dukan",
     "questions": "Questions? Chat with us"
+  },
+  "launchAd": {
+    "label": "TezDukan",
+    "skip": "Skip",
+    "customer": {
+      "title": "Your mohalla dukan, at your door in 30 minutes",
+      "body": "Groceries from dukans near you in Hyderabad. Pay cash when it arrives."
+    },
+    "business": {
+      "title": "Stock at trade prices, delivered next day",
+      "body": "Order from distributors in minutes, take online orders and keep your khata in one app."
+    }
   }
 }

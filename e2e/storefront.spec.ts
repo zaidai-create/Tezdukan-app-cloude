@@ -65,6 +65,8 @@ test("a shopper searches, orders, and rates what the dukandar delivered", async 
   // The demo shopper has a saved address, so checkout shows it instead of empty fields.
   await expect(shopper.getByText(storefront.cart.addressTitle, { exact: true })).toBeVisible();
   await shopper.getByRole("button", { name: storefront.cart.instructions.callOnArrival }).click();
+  // If something is missing, just leave it out.
+  await shopper.getByRole("radio", { name: storefront.cart.unavailable.remove }).click();
   await shopper.getByRole("button", { name: /^Place order/ }).click();
   await expect(shopper).toHaveURL(/\/orders\/[0-9a-f-]+\?placed=1$/, { timeout: 20_000 });
   // The "Order placed!" moment, then the tracking screen underneath.
@@ -80,8 +82,18 @@ test("a shopper searches, orders, and rates what the dukandar delivered", async 
   await dukandar.getByRole("button", { name: customerOrders.actions.accept }).click();
   await expect(dukandar.getByText(customerOrders.moved.accepted)).toBeVisible();
 
+  // One item is not on the shelf: the dukandar sees the customer's choice and removes it.
+  await expect(dukandar.getByText(customerOrders.unavailable.choice.remove)).toBeVisible();
+  await dukandar
+    .getByRole("button", { name: customerOrders.unavailable.notAvailable })
+    .first()
+    .click();
+  await dukandar.getByRole("button", { name: customerOrders.unavailable.remove }).click();
+  await expect(dukandar.getByText(customerOrders.unavailable.removed)).toBeVisible();
+
   await shopper.reload({ waitUntil: "networkidle" });
   await expect(shopper.getByText(customerOrders.status.accepted).first()).toBeVisible();
+  await expect(shopper.getByText(customerOrders.unavailable.changesTitle)).toBeVisible();
 
   // Delivered: the shopper gives stars to what they bought, with one tap.
   await dukandar.getByRole("button", { name: customerOrders.actions.delivered }).click();
@@ -95,6 +107,13 @@ test("a shopper searches, orders, and rates what the dukandar delivered", async 
     .first()
     .click();
   await expect(shopper.getByText(customerOrders.rateItems.saved)).toBeVisible();
+
+  // Something was missing: the shopper reports it in two taps; it goes to support and the dukan.
+  await shopper.getByRole("button", { name: customerOrders.problem.button }).click();
+  await shopper.getByRole("radio", { name: customerOrders.problem.reasons.missing_item }).click();
+  await shopper.getByRole("button", { name: customerOrders.problem.send }).click();
+  await expect(shopper.getByText(customerOrders.problem.sent)).toBeVisible();
+  await expect(shopper.getByText(customerOrders.problem.reported)).toBeVisible();
 
   await dukandar.context().close();
   await shopper.context().close();

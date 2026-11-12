@@ -4,6 +4,23 @@ All notable changes, newest first. Dates are Asia/Karachi.
 
 ## Unreleased
 
+### Opening ad, app 0.1.7, and "if something is not available" (2026-11-12)
+
+- Opening ad: when the app opens, TezDukan's own poster fills the screen while the first screen
+  loads behind it (shoppers see the shopping poster, dukandars and distributors the wholesale
+  one), with Skip, once per session. It is part of the page shell, so it paints at once.
+- App 0.1.7: the Android splash is the same poster (English, and Urdu on phones set to Urdu),
+  fitted to the screen. Signed with the same key as 0.1.6, so it installs as an update.
+- Checkout asks "If something is not available": call me, send something similar, or remove
+  it. The dukandar sees the choice on the order and can mark a line "Not available": remove it,
+  or send one of the dukan's own products of the same kind at the same price or less. The
+  total updates, the delivery fee stays, and the customer is notified and sees "Changed by the
+  dukan" on the order. Stock taken on delivery follows what was actually sent.
+- Report a problem: on any order that is not cancelled, the customer picks what went wrong
+  (missing, damaged or expired, wrong item, late, something else) and sends it. It opens a
+  support ticket for the order, appears in the customer's support chat where the TezDukan team
+  answers, and alerts the dukan. The order then shows "Problem reported" with a link to the chat.
+
 ### Admin dashboard as a website (2026-11-12)
 
 - The admin panel has its own address, tezdukan-admin.vercel.app: it opens straight to an

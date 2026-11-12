@@ -17,12 +17,17 @@ import { CancelOrderButton, ShopOrderActions } from "./components/order-actions"
 import { OrderAgainButton } from "./components/order-again-button";
 import { OrderCelebration } from "./components/order-celebration";
 import { RateItems } from "./components/rate-items";
+import { ReportProblem } from "./components/report-problem";
+import { OrderChanges } from "./components/order-changes";
+import { UnavailableItems } from "./components/unavailable-items";
 import { RateOrder } from "./components/rate-order";
 import { OrderHero, OrderProgress, OrderStatusBadge, OrderSummary } from "./components/order-parts";
 import {
   getCustomerOrder,
   getMyCustomerOrders,
   getMyItemRatings,
+  getOrderChanges,
+  hasOpenProblem,
   getMyOrderRating,
   getShopCustomerOrders,
 } from "./data";
@@ -140,10 +145,12 @@ async function MyOrderContent({
   }
   const justPlaced = query.placed === "1" && order.status === "placed";
   const delivered = order.status === "delivered";
-  const [shops, myRating, itemRatings] = await Promise.all([
+  const [shops, myRating, itemRatings, changes, reported] = await Promise.all([
     getNearbyShops().catch(() => []),
     delivered ? getMyOrderRating(order.id) : Promise.resolve(null),
     delivered ? getMyItemRatings(order.id) : Promise.resolve({}),
+    getOrderChanges(order.id),
+    hasOpenProblem(order.id),
   ]);
   const shop = shops.find((s) => s.id === order.shop_id);
   const call = telHref(shop?.phone);
@@ -204,9 +211,13 @@ async function MyOrderContent({
       <section className="rounded-lg border border-border/60 bg-surface p-4 shadow-card">
         <OrderProgress order={order} />
       </section>
+      <OrderChanges changes={changes} />
       <OrderSummary order={order} />
       {order.status === "placed" ? <CancelOrderButton orderId={order.id} /> : null}
       {finished ? <OrderAgainButton orderId={order.id} /> : null}
+      {order.status === "cancelled" || order.status === "rejected" ? null : (
+        <ReportProblem orderId={order.id} reported={reported} />
+      )}
     </div>
   );
 }
@@ -297,7 +308,11 @@ async function ShopOrderContent({ params }: { params: Promise<{ id: string }> })
   await connection();
   const { id } = await params;
   await requireRole("dukandar", `/dukan/customer-orders/${id}`);
-  const [t, order] = await Promise.all([getTranslations("customerOrders"), getCustomerOrder(id)]);
+  const [t, order, changes] = await Promise.all([
+    getTranslations("customerOrders"),
+    getCustomerOrder(id),
+    getOrderChanges(id),
+  ]);
   if (!order) {
     return (
       <div className="mx-auto w-full max-w-3xl px-4 py-10">
@@ -354,7 +369,9 @@ async function ShopOrderContent({ params }: { params: Promise<{ id: string }> })
       <section className="rounded-lg border border-border/60 bg-surface p-4 shadow-card">
         <OrderProgress order={order} />
       </section>
+      <OrderChanges changes={changes} />
       <OrderSummary order={order} forShop />
+      <UnavailableItems order={order} />
       <ShopOrderActions orderId={order.id} status={order.status} />
     </div>
   );

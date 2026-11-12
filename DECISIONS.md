@@ -179,6 +179,19 @@ section. Format: **decision** — reason (date).
   through `register_shop` / `register_organization`. The `auto_approve_registrations` flag (on
   for the test site, off by default and in every pgTAP test) approves them in a before-insert
   trigger, so admin approval is one switch away. (2026-11-02)
+- **The opening ad is part of the static shell, not a separate screen** (owner's call,
+  2026-11-12) — it paints with the first byte of HTML, so it covers the load instead of adding
+  to it. A boot script hides it on reloads in the same tab; it is marked seen only after it
+  fades, because React runs effects twice in development. Automated browsers skip it unless
+  the address has `?launchAd=1`, so scripted checks see the app. The Android splash is the
+  same picture, rendered from the page, fitted with `FIT_CENTER` in `LauncherActivity`.
+- **A missing item changes the order, and the old line moves to `customer_order_changes`**
+  (2026-11-12) — deleting the line from `customer_order_items` (after logging it) keeps every
+  report, stock movement, "Buy again" and rating reading only what is really in the order,
+  without filtering a flag in each of them. Replacements must be the same category and cost
+  the same or less (the customer's promise at checkout); the delivery fee never goes up. The
+  choice is a required sixth argument of a new `place_customer_order` overload so a call
+  always matches exactly one function on the hosted database, where old signatures stay.
 - **The admin website is the same app on its own host** (owner's call, 2026-11-12) — a host
   whose first label is "admin" or ends in "-admin" (`isAdminHost`) sends `/` and the sign-in
   pages to `/admin`, so one deployment serves both and nothing is duplicated; RLS and the

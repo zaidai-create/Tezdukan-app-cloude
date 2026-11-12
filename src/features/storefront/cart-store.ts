@@ -29,10 +29,15 @@ export type CartLine = z.infer<typeof cartLineSchema>;
 export const deliveryInstructions = ["callOnArrival", "ringBell", "leaveAtDoor", "noBell"] as const;
 export type DeliveryInstruction = (typeof deliveryInstructions)[number];
 
+/** What to do when an item is not on the dukan's shelf (the dukan sees it on the order). */
+export const unavailableChoices = ["call_me", "replace", "remove"] as const;
+export type UnavailableChoice = (typeof unavailableChoices)[number];
+
 const storedSchema = z.object({
   lines: z.array(cartLineSchema).catch([]),
   instructions: z.array(z.enum(deliveryInstructions)).catch([]),
   note: z.string().max(200).catch(""),
+  ifUnavailable: z.enum(unavailableChoices).catch("call_me"),
 });
 type Stored = z.infer<typeof storedSchema>;
 
@@ -49,6 +54,7 @@ export const useCustomerCart = create<CartState>()(
       lines: [],
       instructions: [],
       note: "",
+      ifUnavailable: "call_me",
       setQuantity: (product, quantity) =>
         set((state) => {
           const rest = state.lines.filter((line) => line.id !== product.id);
@@ -90,6 +96,7 @@ export const useCustomerCart = create<CartState>()(
         lines: state.lines,
         instructions: state.instructions,
         note: state.note,
+        ifUnavailable: state.ifUnavailable,
       }),
       merge: (persisted, current) => ({ ...current, ...storedSchema.parse(persisted ?? {}) }),
     },

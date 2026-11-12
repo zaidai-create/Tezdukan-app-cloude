@@ -10,6 +10,10 @@ import {
   customerOrderStatuses,
   orderErrorKey,
   placeOrderSchema,
+  type ProblemReason,
+  problemReasons,
+  type Replacement,
+  replacementSchema,
   type CustomerOrderStatus,
   type OrderError,
   type PlaceOrderInput,
@@ -35,8 +39,9 @@ export async function placeCustomerOrder(
     p_shop_id: parsed.data.shopId,
     p_items: parsed.data.items.map((item) => ({ inventory_id: item.inventoryId, qty: item.qty })),
     p_address_id: parsed.data.addressId,
-    p_note: parsed.data.note || undefined,
+    p_note: parsed.data.note ?? "",
     p_request_id: parsed.data.requestId,
+    p_if_unavailable: parsed.data.ifUnavailable,
   });
   const placed = placedSchema.safeParse(data);
   if (error || !placed.success) return { ok: false, error: orderErrorKey(error?.message) };
@@ -112,6 +117,75 @@ export async function rateOrderItems(
   });
   if (error) return { ok: false, error: orderErrorKey(error.message) };
   return { ok: true, data: { saved: z.number().int().catch(0).parse(data) } };
+}
+
+const lineSchema = z.uuid();
+
+/** The dukan's own products that can stand in for a missing line (same price or less). */
+export async function findReplacements(itemId: string): Promise<OrderResult<Replacement[]>> {
+  const parsed = lineSchema.safeParse(itemId);
+  if (!parsed.success) return { ok: false, error: "generic" };
+  const supabase = await getSupabaseServerClient();
+  const { data, error } = await supabase.rpc("order_item_replacements", { p_item_id: parsed.data });
+  if (error) return { ok: false, error: orderErrorKey(error.message) };
+  return { ok: true, data: z.array(replacementSchema).parse(data) };
+}
+
+/** Takes a line the dukan does not have out of the order; the total follows. */
+export async function removeOrderItem(itemId: string): Promise<OrderResult<null>> {
+  const parsed = lineSchema.safeParse(itemId);
+  if (!parsed.success) return { ok: false, error: "generic" };
+  const supabase = await getSupabaseServerClient();
+  const { error } = await supabase.rpc("remove_order_item", { p_item_id: parsed.data });
+  if (error) return { ok: false, error: orderErrorKey(error.message) };
+  refresh();
+  after(flushPushOutboxQuietly);
+  return { ok: true, data: null };
+}
+
+/** Sends a similar product (same price or less) in place of a missing line. */
+export async function replaceOrderItem(
+  itemId: string,
+  inventoryId: string,
+): Promise<OrderResult<null>> {
+  const item = lineSchema.safeParse(itemId);
+  const replacement = lineSchema.safeParse(inventoryId);
+  if (!item.success || !replacement.success) return { ok: false, error: "generic" };
+  const supabase = await getSupabaseServerClient();
+  const { error } = await supabase.rpc("replace_order_item", {
+    p_item_id: item.data,
+    p_inventory_id: replacement.data,
+  });
+  if (error) return { ok: false, error: orderErrorKey(error.message) };
+  refresh();
+  after(flushPushOutboxQuietly);
+  return { ok: true, data: null };
+}
+
+const problemSchema = z.object({
+  orderId: z.uuid(),
+  reason: z.enum(problemReasons),
+  details: z.string().trim().max(1000).optional(),
+});
+
+/** Tells the TezDukan team (in the support chat) and the dukan what went wrong. */
+export async function reportOrderProblem(
+  orderId: string,
+  reason: ProblemReason,
+  details?: string,
+): Promise<OrderResult<null>> {
+  const parsed = problemSchema.safeParse({ orderId, reason, details });
+  if (!parsed.success) return { ok: false, error: "invalid_reason" };
+  const supabase = await getSupabaseServerClient();
+  const { error } = await supabase.rpc("report_order_problem", {
+    p_order_id: parsed.data.orderId,
+    p_reason: parsed.data.reason,
+    p_details: parsed.data.details || undefined,
+  });
+  if (error) return { ok: false, error: orderErrorKey(error.message) };
+  refresh();
+  after(flushPushOutboxQuietly);
+  return { ok: true, data: null };
 }
 
 /** Stars (and a few words) for the dukan after a delivered order. */

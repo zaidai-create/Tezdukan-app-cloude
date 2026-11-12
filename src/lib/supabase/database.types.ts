@@ -1593,6 +1593,96 @@ export type Database = {
           },
         ];
       };
+      customer_order_changes: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          customer_id: string | null;
+          customer_order_id: string;
+          id: string;
+          item_name: string;
+          item_name_ur: string | null;
+          kind: Database["public"]["Enums"]["order_change_kind"];
+          line_total_paisa: number;
+          new_line_total_paisa: number | null;
+          new_name: string | null;
+          new_name_ur: string | null;
+          new_unit_price_paisa: number | null;
+          qty: number;
+          shop_id: string;
+          unit_price_paisa: number;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          customer_id?: string | null;
+          customer_order_id: string;
+          id?: string;
+          item_name: string;
+          item_name_ur?: string | null;
+          kind: Database["public"]["Enums"]["order_change_kind"];
+          line_total_paisa: number;
+          new_line_total_paisa?: number | null;
+          new_name?: string | null;
+          new_name_ur?: string | null;
+          new_unit_price_paisa?: number | null;
+          qty: number;
+          shop_id: string;
+          unit_price_paisa: number;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          customer_id?: string | null;
+          customer_order_id?: string;
+          id?: string;
+          item_name?: string;
+          item_name_ur?: string | null;
+          kind?: Database["public"]["Enums"]["order_change_kind"];
+          line_total_paisa?: number;
+          new_line_total_paisa?: number | null;
+          new_name?: string | null;
+          new_name_ur?: string | null;
+          new_unit_price_paisa?: number | null;
+          qty?: number;
+          shop_id?: string;
+          unit_price_paisa?: number;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "customer_order_changes_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "customer_order_changes_customer_id_fkey";
+            columns: ["customer_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "customer_order_changes_customer_order_id_fkey";
+            columns: ["customer_order_id"];
+            isOneToOne: false;
+            referencedRelation: "customer_orders";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "customer_order_changes_shop_id_fkey";
+            columns: ["shop_id"];
+            isOneToOne: false;
+            referencedRelation: "shops";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       customer_order_items: {
         Row: {
           created_at: string;
@@ -1707,6 +1797,7 @@ export type Database = {
           discount_paisa: number;
           fulfilment: Database["public"]["Enums"]["fulfilment_type"];
           id: string;
+          if_unavailable: Database["public"]["Enums"]["unavailable_choice"];
           items_count: number;
           notes: string | null;
           order_number: string;
@@ -1743,6 +1834,7 @@ export type Database = {
           discount_paisa?: number;
           fulfilment?: Database["public"]["Enums"]["fulfilment_type"];
           id?: string;
+          if_unavailable?: Database["public"]["Enums"]["unavailable_choice"];
           items_count?: number;
           notes?: string | null;
           order_number: string;
@@ -1778,6 +1870,7 @@ export type Database = {
           discount_paisa?: number;
           fulfilment?: Database["public"]["Enums"]["fulfilment_type"];
           id?: string;
+          if_unavailable?: Database["public"]["Enums"]["unavailable_choice"];
           items_count?: number;
           notes?: string | null;
           order_number?: string;
@@ -8601,6 +8694,7 @@ export type Database = {
         Returns: string;
       };
       order_delivery_code: { Args: { p_order_id: string }; Returns: string };
+      order_item_replacements: { Args: { p_item_id: string }; Returns: Json };
       org_catalog: {
         Args: {
           p_filter?: string;
@@ -8625,16 +8719,28 @@ export type Database = {
         Returns: Json;
       };
       org_starter_pack: { Args: { p_limit?: number; p_org_id: string }; Returns: Json };
-      place_customer_order: {
-        Args: {
-          p_address_id: string;
-          p_items: Json;
-          p_note?: string;
-          p_request_id?: string;
-          p_shop_id: string;
-        };
-        Returns: Json;
-      };
+      place_customer_order:
+        | {
+            Args: {
+              p_address_id: string;
+              p_items: Json;
+              p_note?: string;
+              p_request_id?: string;
+              p_shop_id: string;
+            };
+            Returns: Json;
+          }
+        | {
+            Args: {
+              p_address_id: string;
+              p_if_unavailable: Database["public"]["Enums"]["unavailable_choice"];
+              p_items: Json;
+              p_note: string;
+              p_request_id: string;
+              p_shop_id: string;
+            };
+            Returns: Json;
+          };
       place_order: {
         Args: {
           p_client_request_id: string;
@@ -8849,8 +8955,102 @@ export type Database = {
           isSetofReturn: false;
         };
       };
+      remove_order_item: {
+        Args: { p_item_id: string };
+        Returns: {
+          accepted_at: string | null;
+          address_id: string | null;
+          cancel_reason: string | null;
+          cancelled_at: string | null;
+          cancelled_by: string | null;
+          client_request_id: string | null;
+          created_at: string;
+          created_by: string | null;
+          customer_id: string | null;
+          customer_name: string | null;
+          customer_phone: string | null;
+          deleted_at: string | null;
+          delivered_at: string | null;
+          delivery_address: Json | null;
+          delivery_fee_paisa: number;
+          discount_paisa: number;
+          fulfilment: Database["public"]["Enums"]["fulfilment_type"];
+          id: string;
+          if_unavailable: Database["public"]["Enums"]["unavailable_choice"];
+          items_count: number;
+          notes: string | null;
+          order_number: string;
+          out_for_delivery_at: string | null;
+          packed_at: string | null;
+          payment_method: Database["public"]["Enums"]["customer_payment_method"];
+          payment_status: Database["public"]["Enums"]["order_payment_status"];
+          pos_bill_id: string | null;
+          rejected_reason: string | null;
+          shop_id: string;
+          shop_name: string;
+          status: Database["public"]["Enums"]["customer_order_status"];
+          subtotal_paisa: number;
+          total_paisa: number;
+          updated_at: string;
+        };
+        SetofOptions: {
+          from: "*";
+          to: "customer_orders";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
       reorder: { Args: { p_order_id: string }; Returns: Json };
       reorder_customer_order: { Args: { p_order_id: string }; Returns: Json };
+      replace_order_item: {
+        Args: { p_inventory_id: string; p_item_id: string };
+        Returns: {
+          accepted_at: string | null;
+          address_id: string | null;
+          cancel_reason: string | null;
+          cancelled_at: string | null;
+          cancelled_by: string | null;
+          client_request_id: string | null;
+          created_at: string;
+          created_by: string | null;
+          customer_id: string | null;
+          customer_name: string | null;
+          customer_phone: string | null;
+          deleted_at: string | null;
+          delivered_at: string | null;
+          delivery_address: Json | null;
+          delivery_fee_paisa: number;
+          discount_paisa: number;
+          fulfilment: Database["public"]["Enums"]["fulfilment_type"];
+          id: string;
+          if_unavailable: Database["public"]["Enums"]["unavailable_choice"];
+          items_count: number;
+          notes: string | null;
+          order_number: string;
+          out_for_delivery_at: string | null;
+          packed_at: string | null;
+          payment_method: Database["public"]["Enums"]["customer_payment_method"];
+          payment_status: Database["public"]["Enums"]["order_payment_status"];
+          pos_bill_id: string | null;
+          rejected_reason: string | null;
+          shop_id: string;
+          shop_name: string;
+          status: Database["public"]["Enums"]["customer_order_status"];
+          subtotal_paisa: number;
+          total_paisa: number;
+          updated_at: string;
+        };
+        SetofOptions: {
+          from: "*";
+          to: "customer_orders";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      report_order_problem: {
+        Args: { p_details?: string; p_order_id: string; p_reason: string };
+        Returns: string;
+      };
       request_account_deletion: { Args: { p_reason?: string }; Returns: Json };
       request_return: {
         Args: { p_items: Json; p_notes?: string; p_order_id: string; p_photo_paths?: string[] };
@@ -9163,6 +9363,7 @@ export type Database = {
           discount_paisa: number;
           fulfilment: Database["public"]["Enums"]["fulfilment_type"];
           id: string;
+          if_unavailable: Database["public"]["Enums"]["unavailable_choice"];
           items_count: number;
           notes: string | null;
           order_number: string;
@@ -9301,6 +9502,7 @@ export type Database = {
         | "support"
         | "system"
         | "chat";
+      order_change_kind: "removed" | "replaced";
       order_payment_method: "cod" | "credit" | "jazzcash" | "easypaisa" | "raast" | "bank_transfer";
       order_payment_status: "unpaid" | "partially_paid" | "paid" | "refunded";
       order_source: "app" | "munshi" | "parchi" | "reorder" | "booker" | "api" | "whatsapp";
@@ -9367,6 +9569,7 @@ export type Database = {
       trip_status: "planned" | "in_progress" | "completed" | "cancelled";
       trip_stop_status:
         "pending" | "arrived" | "delivered" | "partially_delivered" | "failed" | "skipped";
+      unavailable_choice: "call_me" | "replace" | "remove";
       vehicle_kind: "bike" | "rickshaw" | "loader" | "van";
       visit_outcome:
         "ordered" | "no_order" | "shop_closed" | "payment_collected" | "follow_up" | "onboarded";
@@ -9585,6 +9788,7 @@ export const Constants = {
         "system",
         "chat",
       ],
+      order_change_kind: ["removed", "replaced"],
       order_payment_method: ["cod", "credit", "jazzcash", "easypaisa", "raast", "bank_transfer"],
       order_payment_status: ["unpaid", "partially_paid", "paid", "refunded"],
       order_source: ["app", "munshi", "parchi", "reorder", "booker", "api", "whatsapp"],
@@ -9670,6 +9874,7 @@ export const Constants = {
         "failed",
         "skipped",
       ],
+      unavailable_choice: ["call_me", "replace", "remove"],
       vehicle_kind: ["bike", "rickshaw", "loader", "van"],
       visit_outcome: [
         "ordered",
