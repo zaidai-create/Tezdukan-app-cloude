@@ -2085,7 +2085,12 @@
       "joined": "Joined {date}",
       "reason": "Reason: {reason}",
       "call": "Call",
-      "whatsapp": "WhatsApp"
+      "whatsapp": "WhatsApp",
+      "cnicSent": "CNIC and photo sent",
+      "cnicShort": "CNIC",
+      "documents": "Registration documents",
+      "documentsFailed": "Couldn't load the documents.",
+      "retry": "Retry"
     },
     "actions": {
       "approve": "Approve",

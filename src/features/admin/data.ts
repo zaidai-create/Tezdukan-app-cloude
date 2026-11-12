@@ -77,3 +77,24 @@ export const getAdminOrders = (kind: AdminOrderKind, query: string) =>
 export const getFlags = () => call("admin_flags", {}, z.array(flagSchema));
 
 export const getAudit = () => call("admin_audit", { p_limit: 80 }, z.array(auditEntrySchema));
+
+/** Which of these dukans (or distributors) sent registration documents (RLS: staff read all). */
+export async function getDocumentOwners(
+  target: "shop" | "org",
+  ids: string[],
+): Promise<Set<string>> {
+  if (ids.length === 0) return new Set();
+  const supabase = await getSupabaseServerClient();
+  const column = target === "shop" ? "shop_id" : "org_id";
+  const { data, error } = await supabase
+    .from("registration_documents")
+    .select("shop_id, org_id")
+    .in(column, ids);
+  if (error || !data) return new Set();
+  return new Set(
+    data.flatMap((row) => {
+      const owner = target === "shop" ? row.shop_id : row.org_id;
+      return owner ? [owner] : [];
+    }),
+  );
+}

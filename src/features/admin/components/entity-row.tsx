@@ -1,10 +1,11 @@
 "use client";
 
 import { cn } from "cn";
-import { ChevronRight, MessageSquareShare, Phone, Star } from "lucide-react";
+import { ChevronRight, IdCard, MessageSquareShare, Phone, Star } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Sheet,
   SheetBody,
@@ -22,6 +23,8 @@ import type { Target } from "../actions";
 import { entityColumns } from "./columns";
 import { DeliveryControl } from "./delivery-control";
 import { EntityActions } from "./entity-actions";
+import { KycDocuments } from "./kyc-documents";
+import { useEntityDocuments } from "../queries";
 
 export type EntitySummary = {
   target: Target;
@@ -45,6 +48,8 @@ export type EntitySummary = {
   radiusM?: number;
   allCity?: boolean;
   hasPin?: boolean;
+  /** Sent a CNIC and place photo when registering. */
+  hasDocuments?: boolean;
 };
 
 const tone: Record<string, StatusTone> = {
@@ -81,7 +86,12 @@ export function EntityRow({ entity, canEdit }: { entity: EntitySummary; canEdit:
             <AvatarFallback name={entity.name} className="rounded-md text-xs" />
           </Avatar>
           <span className="min-w-0">
-            <span className="block truncate font-semibold text-ink">{entity.name}</span>
+            <span className="flex items-center gap-1.5">
+              <span className="truncate font-semibold text-ink">{entity.name}</span>
+              {entity.hasDocuments ? (
+                <CnicMark label={t("list.cnicSent")} short={t("list.cnicShort")} />
+              ) : null}
+            </span>
             <span className="block truncate text-sm text-muted">{owner}</span>
           </span>
         </span>
@@ -127,6 +137,9 @@ export function EntityRow({ entity, canEdit }: { entity: EntitySummary; canEdit:
         <span className="min-w-0 flex-1 lg:hidden">
           <span className="flex items-center gap-2">
             <span className="truncate font-semibold text-ink">{entity.name}</span>
+            {entity.hasDocuments ? (
+              <CnicMark label={t("list.cnicSent")} short={t("list.cnicShort")} />
+            ) : null}
             {entity.status !== "approved" ? (
               <StatusBadge tone={tone[entity.status] ?? "neutral"} icon={null}>
                 {t(`status.${entity.status}` as "status.pending")}
@@ -227,6 +240,10 @@ export function EntityRow({ entity, canEdit }: { entity: EntitySummary; canEdit:
                 </li>
               ) : null}
             </ul>
+            <section className="flex flex-col gap-2">
+              <h3 className="font-heading text-base font-bold text-ink">{t("list.documents")}</h3>
+              <EntityDocuments target={entity.target} id={entity.id} open={open} />
+            </section>
             {tel || wa ? (
               <div className="grid grid-cols-2 gap-2">
                 {tel ? (
@@ -273,4 +290,49 @@ export function EntityRow({ entity, canEdit }: { entity: EntitySummary; canEdit:
       </Sheet>
     </li>
   );
+}
+
+/** A small "CNIC" tag: this dukan or distributor sent its documents. */
+function CnicMark({ label, short }: { label: string; short: string }) {
+  return (
+    <span
+      title={label}
+      className="inline-flex shrink-0 items-center gap-1 rounded-full bg-primary-soft px-1.5 py-0.5 text-xs font-semibold text-primary-strong"
+    >
+      <IdCard aria-hidden className="size-3.5" strokeWidth={1.75} />
+      <span className="sr-only">{label}</span>
+      <span aria-hidden>{short}</span>
+    </span>
+  );
+}
+
+/** Loads the registration documents when the sheet opens (links expire, so not before). */
+function EntityDocuments({ target, id, open }: { target: Target; id: string; open: boolean }) {
+  const t = useTranslations("admin.list");
+  const { data, isPending, isError, refetch } = useEntityDocuments(target, id, open);
+  if (isPending) {
+    return (
+      <div className="grid grid-cols-3 gap-2 rounded-md bg-subtle/60 p-3">
+        <Skeleton className="col-span-3 h-5 w-48 rounded-md" />
+        <Skeleton className="aspect-[4/3] rounded-md" />
+        <Skeleton className="aspect-[4/3] rounded-md" />
+        <Skeleton className="aspect-[4/3] rounded-md" />
+      </div>
+    );
+  }
+  if (isError) {
+    return (
+      <p className="flex items-center justify-between gap-3 rounded-md bg-danger-soft p-3 text-sm text-danger-ink">
+        {t("documentsFailed")}
+        <button
+          type="button"
+          onClick={() => void refetch()}
+          className="min-h-10 rounded-full bg-surface px-3 font-semibold text-ink"
+        >
+          {t("retry")}
+        </button>
+      </p>
+    );
+  }
+  return <KycDocuments documents={data} />;
 }

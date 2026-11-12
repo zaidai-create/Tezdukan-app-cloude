@@ -2085,7 +2085,12 @@
       "joined": "شامل ہوئے {date}",
       "reason": "وجہ: {reason}",
       "call": "کال",
-      "whatsapp": "واٹس ایپ"
+      "whatsapp": "واٹس ایپ",
+      "cnicSent": "شناختی کارڈ اور تصویر بھیجی",
+      "cnicShort": "CNIC",
+      "documents": "رجسٹریشن کے کاغذات",
+      "documentsFailed": "کاغذات نہیں کھل سکے۔",
+      "retry": "دوبارہ کوشش کریں"
     },
     "actions": {
       "approve": "منظور کریں",

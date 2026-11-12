@@ -10,7 +10,7 @@ import { AdminHeader, AdminPageShell, LinkTabs, ListCard, TableHead } from "../c
 import { entityColumns } from "../components/columns";
 import { type EntitySummary, EntityRow } from "../components/entity-row";
 import { SearchBox } from "../components/search-box";
-import { getAdminOrgs, getAdminShops } from "../data";
+import { getAdminOrgs, getAdminShops, getDocumentOwners } from "../data";
 import { adminStatuses, adminStatusFilterSchema } from "../schemas";
 import { first, type SearchParams } from "./shared";
 
@@ -72,6 +72,12 @@ async function DirectoryContent({
           sales30d: org.sales_30d,
           dukans30d: org.dukans_30d,
         }));
+
+  const withDocuments = await getDocumentOwners(
+    kind === "shops" ? "shop" : "org",
+    entities.map((entity) => entity.id),
+  );
+  for (const entity of entities) entity.hasDocuments = withDocuments.has(entity.id);
 
   const href = (next: string | null) => {
     const search = new URLSearchParams();

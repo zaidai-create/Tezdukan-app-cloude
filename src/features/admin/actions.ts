@@ -6,6 +6,8 @@ import { z } from "zod";
 import { flushPushOutboxQuietly } from "@/features/notifications/dispatch";
 import { requireRole } from "@/lib/auth/session";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
+import type { KycView } from "./components/kyc-documents";
+import { signKycDocuments } from "./data";
 
 /** Admin changes. The RPCs check for an admin and write the audit log; these map errors. */
 
@@ -102,4 +104,56 @@ export async function setShopDelivery(
     p_radius_m: input.data.radius,
     p_all_city: input.data.allCity,
   });
+}
+
+const documentsRowSchema = z.object({
+  cnic_number: z.string(),
+  cnic_front_path: z.string(),
+  cnic_back_path: z.string(),
+  place_photo_path: z.string(),
+});
+const taxSchema = z.object({ ntn: z.string().nullable(), strn: z.string().nullable() });
+
+/**
+ * The CNIC and place photo a dukan or distributor registered with, for any status, with links
+ * that expire in 10 minutes. `null` when it registered before documents were asked for.
+ */
+export async function getEntityDocuments(
+  target: Target,
+  targetId: string,
+): Promise<{ ok: true; data: KycView | null } | { ok: false; error: AdminError }> {
+  await requireRole("admin", "/admin");
+  const parsedId = id.safeParse(targetId);
+  if (!parsedId.success) return { ok: false, error: "invalid" };
+  const supabase = await getSupabaseServerClient();
+  const [documents, tax] = await Promise.all([
+    supabase
+      .from("registration_documents")
+      .select("cnic_number, cnic_front_path, cnic_back_path, place_photo_path")
+      .eq(target === "shop" ? "shop_id" : "org_id", parsedId.data)
+      .maybeSingle(),
+    target === "shop"
+      ? supabase.from("shops").select("ntn, strn").eq("id", parsedId.data).maybeSingle()
+      : supabase.from("organizations").select("ntn, strn").eq("id", parsedId.data).maybeSingle(),
+  ]);
+  if (documents.error) return { ok: false, error: errorKey(documents.error.message) };
+  if (!documents.data) return { ok: true, data: null };
+  const row = documentsRowSchema.parse(documents.data);
+  const taxRow = taxSchema.safeParse(tax.data);
+  const signed = await signKycDocuments([
+    row.cnic_front_path,
+    row.cnic_back_path,
+    row.place_photo_path,
+  ]);
+  return {
+    ok: true,
+    data: {
+      cnicNumber: row.cnic_number,
+      ntn: taxRow.success ? taxRow.data.ntn : null,
+      strn: taxRow.success ? taxRow.data.strn : null,
+      front: signed.get(row.cnic_front_path) ?? null,
+      back: signed.get(row.cnic_back_path) ?? null,
+      place: signed.get(row.place_photo_path) ?? null,
+    },
+  };
 }

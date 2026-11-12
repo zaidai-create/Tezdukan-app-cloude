@@ -2085,7 +2085,12 @@
       "joined": "Shamil hue {date}",
       "reason": "Wajah: {reason}",
       "call": "Call",
-      "whatsapp": "WhatsApp"
+      "whatsapp": "WhatsApp",
+      "cnicSent": "CNIC aur tasveer bheji",
+      "cnicShort": "CNIC",
+      "documents": "Registration ke kaghzaat",
+      "documentsFailed": "Kaghzaat nahi khul sake.",
+      "retry": "Dobara koshish karein"
     },
     "actions": {
       "approve": "Manzoor karein",

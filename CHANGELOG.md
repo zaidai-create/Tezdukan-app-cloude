@@ -4,6 +4,13 @@ All notable changes, newest first. Dates are Asia/Karachi.
 
 ## Unreleased
 
+### CNIC documents on every dukan and distributor in the admin dashboard (2026-11-12)
+
+- Dukans and Distributors show a small "CNIC" tag on everyone who sent documents when
+  registering, and their detail sheet has "Registration documents": the CNIC number, both sides
+  and the shop (or warehouse) photo, whatever the status (waiting, active, paused or rejected).
+  Photos open full size; the links expire after 10 minutes. Approvals shows the same view.
+
 ### Checkout redesign and cancel from the order's menu (2026-11-12)
 
 - Checkout reads in the order a shopper thinks: where it goes, what is in it, "Did you

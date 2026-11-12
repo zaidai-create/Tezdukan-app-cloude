@@ -89,6 +89,16 @@ test.describe("onboarding", () => {
     await expect(card.getByRole("img", { name: admin.approvals.cnicFront })).toBeVisible();
     await card.getByRole("button", { name: admin.actions.approve }).click();
     await expect(adminPage.getByText(admin.actions.approved)).toBeVisible();
+    // Once approved, the documents stay one tap away on the dukan in the directory.
+    await adminPage.goto(`/admin/shops?q=${encodeURIComponent(shopName)}`, {
+      waitUntil: "networkidle",
+    });
+    const row = adminPage.getByRole("listitem").filter({ hasText: shopName });
+    await expect(row.getByTitle(admin.list.cnicSent).filter({ visible: true })).toBeVisible();
+    await row.getByRole("button").first().click();
+    const sheet = adminPage.getByRole("dialog");
+    await expect(sheet.getByText("41303-1234567-1")).toBeVisible();
+    await expect(sheet.getByRole("img", { name: admin.approvals.cnicBack })).toBeVisible();
     await team.close();
 
     await page.reload({ waitUntil: "networkidle" });
