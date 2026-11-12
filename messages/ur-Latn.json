@@ -1369,6 +1369,28 @@
         "call_meHint": "Dukan kuch badalne se pehle aap ko call karegi.",
         "replaceHint": "Dukan utni ya kam qeemat ki milti julti cheez bhejegi aur aap ko batayegi.",
         "removeHint": "Dukan woh cheez nikal degi aur aap ka bill kam ho jayega."
+      },
+      "viewBill": "Bill dekhein",
+      "placeOrderShort": "Order karein",
+      "chooseAddress": "Pata chunein",
+      "bill": {
+        "title": "Bill ki tafseel",
+        "titleFor": "Bill · {shop}"
+      },
+      "forget": {
+        "title": "Kuch bhool to nahi gaye?"
+      },
+      "policy": {
+        "title": "Order cancel karne ka usool",
+        "free": "Dukan ke accept karne tak cancel karna free hai.",
+        "grace": "Accept hone ke baad packing se pehle 2 minute tak cancel kar sakte hain.",
+        "packed": "Pack hone ke baad cancel nahi hota. Koi masla ho to dukan ko call karein."
+      },
+      "cashChange": {
+        "title": "Khulay paise chahiye?",
+        "exact": "Mere paas pooray paise hain",
+        "note": "{amount} ka note",
+        "forDukan": "{amount} ka khula le kar aayen"
       }
     },
     "addAddressHint": "Sahi dukanein aur delivery ka waqt dekhne ke liye apna pata add karein",
@@ -1558,7 +1580,9 @@
       "item_not_found": "Yeh cheez ab order mein nahi. Refresh karein.",
       "invalid_reason": "Batayein kya ghalat hua.",
       "details_required": "Kuch alfaaz likhein ke kya hua.",
-      "rate_limited": "Bohat zyada messages. Ek minute rukein."
+      "rate_limited": "Bohat zyada messages. Ek minute rukein.",
+      "reason_required": "Cancel karne ki wajah chunein.",
+      "too_late_to_cancel": "Dukan ye order pack kar rahi hai. Dukan ko call karein."
     },
     "hero": {
       "placed": "{shop} ke qubool karne ka intezar",
@@ -1650,7 +1674,43 @@
       "reported": "Masla bata diya gaya",
       "reportedHint": "TezDukan ki team dekh rahi hai.",
       "openChat": "Chat kholein"
-    }
+    },
+    "menu": {
+      "label": "Mazeed options",
+      "help": "Is order mein madad",
+      "problem": "Masla batayein",
+      "problemOpen": "Support chat kholein",
+      "callShop": "Dukan ko call karein",
+      "cancel": "Order cancel karein"
+    },
+    "cancel": {
+      "title": "Ye order cancel karein?",
+      "freeHint": "Dukan ne abhi kaam shuru nahi kiya, cancel karna free hai.",
+      "graceHint": "Dukan ne abhi order accept kiya hai. Zaroorat ho to hi cancel karein, dukan ko wajah batai jayegi.",
+      "timeLeft": "Aap mazeed {time} tak cancel kar sakte hain",
+      "reasonTitle": "Cancel kyun kar rahe hain?",
+      "reasons": {
+        "mistake": "Ghalti se order hua",
+        "change_items": "Cheezein badalni hain",
+        "wrong_address": "Pata ghalat hai",
+        "too_long": "Bohat der ho rahi hai",
+        "other": "Koi aur wajah"
+      },
+      "detailsPlaceholder": "Dukan ke liye chand alfaaz (optional)",
+      "confirm": "Order cancel karein",
+      "keep": "Order rehne dein",
+      "done": "Order cancel ho gaya. Dukan ko bata diya gaya.",
+      "tooLateTitle": "Ye order ab cancel nahi ho sakta",
+      "tooLateHint": "Dukan ise pack kar rahi hai ya bhej chuki hai. Kuch badalna ho to dukan ko call karein, ya hum se madad lein.",
+      "callShop": "Dukan ko call karein",
+      "askHelp": "TezDukan se madad lein"
+    },
+    "history": {
+      "first": "Is customer ka pehla order",
+      "delivered": "{count, plural, one {# order pohncha} other {# orders pohnchay}}",
+      "cancelled": "{count, plural, one {# unhon ne cancel kiya} other {# unhon ne cancel kiye}}"
+    },
+    "noteTitle": "Dukan ke liye hidayat"
   },
   "shopDash": {
     "online": "Online",

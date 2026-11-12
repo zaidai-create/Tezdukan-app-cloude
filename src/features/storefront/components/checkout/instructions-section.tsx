@@ -1,10 +1,27 @@
 "use client";
 
 import { cn } from "cn";
-import { Check, NotebookPen, PackageX, PhoneCall, Repeat, Trash2, Wallet } from "lucide-react";
+import {
+  Banknote,
+  Check,
+  NotebookPen,
+  PackageX,
+  PhoneCall,
+  Repeat,
+  Trash2,
+  Wallet,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Textarea } from "@/components/ui/textarea";
-import { deliveryInstructions, unavailableChoices, useCustomerCart } from "../../cart-store";
+import { formatRs } from "@/lib/money";
+import {
+  type CashNote,
+  cashNotes,
+  deliveryInstructions,
+  unavailableChoices,
+  useCustomerCart,
+} from "../../cart-store";
+import { changeNotesFor } from "./bill";
 
 const choiceIcon = { call_me: PhoneCall, replace: Repeat, remove: Trash2 } as const;
 
@@ -101,25 +118,71 @@ export function InstructionsSection() {
   );
 }
 
-/** One way to pay for now, said plainly. */
-export function PaymentSection() {
+/**
+ * One way to pay for now, said plainly, and the one question cash raises in Pakistan: does the
+ * rider need to bring change? Only notes larger than the bill are offered.
+ */
+export function PaymentSection({ total }: { total: number }) {
   const t = useTranslations("storefront.cart");
+  const cashNote = useCustomerCart((state) => state.cashNote);
+  const setDelivery = useCustomerCart((state) => state.setDelivery);
+  const notes = changeNotesFor(total);
+  const chosen = notes.some((rupees) => String(rupees) === cashNote) ? cashNote : "exact";
   return (
-    <section className="flex items-center gap-3 rounded-lg border border-primary/30 bg-surface p-4 shadow-card">
-      <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary-strong">
-        <Wallet aria-hidden className="size-6" strokeWidth={1.75} />
-      </span>
-      <div className="min-w-0 flex-1">
-        <p className="text-sm text-muted">{t("paymentTitle")}</p>
-        <p className="font-semibold text-ink">{t("codTitle")}</p>
-        <p className="text-sm text-muted">{t("codHint")}</p>
+    <section className="flex flex-col gap-3 rounded-lg border border-border/60 bg-surface p-4 shadow-card">
+      <div className="flex items-center gap-3">
+        <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary-strong">
+          <Wallet aria-hidden className="size-6" strokeWidth={1.75} />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm text-muted">{t("paymentTitle")}</p>
+          <p className="font-semibold text-ink">{t("codTitle")}</p>
+          <p className="text-sm text-muted">{t("codHint")}</p>
+        </div>
+        <span
+          aria-hidden
+          className="flex size-6 items-center justify-center rounded-full bg-action text-on-action"
+        >
+          <Check className="size-4" strokeWidth={2.5} />
+        </span>
       </div>
-      <span
-        aria-hidden
-        className="flex size-6 items-center justify-center rounded-full bg-action text-on-action"
-      >
-        <Check className="size-4" strokeWidth={2.5} />
-      </span>
+      {notes.length > 0 ? (
+        <div className="flex flex-col gap-2 border-t border-border/70 pt-3">
+          <p id="cash-change" className="flex items-center gap-2 text-sm font-semibold text-ink">
+            <Banknote aria-hidden className="size-5 text-primary" strokeWidth={1.75} />
+            {t("cashChange.title")}
+          </p>
+          <div role="radiogroup" aria-labelledby="cash-change" className="flex flex-wrap gap-2">
+            {(["exact", ...notes.map(String)] as const).map((option) => {
+              const on = chosen === option;
+              return (
+                <button
+                  key={option}
+                  type="button"
+                  role="radio"
+                  aria-checked={on}
+                  onClick={() => setDelivery({ cashNote: cashNoteOf(option) })}
+                  className={cn(
+                    "num relative inline-flex min-h-10 items-center gap-1.5 rounded-full border px-4 text-sm font-semibold transition-colors duration-150 after:absolute after:-inset-1",
+                    on
+                      ? "border-primary bg-primary-soft text-primary-strong"
+                      : "border-border-strong bg-surface text-ink",
+                  )}
+                >
+                  {on ? <Check aria-hidden className="size-4" /> : null}
+                  {option === "exact"
+                    ? t("cashChange.exact")
+                    : t("cashChange.note", { amount: formatRs(Number(option) * 100) })}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
     </section>
   );
+}
+
+function cashNoteOf(option: string): CashNote {
+  return cashNotes.find((note) => note === option) ?? "exact";
 }

@@ -72,7 +72,8 @@ test("a shopper searches, orders, and rates what the dukandar delivered", async 
   // The "Order placed!" moment, then the tracking screen underneath.
   await expect(shopper.getByText(customerOrders.celebrate.title)).toBeVisible();
   await shopper.getByRole("button", { name: customerOrders.celebrate.track }).click();
-  const orderNumber = (await shopper.locator("header p.num").first().textContent())?.trim() ?? "";
+  const orderNumber =
+    (await shopper.locator("header [data-order-number]").first().textContent())?.trim() ?? "";
   expect(orderNumber).toMatch(/^C-\d{6}$/);
 
   const dukandar = await signedIn(browser, base, "03000000002");
@@ -116,5 +117,44 @@ test("a shopper searches, orders, and rates what the dukandar delivered", async 
   await expect(shopper.getByText(customerOrders.problem.reported)).toBeVisible();
 
   await dukandar.context().close();
+  await shopper.context().close();
+});
+
+test("checkout shows the bill and the cancel rule; the shopper cancels from the order's menu", async ({
+  browser,
+  baseURL,
+}) => {
+  test.setTimeout(90_000);
+  const base = baseURL ?? "";
+  const shopper = await signedIn(browser, base, "03000000006");
+  await shopper.goto(`${base}/shops/tezdukan`, { waitUntil: "networkidle" });
+  await shopper.getByRole("button", { name: /^Add/ }).first().click();
+  await shopper.getByRole("button", { name: /^Add/ }).first().click();
+  await shopper.getByRole("link", { name: /View cart/i }).click();
+  await expect(shopper).toHaveURL(/\/cart$/);
+
+  // What the big apps show before the order goes: the bill, change for cash, the cancel rule.
+  await expect(shopper.getByRole("heading", { name: storefront.cart.bill.title })).toBeVisible();
+  await expect(shopper.getByRole("heading", { name: storefront.cart.forget.title })).toBeVisible();
+  await shopper.getByRole("radio", { name: /^For Rs 1,000$/ }).click();
+  await expect(shopper.getByText(storefront.cart.policy.packed)).toBeVisible();
+  await expectAccessible(shopper);
+  await shopper.getByRole("button", { name: /^Place order/ }).click();
+  await expect(shopper).toHaveURL(/\/orders\/[0-9a-f-]+\?placed=1$/, { timeout: 20_000 });
+  await shopper.getByRole("button", { name: customerOrders.celebrate.track }).click();
+  // The note to the dukan says to bring change.
+  await expect(shopper.getByText(/Bring change for Rs 1,000/)).toBeVisible();
+
+  // Cancel is tucked in the ⋮ menu; while the order is new it is free, with a reason.
+  await shopper.getByRole("button", { name: customerOrders.menu.label }).click();
+  await shopper.getByRole("menuitem", { name: customerOrders.menu.cancel }).click();
+  const sheet = shopper.getByRole("dialog");
+  await expect(sheet.getByText(customerOrders.cancel.freeHint)).toBeVisible();
+  await expect(sheet.getByRole("button", { name: customerOrders.cancel.confirm })).toBeDisabled();
+  await sheet.getByRole("radio", { name: customerOrders.cancel.reasons.mistake }).click();
+  await sheet.getByRole("button", { name: customerOrders.cancel.confirm }).click();
+  await expect(shopper.getByText(customerOrders.cancel.done)).toBeVisible();
+  await expect(shopper.getByText(customerOrders.cancel.reasons.mistake)).toBeVisible();
+
   await shopper.context().close();
 });

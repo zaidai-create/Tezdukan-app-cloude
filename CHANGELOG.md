@@ -4,6 +4,27 @@ All notable changes, newest first. Dates are Asia/Karachi.
 
 ## Unreleased
 
+### Checkout redesign and cancel from the order's menu (2026-11-12)
+
+- Checkout reads in the order a shopper thinks: where it goes, what is in it, "Did you
+  forget?" (a row of the same dukan's everyday items, its own picks first), what to do if
+  something is missing, delivery instructions, payment, then the bill and the cancellation
+  policy. The bar at the bottom always shows the total ("View bill" jumps to it) and one clear
+  next step: Place order, "Add Rs X more", or "Choose address" when there is none.
+- Bill details: item total with the printed price struck through, delivery (free struck through
+  when waived), To pay, and one savings line that counts the waived delivery too. No hidden fees.
+- Cash on delivery asks "Need change?": exact cash, or a note larger than the bill (Rs 500,
+  1,000, 5,000). The dukan sees "Bring change for Rs 1,000" with the order.
+- Delivery instructions and the shopper's note now show on the order for the dukandar (and the
+  shopper); before, they were saved but never shown.
+- Cancelling moved into a ⋮ menu on the order (with Help, Report a problem and Call the dukan),
+  following the policy shown at checkout: free until the dukan accepts; within 2 minutes after
+  it accepts, before packing, with a reason the dukan sees; never once packed or on the way
+  (the sheet offers Call the dukan and Ask TezDukan for help instead). The database enforces
+  the same rule.
+- The dukandar's order page shows the customer's history at the dukan: "8 orders delivered",
+  "2 cancelled by them", or "First order from this customer".
+
 ### Opening ad, app 0.1.7, and "if something is not available" (2026-11-12)
 
 - Opening ad: when the app opens, TezDukan's own poster fills the screen while the first screen

@@ -141,6 +141,8 @@ export const orderErrors = [
   "invalid_reason",
   "details_required",
   "rate_limited",
+  "reason_required",
+  "too_late_to_cancel",
   "generic",
 ] as const;
 export type OrderError = (typeof orderErrors)[number];

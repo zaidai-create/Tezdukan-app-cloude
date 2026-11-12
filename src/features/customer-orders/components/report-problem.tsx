@@ -45,11 +45,7 @@ const reasonIcon: Record<ProblemReason, LucideIcon> = {
  */
 export function ReportProblem({ orderId, reported }: { orderId: string; reported: boolean }) {
   const t = useTranslations("customerOrders.problem");
-  const tErrors = useTranslations("customerOrders.errors");
   const [open, setOpen] = useState(false);
-  const [reason, setReason] = useState<ProblemReason | null>(null);
-  const [details, setDetails] = useState("");
-  const [pending, startTransition] = useTransition();
 
   if (reported) {
     return (
@@ -70,6 +66,33 @@ export function ReportProblem({ orderId, reported }: { orderId: string; reported
     );
   }
 
+  return (
+    <>
+      <Button variant="ghost" block onClick={() => setOpen(true)}>
+        <ShieldAlert aria-hidden />
+        {t("button")}
+      </Button>
+      <ReportProblemSheet orderId={orderId} open={open} onOpenChange={setOpen} />
+    </>
+  );
+}
+
+/** The sheet itself, also opened from the order's ⋮ menu. */
+export function ReportProblemSheet({
+  orderId,
+  open,
+  onOpenChange,
+}: {
+  orderId: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  const t = useTranslations("customerOrders.problem");
+  const tErrors = useTranslations("customerOrders.errors");
+  const [reason, setReason] = useState<ProblemReason | null>(null);
+  const [details, setDetails] = useState("");
+  const [pending, startTransition] = useTransition();
+
   const send = () => {
     if (!reason) return;
     startTransition(async () => {
@@ -81,71 +104,65 @@ export function ReportProblem({ orderId, reported }: { orderId: string; reported
       }
       haptic("success");
       toast.success(t("sent"));
-      setOpen(false);
+      onOpenChange(false);
     });
   };
 
   return (
-    <>
-      <Button variant="ghost" block onClick={() => setOpen(true)}>
-        <ShieldAlert aria-hidden />
-        {t("button")}
-      </Button>
-      <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent>
-          <SheetHeader>
-            <SheetTitle>{t("title")}</SheetTitle>
-            <SheetDescription>{t("hint")}</SheetDescription>
-          </SheetHeader>
-          <SheetBody className="flex flex-col gap-3">
-            <div role="radiogroup" aria-label={t("title")} className="flex flex-col gap-2">
-              {problemReasons.map((option) => {
-                const Icon = reasonIcon[option];
-                const on = reason === option;
-                return (
-                  <button
-                    key={option}
-                    type="button"
-                    role="radio"
-                    aria-checked={on}
-                    onClick={() => {
-                      haptic("tap");
-                      setReason(option);
-                    }}
-                    className={cn(
-                      "flex min-h-14 items-center gap-3 rounded-xl border-[1.5px] px-3.5 text-start font-semibold transition-colors duration-150",
-                      on
-                        ? "border-primary bg-primary-soft text-primary-strong"
-                        : "border-border bg-surface text-ink",
-                    )}
-                  >
-                    <Icon aria-hidden className="size-5 shrink-0" strokeWidth={1.75} />
-                    {t(`reasons.${option}`)}
-                  </button>
-                );
-              })}
-            </div>
-            <Textarea
-              value={details}
-              onChange={(event) => setDetails(event.target.value.slice(0, 1000))}
-              placeholder={reason === "other" ? t("detailsRequired") : t("details")}
-              aria-label={t("details")}
-              className="min-h-24"
-            />
-          </SheetBody>
-          <SheetFooter>
-            <Button
-              size="lg"
-              block
-              loading={pending}
-              disabled={!reason || (reason === "other" && details.trim().length === 0)}
-              onClick={send}
-            >
-              {t("send")}
-            </Button>
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
-    </>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent>
+        <SheetHeader>
+          <SheetTitle>{t("title")}</SheetTitle>
+          <SheetDescription>{t("hint")}</SheetDescription>
+        </SheetHeader>
+        <SheetBody className="flex flex-col gap-3">
+          <div role="radiogroup" aria-label={t("title")} className="flex flex-col gap-2">
+            {problemReasons.map((option) => {
+              const Icon = reasonIcon[option];
+              const on = reason === option;
+              return (
+                <button
+                  key={option}
+                  type="button"
+                  role="radio"
+                  aria-checked={on}
+                  onClick={() => {
+                    haptic("tap");
+                    setReason(option);
+                  }}
+                  className={cn(
+                    "flex min-h-14 items-center gap-3 rounded-xl border-[1.5px] px-3.5 text-start font-semibold transition-colors duration-150",
+                    on
+                      ? "border-primary bg-primary-soft text-primary-strong"
+                      : "border-border bg-surface text-ink",
+                  )}
+                >
+                  <Icon aria-hidden className="size-5 shrink-0" strokeWidth={1.75} />
+                  {t(`reasons.${option}`)}
+                </button>
+              );
+            })}
+          </div>
+          <Textarea
+            value={details}
+            onChange={(event) => setDetails(event.target.value.slice(0, 1000))}
+            placeholder={reason === "other" ? t("detailsRequired") : t("details")}
+            aria-label={t("details")}
+            className="min-h-24"
+          />
+        </SheetBody>
+        <SheetFooter>
+          <Button
+            size="lg"
+            block
+            loading={pending}
+            disabled={!reason || (reason === "other" && details.trim().length === 0)}
+            onClick={send}
+          >
+            {t("send")}
+          </Button>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
   );
 }

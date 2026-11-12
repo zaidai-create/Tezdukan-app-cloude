@@ -111,3 +111,43 @@ export async function getMyOrderRating(
     .maybeSingle();
   return data ? { rating: data.rating, comment: data.comment } : null;
 }
+
+const historyRowSchema = z.object({
+  status: z.string(),
+  cancelled_by: z.uuid().nullable(),
+  customer_id: z.uuid().nullable(),
+});
+
+/**
+ * How this customer has ordered from this dukan before (other orders only): how many arrived and
+ * how many they cancelled themselves. Helps the dukandar judge a new order; RLS limits it to the
+ * dukan's own orders.
+ */
+export async function getCustomerHistoryAtShop(
+  order: Pick<CustomerOrder, "id" | "shop_id">,
+): Promise<{ delivered: number; cancelled: number } | null> {
+  const supabase = await getSupabaseServerClient();
+  const { data: own } = await supabase
+    .from("customer_orders")
+    .select("customer_id")
+    .eq("id", order.id)
+    .maybeSingle();
+  const customerId = z.object({ customer_id: z.uuid() }).safeParse(own);
+  if (!customerId.success) return null;
+  const { data, error } = await supabase
+    .from("customer_orders")
+    .select("status, cancelled_by, customer_id")
+    .eq("shop_id", order.shop_id)
+    .eq("customer_id", customerId.data.customer_id)
+    .neq("id", order.id)
+    .is("deleted_at", null)
+    .limit(500);
+  if (error) return null;
+  const rows = z.array(historyRowSchema).parse(data);
+  return {
+    delivered: rows.filter((row) => row.status === "delivered").length,
+    cancelled: rows.filter(
+      (row) => row.status === "cancelled" && row.cancelled_by === row.customer_id,
+    ).length,
+  };
+}

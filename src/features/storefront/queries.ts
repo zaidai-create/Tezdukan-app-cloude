@@ -7,6 +7,7 @@ import { LOCATION_COOKIE, parseLocation } from "./location-cookie";
 import {
   productDetailSchema,
   storefrontProductSchema,
+  storefrontShopSchema,
   type ProductDetail,
   type StorefrontProduct,
 } from "./schemas";
@@ -72,5 +73,23 @@ export function useProductSearch(query: string) {
     staleTime: 30_000,
     // Keep the last results on screen while the next letters are looked up.
     placeholderData: keepPreviousData,
+  });
+}
+
+const shopProductsSchema = storefrontShopSchema.pick({ products: true });
+
+async function fetchShopProducts(slug: string): Promise<StorefrontProduct[]> {
+  const { data, error } = await getSupabaseBrowserClient().rpc("storefront_shop", { p_slug: slug });
+  if (error) throw new Error(error.message);
+  if (data === null) return [];
+  return shopProductsSchema.parse(data).products.filter((product) => product.in_stock);
+}
+
+/** One dukan's shelf (in stock), for "Did you forget?" at checkout. */
+export function useShopProducts(slug: string) {
+  return useQuery({
+    queryKey: ["storefront", "shop-products", slug],
+    queryFn: () => fetchShopProducts(slug),
+    staleTime: 5 * 60_000,
   });
 }

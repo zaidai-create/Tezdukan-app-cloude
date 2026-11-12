@@ -145,21 +145,3 @@ export function ShopOrderActions({
     </>
   );
 }
-
-/** The customer may cancel while the dukan hasn't accepted yet. */
-export function CancelOrderButton({ orderId }: { orderId: string }) {
-  const t = useTranslations("customerOrders");
-  const { move, pending } = useMove(orderId);
-  return (
-    <Button
-      variant="danger-soft"
-      size="lg"
-      block
-      loading={pending}
-      onClick={() => move("cancelled")}
-    >
-      <X aria-hidden />
-      {t("actions.cancel")}
-    </Button>
-  );
-}

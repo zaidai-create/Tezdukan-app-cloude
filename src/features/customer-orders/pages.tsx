@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { cn } from "cn";
 import { EmptyState } from "@/components/states/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { NotificationPrompt } from "@/features/notifications/components/notification-prompt";
 import { getNearbyShops } from "@/features/storefront/data";
 import { Link } from "@/i18n/navigation";
@@ -13,7 +14,8 @@ import { telHref, whatsappHref } from "@/lib/contact";
 import { formatDateTime } from "@/lib/format";
 import { formatRs } from "@/lib/money";
 import { formatPkMobile } from "@/lib/phone";
-import { CancelOrderButton, ShopOrderActions } from "./components/order-actions";
+import { ShopOrderActions } from "./components/order-actions";
+import { OrderMenu } from "./components/order-menu";
 import { OrderAgainButton } from "./components/order-again-button";
 import { OrderCelebration } from "./components/order-celebration";
 import { RateItems } from "./components/rate-items";
@@ -23,6 +25,7 @@ import { UnavailableItems } from "./components/unavailable-items";
 import { RateOrder } from "./components/rate-order";
 import { OrderHero, OrderProgress, OrderStatusBadge, OrderSummary } from "./components/order-parts";
 import {
+  getCustomerHistoryAtShop,
   getCustomerOrder,
   getMyCustomerOrders,
   getMyItemRatings,
@@ -168,9 +171,14 @@ async function MyOrderContent({
         <BackLink href="/orders" label={t("back")} />
         <div className="min-w-0 flex-1">
           <h1 className="truncate font-heading text-2xl font-bold text-ink">{order.shop_name}</h1>
-          <p className="num text-sm text-muted">{order.order_number}</p>
+          <p className="flex items-center gap-2 text-sm text-muted">
+            <span className="num" data-order-number>
+              {order.order_number}
+            </span>
+            <OrderStatusBadge status={order.status} />
+          </p>
         </div>
-        <OrderStatusBadge status={order.status} />
+        <OrderMenu order={order} callHref={call} reported={reported} />
       </header>
       <OrderHero order={order} etaMinutes={shop?.eta_minutes ?? null} />
       {call || whatsapp ? (
@@ -213,11 +221,12 @@ async function MyOrderContent({
       </section>
       <OrderChanges changes={changes} />
       <OrderSummary order={order} />
-      {order.status === "placed" ? <CancelOrderButton orderId={order.id} /> : null}
       {finished ? <OrderAgainButton orderId={order.id} /> : null}
-      {order.status === "cancelled" || order.status === "rejected" ? null : (
+      {/* Once it has arrived, "something's wrong" is the likely next step, so it is in view;
+          before that it lives in the ⋮ menu with Cancel. A sent report always shows. */}
+      {reported || order.status === "delivered" ? (
         <ReportProblem orderId={order.id} reported={reported} />
-      )}
+      ) : null}
     </div>
   );
 }
@@ -313,6 +322,7 @@ async function ShopOrderContent({ params }: { params: Promise<{ id: string }> })
     getCustomerOrder(id),
     getOrderChanges(id),
   ]);
+  const history = order ? await getCustomerHistoryAtShop(order) : null;
   if (!order) {
     return (
       <div className="mx-auto w-full max-w-3xl px-4 py-10">
@@ -343,6 +353,24 @@ async function ShopOrderContent({ params }: { params: Promise<{ id: string }> })
             <bdi dir="ltr" className="num block text-sm text-muted">
               {formatPkMobile(order.customer_phone)}
             </bdi>
+          ) : null}
+          {history ? (
+            <span className="num mt-1 flex flex-wrap gap-1.5">
+              {history.delivered + history.cancelled === 0 ? (
+                <StatusBadge tone="neutral">{t("history.first")}</StatusBadge>
+              ) : (
+                <>
+                  <StatusBadge tone="success">
+                    {t("history.delivered", { count: history.delivered })}
+                  </StatusBadge>
+                  {history.cancelled > 0 ? (
+                    <StatusBadge tone="warning">
+                      {t("history.cancelled", { count: history.cancelled })}
+                    </StatusBadge>
+                  ) : null}
+                </>
+              )}
+            </span>
           ) : null}
         </span>
         {tel ? (

@@ -5,6 +5,7 @@ import {
   Clock3,
   MapPin,
   Navigation,
+  NotebookPen,
   Package,
   PartyPopper,
   Store,
@@ -175,6 +176,16 @@ export async function OrderSummary({
           {t("cod")}
           {order.payment_status === "paid" ? ` · ${t("paid")}` : null}
         </p>
+        {order.notes ? (
+          // Delivery instructions, change for cash and the shopper's own words, as sent.
+          <p className="flex items-start gap-2 rounded-md bg-awning-soft px-3 py-2.5 text-ink">
+            <NotebookPen aria-hidden className="mt-0.5 size-4 shrink-0 text-awning-ink" />
+            <span>
+              <span className="block text-xs font-semibold text-awning-ink">{t("noteTitle")}</span>
+              <span dir="auto">{order.notes}</span>
+            </span>
+          </p>
+        ) : null}
       </div>
     </section>
   );

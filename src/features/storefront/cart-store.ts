@@ -29,6 +29,13 @@ export type CartLine = z.infer<typeof cartLineSchema>;
 export const deliveryInstructions = ["callOnArrival", "ringBell", "leaveAtDoor", "noBell"] as const;
 export type DeliveryInstruction = (typeof deliveryInstructions)[number];
 
+/**
+ * Paying cash with a big note: the rider brings change for it. Only notes larger than the bill
+ * are offered; "exact" means no change is needed.
+ */
+export const cashNotes = ["exact", "500", "1000", "5000"] as const;
+export type CashNote = (typeof cashNotes)[number];
+
 /** What to do when an item is not on the dukan's shelf (the dukan sees it on the order). */
 export const unavailableChoices = ["call_me", "replace", "remove"] as const;
 export type UnavailableChoice = (typeof unavailableChoices)[number];
@@ -38,6 +45,7 @@ const storedSchema = z.object({
   instructions: z.array(z.enum(deliveryInstructions)).catch([]),
   note: z.string().max(200).catch(""),
   ifUnavailable: z.enum(unavailableChoices).catch("call_me"),
+  cashNote: z.enum(cashNotes).catch("exact"),
 });
 type Stored = z.infer<typeof storedSchema>;
 
@@ -55,6 +63,7 @@ export const useCustomerCart = create<CartState>()(
       instructions: [],
       note: "",
       ifUnavailable: "call_me",
+      cashNote: "exact",
       setQuantity: (product, quantity) =>
         set((state) => {
           const rest = state.lines.filter((line) => line.id !== product.id);
@@ -97,6 +106,7 @@ export const useCustomerCart = create<CartState>()(
         instructions: state.instructions,
         note: state.note,
         ifUnavailable: state.ifUnavailable,
+        cashNote: state.cashNote,
       }),
       merge: (persisted, current) => ({ ...current, ...storedSchema.parse(persisted ?? {}) }),
     },

@@ -1369,6 +1369,28 @@
         "call_meHint": "The dukan calls you before changing anything.",
         "replaceHint": "The dukan sends a similar item at the same price or less, and tells you.",
         "removeHint": "The dukan leaves it out and your total goes down."
+      },
+      "viewBill": "View bill",
+      "placeOrderShort": "Place order",
+      "chooseAddress": "Choose address",
+      "bill": {
+        "title": "Bill details",
+        "titleFor": "Bill · {shop}"
+      },
+      "forget": {
+        "title": "Did you forget?"
+      },
+      "policy": {
+        "title": "Cancellation policy",
+        "free": "Free to cancel until the dukan accepts your order.",
+        "grace": "After it is accepted, you have 2 minutes to cancel, before packing.",
+        "packed": "Once packed, it can't be cancelled. Call the dukan if something is wrong."
+      },
+      "cashChange": {
+        "title": "Need change?",
+        "exact": "I have exact cash",
+        "note": "For {amount}",
+        "forDukan": "Bring change for {amount}"
       }
     },
     "addAddressHint": "Add your address for the right dukans and delivery time",
@@ -1558,7 +1580,9 @@
       "item_not_found": "This item is no longer in the order. Pull down to refresh.",
       "invalid_reason": "Choose what went wrong.",
       "details_required": "Write a few words about what happened.",
-      "rate_limited": "Too many messages. Please wait a minute."
+      "rate_limited": "Too many messages. Please wait a minute.",
+      "reason_required": "Choose why you are cancelling.",
+      "too_late_to_cancel": "The dukan is already packing this order. Call the dukan instead."
     },
     "hero": {
       "placed": "Waiting for {shop} to accept",
@@ -1650,7 +1674,43 @@
       "reported": "Problem reported",
       "reportedHint": "The TezDukan team is looking into it.",
       "openChat": "Open chat"
-    }
+    },
+    "menu": {
+      "label": "More options",
+      "help": "Help with this order",
+      "problem": "Report a problem",
+      "problemOpen": "Open support chat",
+      "callShop": "Call the dukan",
+      "cancel": "Cancel order"
+    },
+    "cancel": {
+      "title": "Cancel this order?",
+      "freeHint": "The dukan hasn't started yet, so cancelling is free.",
+      "graceHint": "The dukan has just accepted it. Cancel only if you must; the dukan is told why.",
+      "timeLeft": "You can cancel for {time} more",
+      "reasonTitle": "Why are you cancelling?",
+      "reasons": {
+        "mistake": "Ordered by mistake",
+        "change_items": "Want to change items",
+        "wrong_address": "Wrong address",
+        "too_long": "Taking too long",
+        "other": "Something else"
+      },
+      "detailsPlaceholder": "A few words for the dukan (optional)",
+      "confirm": "Cancel order",
+      "keep": "Keep my order",
+      "done": "Order cancelled. The dukan has been told.",
+      "tooLateTitle": "This order can't be cancelled now",
+      "tooLateHint": "The dukan is already packing or sending it. Call the dukan if you need a change, or ask us for help.",
+      "callShop": "Call the dukan",
+      "askHelp": "Ask TezDukan for help"
+    },
+    "history": {
+      "first": "First order from this customer",
+      "delivered": "{count, plural, one {# order delivered} other {# orders delivered}}",
+      "cancelled": "{count, plural, one {# cancelled by them} other {# cancelled by them}}"
+    },
+    "noteTitle": "Instructions for the dukan"
   },
   "shopDash": {
     "online": "Online",

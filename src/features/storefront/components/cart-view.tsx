@@ -1,7 +1,15 @@
 "use client";
 
-import { CircleAlert, Plus, ShoppingBasket, Store, Trash2 } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
+import {
+  ChevronRight,
+  CircleAlert,
+  MapPin,
+  Plus,
+  ShoppingBasket,
+  Store,
+  Trash2,
+} from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useRef, useTransition } from "react";
 import { toast } from "sonner";
 import { AddToCart } from "@/components/commerce/add-to-cart";
@@ -16,67 +24,27 @@ import { storageUrl } from "@/features/ordering/images";
 import { Link, useRouter } from "@/i18n/navigation";
 import { haptic } from "@/lib/haptics";
 import { formatRs } from "@/lib/money";
-import { useCustomerCart, type CartLine } from "../cart-store";
+import { useCustomerCart } from "../cart-store";
 import type { DeliveryZone, NearbyShop } from "../schemas";
 import { AddressSection } from "./checkout/address-section";
+import { type CartGroup, billFor, changeNotesFor, groupByShop, reachOf } from "./checkout/bill";
+import { BillCard, CancellationPolicy } from "./checkout/bill-section";
+import { ForgetRow } from "./checkout/forget-row";
 import {
   InstructionsSection,
   PaymentSection,
   UnavailableSection,
 } from "./checkout/instructions-section";
 
-type Group = { shopId: string; shopName: string; shopSlug: string; lines: CartLine[] };
-
-function groupByShop(lines: readonly CartLine[]): Group[] {
-  const groups = new Map<string, Group>();
-  for (const line of lines) {
-    const group = groups.get(line.shopId) ?? {
-      shopId: line.shopId,
-      shopName: line.shopName,
-      shopSlug: line.shopSlug,
-      lines: [],
-    };
-    group.lines.push(line);
-    groups.set(line.shopId, group);
-  }
-  return [...groups.values()];
-}
-
-/** One dukan's bill: items, delivery (free above its threshold), savings and the minimum. */
-function billFor(group: Group, shop: NearbyShop | undefined) {
-  const itemTotal = group.lines.reduce((sum, line) => sum + line.pricePaisa * line.quantity, 0);
-  const savings = group.lines.reduce(
-    (sum, line) =>
-      sum + Math.max((line.mrpPaisa ?? line.pricePaisa) - line.pricePaisa, 0) * line.quantity,
-    0,
-  );
-  const freeAbove = shop?.free_delivery_above_paisa ?? null;
-  const fee = freeAbove !== null && itemTotal >= freeAbove ? 0 : (shop?.delivery_fee_paisa ?? 0);
-  const minOrder = shop?.min_order_paisa ?? 0;
-  return {
-    itemTotal,
-    savings,
-    freeAbove,
-    fee,
-    minOrder,
-    short: Math.max(minOrder - itemTotal, 0),
-    total: itemTotal + fee,
-  };
-}
-
-/**
- * Whether this dukan can take the order at the chosen address. The list of nearby dukans is
- * already filtered by that address, so a dukan missing from it does not deliver there.
- */
-type Reach = "ok" | "out" | "closed" | "unknown";
-function reachOf(shop: NearbyShop | undefined, address: SavedAddress | null): Reach {
-  if (!address) return "unknown";
-  if (!shop) return "out";
-  return shop.is_live ? "ok" : "closed";
+/** Brings a checkout section into view and moves focus to it (for keyboards and readers). */
+function reveal(id: string) {
+  const section = document.getElementById(id);
+  section?.scrollIntoView({ block: "center", behavior: "smooth" });
+  section?.focus({ preventScroll: true });
 }
 
 /** Places one dukan's part of the cart at the chosen address, with instructions and note. */
-function usePlaceOrder(group: Group, address: SavedAddress | null) {
+function usePlaceOrder(group: CartGroup, address: SavedAddress | null, total: number) {
   const t = useTranslations("storefront.cart");
   const tOrders = useTranslations("customerOrders");
   const router = useRouter();
@@ -90,12 +58,20 @@ function usePlaceOrder(group: Group, address: SavedAddress | null) {
     if (!address) {
       haptic("warning");
       toast.error(t("addressNeeded"));
-      const section = document.getElementById("cart-address");
-      section?.scrollIntoView({ block: "center" });
-      section?.focus({ preventScroll: true });
+      reveal("cart-address");
       return;
     }
-    const note = [...state.instructions.map((item) => t(`instructions.${item}`)), state.note.trim()]
+    // Change only matters for a note larger than this order's bill.
+    const note = Number(state.cashNote);
+    const change =
+      Number.isFinite(note) && changeNotesFor(total).includes(note)
+        ? t("cashChange.forDukan", { amount: formatRs(note * 100) })
+        : "";
+    const text = [
+      ...state.instructions.map((item) => t(`instructions.${item}`)),
+      change,
+      state.note.trim(),
+    ]
       .filter(Boolean)
       .join(". ")
       .slice(0, 300);
@@ -104,7 +80,7 @@ function usePlaceOrder(group: Group, address: SavedAddress | null) {
         shopId: group.shopId,
         items: group.lines.map((line) => ({ inventoryId: line.id, qty: line.quantity })),
         addressId: address.id,
-        note: note || undefined,
+        note: text || undefined,
         requestId: requestId.current,
         ifUnavailable: state.ifUnavailable,
       });
@@ -122,7 +98,12 @@ function usePlaceOrder(group: Group, address: SavedAddress | null) {
   return { place, placing };
 }
 
-/** The shopper's cart: address, one card per dukan, instructions, payment, and Place order. */
+/**
+ * Checkout, in the order a shopper thinks: where it goes, what is in it (and what they may have
+ * forgotten), what to do if something is missing, how they pay, then the bill and the
+ * cancellation rule, with the total and Place order always at hand. One dukan = one order;
+ * a cart from several dukans places one order each.
+ */
 export function CartView({
   shops,
   addresses,
@@ -162,8 +143,11 @@ export function CartView({
     );
   }
 
+  const shopOf = (group: CartGroup) => shops.find((shop) => shop.id === group.shopId);
   const single = groups.length === 1 ? groups[0] : undefined;
   const count = lines.reduce((sum, line) => sum + line.quantity, 0);
+  // Change is asked once, against the largest bill (with several dukans, each pays its own).
+  const largest = Math.max(...groups.map((group) => billFor(group, shopOf(group)).total));
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-5">
@@ -180,37 +164,76 @@ export function CartView({
       <AddressSection addresses={addresses} zones={zones} selected={address} />
 
       {groups.map((group) => (
-        <ShopCartCard
-          key={group.shopId}
-          group={group}
-          shop={shops.find((shop) => shop.id === group.shopId)}
-          address={address}
-          ownButton={!single}
-        />
+        <div key={group.shopId} className="flex flex-col gap-4">
+          <ShopItemsCard group={group} shop={shopOf(group)} address={address} />
+          <ForgetRow group={group} />
+        </div>
       ))}
 
       <UnavailableSection />
       <InstructionsSection />
-      <PaymentSection />
+      <PaymentSection total={largest} />
 
-      {single ? (
-        <SinglePlaceBar
-          group={single}
-          shop={shops.find((shop) => shop.id === single.shopId)}
+      {groups.map((group) => (
+        <GroupBill
+          key={group.shopId}
+          group={group}
+          shop={shopOf(group)}
           address={address}
+          single={Boolean(single)}
         />
-      ) : null}
+      ))}
+
+      <CancellationPolicy />
+
+      {single ? <PlaceBar group={single} shop={shopOf(single)} address={address} /> : null}
     </div>
   );
 }
 
-/** The always-visible "Place order · Rs 1,070" bar when the cart is from one dukan. */
-function SinglePlaceBar({
+/** One dukan's bill; with several dukans it carries that dukan's own Place order. */
+function GroupBill({
+  group,
+  shop,
+  address,
+  single,
+}: {
+  group: CartGroup;
+  shop: NearbyShop | undefined;
+  address: SavedAddress | null;
+  single: boolean;
+}) {
+  const t = useTranslations("storefront.cart");
+  const bill = billFor(group, shop);
+  const reach = reachOf(shop, address);
+  const { place, placing } = usePlaceOrder(group, address, bill.total);
+  if (reach === "out" || reach === "closed") return null;
+  return (
+    <BillCard
+      id={single ? "cart-bill" : undefined}
+      bill={bill}
+      shopName={single ? undefined : group.shopName}
+      action={
+        single ? null : (
+          <Button size="lg" block loading={placing} disabled={bill.short > 0} onClick={place}>
+            <span className="num">{t("placeOrder", { total: formatRs(bill.total) })}</span>
+          </Button>
+        )
+      }
+    />
+  );
+}
+
+/**
+ * The always-visible bar for a one-dukan cart: the total (tap to see the bill) and one clear
+ * next step. Without an address it asks for one; below the minimum it says how much to add.
+ */
+function PlaceBar({
   group,
   shop,
   address,
 }: {
-  group: Group;
+  group: CartGroup;
   shop: NearbyShop | undefined;
   address: SavedAddress | null;
 }) {
@@ -218,46 +241,63 @@ function SinglePlaceBar({
   const bill = billFor(group, shop);
   const reach = reachOf(shop, address);
   const blocked = reach === "out" || reach === "closed";
-  const { place, placing } = usePlaceOrder(group, address);
+  const { place, placing } = usePlaceOrder(group, address, bill.total);
   return (
-    <StickyActionBar>
-      <Button
-        size="lg"
-        block
-        loading={placing}
-        disabled={bill.short > 0 || blocked}
-        onClick={place}
+    <StickyActionBar className="flex items-center gap-1.5">
+      <button
+        type="button"
+        onClick={() => reveal("cart-bill")}
+        className="flex min-h-12 shrink-0 flex-col items-start justify-center rounded-xl px-3 text-start"
       >
-        <span className="num">
-          {bill.short > 0
-            ? t("addMoreToOrder", { amount: formatRs(bill.short) })
-            : t("placeOrder", { total: formatRs(bill.total) })}
+        <span className="num font-heading text-lg leading-6 font-bold text-ink">
+          {formatRs(bill.total)}
         </span>
-      </Button>
+        <span className="text-xs font-semibold text-primary-strong underline decoration-dotted underline-offset-2">
+          {t("viewBill")}
+        </span>
+      </button>
+      {address ? (
+        <Button
+          size="lg"
+          className="min-w-0 flex-1"
+          loading={placing}
+          disabled={bill.short > 0 || blocked}
+          onClick={place}
+        >
+          <span className="num truncate">
+            {bill.short > 0
+              ? t("addMoreToOrder", { amount: formatRs(bill.short) })
+              : t("placeOrderShort")}
+          </span>
+          {bill.short > 0 ? null : <ChevronRight aria-hidden className="rtl:-scale-x-100" />}
+        </Button>
+      ) : (
+        <Button size="lg" className="min-w-0 flex-1" onClick={() => reveal("cart-address")}>
+          <MapPin aria-hidden />
+          <span className="truncate">{t("chooseAddress")}</span>
+        </Button>
+      )}
     </StickyActionBar>
   );
 }
 
-function ShopCartCard({
+/** One dukan's items with steppers, its free-delivery progress and its minimum order. */
+function ShopItemsCard({
   group,
   shop,
   address,
-  ownButton,
 }: {
-  group: Group;
+  group: CartGroup;
   shop: NearbyShop | undefined;
   address: SavedAddress | null;
-  ownButton: boolean;
 }) {
   const t = useTranslations("storefront.cart");
   const tShop = useTranslations("storefront");
-  const locale = useLocale();
   const setQuantity = useCustomerCart((state) => state.setQuantity);
   const clearShop = useCustomerCart((state) => state.clearShop);
   const bill = billFor(group, shop);
   const reach = reachOf(shop, address);
   const blocked = reach === "out" || reach === "closed";
-  const { place, placing } = usePlaceOrder(group, address);
 
   return (
     <section className="overflow-hidden rounded-lg border border-border/60 bg-surface shadow-card">
@@ -294,10 +334,15 @@ function ShopCartCard({
             />
             <div className="min-w-0 flex-1">
               <p className="line-clamp-2 text-sm font-semibold text-pretty text-ink">{line.name}</p>
+              {line.packSize ? <p className="text-xs text-muted">{line.packSize}</p> : null}
               <p className="num flex items-baseline gap-1.5 text-sm">
-                <span className="font-semibold text-ink">{formatRs(line.pricePaisa)}</span>
+                <span className="font-semibold text-ink">
+                  {formatRs(line.pricePaisa * line.quantity)}
+                </span>
                 {line.mrpPaisa && line.mrpPaisa > line.pricePaisa ? (
-                  <span className="text-xs text-muted line-through">{formatRs(line.mrpPaisa)}</span>
+                  <span className="text-xs text-muted line-through">
+                    {formatRs(line.mrpPaisa * line.quantity)}
+                  </span>
                 ) : null}
               </p>
             </div>
@@ -348,55 +393,30 @@ function ShopCartCard({
             {t("removeItems")}
           </Button>
         </div>
-      ) : (
-        <div className="flex flex-col gap-3 border-t border-border/70 px-4 py-4">
-          {bill.freeAbove !== null && bill.fee > 0 ? (
-            <div className="flex flex-col gap-1.5">
-              <p className="num text-sm font-semibold text-primary-strong">
-                {t("addMoreForFree", { amount: formatRs(bill.freeAbove - bill.itemTotal) })}
-              </p>
-              <Progress value={Math.min((bill.itemTotal / bill.freeAbove) * 100, 100)} />
-            </div>
-          ) : bill.freeAbove !== null ? (
-            <p className="text-sm font-semibold text-primary-strong">{t("freeUnlocked")}</p>
-          ) : null}
-
-          <dl
-            className="num flex flex-col gap-1.5 text-base"
-            dir={locale === "ur" ? "rtl" : undefined}
-          >
-            <div className="flex justify-between gap-3">
-              <dt className="text-muted">{t("itemTotal")}</dt>
-              <dd className="text-ink">{formatRs(bill.itemTotal)}</dd>
-            </div>
-            <div className="flex justify-between gap-3">
-              <dt className="text-muted">{t("delivery")}</dt>
-              <dd className={bill.fee === 0 ? "font-semibold text-primary-strong" : "text-ink"}>
-                {bill.fee === 0 ? t("free") : formatRs(bill.fee)}
-              </dd>
-            </div>
-            <div className="flex justify-between gap-3 border-t border-border/70 pt-2 font-heading text-lg font-bold">
-              <dt className="text-ink">{t("toPay")}</dt>
-              <dd className="text-ink">{formatRs(bill.total)}</dd>
-            </div>
-          </dl>
-          {bill.savings > 0 ? (
-            <p className="num rounded-md bg-primary-soft px-3 py-2 text-sm font-semibold text-primary-strong">
-              {t("savings", { amount: formatRs(bill.savings) })}
-            </p>
-          ) : null}
+      ) : bill.short > 0 || (bill.freeAbove !== null && bill.usualFee > 0) ? (
+        <div className="flex flex-col gap-2 border-t border-border/70 px-4 py-3.5">
           {bill.short > 0 ? (
-            <p className="rounded-md bg-awning-soft px-3 py-2 text-sm font-semibold text-awning-ink">
+            <p className="num rounded-md bg-awning-soft px-3 py-2 text-sm font-semibold text-awning-ink">
               {t("belowMin", { amount: formatRs(bill.minOrder), short: formatRs(bill.short) })}
             </p>
-          ) : null}
-          {ownButton ? (
-            <Button size="lg" block loading={placing} disabled={bill.short > 0} onClick={place}>
-              <span className="num">{t("placeOrder", { total: formatRs(bill.total) })}</span>
-            </Button>
-          ) : null}
+          ) : bill.freeAbove !== null && bill.fee > 0 ? (
+            <>
+              <p
+                id={`free-${group.shopId}`}
+                className="num text-sm font-semibold text-primary-strong"
+              >
+                {t("addMoreForFree", { amount: formatRs(bill.freeAbove - bill.itemTotal) })}
+              </p>
+              <Progress
+                aria-labelledby={`free-${group.shopId}`}
+                value={Math.min((bill.itemTotal / bill.freeAbove) * 100, 100)}
+              />
+            </>
+          ) : (
+            <p className="text-sm font-semibold text-primary-strong">{t("freeUnlocked")}</p>
+          )}
         </div>
-      )}
+      ) : null}
     </section>
   );
 }

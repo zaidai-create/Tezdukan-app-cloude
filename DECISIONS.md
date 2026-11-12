@@ -411,6 +411,22 @@ section. Format: **decision** — reason (date).
   accept. The local database (migrations) drops them; a later clean-up with a Supabase access
   token removes them on the hosted project. (2026-11-12)
 
+- **Customer cancellation is fair to the dukan** — free while the order is only placed; for 2
+  minutes after the dukan accepts, if not packed, with a reason (the dukan is told why); never
+  once packed or on the way. Big delivery apps work the same way (Blinkit stops cancelling once
+  packed, Foodpanda once the restaurant starts). Cash on delivery means there is no fee to
+  charge, so the window is short instead. The rule lives in `update_customer_order_status`;
+  `src/features/customer-orders/cancel-policy.ts` keeps the same 2 minutes for the screen.
+  Cancel sits in the order's ⋮ menu, not as a big button. (2026-11-12)
+- **Checkout keeps only options that help both sides** — "Did you forget?" (one delivery for the
+  shopper, a bigger basket for the dukan), change for cash (the rider brings the right change),
+  the missing-item choice, instructions, a clear bill and the cancellation rule. No tips, no
+  handling or small-cart fees, no surge: COD shoppers in Hyderabad distrust surprise charges, and
+  the dukan already sets its own delivery fee and minimum. Promo codes come with the khata work.
+  (2026-11-12)
+- **The dukan sees the customer's record at its own dukan only** — delivered and
+  self-cancelled counts from its own orders (RLS), not across dukans. (2026-11-12)
+
 ## Notifications
 
 - **Alerts always reach the phone screen** — the service worker no longer skips the system
