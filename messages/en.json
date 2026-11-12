@@ -1011,7 +1011,21 @@
     "queue": {
       "title": "Support chats",
       "empty": "No support chats yet"
-    }
+    },
+    "assistantName": "TezDukan Assistant",
+    "aiLabel": "AI",
+    "assistantSubtitle": "AI assistant answers first. Team: 9 am to 9 pm",
+    "typing": "Writing an answer",
+    "offerTeam": "Should I connect you with my team?",
+    "offerYes": "Yes, connect me",
+    "offerNo": "No, thanks",
+    "noThanks": "No, thanks",
+    "talkToTeam": "Talk to the team",
+    "teamRequested": "Done. The TezDukan team has your chat and will reply here soon (9 am to 9 pm).",
+    "assistantUnavailable": "Our assistant can't answer right now, so the TezDukan team will reply here soon (9 am to 9 pm).",
+    "teamBadge": "Needs team",
+    "aiBadge": "AI answering",
+    "assistantRetry": "Sorry, I couldn't answer that just now. Please ask again, or tap Talk to the team."
   },
   "welcome": {
     "title": "Welcome",
@@ -1245,7 +1259,7 @@
       },
       "s3": {
         "title": "Who can see it",
-        "body": "The dukan or distributor you order from sees your name, phone and delivery address for that order. We never sell your data. Service providers process it only for us: Supabase (database), Vercel (hosting), SMS providers, and Google Gemini, which answers Tez and turns voice into text."
+        "body": "The dukan or distributor you order from sees your name, phone and delivery address for that order. We never sell your data. Service providers process it only for us: Supabase (database), Vercel (hosting), SMS providers, and Google Gemini, which answers Tez, gives the first answer in support chats and turns voice into text."
       },
       "s4": {
         "title": "Your choices",
@@ -1268,7 +1282,7 @@
       },
       "s3": {
         "title": "Cancelled orders",
-        "body": "You can cancel an order before it is packed. If you already paid, the full amount is returned."
+        "body": "You can cancel a customer order free until the dukan accepts it, and within 2 minutes after, before it is packed. Wholesale orders can be cancelled before they are packed. If you already paid, the full amount is returned."
       }
     }
   },

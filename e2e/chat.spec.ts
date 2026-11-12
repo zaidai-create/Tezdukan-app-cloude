@@ -4,8 +4,9 @@ import { createDukandar, deleteUserByPhone } from "./support/admin";
 import { messages } from "./support/messages";
 
 /**
- * Chat between a dukan and its distributor (live, both ways) and the support chat with its
- * instant auto-reply. A fresh dukan per run; the demo distributor answers.
+ * Chat between a dukan and its distributor (live, both ways) and the support chat, where the
+ * TezDukan assistant answers first and the team is one tap away. A fresh dukan per run; the
+ * demo distributor answers.
  */
 const { auth, chat, account } = messages.en;
 const PASSWORD = "dukan-e2e-123";
@@ -73,7 +74,11 @@ test.describe("chat", () => {
     await dukandar.context().close();
   });
 
-  test("support answers at once with an honest auto-reply", async ({ browser, baseURL }) => {
+  test("support: the assistant answers first and the team is one tap away", async ({
+    browser,
+    baseURL,
+  }) => {
+    test.setTimeout(90_000);
     const base = baseURL ?? "";
     const dukandar = await signedIn(browser, base, phone, PASSWORD);
     await dukandar.goto(`${base}/dukan/account`);
@@ -82,9 +87,22 @@ test.describe("chat", () => {
       timeout: 15_000,
     });
     await dukandar.getByRole("button", { name: chat.quick.support.r1 }).click();
-    await expect(dukandar.getByRole("log").getByText(chat.autoReply)).toBeVisible({
-      timeout: 15_000,
-    });
+    const log = dukandar.getByRole("log");
+    // The AI answers; without an AI key (or when it is busy) the chat says so honestly.
+    await expect(
+      log
+        .getByText(chat.assistantName)
+        .or(log.getByText(chat.assistantRetry))
+        .or(log.getByText(chat.assistantUnavailable))
+        .first(),
+    ).toBeVisible({ timeout: 40_000 });
+    const talk = dukandar.getByRole("button", { name: chat.talkToTeam });
+    if (await talk.isVisible()) {
+      await talk.click();
+      await expect(log.getByText(chat.teamRequested)).toBeVisible();
+      await expect(talk).toBeHidden();
+    }
+    await expectAccessible(dukandar);
     await dukandar.context().close();
   });
 });

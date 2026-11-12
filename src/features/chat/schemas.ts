@@ -5,7 +5,7 @@ import { z } from "zod";
 const id = z.uuid();
 const timestamp = z.string().min(10);
 
-export const chatSideSchema = z.enum(["shop", "org", "user", "staff", "system"]);
+export const chatSideSchema = z.enum(["shop", "org", "user", "staff", "system", "assistant"]);
 export type ChatSide = z.infer<typeof chatSideSchema>;
 
 export const conversationCardSchema = z.object({
@@ -14,6 +14,9 @@ export const conversationCardSchema = z.object({
   shop_id: id.nullable(),
   org_id: id.nullable(),
   status: z.enum(["open", "closed"]),
+  /** Support only: who answers now, the TezDukan assistant (AI) or the team. */
+  support_mode: z.enum(["assistant", "team"]).nullable().optional(),
+  team_requested_at: timestamp.nullable().optional(),
   my_side: chatSideSchema,
   last_message_at: timestamp.nullable(),
   last_message_preview: z.string().nullable(),
@@ -51,4 +54,10 @@ export const conversationDetailSchema = z.object({
 export type ConversationDetail = z.infer<typeof conversationDetailSchema>;
 
 /** System messages carry a code the app translates. */
-export const SYSTEM_CODES = { support_auto_reply: "autoReply" } as const;
+export const SYSTEM_CODES = {
+  support_auto_reply: "autoReply",
+  support_offer_team: "offerTeam",
+  support_team_requested: "teamRequested",
+  support_assistant_unavailable: "assistantUnavailable",
+  support_assistant_retry: "assistantRetry",
+} as const;

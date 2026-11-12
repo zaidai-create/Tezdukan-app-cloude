@@ -427,6 +427,25 @@ section. Format: **decision** — reason (date).
 - **The dukan sees the customer's record at its own dukan only** — delivered and
   self-cancelled counts from its own orders (RLS), not across dukans. (2026-11-12)
 
+## Support
+
+- **The AI answers support first; the team is called only when needed** — the assistant
+  (Gemini, the same key as Tez) answers from `src/features/support-ai/faq.ts` (40 common
+  questions, kept true to the app) and the person's own latest orders, in their language. It
+  offers "Should I connect you with my team?" when it cannot fully help, the person is upset or
+  asks for a person, or money or a dispute is involved; Yes notifies every admin and support
+  member once. The team is not notified of each message while the assistant answers (owner's
+  request: a notification only when the person wants the team). (2026-11-12)
+- **Only the server writes as the assistant** — `post_support_assistant_reply`,
+  `post_support_assistant_note` and `support_assistant_unavailable` are granted to the service
+  role only; the reply is generated in `after()` once the person's message is saved and arrives
+  over Realtime, so sending stays instant. (2026-11-12)
+- **Never leave a person waiting** — no AI key: the chat goes straight to the team. The AI busy
+  or slow: "please ask again"; twice in a row: the team takes over. (2026-11-12)
+- **The reply language comes from the message, not the app language** — the FAQ is English, so
+  without a hint the model drifted into English for Roman Urdu questions;
+  `src/features/support-ai/language.ts` picks Urdu script, Roman Urdu or English. (2026-11-12)
+
 ## Notifications
 
 - **Alerts always reach the phone screen** — the service worker no longer skips the system

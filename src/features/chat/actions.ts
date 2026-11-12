@@ -3,6 +3,7 @@
 import { after } from "next/server";
 import { z } from "zod";
 import { flushPushOutboxQuietly } from "@/features/notifications/dispatch";
+import { answerSupportChat } from "@/features/support-ai/answer";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { chatErrorKey, type ChatErrorKey } from "./errors";
 import { chatMessageSchema, chatSideSchema, type ChatMessage } from "./schemas";
@@ -31,6 +32,27 @@ export async function sendChatMessage(
     p_as: as,
   });
   if (error) return { ok: false, error: chatErrorKey(error) };
+  const message = chatMessageSchema.parse(data);
   after(flushPushOutboxQuietly);
-  return { ok: true, data: chatMessageSchema.parse(data) };
+  // In a support chat the TezDukan assistant answers first; its reply arrives over Realtime.
+  if (sentToAssistant.safeParse(data).success && message.sender_side !== "staff") {
+    after(async () => {
+      await answerSupportChat(conversationId, message.id);
+      await flushPushOutboxQuietly();
+    });
+  }
+  return { ok: true, data: message };
+}
+
+const sentToAssistant = z.object({ support_mode: z.literal("assistant") });
+
+/** "Yes, connect me": the support chat goes to the TezDukan team, who are notified. */
+export async function requestSupportTeam(conversationId: string): Promise<ChatResult<null>> {
+  const id = z.uuid().safeParse(conversationId);
+  if (!id.success) return { ok: false, error: "conversation_not_found" };
+  const supabase = await getSupabaseServerClient();
+  const { error } = await supabase.rpc("request_support_team", { p_conversation_id: id.data });
+  if (error) return { ok: false, error: chatErrorKey(error) };
+  after(flushPushOutboxQuietly);
+  return { ok: true, data: null };
 }

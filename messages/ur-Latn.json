@@ -1011,7 +1011,21 @@
     "queue": {
       "title": "Support chats",
       "empty": "Abhi koi support chat nahi"
-    }
+    },
+    "assistantName": "TezDukan Assistant",
+    "aiLabel": "AI",
+    "assistantSubtitle": "Pehle AI assistant jawab deta hai. Team: subah 9 se raat 9",
+    "typing": "Jawab likh raha hai",
+    "offerTeam": "Kya main aap ko apni team se mila doon?",
+    "offerYes": "Ji haan, mila dein",
+    "offerNo": "Nahi, shukriya",
+    "noThanks": "Nahi, shukriya",
+    "talkToTeam": "Team se baat karein",
+    "teamRequested": "Ho gaya. TezDukan team ko aap ki chat mil gayi hai, woh jald yahin jawab degi (subah 9 se raat 9).",
+    "assistantUnavailable": "Abhi hamara assistant jawab nahi de sakta, is liye TezDukan team jald yahin jawab degi (subah 9 se raat 9).",
+    "teamBadge": "Team ka intezar",
+    "aiBadge": "AI jawab de raha hai",
+    "assistantRetry": "Maazrat, main abhi jawab nahi de saka. Dobara poochein, ya Team se baat karein par tap karein."
   },
   "welcome": {
     "title": "Khush aamdeed",
@@ -1245,7 +1259,7 @@
       },
       "s3": {
         "title": "Kaun dekh sakta hai",
-        "body": "Jis dukan ya distributor se aap order karein, wo us order ke liye aap ka naam, phone aur delivery ka pata dekhta hai. Hum aap ka data kabhi nahi bechte. Service providers sirf hamare liye kaam karte hain: Supabase (database), Vercel (hosting), SMS service, aur Google Gemini jo Tez ke jawab deta hai aur awaaz ko likhai mein badalta hai."
+        "body": "Jis dukan ya distributor se aap order karein, wo us order ke liye aap ka naam, phone aur delivery ka pata dekhta hai. Hum aap ka data kabhi nahi bechte. Service providers sirf hamare liye kaam karte hain: Supabase (database), Vercel (hosting), SMS service, aur Google Gemini jo Tez ke jawab deta hai, support chat mein pehla jawab deta hai aur awaaz ko likhai mein badalta hai."
       },
       "s4": {
         "title": "Aap ke ikhtiyarat",
@@ -1268,7 +1282,7 @@
       },
       "s3": {
         "title": "Cancel orders",
-        "body": "Packing se pehle order cancel kar sakte hain. Agar payment ho chuki ho to poori raqam wapas milegi."
+        "body": "Customer ka order dukan ke accept karne tak free cancel ho sakta hai, aur accept hone ke 2 minute tak packing se pehle. Wholesale orders packing se pehle cancel ho sakte hain. Agar payment ho chuki ho to poori raqam wapas milegi."
       }
     }
   },

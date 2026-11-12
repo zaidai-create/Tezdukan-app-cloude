@@ -4,6 +4,26 @@ All notable changes, newest first. Dates are Asia/Karachi.
 
 ## Unreleased
 
+### Support chat: the AI assistant answers first, the team is one tap away (2026-11-12)
+
+- In the support chat (customers, dukandars and distributors), the TezDukan Assistant answers
+  first, in a few seconds, in the language the person wrote in (English, Urdu or Roman Urdu).
+  It knows 40 common questions (ordering, payment, delivery, cancelling, missing items, refunds,
+  addresses, notifications, registering a dukan with CNIC, going online, products) and the
+  person's own latest orders ("your order C-000011 from TezDukan is on the way").
+- When it cannot fully help, or the person is upset or asks for a person, it shows "Should I
+  connect you with my team?" with Yes and No. Yes hands the chat to the team and notifies every
+  admin ("Ayesha wants to talk to the team"); "Talk to the team" is also always at hand.
+- While the assistant is answering, the team is not pinged for every message. Once the team has
+  the chat (or a team member replies), the assistant stays quiet and the team is told of each
+  message. If the AI is busy it says so and asks to try again; twice in a row, the team takes
+  over, so nobody waits for an answer that will not come.
+- The admin Support inbox marks each chat "Needs team" or "AI answering". AI answers are
+  labelled "TezDukan Assistant · AI" in the chat.
+- The newest chat message no longer hides behind the message box.
+- Privacy policy: Google Gemini also gives the first answer in support chats. Refund policy:
+  the customer cancellation rule.
+
 ### CNIC documents on every dukan and distributor in the admin dashboard (2026-11-12)
 
 - Dukans and Distributors show a small "CNIC" tag on everyone who sent documents when

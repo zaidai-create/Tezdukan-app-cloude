@@ -1379,6 +1379,8 @@ export type Database = {
           org_id: string | null;
           shop_id: string | null;
           status: string;
+          support_mode: string;
+          team_requested_at: string | null;
           updated_at: string;
           user_id: string | null;
         };
@@ -1394,6 +1396,8 @@ export type Database = {
           org_id?: string | null;
           shop_id?: string | null;
           status?: string;
+          support_mode?: string;
+          team_requested_at?: string | null;
           updated_at?: string;
           user_id?: string | null;
         };
@@ -1408,6 +1412,8 @@ export type Database = {
           org_id?: string | null;
           shop_id?: string | null;
           status?: string;
+          support_mode?: string;
+          team_requested_at?: string | null;
           updated_at?: string;
           user_id?: string | null;
         };
@@ -8752,6 +8758,14 @@ export type Database = {
         };
         Returns: Json;
       };
+      post_support_assistant_note: {
+        Args: { p_code: string; p_conversation_id: string };
+        Returns: boolean;
+      };
+      post_support_assistant_reply: {
+        Args: { p_body: string; p_conversation_id: string; p_offer_team?: boolean };
+        Returns: Json;
+      };
       product_detail: {
         Args: { p_distributor_product_id: string; p_shop_id: string };
         Returns: Json;
@@ -9084,6 +9098,7 @@ export type Database = {
         };
       };
       request_shop_confirmation: { Args: { p_order_id: string }; Returns: Json };
+      request_support_team: { Args: { p_conversation_id: string }; Returns: boolean };
       resubmit_organization: {
         Args: { p_org_id: string };
         Returns: {
@@ -9333,6 +9348,7 @@ export type Database = {
         Returns: Json;
       };
       storefront_shop: { Args: { p_slug: string }; Returns: Json };
+      support_assistant_unavailable: { Args: { p_conversation_id: string }; Returns: boolean };
       switch_active_context: {
         Args: { p_context_id?: string; p_role: Database["public"]["Enums"]["app_role"] };
         Returns: undefined;
@@ -9439,7 +9455,7 @@ export type Database = {
       cart_item_source: "manual" | "munshi" | "parchi" | "reorder" | "booker";
       cash_book_entry_type: "opening" | "closing" | "cash_in" | "cash_out";
       cash_settlement_status: "pending" | "approved" | "disputed";
-      chat_side: "shop" | "org" | "user" | "staff" | "system";
+      chat_side: "shop" | "org" | "user" | "staff" | "system" | "assistant";
       content_owner_type: "platform" | "org" | "shop";
       conversation_kind: "trade" | "support";
       counterparty_type: "shop" | "shop_customer";
@@ -9722,7 +9738,7 @@ export const Constants = {
       cart_item_source: ["manual", "munshi", "parchi", "reorder", "booker"],
       cash_book_entry_type: ["opening", "closing", "cash_in", "cash_out"],
       cash_settlement_status: ["pending", "approved", "disputed"],
-      chat_side: ["shop", "org", "user", "staff", "system"],
+      chat_side: ["shop", "org", "user", "staff", "system", "assistant"],
       content_owner_type: ["platform", "org", "shop"],
       conversation_kind: ["trade", "support"],
       counterparty_type: ["shop", "shop_customer"],

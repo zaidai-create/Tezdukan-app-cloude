@@ -382,8 +382,8 @@ select is(
 select tests.remember('support', public.open_conversation('support', tests.id('shop_a')));
 select public.send_chat_message(tests.id('support'), 'Mera order late hai.');
 select is(
-  (select count(*)::integer from public.chat_messages where conversation_id = tests.id('support') and sender_side = 'system'), 1,
-  'the first support message gets an instant auto-reply'
+  (select count(*)::integer from public.chat_messages where conversation_id = tests.id('support') and sender_side = 'system'), 0,
+  'the first support message waits for the assistant (see 30_support_assistant), not a canned note'
 );
 select throws_ok(
   $$ select public.my_conversations(p_support_queue => true) $$,

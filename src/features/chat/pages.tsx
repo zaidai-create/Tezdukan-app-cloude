@@ -8,6 +8,7 @@ import { z } from "zod";
 import { EmptyState } from "@/components/states/empty-state";
 import { ListRowSkeleton } from "@/components/states/skeletons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { requireDistributor } from "@/features/distributor/data";
 import { requireDukan, getShopDistributors } from "@/features/ordering/data";
@@ -77,6 +78,15 @@ async function ConversationRow({ card, area }: { card: ConversationCard; area: C
   const name = support ? t("support") : card.counterpart.name;
   const preview =
     card.last_message_preview === "support_auto_reply" ? t("autoReply") : card.last_message_preview;
+  // The team's queue: who is waiting for a person, and which chats the assistant is handling.
+  const queueBadge =
+    card.kind !== "support" || card.my_side !== "staff"
+      ? null
+      : card.support_mode === "team" && card.last_sender_side !== "staff"
+        ? { tone: "warning" as const, label: t("teamBadge") }
+        : card.support_mode === "assistant"
+          ? { tone: "neutral" as const, label: t("aiBadge") }
+          : null;
   return (
     <li>
       <Link
@@ -105,7 +115,12 @@ async function ConversationRow({ card, area }: { card: ConversationCard; area: C
             >
               {name}
             </span>
-            <span className="num shrink-0 text-xs text-muted">
+            {queueBadge ? (
+              <StatusBadge tone={queueBadge.tone} className="shrink-0">
+                {queueBadge.label}
+              </StatusBadge>
+            ) : null}
+            <span className="num ms-auto shrink-0 text-xs text-muted">
               {`⁦${when(card.last_message_at)}⁩`}
             </span>
           </span>

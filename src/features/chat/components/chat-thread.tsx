@@ -4,6 +4,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "cn";
 import {
   ArrowLeft,
+  Bot,
+  Headset,
   LifeBuoy,
   MessageCircle,
   Package,
@@ -22,7 +24,7 @@ import { formatTime, TIME_ZONE } from "@/lib/format";
 import { haptic } from "@/lib/haptics";
 import { telHref, whatsappHref } from "@/lib/contact";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
-import { sendChatMessage } from "../actions";
+import { requestSupportTeam, sendChatMessage } from "../actions";
 import { chatErrorKey } from "../errors";
 import {
   chatMessageSchema,
@@ -78,7 +80,11 @@ export function ChatThread({
   const [hasMore, setHasMore] = useState(initial.has_more);
   const [draft, setDraft] = useState("");
   const [loadingEarlier, setLoadingEarlier] = useState(false);
-  const endRef = useRef<HTMLDivElement>(null);
+  // Support: who answers now. The assistant (AI) first; the team once asked for or answering.
+  const [mode, setMode] = useState(conversation.support_mode ?? null);
+  // The assistant is writing an answer to what was just sent (cleared by its reply or a timeout).
+  const [awaiting, setAwaiting] = useState(false);
+  const [connecting, setConnecting] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const stickToEnd = useRef(true);
 
@@ -125,6 +131,14 @@ export function ChatThread({
           setMessages((current) =>
             current.some((m) => m.id === message.id) ? current : [...current, message],
           );
+          if (["assistant", "staff", "system"].includes(message.sender_side)) setAwaiting(false);
+          if (
+            message.sender_side === "staff" ||
+            message.body === "support_team_requested" ||
+            message.body === "support_assistant_unavailable"
+          ) {
+            setMode((current) => (current === null ? current : "team"));
+          }
           if (message.sender_side !== mySide) {
             haptic("tap");
             if (document.visibilityState === "visible") markRead();
@@ -147,8 +161,34 @@ export function ChatThread({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
   useLayoutEffect(() => {
-    if (stickToEnd.current) endRef.current?.scrollIntoView({ block: "end" });
+    if (stickToEnd.current) scrollToEnd();
   }, [messages.length]);
+
+  // If no answer comes within 30 seconds, stop showing "typing"; the server hands the chat to
+  // the team when the assistant fails, and that note arrives on its own.
+  useEffect(() => {
+    if (!awaiting) return;
+    const timer = window.setTimeout(() => setAwaiting(false), 30_000);
+    return () => window.clearTimeout(timer);
+  }, [awaiting]);
+  useLayoutEffect(() => {
+    if (awaiting && stickToEnd.current) scrollToEnd();
+  }, [awaiting]);
+
+  const assistantOn = isSupport && mode === "assistant";
+
+  const connectTeam = async () => {
+    setConnecting(true);
+    const result = await requestSupportTeam(conversation.id).catch(() => ({ ok: false as const }));
+    setConnecting(false);
+    if (result.ok) {
+      haptic("success");
+      setMode("team");
+      setAwaiting(false);
+    } else {
+      haptic("warning");
+    }
+  };
 
   const send = async (body: string, retryOf?: string) => {
     const text = body.trim();
@@ -181,6 +221,7 @@ export function ChatThread({
         : [...withoutTemp, result.data];
     });
     if (!result.ok) haptic("warning");
+    else if (assistantOn) setAwaiting(true);
   };
 
   const loadEarlier = async () => {
@@ -239,7 +280,9 @@ export function ChatThread({
             {isSupport ? t("support") : conversation.counterpart.name}
           </h1>
           {isSupport ? (
-            <p className="truncate text-xs text-muted">{t("supportReplyTime")}</p>
+            <p className="truncate text-xs text-muted">
+              {assistantOn ? t("assistantSubtitle") : t("supportReplyTime")}
+            </p>
           ) : null}
         </div>
         {tel ? (
@@ -289,7 +332,10 @@ export function ChatThread({
                   dayKey.format(new Date(message.created_at));
               const mine = message.sender_side === mySide;
               const system = message.sender_side === "system";
+              const assistant = message.sender_side === "assistant";
               const code = SYSTEM_CODES[message.body as keyof typeof SYSTEM_CODES];
+              const offer = code === "offerTeam";
+              const isLast = index === messages.length - 1;
               return (
                 <li key={message.id} className="flex flex-col">
                   {newDay ? (
@@ -297,7 +343,14 @@ export function ChatThread({
                       {dayLabel(message.created_at)}
                     </span>
                   ) : null}
-                  {system ? (
+                  {system && offer ? (
+                    <OfferTeamCard
+                      active={assistantOn && isLast}
+                      connecting={connecting}
+                      onYes={() => void connectTeam()}
+                      onNo={() => void send(t("noThanks"))}
+                    />
+                  ) : system ? (
                     <p className="my-2 flex items-start gap-2 self-center rounded-lg bg-awning-soft px-3 py-2 text-sm text-ink">
                       <LifeBuoy aria-hidden className="mt-0.5 size-4 shrink-0 text-awning-ink" />
                       {code ? t(code) : message.body}
@@ -312,6 +365,15 @@ export function ChatThread({
                         message.state === "failed" && "opacity-70",
                       )}
                     >
+                      {assistant ? (
+                        <span className="flex items-center gap-1.5 text-xs font-semibold text-primary-strong">
+                          <Bot aria-hidden className="size-3.5" strokeWidth={1.75} />
+                          {t("assistantName")}
+                          <span className="rounded-full bg-primary-soft px-1.5 py-px text-[11px]">
+                            {t("aiLabel")}
+                          </span>
+                        </span>
+                      ) : null}
                       {message.order_id && message.order_number && orderBasePath ? (
                         <Link
                           href={`${orderBasePath}/${message.order_id}`}
@@ -351,12 +413,32 @@ export function ChatThread({
               );
             })}
           </ol>
+          {awaiting ? (
+            <p
+              role="status"
+              className="me-auto mt-1 flex items-center gap-2 rounded-2xl rounded-es-md border border-border/70 bg-surface px-3.5 py-2.5 text-sm text-muted shadow-card"
+            >
+              <Bot aria-hidden className="size-4 text-primary-strong" strokeWidth={1.75} />
+              {t("typing")}
+              <TypingDots />
+            </p>
+          ) : null}
         </div>
-        <div ref={endRef} />
       </div>
 
       <div className="material sticky bottom-[calc(var(--bottom-nav-space)+10px)] z-20 mx-3 mb-3 flex flex-col gap-2 rounded-2xl p-2 shadow-float lg:bottom-6">
         <div className="-mx-1 flex [scrollbar-width:none] gap-2 overflow-x-auto px-1 pb-0.5">
+          {assistantOn ? (
+            <button
+              type="button"
+              disabled={connecting}
+              onClick={() => void connectTeam()}
+              className="relative inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-primary/40 bg-primary-soft px-3.5 text-sm font-semibold whitespace-nowrap text-primary-strong after:absolute after:inset-x-0 after:-inset-y-1"
+            >
+              <Headset aria-hidden className="size-4" strokeWidth={1.75} />
+              {t("talkToTeam")}
+            </button>
+          ) : null}
           {quickReplies.map((reply) => (
             <button
               key={reply}
@@ -407,4 +489,63 @@ export function ChatThread({
       </div>
     </div>
   );
+}
+
+/** "Should I connect you with my team?" with Yes and No while it is the latest word. */
+function OfferTeamCard({
+  active,
+  connecting,
+  onYes,
+  onNo,
+}: {
+  active: boolean;
+  connecting: boolean;
+  onYes: () => void;
+  onNo: () => void;
+}) {
+  const t = useTranslations("chat");
+  return (
+    <div className="my-2 flex max-w-[86%] flex-col gap-2.5 self-start rounded-2xl rounded-es-md border border-primary/30 bg-surface p-3 shadow-card">
+      <p className="flex items-start gap-2 text-[15px] font-semibold text-ink">
+        <Headset
+          aria-hidden
+          className="mt-0.5 size-5 shrink-0 text-primary-strong"
+          strokeWidth={1.75}
+        />
+        {t("offerTeam")}
+      </p>
+      {active ? (
+        <div className="flex gap-2">
+          <Button size="sm" loading={connecting} onClick={onYes}>
+            {t("offerYes")}
+          </Button>
+          <Button size="sm" variant="secondary" disabled={connecting} onClick={onNo}>
+            {t("offerNo")}
+          </Button>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function TypingDots() {
+  return (
+    <span aria-hidden className="flex gap-1">
+      {[0, 1, 2].map((dot) => (
+        <span
+          key={dot}
+          className="size-1.5 animate-bounce rounded-full bg-muted motion-reduce:animate-none"
+          style={{ animationDelay: `${dot * 150}ms` }}
+        />
+      ))}
+    </span>
+  );
+}
+
+/**
+ * The page itself scrolls, with the composer pinned at the bottom: go to the very end so the
+ * newest message sits above the composer instead of behind it.
+ */
+function scrollToEnd() {
+  window.scrollTo({ top: document.documentElement.scrollHeight });
 }
