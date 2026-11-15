@@ -171,6 +171,33 @@ export function ChatThread({
     const timer = window.setTimeout(() => setAwaiting(false), 30_000);
     return () => window.clearTimeout(timer);
   }, [awaiting]);
+  // A message sent the moment the chat opens can beat the live connection, and phones drop
+  // it now and then: while waiting for the answer, also look for it twice.
+  useEffect(() => {
+    if (!awaiting) return;
+    const lookAgain = async () => {
+      const { data, error } = await getSupabaseBrowserClient().rpc("conversation_detail", {
+        p_conversation_id: conversation.id,
+        p_as: as,
+      });
+      if (error) return;
+      const page = conversationDetailSchema.safeParse(data);
+      if (!page.success) return;
+      const answered = page.data.messages.some((m) =>
+        ["assistant", "staff", "system"].includes(m.sender_side),
+      );
+      setMessages((current) => {
+        const fresh = page.data.messages.filter((m) => !current.some((c) => c.id === m.id));
+        if (fresh.length === 0) return current;
+        return [...current, ...fresh].sort((a, b) => a.created_at.localeCompare(b.created_at));
+      });
+      if (answered && page.data.conversation.support_mode === "team") setMode("team");
+    };
+    const timers = [5_000, 12_000].map((ms) => window.setTimeout(() => void lookAgain(), ms));
+    return () => timers.forEach((timer) => window.clearTimeout(timer));
+  }, [awaiting, conversation.id, as]);
+  // "Writing an answer" only while the newest message is still the person's own.
+  const typing = awaiting && messages.at(-1)?.sender_side === mySide;
   useLayoutEffect(() => {
     if (awaiting && stickToEnd.current) scrollToEnd();
   }, [awaiting]);
@@ -413,7 +440,7 @@ export function ChatThread({
               );
             })}
           </ol>
-          {awaiting ? (
+          {typing ? (
             <p
               role="status"
               className="me-auto mt-1 flex items-center gap-2 rounded-2xl rounded-es-md border border-border/70 bg-surface px-3.5 py-2.5 text-sm text-muted shadow-card"

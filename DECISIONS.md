@@ -444,6 +444,14 @@ section. Format: **decision** — reason (date).
   dukandars (active dukan members), distributors (active distributor members), everyone, or one
   person by phone. Group sends: five an hour per admin; all in the audit log. (2026-11-12)
 
+- **Hosted database, 15 Nov** — the cancel window, the support assistant, push-at-once and
+  broadcasts are on the hosted project (versions 20261112120000 to 20261112140000 recorded);
+  `private.push_flush.url` is the live app. `remove_order_item` is not: the Supabase connector
+  asks for a confirmation on any `delete` (even inside a function), and that question never
+  reaches the owner's app. It needs a Supabase access token (Management API) or the owner
+  answering the connector from a desktop. Until then the dukandar's "Remove it" shows an error
+  and "Send similar" works. (2026-11-15)
+
 ## Support
 
 - **The AI answers support first; the team is called only when needed** — the assistant

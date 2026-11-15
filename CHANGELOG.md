@@ -4,6 +4,12 @@ All notable changes, newest first. Dates are Asia/Karachi.
 
 ## Unreleased
 
+### Support chat answers show even when sent the moment the chat opens (2026-11-15)
+
+- A question sent before the chat's live connection was ready got its answer on the server
+  but not on screen until the page was reopened. While waiting for an answer, the chat now also
+  looks for it after 5 and 12 seconds.
+
 ### Phone alerts arrive at once, and the team can send notifications (2026-11-12)
 
 - Phone alerts no longer wait for someone to open the app. Until now a push went out only when
