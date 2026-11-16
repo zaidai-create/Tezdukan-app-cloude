@@ -13,28 +13,43 @@ const head = (c, title, rows) => `
     <div class="ibar"><i></i></div>`;
 const pre = t => esc(t || '').replace(/\n/g, '<br>');
 
-export function invoiceHTML(d, { slip = false } = {}) {
-  const { invoice: i, lines, party: p, company: c } = d;
+// Discount figures for a bill: item discount (TP vs rate) + bill discount.
+export function discountOf(d) {
+  const { invoice: i, lines } = d;
+  const L = lines.map(l => { const tp = Math.max(+l.tp || 0, +l.rate); return { ...l, tp, off: tp > +l.rate ? tp - +l.rate : 0 }; });
+  const gross = L.reduce((a, l) => a + l.tp * +l.qty, 0);
+  const item = L.reduce((a, l) => a + l.off * +l.qty, 0);
+  const bill = +i.discount || 0;
+  const total = item + bill;
+  return { L, gross, item, bill, total, pct: gross > 0 ? total / gross * 100 : 0, show: item > 0.5 };
+}
+const pc = x => (x >= 10 ? x.toFixed(0) : x.toFixed(1)).replace(/\.0$/, '') + '%';
+
+// opts.balance: print previous balance / total due (off by default; customers do not always want it on the bill)
+export function invoiceHTML(d, { slip = false, balance = false } = {}) {
+  const { invoice: i, party: p, company: c } = d;
   const tax = i.tax > 0, title = (tax && i.kind === 'sale') ? 'Sales Tax Invoice' : KIND_TITLE[i.kind];
   const due = Math.max(i.total - i.paid, 0);
   const payTxt = i.paid >= i.total - 0.5 ? 'Paid' : i.paid > 0 ? 'Partly paid' : 'Credit';
   const payCls = i.paid >= i.total - 0.5 ? 'ok' : i.paid > 0 ? 'part' : 'cr';
+  const D = discountOf(d), lines = D.L;
   const totQty = lines.reduce((a, l) => a + (+l.qty || 0), 0);
   const cust = i.kind === 'sale' || i.kind === 'sale_return';
-  const showAcct = p?.kind === 'C' && cust;
+  const showAcct = balance && p?.kind === 'C' && cust;
   if (slip) {
     return `<div class="paper slip">
       <div class="c"><img src="${LOGO}" alt="" class="slogo"><br>${esc(c.address || '')}${c.phone ? '<br>Ph ' + esc(c.phone) : ''}${c.ntn ? '<br>NTN ' + esc(c.ntn) : ''}${c.strn ? ' STRN ' + esc(c.strn) : ''}</div><hr>
       <div class="c"><b>${esc(title.toUpperCase())}</b></div>
       <div class="r"><span>No.</span><span>${esc(i.no)}</span></div><div class="r"><span>Date</span><span>${esc(fd(i.date))}</span></div>
       <div class="r"><span>To</span><span>${esc(nice(p?.name))}</span></div><hr>
-      ${lines.map((l, k) => `<div>${k + 1}. ${esc(nice(l.name))}</div><div class="r"><span>&nbsp;&nbsp;${qty(l.qty)} ${esc(l.unit || '')} x ${n2(l.rate)}</span><span>${n2(l.amount)}</span></div>`).join('')}<hr>
+      ${lines.map((l, k) => `<div>${k + 1}. ${esc(nice(l.name))}</div>${l.off > 0 ? `<div class="r"><span>&nbsp;&nbsp;TP ${n2(l.tp)} - ${n2(l.off)} disc</span><span></span></div>` : ''}<div class="r"><span>&nbsp;&nbsp;${qty(l.qty)} ${esc(l.unit || '')} x ${n2(l.rate)}</span><span>${n2(l.amount)}</span></div>`).join('')}<hr>
       <div class="r"><span>Items ${lines.length} · Qty ${qty(totQty)}</span><span></span></div>
-      <div class="r"><span>Subtotal</span><span>${n2(i.subtotal)}</span></div>
-      ${i.discount ? `<div class="r"><span>Discount</span><span>-${n2(i.discount)}</span></div>` : ''}
+      ${D.show ? `<div class="r"><span>Amount at TP</span><span>${n2(D.gross)}</span></div><div class="r"><span>Item discount</span><span>-${n2(D.item)}</span></div>` : `<div class="r"><span>Subtotal</span><span>${n2(i.subtotal)}</span></div>`}
+      ${i.discount ? `<div class="r"><span>Bill discount</span><span>-${n2(i.discount)}</span></div>` : ''}
       ${tax ? `<div class="r"><span>Sales tax ${+i.tax_pct}%</span><span>${n2(i.tax)}</span></div>` : ''}
       <div class="r tot"><b class="big">TOTAL Rs</b><b class="big">${n2(i.total)}</b></div>
-      <div class="r"><span>Received</span><span>${n2(i.paid)}</span></div>
+      ${D.total > 0.5 ? `<div class="c"><b>Total discount Rs ${n2(D.total)} (${pc(D.pct)})</b></div>` : ''}
+      ${i.kind === 'sale' || i.kind === 'purchase' ? `<div class="r"><span>Received</span><span>${n2(i.paid)}</span></div>` : ''}
       ${showAcct ? `<div class="r"><span>Previous balance</span><span>${n2(d.previous)}</span></div><div class="r"><b>Total due</b><b>${n2(d.after)}</b></div>` : ''}<hr>
       <div class="c">${esc(c.footer || 'Thank you for your business')}</div></div>`;
   }
@@ -46,23 +61,25 @@ export function invoiceHTML(d, { slip = false } = {}) {
         <div><span>Prepared by</span><b>${esc(i.created_by_name || '—')}</b></div>
         <div><span>Items</span><b>${lines.length}</b></div>
         <div><span>Total qty</span><b>${qty(totQty)}</b></div>
-        ${due > 0.5 && i.kind === 'sale' ? `<div><span>Balance on bill</span><b class="red">Rs ${n2(due)}</b></div>` : ''}
+        ${D.total > 0.5 ? `<div><span>Discount</span><b class="grn">Rs ${n2(D.total)}</b></div>` : ''}
       </div>
     </div>
-    <table class="items"><thead><tr><th style="width:34px">#</th><th>Description</th><th class="n">Qty</th><th>Unit</th><th class="n">Rate</th><th class="n">Amount (Rs)</th></tr></thead>
-      <tbody>${lines.map((l, k) => `<tr><td class="k">${k + 1}</td><td><b>${esc(nice(l.name || 'Item'))}</b></td><td class="n">${qty(l.qty)}</td><td>${esc(l.unit || '')}</td><td class="n">${n2(l.rate)}</td><td class="n">${n2(l.amount)}</td></tr>`).join('')}</tbody></table>
+    <table class="items"><thead><tr><th style="width:30px">#</th><th>Description</th><th class="n">Qty</th><th>Unit</th>${D.show ? '<th class="n">TP</th><th class="n">Disc</th><th class="n">Net rate</th>' : '<th class="n">Rate</th>'}<th class="n">Amount (Rs)</th></tr></thead>
+      <tbody>${lines.map((l, k) => `<tr><td class="k">${k + 1}</td><td><b>${esc(nice(l.name || 'Item'))}</b></td><td class="n">${qty(l.qty)}</td><td>${esc(l.unit || '')}</td>${D.show ? `<td class="n">${n2(l.tp)}</td><td class="n">${l.off > 0 ? `<span class="grn">${n2(l.off)}</span><br><small class="dpc">${pc(l.off / l.tp * 100)}</small>` : '—'}</td>` : ''}<td class="n">${n2(l.rate)}</td><td class="n">${n2(l.amount)}</td></tr>`).join('')}</tbody></table>
     <div class="bottom">
       <div class="left">
         <div class="words"><small>Amount in words</small>${esc(words(i.total))}</div>
+        ${D.total > 0.5 && cust ? `<div class="save"><small>Aap ki bachat · Your savings</small><b>Rs ${n2(D.total)}</b><span>${pc(D.pct)} off the trade price${D.item > 0.5 && D.bill > 0.5 ? ` (items ${n2(D.item)} + bill ${n2(D.bill)})` : ''}</span></div>` : ''}
         ${showAcct ? `<div class="acct"><small>Account summary</small><div><span>Previous balance</span><span>${rs2(d.previous)}</span></div><div><span>This ${i.kind === 'sale' ? 'bill' : 'credit note'}</span><span>${i.kind === 'sale' ? '+' : '-'}${rs2(i.total)}</span></div><div><span>Received now</span><span>-${rs2(i.paid)}</span></div><div class="tdue"><span>Total balance due</span><span>${rs2(d.after)}</span></div></div>` : ''}
         ${i.note && !/^Voice:/.test(i.note) ? `<div class="note"><small>Note</small>${esc(i.note)}</div>` : ''}
       </div>
       <table class="totals">
-        <tr><td>Subtotal</td><td>${n2(i.subtotal)}</td></tr>
-        ${i.discount ? `<tr><td>Discount</td><td>-${n2(i.discount)}</td></tr>` : ''}
+        ${D.show ? `<tr><td>Amount at TP</td><td>${n2(D.gross)}</td></tr><tr class="dsc"><td>Item discount</td><td>-${n2(D.item)}</td></tr>` : `<tr><td>Subtotal</td><td>${n2(i.subtotal)}</td></tr>`}
+        ${i.discount ? `<tr class="dsc"><td>Bill discount</td><td>-${n2(i.discount)}</td></tr>` : ''}
+        ${D.show && i.discount ? `<tr class="dsc tdsc"><td>Total discount</td><td>-${n2(D.total)}</td></tr>` : ''}
         ${tax ? `<tr><td>Sales tax ${+i.tax_pct}%</td><td>${n2(i.tax)}</td></tr>` : ''}
         <tr class="grand"><td>Grand total</td><td>Rs ${n2(i.total)}</td></tr>
-        ${i.kind === 'sale' || i.kind === 'purchase' ? `<tr><td>${i.kind === 'sale' ? 'Received' : 'Paid'}</td><td>${n2(i.paid)}</td></tr>${due > 0.5 ? `<tr class="due"><td>Balance</td><td>${n2(due)}</td></tr>` : ''}` : ''}
+        ${i.kind === 'sale' || i.kind === 'purchase' ? `<tr><td>${i.kind === 'sale' ? 'Received' : 'Paid'}</td><td>${n2(i.paid)}</td></tr>${due > 0.5 ? `<tr class="due"><td>Balance on this bill</td><td>${n2(due)}</td></tr>` : ''}` : ''}
       </table>
     </div>
     ${c.bank || c.terms ? `<div class="iinfo">${c.bank ? `<div><small>Bank details</small>${pre(c.bank)}</div>` : ''}${c.terms ? `<div><small>Terms &amp; conditions</small>${pre(c.terms)}</div>` : ''}</div>` : ''}
@@ -164,7 +181,10 @@ function printHTML(html) {
   w.document.close();
 }
 
-export const billText = d => {
-  const i = d.invoice;
-  return `Assalam-o-Alaikum ${nice(d.party?.name || '')},\n${KIND_TITLE[i.kind]} ${i.no} (${fd(i.date)})\nTotal: ${rs(i.total)}\nReceived: ${rs(i.paid)}${d.party?.kind === 'C' ? `\nTotal balance due: ${rs(d.after)}` : ''}\n\n${d.company.name}${d.company.phone ? '\n' + d.company.phone : ''}`;
+export const billText = (d, { balance = false } = {}) => {
+  const i = d.invoice, D = discountOf(d);
+  return `Assalam-o-Alaikum ${nice(d.party?.name || '')},\n${KIND_TITLE[i.kind]} ${i.no} (${fd(i.date)})\n` +
+    d.lines.map(l => `• ${nice(l.name)}: ${qty(l.qty)} ${l.unit || ''} x ${rs(l.rate)} = ${rs(l.amount)}`).join('\n') +
+    `\n${D.total > 0.5 ? `Discount: ${rs(D.total)} (${pc(D.pct)})\n` : ''}*Total: ${rs(i.total)}*${i.paid > 0 ? `\nReceived: ${rs(i.paid)}` : ''}` +
+    `${balance && d.party?.kind === 'C' ? `\nPrevious balance: ${rs(d.previous)}\nTotal balance due: ${rs(d.after)}` : ''}\n\n${d.company.name}${d.company.phone ? '\n' + d.company.phone : ''}`;
 };

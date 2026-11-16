@@ -140,7 +140,11 @@ route(/^bill\/(\d+)(?:\?(share)(?:=1)?)?$/, async (v, id, share) => {
   const i = d.invoice, p = d.party;
   const body = page(v, { title: i.no, back: 'bills', backLabel: 'Bills', sub: `${KLABEL[i.kind]} · ${esc(nice(p?.name || ''))} · ${esc(fd(i.date))}` });
   const due = r2(i.total - i.paid);
+  // balance on the bill: off unless switched on for this customer (remembered per customer)
+  const BK = 'qt.bal.' + (p?.id || 0);
+  let showBal = false; try { showBal = localStorage.getItem(BK) === '1'; } catch {}
   body.innerHTML = `<div class="seg" data-mode>${[['a4', 'A4 Invoice'], ['slip', 'Receipt 80mm']].map(([k, l]) => `<button data-m="${k}" class="${paperMode === k ? 'on' : ''}">${l}</button>`).join('')}</div>
+    ${p?.kind === 'C' && (i.kind === 'sale' || i.kind === 'sale_return') ? `<div class="list balsw"><div class="row"><span class="grow"><span class="t">Purana balance bill par</span><span class="s">Previous balance ${rs(d.previous)} · total due ${rs(d.after)}</span></span><input type="checkbox" class="toggle" data-bal ${showBal ? 'checked' : ''}></div></div>` : ''}
     <div class="paperwrap" data-paper></div>
     <div class="btns" style="margin-top:16px"><button class="btn" data-share>${ic('share')} Send</button><button class="btn gray" data-wa ${waPhone(p?.phone) ? '' : 'disabled'}>${ic('chat')} WhatsApp</button></div>
     <div class="list" style="margin-top:20px">
@@ -151,14 +155,15 @@ route(/^bill\/(\d+)(?:\?(share)(?:=1)?)?$/, async (v, id, share) => {
     </div>
     ${can.boss() && !i.legacy ? `<div class="list" style="margin-top:20px"><button class="row danger" data-cancel>Cancel this bill</button></div><p class="sec-f">Cancelling removes the bill, its payment and its stock movement. It is recorded in the activity log.</p>` : ''}`;
   const W = $('[data-paper]', body);
-  const drawPaper = () => { W.innerHTML = invoiceHTML(d, { slip: paperMode === 'slip' }); fitPaper(W); };
+  const drawPaper = () => { W.innerHTML = invoiceHTML(d, { slip: paperMode === 'slip', balance: showBal }); fitPaper(W); };
   drawPaper();
-  const doShare = () => shareDoc(invoiceHTML(d, { slip: paperMode === 'slip' }), { name: `${i.no}`, phone: p?.phone, text: billText(d) });
+  const doShare = () => shareDoc(invoiceHTML(d, { slip: paperMode === 'slip', balance: showBal }), { name: `${i.no}`, phone: p?.phone, text: billText(d, { balance: showBal }) });
+  body.onchange = e => { if (e.target.dataset.bal !== undefined) { showBal = e.target.checked; try { localStorage.setItem(BK, showBal ? '1' : '0'); } catch {} drawPaper(); } };
   body.onclick = async e => {
     const b = e.target.closest('button'); if (!b) return;
     if (b.dataset.m) { paperMode = b.dataset.m; $$('[data-m]', body).forEach(x => x.classList.toggle('on', x === b)); drawPaper(); }
     if (b.dataset.share !== undefined) doShare();
-    if (b.dataset.wa !== undefined) open(`https://wa.me/${waPhone(p.phone)}?text=${encodeURIComponent(billText(d))}`, '_blank');
+    if (b.dataset.wa !== undefined) open(`https://wa.me/${waPhone(p.phone)}?text=${encodeURIComponent(billText(d, { balance: showBal }))}`, '_blank');
     if (b.dataset.recv !== undefined) receiveMoney(p.id, due);
     if (b.dataset.go) go(b.dataset.go);
     if (b.dataset.phone !== undefined) partyForm(p.kind, party(p.id) || p);
@@ -173,11 +178,17 @@ route(/^bill\/(\d+)(?:\?(share)(?:=1)?)?$/, async (v, id, share) => {
 /* ---------- new bill ---------- */
 export async function newBill(kind = 'sale', partyId = null) {
   const C = S.boot.company, isSale = kind === 'sale' || kind === 'sale_return', pk = isSale ? 'C' : 'V';
-  const B = { kind, party: partyId ? party(partyId) : null, lines: [], discount: 0, tax: (C.tax_pct || 0) > 0, taxPct: C.tax_pct || 18, pay: 'credit', paid: 0, account: '1000', date: today(), note: '' };
+  const B = { kind, party: partyId ? party(partyId) : null, lines: [], discount: 0, discTxt: '', tax: (C.tax_pct || 0) > 0, taxPct: C.tax_pct || 18, pay: 'credit', paid: 0, account: '1000', date: today(), note: '' };
   let rates = {};
   const loadRates = async () => { rates = B.party ? await api(`/api/parties/${B.party.id}/rates`).catch(() => ({})) : {}; };
   await loadRates();
-  const T = () => { const sub = r2(B.lines.reduce((a, l) => a + l.qty * l.rate, 0)), disc = Math.min(B.discount || 0, sub), net = r2(sub - disc), tax = B.tax ? r2(net * B.taxPct / 100) : 0, total = r2(net + tax); return { sub, disc, net, tax, total, paid: B.pay === 'credit' ? 0 : Math.min(B.paid || total, total) }; };
+  // TP = trade price from the price list. Item discount = TP - rate; bill discount can be typed as Rs or %.
+  const tpOf = l => (isSale ? Math.max(+l.tp || 0, l.rate) : 0);
+  const pctOf = l => (isSale && l.tp > 0 && l.tp > l.rate ? r2((l.tp - l.rate) / l.tp * 100) : 0);
+  const billDisc = sub => { const t = String(B.discTxt || '').trim(); const v = parseFloat(t) || 0; return Math.min(r2(/%$/.test(t) ? sub * v / 100 : v), sub); };
+  const T = () => { const sub = r2(B.lines.reduce((a, l) => a + l.qty * l.rate, 0)), gross = r2(B.lines.reduce((a, l) => a + l.qty * tpOf(l), 0)), item = isSale ? r2(gross - sub) : 0, disc = billDisc(sub); B.discount = disc;
+    const net = r2(sub - disc), tax = B.tax ? r2(net * B.taxPct / 100) : 0, total = r2(net + tax); return { sub, gross, item, disc, alld: r2(item + disc), net, tax, total, paid: B.pay === 'credit' ? 0 : Math.min(B.paid || total, total) }; };
+  const offTxt = l => { const p = product(l.p), u = p?.unit || 'unit'; if (!isSale || !(l.tp > 0)) return ''; if (l.rate < l.tp) return `<span class="grn">−${rs2(l.tp - l.rate)}/${esc(u)} · ${rs(r2((l.tp - l.rate) * l.qty))} off</span>`; if (l.rate > l.tp) return `<span class="orange">TP se ${rs2(l.rate - l.tp)} zyada</span>`; return '<span class="l2">TP rate</span>'; };
   const title = { sale: 'New Sale', purchase: 'New Purchase', sale_return: 'Sales Return', purchase_return: 'Purchase Return' }[kind];
   const foot = document.createElement('div'); foot.style.cssText = 'display:contents';
   foot.innerHTML = `<div class="tot"><small>Total</small><b class="num" data-tt>Rs 0</b></div><button class="btn" data-save>Save</button>`;
@@ -191,13 +202,18 @@ export async function newBill(kind = 'sale', partyId = null) {
         <div class="row"><label>Date</label><input class="fld" type="date" data-date value="${B.date}"></div></div>
       <div class="sec-h">Items</div>
       <div class="list">${B.lines.map((l, k) => { const p = product(l.p), w = warn(l); return `<div class="item"><div class="nm">${esc(nice(p?.name))}<small class="${w ? 'w' : ''}">${esc(w || `${fq(p?.stock)} ${p?.unit || ''} in stock`)}</small></div><div class="amt num">${rs2(l.qty * l.rate)}</div>
-          <div class="ctl"><div class="stepper"><button data-dq="${k}:-1" aria-label="Less">−</button><input inputmode="decimal" data-q="${k}" value="${l.qty}" aria-label="Quantity"><button data-dq="${k}:1" aria-label="More">+</button></div><span class="l2">×</span><input class="rate" inputmode="decimal" data-r="${k}" value="${l.rate}" aria-label="Rate"><button class="x" data-rm="${k}" aria-label="Remove">${ic('trash')}</button></div></div>`; }).join('')}
+          <div class="ctl"><div class="stepper"><button data-dq="${k}:-1" aria-label="Less">−</button><input inputmode="decimal" data-q="${k}" value="${l.qty}" aria-label="Quantity"><button data-dq="${k}:1" aria-label="More">+</button></div><span class="l2">×</span><input class="rate" inputmode="decimal" data-r="${k}" value="${l.rate}" aria-label="Rate"><button class="x" data-rm="${k}" aria-label="Remove">${ic('trash')}</button></div>
+          ${isSale && l.tp > 0 ? `<div class="dl"><span class="tp">TP <b class="num">${rs2(l.tp)}</b></span><label class="dp">Disc<input inputmode="decimal" data-dp="${k}" value="${pctOf(l) || ''}" placeholder="0" aria-label="Discount percent">%</label><span class="off" data-off="${k}">${offTxt(l)}</span></div>` : ''}</div>`; }).join('')}
         <button class="row action" data-add>${ic('plus')}<span class="grow">Add item</span></button></div>
       ${pop.length ? `<div class="chips">${pop.map(p => `<button class="chip" data-quick="${p.id}">+ ${esc(nice(p.name).replace(/\s*\(.*$/, ''))}</button>`).join('')}</div>` : ''}
       <div class="sec-h">Summary</div>
       <div class="list">
+        ${isSale ? `<div class="row" data-grow ${t.item > 0 ? '' : 'hidden'}><span class="grow">Amount at TP</span><span class="v num" data-gross>${rs2(t.gross)}</span></div>
+        <div class="row" data-irow ${t.item > 0 ? '' : 'hidden'}><span class="grow">Item discount</span><span class="v num grn" data-item>−${rs2(t.item)}</span></div>` : ''}
         <div class="row"><span class="grow">Subtotal</span><span class="v num" data-sub>${rs2(t.sub)}</span></div>
-        <div class="row"><label>Discount</label><input class="fld num" inputmode="decimal" data-disc value="${B.discount || ''}" placeholder="0"></div>
+        ${isSale && B.lines.some(l => l.tp > 0) ? `<div class="row"><label>Sab items par Disc</label><input class="fld num" inputmode="decimal" data-alldp placeholder="% e.g. 3"></div>` : ''}
+        <div class="row"><label>Bill discount</label><input class="fld num" inputmode="decimal" data-disc value="${esc(B.discTxt || '')}" placeholder="Rs ya % (500 / 2%)"></div>
+        <div class="row" data-drow ${t.alld > 0 ? '' : 'hidden'}><span class="grow"><b>Total discount</b></span><b class="v num grn" data-alld>${rs2(t.alld)}${t.gross > 0 ? ` · ${r2(t.alld / t.gross * 100)}%` : ''}</b></div>
         <div class="row"><span class="grow">Sales tax ${B.taxPct}%</span><input type="checkbox" class="toggle" data-tax ${B.tax ? 'checked' : ''}></div>
         ${B.tax ? `<div class="row"><span class="grow">Tax amount</span><span class="v num" data-taxv>${rs2(t.tax)}</span></div>` : ''}
         <div class="row"><label>Note</label><input class="fld" data-note value="${esc(B.note)}" placeholder="Optional"></div>
@@ -210,20 +226,28 @@ export async function newBill(kind = 'sale', partyId = null) {
       <p class="sec-f" data-err style="color:var(--red)"></p>`;
     upd();
   };
-  const upd = () => { const t = T(); $('[data-tt]', s.el).textContent = rs2(t.total); const sb = $('[data-sub]', b); if (sb) sb.textContent = rs2(t.sub); const tv = $('[data-taxv]', b); if (tv) tv.textContent = rs2(t.tax); B.lines.forEach((l, k) => { const a = $$('.item .amt', b)[k]; if (a) a.textContent = rs2(l.qty * l.rate); const w = $$('.item .nm small', b)[k], m = warn(l), p = product(l.p); if (w) { w.textContent = m || `${fq(p?.stock)} ${p?.unit || ''} in stock`; w.className = m ? 'w' : ''; } }); };
+  const upd = () => { const t = T(); $('[data-tt]', s.el).textContent = rs2(t.total); const sb = $('[data-sub]', b); if (sb) sb.textContent = rs2(t.sub);
+    const show = (sel, on) => { const el = $(sel, b); if (el) el.hidden = !on; };
+    show('[data-grow]', t.item > 0); show('[data-irow]', t.item > 0); show('[data-drow]', t.alld > 0);
+    const g = $('[data-gross]', b); if (g) g.textContent = rs2(t.gross); const it = $('[data-item]', b); if (it) it.textContent = '−' + rs2(t.item);
+    const ad = $('[data-alld]', b); if (ad) ad.textContent = rs2(t.alld) + (t.gross > 0 ? ` · ${r2(t.alld / (isSale ? t.gross : t.sub) * 100)}%` : '');
+    B.lines.forEach((l, k) => { const o = $(`[data-off="${k}"]`, b); if (o) o.innerHTML = offTxt(l); }); const tv = $('[data-taxv]', b); if (tv) tv.textContent = rs2(t.tax); B.lines.forEach((l, k) => { const a = $$('.item .amt', b)[k]; if (a) a.textContent = rs2(l.qty * l.rate); const w = $$('.item .nm small', b)[k], m = warn(l), p = product(l.p); if (w) { w.textContent = m || `${fq(p?.stock)} ${p?.unit || ''} in stock`; w.className = m ? 'w' : ''; } }); };
   const rateOf = p => rates[p.id] || (kind === 'purchase' || kind === 'purchase_return' ? p.cost || p.price : p.price) || 0;
+  const tpFor = p => (isSale ? +p.price || 0 : 0);
   const addProduct = async () => {
     const list = S.boot.products.map(p => ({ ...p, search: p.name + ' ' + (p.aliases || '') + ' ' + p.category }));
-    const r = await picker({ title: 'Add item', items: list, render: p => `<span class="grow"><span class="t">${esc(nice(p.name))}</span><span class="s">${fq(p.stock)} ${esc(p.unit)} in stock</span></span><span class="v num">${rs(rateOf(p))}${rates[p.id] ? '<br><small class="l2">last rate</small>' : ''}</span>`,
+    const r = await picker({ title: 'Add item', items: list, render: p => `<span class="grow"><span class="t">${esc(nice(p.name))}</span><span class="s">${fq(p.stock)} ${esc(p.unit)} in stock${isSale && p.price > 0 ? ` · TP ${rs(p.price)}` : ''}</span></span><span class="v num">${rs(rateOf(p))}${rates[p.id] ? `<br><small class="l2">last rate${isSale && p.price > rates[p.id] ? ` · ${r2((p.price - rates[p.id]) / p.price * 100)}% off` : ''}</small>` : ''}</span>`,
       addLabel: can.staff() ? 'New product' : null, onAdd: async q => { const np = await productForm(null, q); return np ? product(np.id) : null; } });
     if (r) pushLine(r);
   };
-  const pushLine = p => { const ex = B.lines.find(l => l.p === p.id); if (ex) ex.qty += 1; else B.lines.push({ p: p.id, qty: 1, rate: rateOf(p) }); draw(); const k = B.lines.findIndex(l => l.p === p.id); const q = $(`[data-q="${k}"]`, b); if (q) { q.focus(); q.select(); } };
+  const pushLine = p => { const ex = B.lines.find(l => l.p === p.id); if (ex) ex.qty += 1; else B.lines.push({ p: p.id, qty: 1, rate: rateOf(p), tp: tpFor(p) }); draw(); const k = B.lines.findIndex(l => l.p === p.id); const q = $(`[data-q="${k}"]`, b); if (q) { q.focus(); q.select(); } };
   b.oninput = e => {
     const t = e.target;
     if (t.dataset.q !== undefined) { B.lines[+t.dataset.q].qty = +t.value || 0; upd(); }
-    else if (t.dataset.r !== undefined) { B.lines[+t.dataset.r].rate = +t.value || 0; upd(); }
-    else if (t.dataset.disc !== undefined) { B.discount = +t.value || 0; upd(); }
+    else if (t.dataset.r !== undefined) { const l = B.lines[+t.dataset.r]; l.rate = +t.value || 0; const dp = $(`[data-dp="${t.dataset.r}"]`, b); if (dp) dp.value = pctOf(l) || ''; upd(); }
+    else if (t.dataset.dp !== undefined) { const k = +t.dataset.dp, l = B.lines[k], pc = Math.min(Math.max(+t.value || 0, 0), 100); l.rate = r2(l.tp * (1 - pc / 100)); const r = $(`[data-r="${k}"]`, b); if (r) r.value = l.rate; upd(); }
+    else if (t.dataset.alldp !== undefined) { const pc = Math.min(Math.max(+t.value || 0, 0), 100); B.lines.forEach((l, k) => { if (l.tp > 0) { l.rate = r2(l.tp * (1 - pc / 100)); const r = $(`[data-r="${k}"]`, b); if (r) r.value = l.rate; const dp = $(`[data-dp="${k}"]`, b); if (dp) dp.value = pc || ''; } }); upd(); }
+    else if (t.dataset.disc !== undefined) { B.discTxt = t.value; upd(); }
     else if (t.dataset.paid !== undefined) { B.paid = +t.value || 0; }
     else if (t.dataset.note !== undefined) B.note = t.value;
     else if (t.dataset.date !== undefined) B.date = t.value;
@@ -252,7 +276,7 @@ export async function newBill(kind = 'sale', partyId = null) {
     if (lines.some(l => !(l.rate > 0))) return err('Every item needs a rate.');
     const t = T(), btn = e.currentTarget; btn.disabled = true; btn.innerHTML = '<span class="spin" style="border-top-color:#fff"></span>';
     try {
-      const r = await api('/api/invoices', { body: { kind, party_id: B.party.id, date: B.date, lines: lines.map(l => ({ product_id: l.p, qty: l.qty, rate: l.rate })), discount: B.discount, tax_pct: B.tax ? B.taxPct : 0, paid: t.paid, pay_account: B.account, note: B.note } });
+      const r = await api('/api/invoices', { body: { kind, party_id: B.party.id, date: B.date, lines: lines.map(l => ({ product_id: l.p, qty: l.qty, rate: l.rate, tp: isSale ? l.tp : undefined })), discount: B.discount, tax_pct: B.tax ? B.taxPct : 0, paid: t.paid, pay_account: B.account, note: B.note } });
       s.close(); afterSubmit(r, x => { if (x) go(`bill/${x.id}${kind === 'sale' ? '?share' : ''}`); });
     } catch (x) { fail(x); btn.disabled = false; btn.textContent = 'Save'; }
   };

@@ -95,10 +95,10 @@ export async function listApprovals(user, { mine = false } = {}) {
     where l.entity='approval' and l.action='reject' ${mine ? `and (l.data->>'by_id')::int = $1` : 'and $1::int is not null'} order by l.id desc limit 100`, [user.id]);
   const pids = new Set();
   for (const a of [...rows, ...rej.map(x => ({ payload: x.data.payload, kind: x.data.kind }))]) if (KINDS[a.kind]) (a.payload?.lines || []).forEach(l => pids.add(+l.product_id));
-  const prods = pids.size ? Object.fromEntries((await all('select id, name, unit from products where id = any($1::int[])', [[...pids]])).map(p => [p.id, p])) : {};
-  const lines = a => KINDS[a.kind] ? (a.payload?.lines || []).map(l => ({ name: prods[+l.product_id]?.name || 'Item', unit: prods[+l.product_id]?.unit || '', qty: +l.qty, rate: +l.rate, amount: r2(+l.qty * +l.rate) })) : [];
+  const prods = pids.size ? Object.fromEntries((await all('select id, name, unit, price from products where id = any($1::int[])', [[...pids]])).map(p => [p.id, p])) : {};
+  const lines = a => KINDS[a.kind] ? (a.payload?.lines || []).map(l => ({ name: prods[+l.product_id]?.name || 'Item', unit: prods[+l.product_id]?.unit || '', qty: +l.qty, rate: +l.rate, tp: ['sale', 'sale_return'].includes(a.kind) ? Math.max(+l.tp || +prods[+l.product_id]?.price || 0, +l.rate) : 0, amount: r2(+l.qty * +l.rate) })) : [];
   const out = rows.map(a => ({ id: a.id, kind: a.kind, amount: a.amount, status: a.status, summary: a.summary, party: a.party_name, party_id: a.party_id, by: a.requested_by_name, by_id: a.requested_by,
-    at: a.requested_at, decided_by: a.decided_by_name, decided_at: a.decided_at, result: a.result, date: a.payload?.date, note: a.payload?.note || a.payload?.memo || '', paid: a.payload?.paid || 0, lines: lines(a) }));
+    at: a.requested_at, decided_by: a.decided_by_name, decided_at: a.decided_at, result: a.result, date: a.payload?.date, note: a.payload?.note || a.payload?.memo || '', paid: a.payload?.paid || 0, discount: +a.payload?.discount || 0, lines: lines(a) }));
   for (const x of rej) out.push({ id: +x.entity_id, kind: x.data.kind, amount: x.data.amount, status: 'rejected', summary: x.data.summary, party: x.data.party, party_id: x.data.party_id, by: x.data.by, by_id: x.data.by_id, at: x.data.requested_at, decided_by: x.decided_by_name, decided_at: x.at, reason: x.data.reason, date: x.data.payload?.date, lines: lines({ kind: x.data.kind, payload: x.data.payload }) });
   const t = x => new Date(x.decided_at || x.at || 0).getTime();
   out.sort((a, b) => { const pa = a.status === 'pending', pb = b.status === 'pending'; if (pa !== pb) return pa ? -1 : 1; return t(b) - t(a); });

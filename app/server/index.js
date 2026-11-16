@@ -227,7 +227,7 @@ app.get('/api/invoices/:id', guard(), ah(async (req, res) => {
   const inv = await one('select i.*, u.name created_by_name from invoices i left join users u on u.id=i.created_by where i.id=$1', [+req.params.id]);
   if (!inv || (req.user.role === 'salesman' && (inv.created_by !== req.user.id || inv.kind !== 'sale'))) throw new UserError('Not found.', 404);
   const [lines, pb, co0] = await Promise.all([
-    all(`select il.qty, il.rate, il.amount, p.name, p.unit${STAFF.includes(req.user.role) ? ', il.cost' : ''} from invoice_lines il left join products p on p.id=il.product_id where il.invoice_id=$1 order by il.id`, [inv.id]),
+    all(`select il.qty, il.rate, il.amount, il.tp, p.name, p.unit${STAFF.includes(req.user.role) ? ', il.cost' : ''} from invoice_lines il left join products p on p.id=il.product_id where il.invoice_id=$1 order by il.id`, [inv.id]),
     one(`select row_to_json(p) party, (select coalesce(sum(jl.debit - jl.credit),0) from journal_lines jl join journals j on j.id=jl.journal_id
         where jl.account = case when p.kind='C' then '1200' else '2000' end and jl.party_id=p.id
           and (j.date < $2 or (j.date = $2 and j.id < coalesce((select min(id) from journals where ref_invoice=$3), 0)))) b

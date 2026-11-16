@@ -88,11 +88,18 @@ export async function createInvoice(c, user, b) {
 
   // 1 trip: party, products (locked), pay account
   const r = (await c.query(`select (select row_to_json(x) from (select id, kind, name, credit_limit from parties where id=$1 and active) x) party,
-      (select coalesce(json_agg(x), '[]') from (select id, name, cost, stock from products where id = any($2::int[]) and active order by id for update) x) prods,
+      (select coalesce(json_agg(x), '[]') from (select id, name, cost, stock, price from products where id = any($2::int[]) and active order by id for update) x) prods,
       (select row_to_json(x) from (select code, name, grp from accounts where code=$3) x) acc`, [+b.party_id, ids, payCode])).rows[0];
   const p = checkParty(r.party, K.party);
   const prods = new Map(r.prods.map(x => [x.id, x]));
-  const lines = b.lines.map(l => { const pr = prods.get(+l.product_id); need(pr, 'One of the products no longer exists.'); const qty = r3(l.qty), rate = r2(l.rate); return { pr, qty, rate, amount: r2(qty * rate) }; });
+  const withTp = b.kind === 'sale' || b.kind === 'sale_return';
+  const lines = b.lines.map(l => {
+    const pr = prods.get(+l.product_id); need(pr, 'One of the products no longer exists.');
+    const qty = r3(l.qty), rate = r2(l.rate);
+    // TP shown on the bill: the price list rate (or what the user saw), never below the rate charged
+    const tp = withTp ? Math.max(r2(l.tp) > 0 ? r2(l.tp) : r2(pr.price), rate) : null;
+    return { pr, qty, rate, tp, amount: r2(qty * rate) };
+  });
   const paid = (b.kind === 'sale' || b.kind === 'purchase') ? T.paid : 0;
   const payAcc = paid > 0 ? checkCash(r.acc, payCode) : null;
 
@@ -112,11 +119,11 @@ export async function createInvoice(c, user, b) {
     return [x.pr.id, x.qty, have + x.qty > 0 ? r2((have * +x.pr.cost + x.qty * unitNet) / (have + x.qty)) : r2(unitNet)];
   });
   // 1 trip: lines + stock
-  await c.query(`with li as (insert into invoice_lines(invoice_id, product_id, qty, rate, cost, amount)
-      select $1, * from unnest($2::int[], $3::numeric[], $4::numeric[], $5::numeric[], $6::numeric[]) returning 1),
+  await c.query(`with li as (insert into invoice_lines(invoice_id, product_id, qty, rate, cost, amount, tp)
+      select $1, * from unnest($2::int[], $3::numeric[], $4::numeric[], $5::numeric[], $6::numeric[], $10::numeric[]) returning 1),
     up as (update products p set stock = p.stock + x.d, cost = coalesce(x.c, p.cost) from unnest($7::int[], $8::numeric[], $9::numeric[]) x(id, d, c) where p.id = x.id returning 1)
     select (select count(*) from li) a, (select count(*) from up) b`,
-  [inv.id, lines.map(l => l.pr.id), lines.map(l => l.qty), lines.map(l => l.rate), lines.map(l => r2(l.pr.cost)), lines.map(l => l.amount), upd.map(u => u[0]), upd.map(u => u[1]), upd.map(u => u[2])]);
+  [inv.id, lines.map(l => l.pr.id), lines.map(l => l.qty), lines.map(l => l.rate), lines.map(l => r2(l.pr.cost)), lines.map(l => l.amount), upd.map(u => u[0]), upd.map(u => u[1]), upd.map(u => u[2]), lines.map(l => l.tp)]);
 
   const cogs = r2(lines.reduce((a, l) => a + r2(l.qty * r2(l.pr.cost)), 0));
   const memo = `${K.label} ${inv.no} · ${p.name}`;
