@@ -1,4 +1,7 @@
 // Shared helpers: formatting, API, icons, sheets, router.
+// Two faces of the same software: /app = mobile app (green), everything else = web software (desktop).
+export const UI = location.pathname.startsWith('/app') ? 'app' : 'web';
+document.documentElement.dataset.ui = UI;
 export const $ = (s, r = document) => r.querySelector(s);
 export const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 export const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

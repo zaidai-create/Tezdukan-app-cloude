@@ -2,7 +2,7 @@
   "name": "Qayam Traders",
   "short_name": "Qayam",
   "description": "Sales, stock and accounts for Qayam Traders",
-  "start_url": "/",
+  "start_url": "/app/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",

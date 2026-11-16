@@ -72,6 +72,7 @@ export async function dashboard(user, from, to) {
   const mrows = await all(`select to_char(j.date,'YYYY-MM') m,
       sum(case when jl.account='4000' then jl.credit - jl.debit else 0 end) sales,
       sum(case when jl.account='1200' and j.type in ('Cash Receipt','Bank Receipt') then jl.credit else 0 end) rec,
+      sum(case when jl.account='1300' and j.type='Purchase Entry' then jl.debit when jl.account='1300' and j.type='Purchase Return Entry' then -jl.credit else 0 end) pur,
       sum(case when a.grp='Cost of Sales' or jl.account='5000' then jl.debit - jl.credit else 0 end) cos,
       sum(case when a.type='D' and a.grp<>'Cost of Sales' and jl.account<>'5000' then jl.debit - jl.credit else 0 end) exp,
       sum(case when jl.account='1200' then jl.debit - jl.credit else 0 end) ar,
@@ -86,7 +87,7 @@ export async function dashboard(user, from, to) {
   const mm = Object.fromEntries(mrows.map(r => [r.m, r]));
   let ar = open.ar, ap = open.ap, cs = open.cash;
   const monthly = months.map(m => { const r = mm[m] || {}; ar += r.ar || 0; ap += r.ap || 0; cs += r.cash || 0;
-    return { m, sales: r2(r.sales || 0), recovery: r2(r.rec || 0), gp: r2((r.sales || 0) - (r.cos || 0)), expenses: r2(r.exp || 0), receivable: r2(ar), payable: r2(ap), cash: r2(cs) }; });
+    return { m, sales: r2(r.sales || 0), recovery: r2(r.rec || 0), purchases: r2(r.pur || 0), gp: r2((r.sales || 0) - (r.cos || 0)), expenses: r2(r.exp || 0), receivable: r2(ar), payable: r2(ap), cash: r2(cs) }; });
   // same-length period just before, for the "vs last period" figure
   const days = Math.round((Date.parse(to) - Date.parse(from)) / 864e5) + 1;
   const pTo = new Date(Date.parse(from) - 864e5).toISOString().slice(0, 10), pFrom = new Date(Date.parse(pTo) - (days - 1) * 864e5).toISOString().slice(0, 10);

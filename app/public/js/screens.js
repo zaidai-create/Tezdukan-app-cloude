@@ -2,6 +2,8 @@ import { $, $$, esc, ic, chev, api, S, can, auth, party, product, reloadBoot, hu
   rs, rs2, n2, qty as fq, short, r2, fd, fdShort, monShort, today, fyStart, nice, initials, waPhone } from './core.js';
 import { invoiceHTML, statementHTML, fitPaper, shareDoc, billText } from './invoice.js';
 import { openVoice } from './voice.js';
+import { UI } from './core.js';
+import { webHome } from './webdash.js';
 
 const loading = '<div class="loading"><span class="spin"></span></div>';
 const avatar = name => `<span class="avatar">${esc(initials(name))}</span>`;
@@ -29,6 +31,7 @@ const pctChg = (now, before) => (before && Math.abs(before) > 1 ? (now - before)
 const wave = () => `<span class="wave" aria-hidden="true">${[10, 18, 26, 14, 22, 12, 24, 16, 8].map(h => `<i style="height:${h}px"></i>`).join('')}</span>`;
 
 route(/^home$/, async v => {
+  if (UI === 'web') return webHome(v);
   const sales = S.user.role === 'salesman', first = String(S.user.name || '').split(' ')[0];
   const alertsCount = () => (S._alerts || 0);
   v.innerHTML = `<div class="page"><div class="brandbar"><span class="brandmark">${MARK}</span><span class="brandtext"><b>${esc(nice(S.boot.company.name))}</b><span>Sales, stock and accounts</span></span>
@@ -106,6 +109,7 @@ route(/^bills(?:\/(sale|purchase|returns))?$/, async (v, k) => {
     <div class="search">${ic('search')}<input placeholder="Search name or bill no." data-q autocomplete="off"></div><div data-l>${loading}</div>`;
   const L = $('[data-l]', body), Q = $('[data-q]', body);
   let off = 0, rows = [];
+  try { const pre = sessionStorage.getItem('qt.q'); if (pre) { Q.value = pre; sessionStorage.removeItem('qt.q'); } } catch {}
   const load = async (more) => {
     if (!more) { off = 0; rows = []; }
     const kinds = billKind === 'returns' ? ['sale_return', 'purchase_return'] : [billKind];

@@ -3,10 +3,10 @@
   "appName": "Qayam Traders",
   "webDir": "www",
   "server": {
-    "url": "https://qayam-traders.ample.run",
+    "url": "https://qayam-traders.ample.run/app",
     "androidScheme": "https",
     "allowNavigation": ["qayam-traders.ample.run"],
     "errorPath": "offline.html"
   },
-  "android": { "backgroundColor": "#f2f2f7" }
+  "android": { "backgroundColor": "#f3f6f4" }
 }

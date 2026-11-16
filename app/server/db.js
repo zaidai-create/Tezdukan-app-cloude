@@ -38,7 +38,8 @@ const here = dirname(fileURLToPath(import.meta.url));
 export async function migrate() {
   const c = await pool.connect();
   try {
-    await c.query(`create schema if not exists ${SCHEMA}`);
+    const ex = await c.query('select 1 from pg_namespace where nspname = $1', [SCHEMA]);
+    if (!ex.rowCount) await c.query(`create schema ${SCHEMA}`);
     await c.query(`set search_path to ${SCHEMA}`);
     const sp = (await c.query('show search_path')).rows[0].search_path;
     if (sp.replace(/"/g, '').trim() !== SCHEMA) throw new Error(`search_path is ${sp}, expected ${SCHEMA}`);
