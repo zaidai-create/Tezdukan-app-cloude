@@ -17,3 +17,9 @@ node_modules/
 dist/
 .vercel/
 .DS_Store
+
+# Android build output
+mobile/android/
+.gradle/
+*.apk
+*.keystore

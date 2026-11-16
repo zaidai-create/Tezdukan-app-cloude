@@ -1,0 +1,12 @@
+{
+  "appId": "com.qayamtraders.erp",
+  "appName": "Qayam Traders",
+  "webDir": "www",
+  "server": {
+    "url": "https://qayam-traders.ample.run",
+    "androidScheme": "https",
+    "allowNavigation": ["qayam-traders.ample.run"],
+    "errorPath": "offline.html"
+  },
+  "android": { "backgroundColor": "#f2f2f7" }
+}

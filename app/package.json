@@ -1,0 +1,17 @@
+{
+  "name": "qayam-erp",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node server/index.js",
+    "test": "node test/voice.test.mjs"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "html2canvas": "1.4.1",
+    "jspdf": "^2.5.2",
+    "pg": "^8.13.1"
+  }
+}
