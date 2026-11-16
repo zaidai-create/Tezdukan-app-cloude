@@ -7,7 +7,8 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { pool, q, one, all, tx, migrate, seedAccounts, warmPool } from './db.js';
 import { requireAuth, hashPassword, checkPassword, makeToken, loginAllowed, loginFailed, loginOk, audit, seedAdmin, clearUserCache } from './auth.js';
-import { deleteInvoice, stockAdjust, UserError, r2, today } from './posting.js';
+import { deleteInvoice, stockAdjust, UserError, r2, today, checkLock } from './posting.js';
+import { billRegister, moneyRegister, itemSales, partySummary, stockHistory } from './registers.js';
 import { submit, approve, reject, cancelOwn, listApprovals, activity, notices, APPROVERS, resetLimit } from './approvals.js';
 import { dashboard, ledger, trialBalance, profitLoss, balanceSheet, aging, dayBook, partyBalances, cashFlow, taxSummary, insights } from './reports.js';
 import { importLegacy, importCheck } from './importer.js';
@@ -165,7 +166,10 @@ app.post('/api/parties', guard(), ah(async (req, res) => {
   if (dup) throw new UserError('This name already exists.');
   const r = await one('insert into parties(kind, name, city, phone, address, ntn, credit_limit) values($1,$2,$3,$4,$5,$6,$7) returning *', [kind, ...f]);
   await audit(req.user.id, 'create', 'party', r.id, { name: r.name });
-  res.json({ ...r, balance: 0 });
+  // opening balance: what they already owed (customer) or we already owed them (supplier) before using the app
+  let opening = null;
+  if (r2(req.body.opening) > 0 && STAFF.includes(req.user.role)) opening = await tx(c => submit(c, req.user, 'opening', { party_id: r.id, amount: r2(req.body.opening), date: req.body.opening_date }));
+  res.json({ ...r, balance: opening && !opening.pending ? r2(req.body.opening) : 0, opening });
 }));
 app.put('/api/parties/:id', guard(), ah(async (req, res) => {
   const p = await one('select * from parties where id=$1', [+req.params.id]);
@@ -209,6 +213,13 @@ app.post('/api/accounts', guard(...STAFF), ah(async (req, res) => {
   res.json(r);
 }));
 
+/* ---------- registers (tables) ---------- */
+app.get('/api/registers/bills', guard(), ah(async (req, res) => res.json(await billRegister(req.user, req.query))));
+app.get('/api/registers/money', guard(), ah(async (req, res) => res.json(await moneyRegister(req.user, req.query))));
+app.get('/api/registers/items', guard(), ah(async (req, res) => res.json(await itemSales(req.user, req.query))));
+app.get('/api/registers/parties', guard(), ah(async (req, res) => res.json(await partySummary(req.user, req.query))));
+app.get('/api/products/:id/history', guard(), ah(async (req, res) => { const d = await stockHistory(req.user, +req.params.id); if (!d) throw new UserError('Not found.', 404); res.json(d); }));
+
 /* ---------- bills ---------- */
 app.get('/api/invoices', guard(), ah(async (req, res) => {
   const kind = ['sale', 'purchase', 'sale_return', 'purchase_return'].includes(req.query.kind) ? req.query.kind : 'sale';
@@ -227,7 +238,7 @@ app.get('/api/invoices/:id', guard(), ah(async (req, res) => {
   const inv = await one('select i.*, u.name created_by_name from invoices i left join users u on u.id=i.created_by where i.id=$1', [+req.params.id]);
   if (!inv || (req.user.role === 'salesman' && (inv.created_by !== req.user.id || inv.kind !== 'sale'))) throw new UserError('Not found.', 404);
   const [lines, pb, co0] = await Promise.all([
-    all(`select il.qty, il.rate, il.amount, il.tp, p.name, p.unit${STAFF.includes(req.user.role) ? ', il.cost' : ''} from invoice_lines il left join products p on p.id=il.product_id where il.invoice_id=$1 order by il.id`, [inv.id]),
+    all(`select il.product_id, il.qty, il.rate, il.amount, il.tp, p.name, p.unit${STAFF.includes(req.user.role) ? ', il.cost' : ''} from invoice_lines il left join products p on p.id=il.product_id where il.invoice_id=$1 order by il.id`, [inv.id]),
     one(`select row_to_json(p) party, (select coalesce(sum(jl.debit - jl.credit),0) from journal_lines jl join journals j on j.id=jl.journal_id
         where jl.account = case when p.kind='C' then '1200' else '2000' end and jl.party_id=p.id
           and (j.date < $2 or (j.date = $2 and j.id < coalesce((select min(id) from journals where ref_invoice=$3), 0)))) b
@@ -245,6 +256,7 @@ app.post('/api/invoices', guard(), ah(async (req, res) => {
   if (!kind) throw new UserError('Unknown bill type.');
   res.json(await tx(c => submit(c, req.user, kind, req.body)));
 }));
+app.put('/api/invoices/:id', guard(), ah(async (req, res) => res.json(await tx(c => submit(c, req.user, 'edit', { ...req.body, invoice_id: +req.params.id })))));
 app.delete('/api/invoices/:id', guard(...BOSS), ah(async (req, res) => { await tx(c => deleteInvoice(c, req.user, +req.params.id)); res.json({ ok: true }); }));
 
 /* ---------- money ---------- */
@@ -270,7 +282,9 @@ app.delete('/api/journals/:id', guard(...BOSS), ah(async (req, res) => {
   const j = await one('select * from journals where id=$1', [+req.params.id]); if (!j) throw new UserError('Not found.', 404);
   if (j.ref_invoice) throw new UserError('This entry belongs to a bill. Cancel the bill instead.');
   if (j.legacy) throw new UserError('Entries from the old software cannot be deleted. Make a correcting voucher.');
-  await q('delete from journals where id=$1', [j.id]); await audit(req.user.id, 'delete', 'journal', j.id, { no: j.no, memo: j.memo });
+  const amt = (await one('select coalesce(sum(debit),0) v from journal_lines where journal_id=$1', [j.id])).v;
+  await tx(async c => { await checkLock(c, j.date); await c.query('delete from journals where id=$1', [j.id]); });
+  audit(req.user.id, 'cancel', 'journal', j.id, { no: j.no, memo: j.memo, amt, type: j.type });
   res.json({ ok: true });
 }));
 

@@ -100,15 +100,18 @@ function salesmanHome(d) {
 /* =============================== BILLS =============================== */
 let billKind = 'sale';
 route(/^bills(?:\/(sale|purchase|returns))?$/, async (v, k) => {
+  if (UI === 'web') return go('register');
   if (k) billKind = k;
   if (!can.staff()) billKind = 'sale';
-  const body = page(v, { title: 'Bills', right: `<button class="nbtn" data-new aria-label="New">${ic('plus')}</button>` });
+  const body = page(v, { title: 'Bills', right: `<button class="nbtn" data-table aria-label="Table">${ic('list')}</button><button class="nbtn" data-new aria-label="New">${ic('plus')}</button>` });
+  $('[data-table]', v).onclick = () => go('register');
   $('[data-new]', v).onclick = async () => {
     if (!can.staff()) return newBill('sale');
     const kind = await actionSheet('New', [{ label: 'Sale bill', value: 'sale' }, { label: 'Purchase bill', value: 'purchase' }, { label: 'Sales return', value: 'sale_return' }, { label: 'Purchase return', value: 'purchase_return' }]);
     if (kind) newBill(kind);
   };
   body.innerHTML = `${can.staff() ? `<div class="seg" data-kind>${[['sale', 'Sales'], ['purchase', 'Purchases'], ['returns', 'Returns']].map(([x, l]) => `<button data-x="${x}" class="${billKind === x ? 'on' : ''}">${l}</button>`).join('')}</div>` : ''}
+    <button class="banner tbl" data-go="register">${ic('list')}<span class="grow"><b>Table view (register)</b><small>Customer / supplier ke sab bills, tareekh aur totals ke saath</small></span>${chev}</button>
     <div class="search">${ic('search')}<input placeholder="Search name or bill no." data-q autocomplete="off"></div><div data-l>${loading}</div>`;
   const L = $('[data-l]', body), Q = $('[data-q]', body);
   let off = 0, rows = [];
@@ -151,6 +154,10 @@ route(/^bill\/(\d+)(?:\?(share)(?:=1)?)?$/, async (v, id, share) => {
       ${i.kind === 'sale' && due > 0.5 ? `<button class="row action" data-recv>${ic('down')}<span class="grow">Receive payment</span><span class="v num">${rs(due)}</span></button>` : ''}
       ${p ? `<button class="row" data-go="party/${p.id}"><span class="grow">${p.kind === 'C' ? 'Customer' : 'Supplier'} account</span><span class="v">${esc(nice(p.name))}</span>${chev}</button>` : ''}
       <div class="row"><span class="grow">Made by</span><span class="v">${esc(i.created_by_name || '—')}${i.source === 'voice' ? ' · by voice' : i.legacy ? ' · old software' : ''}</span></div>
+      ${i.edited_at ? `<div class="row"><span class="grow">Last edited</span><span class="v">${esc(fd(String(i.edited_at).slice(0, 10)))}</span></div>` : ''}
+      ${!i.legacy && (can.staff() || (i.kind === 'sale' && i.created_by === S.user.id)) ? `<button class="row action" data-editbill>${ic('pencil')}<span class="grow">Edit bill</span>${chev}</button>` : ''}
+      ${can.staff() || i.kind === 'sale' ? `<button class="row action" data-copybill>${ic('doc')}<span class="grow">Isi jaisa naya bill banayein</span>${chev}</button>` : ''}
+      ${p ? `<button class="row" data-go="register?party=${p.id}&kind=all"><span class="grow">${esc(nice(p.name))} ke sab bills (table)</span>${chev}</button>` : ''}
       ${!waPhone(p?.phone) && p ? `<button class="row action" data-phone><span class="grow">Add WhatsApp number</span></button>` : ''}
     </div>
     ${can.boss() && !i.legacy ? `<div class="list" style="margin-top:20px"><button class="row danger" data-cancel>Cancel this bill</button></div><p class="sec-f">Cancelling removes the bill, its payment and its stock movement. It is recorded in the activity log.</p>` : ''}`;
@@ -165,6 +172,8 @@ route(/^bill\/(\d+)(?:\?(share)(?:=1)?)?$/, async (v, id, share) => {
     if (b.dataset.share !== undefined) doShare();
     if (b.dataset.wa !== undefined) open(`https://wa.me/${waPhone(p.phone)}?text=${encodeURIComponent(billText(d, { balance: showBal }))}`, '_blank');
     if (b.dataset.recv !== undefined) receiveMoney(p.id, due);
+    if (b.dataset.editbill !== undefined) newBill(i.kind, null, { edit: d });
+    if (b.dataset.copybill !== undefined) newBill(i.kind, null, { copy: d });
     if (b.dataset.go) go(b.dataset.go);
     if (b.dataset.phone !== undefined) partyForm(p.kind, party(p.id) || p);
     if (b.dataset.cancel !== undefined) {
@@ -176,9 +185,20 @@ route(/^bill\/(\d+)(?:\?(share)(?:=1)?)?$/, async (v, id, share) => {
 });
 
 /* ---------- new bill ---------- */
-export async function newBill(kind = 'sale', partyId = null) {
+export async function newBill(kind = 'sale', partyId = null, pre = null) {
   const C = S.boot.company, isSale = kind === 'sale' || kind === 'sale_return', pk = isSale ? 'C' : 'V';
   const B = { kind, party: partyId ? party(partyId) : null, lines: [], discount: 0, discTxt: '', tax: (C.tax_pct || 0) > 0, taxPct: C.tax_pct || 18, pay: 'credit', paid: 0, account: '1000', date: today(), note: '' };
+  // pre.edit: change an existing bill (same number); pre.copy: a new bill with the same items
+  const src = pre?.edit || pre?.copy, ed = pre?.edit?.invoice;
+  if (src) {
+    const i = src.invoice;
+    B.party = party(i.party_id) || src.party;
+    B.lines = src.lines.filter(l => l.product_id).map(l => ({ p: l.product_id, qty: +l.qty, rate: +l.rate, tp: kind === 'sale' || kind === 'sale_return' ? Math.max(+(ed ? l.tp : 0) || +(product(l.product_id)?.price) || 0, 0) : 0 }));
+    if (ed) {
+      B.date = i.date; B.discTxt = +i.discount ? String(+i.discount) : ''; B.tax = +i.tax_pct > 0; B.taxPct = +i.tax_pct || B.taxPct; B.note = /^Voice:/.test(i.note || '') ? '' : (i.note || '');
+      if (+i.paid > 0) { B.pay = i.pay_account && i.pay_account !== '1000' ? 'bank' : 'cash'; B.paid = +i.paid; B.account = i.pay_account || '1000'; }
+    }
+  }
   let rates = {};
   const loadRates = async () => { rates = B.party ? await api(`/api/parties/${B.party.id}/rates`).catch(() => ({})) : {}; };
   await loadRates();
@@ -189,19 +209,21 @@ export async function newBill(kind = 'sale', partyId = null) {
   const T = () => { const sub = r2(B.lines.reduce((a, l) => a + l.qty * l.rate, 0)), gross = r2(B.lines.reduce((a, l) => a + l.qty * tpOf(l), 0)), item = isSale ? r2(gross - sub) : 0, disc = billDisc(sub); B.discount = disc;
     const net = r2(sub - disc), tax = B.tax ? r2(net * B.taxPct / 100) : 0, total = r2(net + tax); return { sub, gross, item, disc, alld: r2(item + disc), net, tax, total, paid: B.pay === 'credit' ? 0 : Math.min(B.paid || total, total) }; };
   const offTxt = l => { const p = product(l.p), u = p?.unit || 'unit'; if (!isSale || !(l.tp > 0)) return ''; if (l.rate < l.tp) return `<span class="grn">−${rs2(l.tp - l.rate)}/${esc(u)} · ${rs(r2((l.tp - l.rate) * l.qty))} off</span>`; if (l.rate > l.tp) return `<span class="orange">TP se ${rs2(l.rate - l.tp)} zyada</span>`; return '<span class="l2">TP rate</span>'; };
-  const title = { sale: 'New Sale', purchase: 'New Purchase', sale_return: 'Sales Return', purchase_return: 'Purchase Return' }[kind];
+  const title = ed ? `Edit ${ed.no}` : { sale: 'New Sale', purchase: 'New Purchase', sale_return: 'Sales Return', purchase_return: 'Purchase Return' }[kind];
   const foot = document.createElement('div'); foot.style.cssText = 'display:contents';
-  foot.innerHTML = `<div class="tot"><small>Total</small><b class="num" data-tt>Rs 0</b></div><button class="btn" data-save>Save</button>`;
+  foot.innerHTML = `<div class="tot"><small>Total</small><b class="num" data-tt>Rs 0</b></div><button class="btn" data-save>${ed ? 'Update' : 'Save'}</button>`;
   const s = sheet({ title, full: true, body: '<div data-b></div>', footer: foot });
   const b = $('[data-b]', s.el);
-  const warn = l => { const p = product(l.p); if (!p) return ''; if ((kind === 'sale' || kind === 'purchase_return') && l.qty > p.stock) return `Only ${fq(p.stock)} in stock`; if (kind === 'sale' && p.cost && l.rate < p.cost && can.boss()) return `Below cost (${rs(p.cost)})`; return ''; };
+  const had = {}; if (ed) for (const l of pre.edit.lines) had[l.product_id] = (had[l.product_id] || 0) + (+l.qty || 0); // an edited bill gives its old qty back first
+  const avail = p => +p.stock + ((kind === 'sale' || kind === 'purchase_return') ? (had[p.id] || 0) : 0);
+  const warn = l => { const p = product(l.p); if (!p) return ''; if ((kind === 'sale' || kind === 'purchase_return') && l.qty > avail(p)) return `Only ${fq(avail(p))} in stock`; if (kind === 'sale' && p.cost && l.rate < p.cost && can.boss()) return `Below cost (${rs(p.cost)})`; return ''; };
   const draw = () => {
     const t = T(), pop = S.boot.products.slice(0, 8).filter(p => !B.lines.some(l => l.p === p.id));
     b.innerHTML = `<div class="list">
         <button class="row" data-party><span class="grow"><span class="t">${B.party ? esc(nice(B.party.name)) : `<span class="tint">Choose ${pk === 'C' ? 'customer' : 'supplier'}</span>`}</span>${B.party ? `<span class="s">Balance ${rs(B.party.balance)}</span>` : ''}</span>${chev}</button>
         <div class="row"><label>Date</label><input class="fld" type="date" data-date value="${B.date}"></div></div>
       <div class="sec-h">Items</div>
-      <div class="list">${B.lines.map((l, k) => { const p = product(l.p), w = warn(l); return `<div class="item"><div class="nm">${esc(nice(p?.name))}<small class="${w ? 'w' : ''}">${esc(w || `${fq(p?.stock)} ${p?.unit || ''} in stock`)}</small></div><div class="amt num">${rs2(l.qty * l.rate)}</div>
+      <div class="list">${B.lines.map((l, k) => { const p = product(l.p), w = warn(l); return `<div class="item"><div class="nm">${esc(nice(p?.name))}<small class="${w ? 'w' : ''}">${esc(w || `${fq(p ? avail(p) : 0)} ${p?.unit || ''} in stock`)}</small></div><div class="amt num">${rs2(l.qty * l.rate)}</div>
           <div class="ctl"><div class="stepper"><button data-dq="${k}:-1" aria-label="Less">−</button><input inputmode="decimal" data-q="${k}" value="${l.qty}" aria-label="Quantity"><button data-dq="${k}:1" aria-label="More">+</button></div><span class="l2">×</span><input class="rate" inputmode="decimal" data-r="${k}" value="${l.rate}" aria-label="Rate"><button class="x" data-rm="${k}" aria-label="Remove">${ic('trash')}</button></div>
           ${isSale && l.tp > 0 ? `<div class="dl"><span class="tp">TP <b class="num">${rs2(l.tp)}</b></span><label class="dp">Disc<input inputmode="decimal" data-dp="${k}" value="${pctOf(l) || ''}" placeholder="0" aria-label="Discount percent">%</label><span class="off" data-off="${k}">${offTxt(l)}</span></div>` : ''}</div>`; }).join('')}
         <button class="row action" data-add>${ic('plus')}<span class="grow">Add item</span></button></div>
@@ -231,7 +253,7 @@ export async function newBill(kind = 'sale', partyId = null) {
     show('[data-grow]', t.item > 0); show('[data-irow]', t.item > 0); show('[data-drow]', t.alld > 0);
     const g = $('[data-gross]', b); if (g) g.textContent = rs2(t.gross); const it = $('[data-item]', b); if (it) it.textContent = '−' + rs2(t.item);
     const ad = $('[data-alld]', b); if (ad) ad.textContent = rs2(t.alld) + (t.gross > 0 ? ` · ${r2(t.alld / (isSale ? t.gross : t.sub) * 100)}%` : '');
-    B.lines.forEach((l, k) => { const o = $(`[data-off="${k}"]`, b); if (o) o.innerHTML = offTxt(l); }); const tv = $('[data-taxv]', b); if (tv) tv.textContent = rs2(t.tax); B.lines.forEach((l, k) => { const a = $$('.item .amt', b)[k]; if (a) a.textContent = rs2(l.qty * l.rate); const w = $$('.item .nm small', b)[k], m = warn(l), p = product(l.p); if (w) { w.textContent = m || `${fq(p?.stock)} ${p?.unit || ''} in stock`; w.className = m ? 'w' : ''; } }); };
+    B.lines.forEach((l, k) => { const o = $(`[data-off="${k}"]`, b); if (o) o.innerHTML = offTxt(l); }); const tv = $('[data-taxv]', b); if (tv) tv.textContent = rs2(t.tax); B.lines.forEach((l, k) => { const a = $$('.item .amt', b)[k]; if (a) a.textContent = rs2(l.qty * l.rate); const w = $$('.item .nm small', b)[k], m = warn(l), p = product(l.p); if (w) { w.textContent = m || `${fq(p ? avail(p) : 0)} ${p?.unit || ''} in stock`; w.className = m ? 'w' : ''; } }); };
   const rateOf = p => rates[p.id] || (kind === 'purchase' || kind === 'purchase_return' ? p.cost || p.price : p.price) || 0;
   const tpFor = p => (isSale ? +p.price || 0 : 0);
   const addProduct = async () => {
@@ -276,7 +298,7 @@ export async function newBill(kind = 'sale', partyId = null) {
     if (lines.some(l => !(l.rate > 0))) return err('Every item needs a rate.');
     const t = T(), btn = e.currentTarget; btn.disabled = true; btn.innerHTML = '<span class="spin" style="border-top-color:#fff"></span>';
     try {
-      const r = await api('/api/invoices', { body: { kind, party_id: B.party.id, date: B.date, lines: lines.map(l => ({ product_id: l.p, qty: l.qty, rate: l.rate, tp: isSale ? l.tp : undefined })), discount: B.discount, tax_pct: B.tax ? B.taxPct : 0, paid: t.paid, pay_account: B.account, note: B.note } });
+      const r = await api(ed ? `/api/invoices/${ed.id}` : '/api/invoices', { method: ed ? 'PUT' : 'POST', body: { kind, party_id: B.party.id, date: B.date, lines: lines.map(l => ({ product_id: l.p, qty: l.qty, rate: l.rate, tp: isSale ? l.tp : undefined })), discount: B.discount, tax_pct: B.tax ? B.taxPct : 0, paid: t.paid, pay_account: B.account, note: B.note } });
       s.close(); afterSubmit(r, x => { if (x) go(`bill/${x.id}${kind === 'sale' ? '?share' : ''}`); });
     } catch (x) { fail(x); btn.disabled = false; btn.textContent = 'Save'; }
   };
@@ -324,7 +346,10 @@ route(/^party\/(\d+)$/, async (v, id) => {
           <button class="btn gray small" style="width:100%;flex-direction:column;height:56px;gap:2px;font-size:12px" data-a="wa" ${ph ? '' : 'disabled'}>${ic('chat')}WhatsApp</button></div></div>
       <div class="sec-h">Statement</div>
       <div class="list"><div class="row"><label>From</label><input class="fld" type="date" data-from value="${from}"></div><div class="row"><label>To</label><input class="fld" type="date" data-to value="${to}"></div>
-        <button class="row action" data-a="stmt">${ic('share')}<span class="grow">Send statement (PDF)</span></button></div>
+        <button class="row action" data-a="stmt">${ic('share')}<span class="grow">Send statement (PDF)</span></button>
+        <button class="row" data-go="register?party=${p.id}&kind=all">${ic('list')}<span class="grow">Sab bills (table)</span>${chev}</button>
+        <button class="row" data-go="moneyreg?party=${p.id}&kind=all">${ic('wallet')}<span class="grow">Sab payments (table)</span>${chev}</button>
+        ${cust ? `<button class="row" data-go="itemsales?party=${p.id}">${ic('cube')}<span class="grow">Is customer ne kya kya liya</span>${chev}</button>` : ''}</div>
       <div class="sec-h">Entries</div>
       <div class="list"><div class="row"><span class="grow l2">Opening balance</span><span class="v num">${rs(d.opening)}</span></div>
       ${d.lines.slice().reverse().map(l => `<button class="row" ${l.ref_invoice ? `data-go="bill/${l.ref_invoice}"` : ''}><span class="grow"><span class="t">${esc(entryLabel(l, cust))}</span><span class="s">${esc(fd(l.date))} · ${esc(l.no)}</span></span><span class="v num"><b class="${(cust ? l.credit : l.debit) > 0 ? 'green' : ''}">${l.debit ? (cust ? '+' : '−') + rs(l.debit).slice(3) : (cust ? '−' : '+') + rs(l.credit).slice(3)}</b><br><small>${rs(l.balance)}</small></span></button>`).join('') || '<div class="empty">No entries in these dates</div>'}</div>`;
@@ -360,11 +385,12 @@ export async function partyForm(kind, p = null, name = '') {
       <div class="row"><label>City / area</label><input class="fld" data-f="city" value="${esc(p?.city || '')}"></div>
       <div class="row"><label>Address</label><input class="fld" data-f="address" value="${esc(p?.address || '')}"></div>
       <div class="row"><label>NTN / CNIC</label><input class="fld" data-f="ntn" value="${esc(p?.ntn || '')}"></div>
+      ${!p && can.staff() ? `<div class="row"><label>Opening balance</label><input class="fld num" inputmode="decimal" data-f="opening" placeholder="${kind === 'V' ? 'Hum ne dena hai' : 'Is ne dena hai'} (Rs)"></div>` : ''}
       ${can.staff() && kind === 'C' ? `<div class="row"><label>Credit limit</label><input class="fld num" inputmode="decimal" data-f="credit_limit" value="${p?.credit_limit || ''}" placeholder="0 = no limit"></div>` : ''}</div>
       <p class="sec-f">Mobile number lets you send bills and reminders on WhatsApp.</p>`,
       onRight: async sh => {
         const body = { kind }; $$('[data-f]', sh.el).forEach(i => { body[i.dataset.f] = i.value; });
-        try { saved = await api(p ? `/api/parties/${p.id}` : '/api/parties', { method: p ? 'PUT' : 'POST', body }); await reloadBoot(); hud('Saved'); sh.close(); } catch (e) { fail(e); }
+        try { saved = await api(p ? `/api/parties/${p.id}` : '/api/parties', { method: p ? 'PUT' : 'POST', body }); await reloadBoot(); sh.close(); if (saved.opening?.pending) afterSubmit(saved.opening); else hud('Saved'); } catch (e) { fail(e); }
       }, onClose: () => resolve(saved) });
     setTimeout(() => $('[data-f="name"]', s.el).focus(), 350);
   });
@@ -457,7 +483,7 @@ route(/^products$/, async v => {
     $('[data-l]', body).innerHTML = `<div class="list">${list.map(p => `<button class="row" data-p="${p.id}"><span class="grow"><span class="t">${esc(nice(p.name))}</span><span class="s">${esc(nice(p.category) || '')}${can.staff() ? ` · cost ${rs(p.cost)}` : ''} · price ${p.price > 0 ? rs(p.price) : '<span class="orange">not set</span>'}</span></span><span class="v num ${p.stock < 0 ? 'red' : p.reorder > 0 && p.stock <= p.reorder ? 'orange' : ''}"><b>${fq(p.stock)}</b> ${esc(p.unit)}</span>${can.staff() ? chev : ''}</button>`).join('')}</div>`;
   };
   $('[data-q]', body).oninput = draw;
-  body.onclick = async e => { const b = e.target.closest('[data-p]'); if (b && can.staff()) { if (await productForm(product(b.dataset.p))) draw(); } };
+  body.onclick = e => { const b = e.target.closest('[data-p]'); if (b) go(`product/${b.dataset.p}`); };
   draw();
 });
 
@@ -505,6 +531,12 @@ route(/^more$/, async v => {
       ${row('bell', '#25b35e', 'Recovery list & reminders', 'recovery')}
       ${staff ? row('cart', 'var(--indigo)', 'New purchase bill', 'purchase') + row('up', 'var(--orange)', 'Pay supplier', 'pay') + row('wallet', 'var(--red)', 'Expense', 'expense') + row('return', 'var(--purple)', 'Return (sale / purchase)', 'return') + row('clock', 'var(--orange)', 'Payables (suppliers ko dena)', 'payables') : ''}
       ${row('cube', 'var(--teal)', 'Stock & products', 'products')}</div>
+    <div class="sec-h">Registers (tables)</div><div class="list">
+      ${row('list', 'var(--tint)', 'Bills register', 'register')}
+      ${row('wallet', 'var(--green)', 'Payments register', 'moneyreg')}
+      ${row('cube', 'var(--teal)', 'Item-wise sales', 'itemsales')}
+      ${row('people', 'var(--orange)', 'Customer summary', 'partysum')}
+      ${staff ? row('people', 'var(--indigo)', 'Supplier summary', 'partysum/V') : ''}</div>
     ${staff ? `<div class="sec-h">Accounts</div><div class="list">
       ${row('book', 'var(--indigo)', 'Journal voucher', 'voucher')}
       ${row('list', 'var(--tint)', 'Chart of accounts', 'accounts')}
@@ -534,7 +566,7 @@ route(/^more$/, async v => {
     if (a === 'expense') expenseForm();
     if (a === 'voucher') voucherForm();
     if (a === 'return') { const k = await actionSheet('Return', [{ label: 'Sales return (customer gave back)', value: 'sale_return' }, { label: 'Purchase return (sent back to supplier)', value: 'purchase_return' }]); if (k) newBill(k); }
-    if (['products', 'accounts', 'reports', 'users', 'audit', 'recovery', 'payables', 'approvals', 'myrequests', 'notices'].includes(a)) go(a);
+    if (['products', 'accounts', 'reports', 'users', 'audit', 'recovery', 'payables', 'approvals', 'myrequests', 'notices', 'register', 'moneyreg', 'itemsales', 'partysum', 'partysum/V'].includes(a)) go(a);
     if (['insights', 'cashflow', 'tax'].includes(a)) go('report/' + a);
     if (a === 'closebooks') closeBooks();
     if (a === 'settings') settingsForm();
@@ -638,7 +670,8 @@ route(/^account\/(\w+)$/, async (v, code) => {
   await load();
 });
 
-const REPORTS = [['insights', 'What moved (this vs last month)', 'arrowup', 'var(--purple)'], ['pl', 'Profit & Loss', 'chart', 'var(--green)'], ['bs', 'Balance Sheet', 'book', 'var(--indigo)'], ['cashflow', 'Cash flow', 'bank', 'var(--teal)'], ['tb', 'Trial Balance', 'list', 'var(--tint)'],
+const REPORTS = [['register', 'Bills register (table)', 'list', 'var(--tint)', 'register'], ['moneyreg', 'Payments register', 'wallet', 'var(--green)', 'moneyreg'], ['itemsales', 'Item-wise sales', 'cube', 'var(--teal)', 'itemsales'],
+  ['partysum', 'Customer summary', 'people', 'var(--orange)', 'partysum/C'], ['partysumv', 'Supplier summary', 'people', 'var(--indigo)', 'partysum/V'], ['insights', 'What moved (this vs last month)', 'arrowup', 'var(--purple)'], ['pl', 'Profit & Loss', 'chart', 'var(--green)'], ['bs', 'Balance Sheet', 'book', 'var(--indigo)'], ['cashflow', 'Cash flow', 'bank', 'var(--teal)'], ['tb', 'Trial Balance', 'list', 'var(--tint)'],
   ['aging', 'Receivables ageing', 'clock', 'var(--orange)'], ['payables', 'Payables ageing', 'clock', 'var(--red)', 'payables'], ['tax', 'Sales tax & FBR', 'receipt', 'var(--pink)'], ['daybook', 'Day Book', 'doc', 'var(--teal)'], ['stock', 'Stock valuation', 'cube', 'var(--purple)']];
 route(/^reports$/, async v => {
   const body = page(v, { title: 'Reports', back: 'more', backLabel: 'More' });

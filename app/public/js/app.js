@@ -3,6 +3,7 @@ import { newBill, passwordForm } from './screens.js';
 import { openVoice } from './voice.js';
 import { quickAdd } from './finance.js';
 import { startPolling } from './approvals.js';
+import './registers.js';
 
 try { const t = localStorage.getItem('qt.theme'); if (t && t !== 'auto') document.documentElement.dataset.theme = t; } catch {}
 const LOGO = '<img src="/brand/logo-mark.png" alt="">';
@@ -51,7 +52,7 @@ function wireLogin(last) {
 function shell() {
   if (UI === 'web') return webShell();
   const staff = can.staff();
-  const tabs = [['home', 'Home', 'home', ''], ['bills', 'Bills', 'doc', 'bill'], ['+', 'New', 'plus', ''], ['parties', staff ? 'Parties' : 'Customers', 'people', 'party'], ['more', 'More', 'more', 'products accounts account reports report users audit approvals myrequests notices recovery payables']];
+  const tabs = [['home', 'Home', 'home', ''], ['bills', 'Bills', 'doc', 'bill register'], ['+', 'New', 'plus', ''], ['parties', staff ? 'Parties' : 'Customers', 'people', 'party'], ['more', 'More', 'more', 'products product accounts account reports report users audit approvals myrequests notices recovery payables moneyreg itemsales partysum']];
   const side = [['home', 'Home', 'home'], ['bills', 'Bills', 'doc'], ['parties', staff ? 'Parties' : 'Customers', 'people'], ['products', 'Stock', 'cube'], ...(staff ? [['accounts', 'Accounts', 'list'], ['reports', 'Reports', 'chart']] : []), ['more', 'More', 'more']];
   $('#app').innerHTML = `<div class="shell">
     <nav class="side" aria-label="Sections"><h1>${esc(S.boot.company.name)}</h1>
@@ -71,9 +72,9 @@ function shell() {
 
 function webShell() {
   const staff = can.staff(), boss = can.boss();
-  const N = [['home', 'Dashboard', 'home'], ...(boss ? [['approvals', 'Approvals', 'checkc']] : [['myrequests', 'My approval requests', 'clock']]), ['#', 'Sales & recovery'], ['bills', 'Bills', 'doc'], ['recovery', 'Recovery & reminders', 'bell'], ['parties', staff ? 'Customers & suppliers' : 'Customers', 'people'], ...(staff ? [['payables', 'Payables', 'clock']] : []), ['#', 'Stock'], ['products', 'Stock & products', 'cube'],
+  const N = [['home', 'Dashboard', 'home'], ...(boss ? [['approvals', 'Approvals', 'checkc']] : [['myrequests', 'My approval requests', 'clock']]), ['#', 'Sales & recovery'], ['bills', 'Bills', 'doc'], ['moneyreg', 'Payments register', 'wallet'], ['recovery', 'Recovery & reminders', 'bell'], ['parties', staff ? 'Customers & suppliers' : 'Customers', 'people'], ...(staff ? [['payables', 'Payables', 'clock']] : []), ['#', 'Stock'], ['products', 'Stock & products', 'cube'],
     ...(staff ? [['#', 'Accounts'], ['accounts', 'Chart of accounts', 'list'], ['reports', 'Reports', 'chart']] : []), ...(boss ? [['#', can.owner() ? 'Owner' : 'Admin'], ['users', 'Team & roles', 'person'], ['audit', 'Activity log', 'clock']] : []), ['more', 'More', 'more']];
-  const alias = { bills: 'bill', parties: 'party', accounts: 'account', reports: 'report' };
+  const alias = { bills: 'bill register', parties: 'party', accounts: 'account', reports: 'report itemsales partysum', products: 'product', moneyreg: '' };
   const first = String(S.user.name).split(' ')[0];
   $('#app').innerHTML = `<div class="wshell"><aside class="wside"><div class="wbrand">${LOGO}<div><b>${esc(nice(S.boot.company.name))}</b><small>Dairy distribution ERP</small></div></div>
       <nav class="wnav">${N.map(([k, l, i]) => k === '#' ? `<div class="sec">${l}</div>` : `<button data-tab="${k}" data-alias="${alias[k] || ''}" data-go="${k}">${ic(i)}${l}</button>`).join('')}</nav>

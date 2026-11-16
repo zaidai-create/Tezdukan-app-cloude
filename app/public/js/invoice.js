@@ -140,7 +140,7 @@ async function pdfBlob(cv) {
 }
 const b64 = blob => new Promise(r => { const fr = new FileReader(); fr.onload = () => r(String(fr.result).split(',')[1]); fr.readAsDataURL(blob); });
 
-async function shareFile(blob, filename, text) {
+export async function shareFile(blob, filename, text) {
   const Cap = window.Capacitor;
   if (Cap?.isNativePlatform?.() && Cap.Plugins?.Filesystem && Cap.Plugins?.Share) {
     const { uri } = await Cap.Plugins.Filesystem.writeFile({ path: filename, data: await b64(blob), directory: 'CACHE' });

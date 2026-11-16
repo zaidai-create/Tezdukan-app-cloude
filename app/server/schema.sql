@@ -130,6 +130,8 @@ create table if not exists invoice_lines (
 create index if not exists il_invoice on invoice_lines(invoice_id);
 -- trade price (TP) of the item when the bill was made, so the invoice can show the discount given
 alter table invoice_lines add column if not exists tp numeric(14,2);
+alter table invoices add column if not exists edited_at timestamptz;
+alter table invoices add column if not exists edited_by int;
 
 create table if not exists counters (
   key text primary key,

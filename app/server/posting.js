@@ -74,7 +74,7 @@ export function invoiceTotals(b) {
   return { subtotal, discount, net, tax_pct, tax, total, paid: Math.min(Math.max(r2(b.paid), 0), total) };
 }
 
-export async function createInvoice(c, user, b) {
+export async function createInvoice(c, user, b, old = null) {
   const K = KINDS[b.kind];
   need(K, 'Unknown bill type.');
   if (user.role === 'salesman') { need(b.kind === 'sale', 'Salesmen can make sale bills only.'); b.pay_account = '1000'; }
@@ -103,9 +103,10 @@ export async function createInvoice(c, user, b) {
   const paid = (b.kind === 'sale' || b.kind === 'purchase') ? T.paid : 0;
   const payAcc = paid > 0 ? checkCash(r.acc, payCode) : null;
 
-  // 1 trip: bill number + bill row
+  // 1 trip: bill number + bill row (an edited bill keeps its id and number)
   const key = `${K.prefix}-${fyOf(date)}`;
-  const inv = (await c.query(`with n as (insert into counters(key, n) values($1, 1) on conflict (key) do update set n = counters.n + 1 returning n)
+  const inv = old ? (await c.query(`update invoices set date=$2, party_id=$3, subtotal=$4, discount=$5, tax_pct=$6, tax=$7, total=$8, paid=$9, pay_account=$10, note=$11, edited_at=now(), edited_by=$12
+      where id=$1 returning id, no`, [old.id, date, p.id, T.subtotal, T.discount, T.tax_pct, T.tax, T.total, paid, payAcc ? payAcc.code : null, String(b.note || '').slice(0, 500), user.id])).rows[0] : (await c.query(`with n as (insert into counters(key, n) values($1, 1) on conflict (key) do update set n = counters.n + 1 returning n)
     insert into invoices(kind, no, date, party_id, subtotal, discount, tax_pct, tax, total, paid, pay_account, note, source, created_by)
     select $2, $1 || '-' || lpad(n.n::text, $3, '0'), $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15 from n returning id, no`,
   [key, b.kind, K.width, date, p.id, T.subtotal, T.discount, T.tax_pct, T.tax, T.total, paid, payAcc ? payAcc.code : null, String(b.note || '').slice(0, 500), b.source === 'voice' ? 'voice' : 'app', user.id])).rows[0];
@@ -143,8 +144,28 @@ export async function createInvoice(c, user, b) {
   }
   // 1 trip: all journals
   await postJournals(c, js);
-  audit(user.id, 'create', 'invoice', inv.id, { kind: b.kind, no: inv.no, total, party: p.name, source: b.source || 'app', approval: b.approval_id || undefined });
-  return { id: inv.id, no: inv.no, total };
+  if (old) audit(user.id, 'edit', 'invoice', inv.id, { kind: b.kind, no: inv.no, total, before: old.total, party: p.name, approval: b.approval_id || undefined });
+  else audit(user.id, 'create', 'invoice', inv.id, { kind: b.kind, no: inv.no, total, party: p.name, source: b.source || 'app', approval: b.approval_id || undefined });
+  return { id: inv.id, no: inv.no, total, edited: !!old };
+}
+
+// Edit a bill: undo its stock and ledger entries, then write it again with the same number.
+export async function loadEditable(c, id) {
+  const old = (await c.query('select * from invoices where id=$1 for update', [+id])).rows[0];
+  need(old, 'Bill not found.');
+  need(!old.legacy, 'Bills from the old software cannot be edited. Make a return or a new bill instead.');
+  return old;
+}
+export async function editInvoice(c, user, b) {
+  const old = await loadEditable(c, b.invoice_id);
+  if (user.role === 'salesman') need(old.kind === 'sale' && old.created_by === user.id, 'You can only edit your own sale bills.');
+  await checkLock(c, old.date);
+  await c.query(`with s as (select product_id, sum(qty) q from invoice_lines where invoice_id=$1 group by product_id),
+      u as (update products p set stock = p.stock - $2 * s.q from s where p.id = s.product_id returning 1),
+      dj as (delete from journals where ref_invoice=$1 returning 1),
+      dl as (delete from invoice_lines where invoice_id=$1 returning 1)
+    select (select count(*) from u) + (select count(*) from dj) + (select count(*) from dl) n`, [old.id, KINDS[old.kind].stock]);
+  return createInvoice(c, user, { ...b, kind: old.kind, source: old.source }, old);
 }
 
 export async function deleteInvoice(c, user, id) {
@@ -225,10 +246,22 @@ export async function stockAdjust(c, user, b) {
   audit(user.id, 'adjust', 'product', pr.id, { dq, reason: b.reason, name: pr.name });
 }
 
-export const RUN = { sale: createInvoice, purchase: createInvoice, sale_return: createInvoice, purchase_return: createInvoice, receipt, payment, expense, voucher };
+export const RUN = { sale: createInvoice, purchase: createInvoice, sale_return: createInvoice, purchase_return: createInvoice, receipt, payment, expense, voucher, edit: editInvoice, opening: openingBalance };
 export const runKind = (c, user, kind, b) => { need(RUN[kind], 'Unknown entry type.'); return RUN[kind](c, user, KINDS[kind] ? { ...b, kind } : b); };
 export function amountOf(kind, b) {
-  if (KINDS[kind]) return invoiceTotals(b).total;
+  if (KINDS[kind] || kind === 'edit') return invoiceTotals(b).total;
   if (kind === 'voucher') return r2((b.lines || []).reduce((a, l) => a + r2(l.debit), 0));
   return r2(b.amount);
+}
+
+// Opening balance for a new customer (they already owe us) or supplier (we already owe them).
+export async function openingBalance(c, user, b) {
+  const amt = r2(b.amount); need(amt > 0, 'Enter an amount above zero.');
+  const { party: p } = await lookup(c, { partyId: +b.party_id });
+  need(p, 'Party not found.');
+  const date = isDate(b.date) ? b.date : today();
+  const lines = p.kind === 'C' ? [{ account: '1200', party_id: p.id, debit: amt }, { account: '3000', credit: amt }] : [{ account: '3000', debit: amt }, { account: '2000', party_id: p.id, credit: amt }];
+  const j = await postJournal(c, { date, type: 'Journal', memo: `Opening balance · ${p.name}`, lines, user_id: user.id });
+  audit(user.id, 'create', 'opening', j.id, { party: p.name, amt, no: j.no, approval: b.approval_id || undefined });
+  return { ...j, party_id: p.id, amount: amt };
 }

@@ -2,10 +2,10 @@
 // Pending entries are NOT in the books yet. Approve = posted to the books. Reject = removed (a short note stays in the activity log).
 import { all, one, tx } from './db.js';
 import { audit } from './auth.js';
-import { runKind, amountOf, KINDS, UserError, need, isDate, today, r2 } from './posting.js';
+import { runKind, amountOf, KINDS, UserError, need, isDate, today, r2, loadEditable } from './posting.js';
 
 export const APPROVERS = ['owner'];
-export const KIND_LABEL = { sale: 'Sale bill', purchase: 'Purchase bill', sale_return: 'Sales return', purchase_return: 'Purchase return', receipt: 'Payment received', payment: 'Payment to supplier', expense: 'Expense', voucher: 'Journal voucher' };
+export const KIND_LABEL = { sale: 'Sale bill', purchase: 'Purchase bill', sale_return: 'Sales return', purchase_return: 'Purchase return', receipt: 'Payment received', payment: 'Payment to supplier', expense: 'Expense', voucher: 'Journal voucher', edit: 'Bill edit', opening: 'Opening balance' };
 const rs = n => 'Rs ' + Math.round(n).toLocaleString('en-US');
 
 // kept in memory; reset whenever anything is saved
@@ -23,14 +23,20 @@ const needsApproval = (user, amount, limit) => !APPROVERS.includes(user.role) &&
 // Either posts the entry now, or saves it as pending and tells the owners. Runs inside a transaction (client c).
 export async function submit(c, user, kind, payload) {
   need(KIND_LABEL[kind], 'Unknown entry type.');
-  const amount = amountOf(kind, payload);
+  let amount = amountOf(kind, payload), editOf = null;
+  if (kind === 'edit') {
+    // an edit needs approval if the bill was, or becomes, bigger than the limit
+    editOf = await loadEditable(c, payload.invoice_id);
+    payload = { ...payload, kind: editOf.kind };
+    amount = Math.max(amount, +editOf.total);
+  }
   const limit = await approvalLimit();
   if (!needsApproval(user, amount, limit)) return { kind, ...(await runKind(c, user, kind, payload)) };
 
   // light checks now (full checks run again when the owner approves)
   const b = { ...payload, date: isDate(payload.date) ? payload.date : today() };
   need(amount > 0, 'Enter an amount above zero.');
-  if (KINDS[kind]) {
+  if (KINDS[kind] || editOf) {
     need(Array.isArray(b.lines) && b.lines.length, 'Add at least one item.');
     if (user.role === 'salesman') need(kind === 'sale', 'Salesmen can make sale bills only.');
   }
@@ -39,7 +45,7 @@ export async function submit(c, user, kind, payload) {
   if (pid) need(info.party, 'Party not found.');
   need(!info.lock || b.date > info.lock, `Books are closed up to ${info.lock}. Use a later date.`);
   const label = KIND_LABEL[kind];
-  const summary = [label, info.party, KINDS[kind] ? `${b.lines.length} item${b.lines.length > 1 ? 's' : ''}` : (b.note || '')].filter(Boolean).join(' · ').slice(0, 300);
+  const summary = (editOf ? [`Bill edit ${editOf.no}`, info.party, `${rs(editOf.total)} → ${rs(amountOf('edit', b))}`] : [label, info.party, KINDS[kind] ? `${b.lines.length} item${b.lines.length > 1 ? 's' : ''}` : (b.note || '')]).filter(Boolean).join(' · ').slice(0, 300);
   const r = (await c.query(`with a as (insert into approvals(kind, amount, party_id, summary, payload, requested_by) values($1,$2,$3,$4,$5,$6) returning id),
       n as (insert into notices(user_id, title, body, link) select u.id, $7, $8, '#approvals' from users u, a where u.role = any($9::text[]) and u.active and u.id <> $6 returning 1)
     select (select id from a) id, (select count(*)::int from n) told`,
@@ -56,7 +62,7 @@ export async function approve(user, id) {
     const req = a.req;
     need(req, 'Request bhejne wala user nahi mila.');
     const result = await runKind(c, req, a.kind, { ...a.payload, approval_id: a.id });
-    const link = KINDS[a.kind] ? `#bill/${result.id}` : a.party_id ? `#party/${a.party_id}` : '';
+    const link = KINDS[a.kind] || a.kind === 'edit' ? `#bill/${result.id}` : a.party_id ? `#party/${a.party_id}` : '';
     await c.query(`with u as (update approvals set status='approved', decided_by=$2, decided_at=now(), result=$3 where id=$1)
       insert into notices(user_id, title, body, link) values($4, $5, $6, $7)`,
     [a.id, user.id, JSON.stringify({ ...result, kind: a.kind }), a.requested_by, `Approved: ${rs(a.amount)}`, `${user.name} ne approve kar diya · ${a.summary}`, link]);
@@ -94,9 +100,9 @@ export async function listApprovals(user, { mine = false } = {}) {
   const rej = await all(`select l.id, l.entity_id, l.at, l.data, u.name decided_by_name from audit_log l left join users u on u.id=l.user_id
     where l.entity='approval' and l.action='reject' ${mine ? `and (l.data->>'by_id')::int = $1` : 'and $1::int is not null'} order by l.id desc limit 100`, [user.id]);
   const pids = new Set();
-  for (const a of [...rows, ...rej.map(x => ({ payload: x.data.payload, kind: x.data.kind }))]) if (KINDS[a.kind]) (a.payload?.lines || []).forEach(l => pids.add(+l.product_id));
+  for (const a of [...rows, ...rej.map(x => ({ payload: x.data.payload, kind: x.data.kind }))]) (a.payload?.lines || []).forEach(l => pids.add(+l.product_id));
   const prods = pids.size ? Object.fromEntries((await all('select id, name, unit, price from products where id = any($1::int[])', [[...pids]])).map(p => [p.id, p])) : {};
-  const lines = a => KINDS[a.kind] ? (a.payload?.lines || []).map(l => ({ name: prods[+l.product_id]?.name || 'Item', unit: prods[+l.product_id]?.unit || '', qty: +l.qty, rate: +l.rate, tp: ['sale', 'sale_return'].includes(a.kind) ? Math.max(+l.tp || +prods[+l.product_id]?.price || 0, +l.rate) : 0, amount: r2(+l.qty * +l.rate) })) : [];
+  const lines = a => (KINDS[a.kind] || a.kind === 'edit') ? (a.payload?.lines || []).map(l => ({ name: prods[+l.product_id]?.name || 'Item', unit: prods[+l.product_id]?.unit || '', qty: +l.qty, rate: +l.rate, tp: ['sale', 'sale_return'].includes(a.kind === 'edit' ? a.payload?.kind : a.kind) ? Math.max(+l.tp || +prods[+l.product_id]?.price || 0, +l.rate) : 0, amount: r2(+l.qty * +l.rate) })) : [];
   const out = rows.map(a => ({ id: a.id, kind: a.kind, amount: a.amount, status: a.status, summary: a.summary, party: a.party_name, party_id: a.party_id, by: a.requested_by_name, by_id: a.requested_by,
     at: a.requested_at, decided_by: a.decided_by_name, decided_at: a.decided_at, result: a.result, date: a.payload?.date, note: a.payload?.note || a.payload?.memo || '', paid: a.payload?.paid || 0, discount: +a.payload?.discount || 0, lines: lines(a) }));
   for (const x of rej) out.push({ id: +x.entity_id, kind: x.data.kind, amount: x.data.amount, status: 'rejected', summary: x.data.summary, party: x.data.party, party_id: x.data.party_id, by: x.data.by, by_id: x.data.by_id, at: x.data.requested_at, decided_by: x.decided_by_name, decided_at: x.at, reason: x.data.reason, date: x.data.payload?.date, lines: lines({ kind: x.data.kind, payload: x.data.payload }) });
