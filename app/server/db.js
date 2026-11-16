@@ -12,7 +12,9 @@ const url = process.env.DATABASE_URL || 'postgres://postgres@localhost:5432/qaya
 const local = /@(localhost|127\.0\.0\.1)[:/]/.test(url) || process.env.PGSSL === 'disable';
 // All app tables live in their own schema (default "qayam") so they never mix with other apps in the same database.
 export const SCHEMA = (process.env.DB_SCHEMA || 'qayam').replace(/[^a-z0-9_]/g, '');
-export const pool = new pg.Pool({ connectionString: url, ssl: local ? false : { rejectUnauthorized: false }, max: +process.env.DB_POOL_MAX || 5, idleTimeoutMillis: 30000 });
+// Keep connections open: opening a new one to a far-away database costs over a second.
+export const pool = new pg.Pool({ connectionString: url, ssl: local ? false : { rejectUnauthorized: false }, max: +process.env.DB_POOL_MAX || 8, idleTimeoutMillis: 15 * 60e3, keepAlive: true, keepAliveInitialDelayMillis: 10e3 });
+pool.on('error', e => console.error('db pool:', e.message));
 pool.on('connect', c => { c.query(`set search_path to ${SCHEMA}`).catch(() => {}); });
 
 export const q = (text, params) => pool.query(text, params);
@@ -65,8 +67,12 @@ export const DEFAULT_COA = [
 export const SYSTEM_ACCOUNTS = ['1000', '1200', '1300', '2000', '2200', '3000', '4000', '5000', '5500'];
 
 export async function seedAccounts() {
-  for (const [code, name, type, grp] of DEFAULT_COA) {
-    await q(`insert into accounts(code,name,type,grp,system) values($1,$2,$3,$4,$5) on conflict (code) do nothing`,
-      [code, name, type, grp, SYSTEM_ACCOUNTS.includes(code)]);
-  }
+  const C = DEFAULT_COA;
+  await q(`insert into accounts(code,name,type,grp,system) select * from unnest($1::text[], $2::text[], $3::char[], $4::text[], $5::bool[]) on conflict (code) do nothing`,
+    [C.map(a => a[0]), C.map(a => a[1]), C.map(a => a[2]), C.map(a => a[3]), C.map(a => SYSTEM_ACCOUNTS.includes(a[0]))]);
+}
+// Open a few connections up front and keep one busy now and then so they stay warm.
+export async function warmPool(n = 4) {
+  await Promise.all(Array.from({ length: n }, () => pool.query('select 1').catch(() => {})));
+  setInterval(() => pool.query('select 1').catch(() => {}), 4 * 60e3).unref();
 }

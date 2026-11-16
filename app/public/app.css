@@ -453,3 +453,39 @@ button.row:active, a.row:active, .row.tap:active { background: var(--fill2); }
 .cfm { display: grid; grid-template-columns: 38px 1fr 64px; gap: 10px; align-items: center; font-size: 13px; padding: 4px 0; }
 .cfm div { display: flex; flex-direction: column; gap: 3px; } .cfm i { display: block; height: 7px; border-radius: 4px; min-width: 2px; }
 .cfm i.g { background: var(--green); } .cfm i.r { background: var(--red); opacity: .8; } .cfm span:last-child { text-align: right; }
+
+/* ---------- notifications badge ---------- */
+.roundbtn .dot, .bellw .dot { top: 4px; right: 3px; width: auto; height: auto; min-width: 18px; padding: 1px 5px; border-radius: 10px; font-size: 11px; font-weight: 700; color: #fff; line-height: 16px; text-align: center; }
+.roundbtn .dot:empty, .bellw .dot:empty { min-width: 9px; height: 9px; padding: 0; top: 9px; right: 11px; }
+.bellw { position: relative; } .bellw .dot { position: absolute; background: var(--red); box-shadow: 0 0 0 2px #fff; }
+.pill-n { display: inline-grid; place-items: center; min-width: 20px; height: 20px; border-radius: 10px; background: var(--orange); color: #fff; font-size: 12px; font-weight: 700; margin-left: 6px; padding: 0 6px; }
+
+/* ---------- approval cards ---------- */
+.apr { background: var(--card); border-radius: 18px; box-shadow: var(--shadow); padding: 14px 14px 12px; margin-bottom: 12px; transition: opacity .25s, transform .25s; border-left: 4px solid transparent; }
+.apr.pending { border-left-color: var(--orange); } .apr.approved { border-left-color: var(--green); } .apr.rejected { border-left-color: var(--red); opacity: .92; }
+.apr.gone { opacity: 0; transform: scale(.97); }
+.apr-h { display: flex; align-items: center; gap: 12px; }
+.apr-h .grow { min-width: 0; } .apr-h b { display: block; font-size: 16px; } .apr-h small { display: block; color: var(--label2); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.apr-amt { font-size: 20px; font-weight: 800; letter-spacing: -.01em; white-space: nowrap; }
+.apr-lines { margin: 10px 0 2px; background: var(--fill); border-radius: 12px; padding: 6px 10px; font-size: 13.5px; }
+.apr-lines div { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; padding: 4px 0; align-items: baseline; }
+.apr-lines div span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .apr-lines div span:nth-child(2) { color: var(--label2); }
+.apr-lines .paidl { border-top: .5px solid var(--sep); color: var(--label2); }
+.apr-note { font-size: 13.5px; color: var(--label2); margin-top: 8px; }
+.apr-m { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; color: var(--label2); margin-top: 10px; }
+.apr-m b { color: var(--label); font-weight: 600; } .apr-m .chip { margin-left: auto; height: 28px; display: inline-flex; align-items: center; gap: 4px; font-size: 13px; }
+.apr-m .chip .i { width: 13px; height: 13px; }
+.apr-act { display: flex; gap: 10px; margin-top: 12px; }
+.abtn { flex: 1; height: 46px; border-radius: 14px; border: 0; font-size: 16px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.abtn .i { width: 19px; height: 19px; stroke-width: 2.4; }
+.abtn.yes { background: var(--green); color: #fff; } .abtn.no { background: color-mix(in srgb, var(--red) 12%, var(--card)); color: var(--red); }
+.abtn:active { transform: scale(.97); } .abtn:disabled { opacity: .6; }
+.sent { text-align: center; padding: 8px 6px 4px; }
+.sent-ic { width: 72px; height: 72px; border-radius: 50%; margin: 6px auto 12px; display: grid; place-items: center; background: color-mix(in srgb, var(--orange) 15%, var(--card)); color: var(--orange); animation: pop .35s cubic-bezier(.2,.9,.3,1.3); }
+.sent-ic .i { width: 36px; height: 36px; } .sent h2 { margin: 0 0 6px; font-size: 30px; letter-spacing: -.02em; } .sent p { color: var(--label2); margin: 0; font-size: 15px; line-height: 1.5; }
+.banner { display: flex; align-items: center; gap: 12px; width: 100%; border: 0; border-radius: 16px; padding: 14px 16px; margin-bottom: 14px; text-align: left; color: var(--label); }
+.banner.warn { background: color-mix(in srgb, var(--orange) 14%, var(--card)); } .banner .i { width: 24px; height: 24px; color: var(--orange); } .banner b { display: block; } .banner small { color: var(--label2); }
+.row.ntc.unread .t { font-weight: 700; } .row.ntc.unread::after { content: ""; position: absolute; left: 6px; top: 50%; width: 7px; height: 7px; margin-top: -3px; border-radius: 50%; background: var(--tint); }
+.row .s.wrap, .roles .s { white-space: normal; }
+.badge[hidden] { display: none; }
+[data-ui="web"] .wpend:not(:empty) { margin-bottom: 18px; } [data-ui="web"] .wpend .apr { max-width: 760px; }

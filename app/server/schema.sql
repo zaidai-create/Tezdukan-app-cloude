@@ -154,3 +154,74 @@ create table if not exists audit_log (
   data      jsonb,
   at        timestamptz not null default now()
 );
+
+-- ---------- roles: owner (approves), manager (daily entries) ----------
+do $$ begin
+  if not exists (select 1 from pg_constraint where conname = 'users_role_check' and pg_get_constraintdef(oid) like '%owner%') then
+    alter table users drop constraint if exists users_role_check;
+    alter table users add constraint users_role_check check (role in ('admin','owner','manager','accountant','salesman'));
+  end if;
+end $$;
+
+-- ---------- approvals: big entries wait here until an owner approves ----------
+create table if not exists approvals (
+  id           serial primary key,
+  kind         text not null,              -- sale | purchase | sale_return | purchase_return | receipt | payment | expense | voucher
+  amount       numeric(14,2) not null,
+  party_id     int references parties(id) on delete set null,
+  summary      text not null default '',
+  payload      jsonb not null,
+  status       text not null default 'pending' check (status in ('pending','approved')),
+  requested_by int references users(id),
+  requested_at timestamptz not null default now(),
+  decided_by   int references users(id),
+  decided_at   timestamptz,
+  result       jsonb
+);
+create index if not exists approvals_status on approvals(status, requested_at desc);
+
+-- ---------- in-app notifications ----------
+create table if not exists notices (
+  id         bigserial primary key,
+  user_id    int not null references users(id) on delete cascade,
+  title      text not null,
+  body       text not null default '',
+  link       text not null default '',
+  created_at timestamptz not null default now(),
+  read_at    timestamptz
+);
+create index if not exists notices_user on notices(user_id, id desc);
+
+-- ---------- speed: indexes for the common joins ----------
+create index if not exists il_product on invoice_lines(product_id);
+create index if not exists invoices_kind_date on invoices(kind, date desc, id desc);
+create index if not exists invoices_created_by on invoices(created_by);
+create index if not exists journals_type_date on journals(type, date);
+create index if not exists jl_account_party on journal_lines(account, party_id);
+create index if not exists audit_at on audit_log(id desc);
+
+-- One round trip to post any number of balanced journals (the server is far from the database, so fewer trips = faster).
+-- p: [{date, type, prefix, memo, ref_invoice, user_id, lines:[{account, party_id, debit, credit}]}]
+create or replace function post_journals(p jsonb) returns jsonb language plpgsql as $$
+declare j jsonb; lock_d text; n int; jid int; no_ text; fy text; y int; m int; out_ jsonb := '[]'::jsonb; d numeric; c numeric;
+begin
+  select value->>'lock_date' into lock_d from settings where key = 'company';
+  for j in select * from jsonb_array_elements(p) loop
+    if lock_d ~ '^\d{4}-\d{2}-\d{2}$' and (j->>'date')::date <= lock_d::date then
+      raise exception 'Books are closed up to %. Use a later date, or ask the owner to open the period.', lock_d using errcode = 'P0001';
+    end if;
+    select coalesce(sum((l->>'debit')::numeric),0), coalesce(sum((l->>'credit')::numeric),0) into d, c from jsonb_array_elements(j->'lines') l;
+    if d <> c or d <= 0 then raise exception 'Debit (%) and credit (%) must be equal.', d, c using errcode = 'P0001'; end if;
+    y := extract(year from (j->>'date')::date); m := extract(month from (j->>'date')::date);
+    if m < 7 then y := y - 1; end if;
+    fy := lpad((y % 100)::text, 2, '0') || lpad(((y + 1) % 100)::text, 2, '0');
+    insert into counters(key, n) values ((j->>'prefix') || '-' || fy, 1) on conflict (key) do update set n = counters.n + 1 returning counters.n into n;
+    no_ := (j->>'prefix') || '-' || fy || '-' || lpad(n::text, 4, '0');
+    insert into journals(no, date, type, memo, ref_invoice, created_by) values (no_, (j->>'date')::date, j->>'type', coalesce(j->>'memo',''), (j->>'ref_invoice')::int, (j->>'user_id')::int) returning id into jid;
+    insert into journal_lines(journal_id, account, party_id, debit, credit)
+      select jid, l->>'account', (l->>'party_id')::int, coalesce((l->>'debit')::numeric,0), coalesce((l->>'credit')::numeric,0)
+      from jsonb_array_elements(j->'lines') l where coalesce((l->>'debit')::numeric,0) > 0 or coalesce((l->>'credit')::numeric,0) > 0;
+    out_ := out_ || jsonb_build_object('id', jid, 'no', no_);
+  end loop;
+  return out_;
+end $$;

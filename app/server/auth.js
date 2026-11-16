@@ -35,10 +35,15 @@ async function userFromToken(token) {
   if (sig.length !== good.length || !crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(good))) return null;
   let p; try { p = JSON.parse(Buffer.from(payload, 'base64url').toString()); } catch { return null; }
   if (!p.e || p.e < Date.now()) return null;
-  const u = await one('select id, username, name, role, active, must_change, token_version, phone from users where id=$1', [p.u]);
+  // users rarely change: keep them in memory so each request saves a database trip
+  let hit = users.get(p.u);
+  if (!hit || Date.now() - hit.at > 5 * 60e3) { hit = { at: Date.now(), u: await one('select id, username, name, role, active, must_change, token_version, phone from users where id=$1', [p.u]) }; users.set(p.u, hit); }
+  const u = hit.u;
   if (!u || !u.active || u.token_version !== p.v) return null;
-  return u;
+  return { ...u };
 }
+const users = new Map();
+export const clearUserCache = () => users.clear();
 
 export function requireAuth(...roles) {
   return async (req, res, next) => {
@@ -63,8 +68,8 @@ export function loginAllowed(key) {
 export function loginFailed(key) { const t = tries.get(key) || { n: 0, at: Date.now() }; t.n++; tries.set(key, t); }
 export function loginOk(key) { tries.delete(key); }
 
-export async function audit(userId, action, entity, entityId, data) {
-  await q('insert into audit_log(user_id, action, entity, entity_id, data) values($1,$2,$3,$4,$5)',
+export function audit(userId, action, entity, entityId, data) {
+  return q('insert into audit_log(user_id, action, entity, entity_id, data) values($1,$2,$3,$4,$5)',
     [userId || null, action, entity, entityId == null ? null : String(entityId), data ? JSON.stringify(data) : null]).catch(() => {});
 }
 

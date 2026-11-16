@@ -1,10 +1,11 @@
 import { $, $$, esc, ic, chev, api, S, can, auth, party, product, reloadBoot, hud, fail, sheet, picker, actionSheet, confirmBox, route, go, render, page,
-  rs, rs2, n2, qty as fq, short, r2, fd, fdShort, monShort, today, fyStart, nice, initials, waPhone } from './core.js';
+  rs, rs2, n2, qty as fq, short, r2, fd, fdShort, monShort, today, fyStart, nice, initials, waPhone, swr, refreshBoot, ROLE_LABEL } from './core.js';
 import { invoiceHTML, statementHTML, fitPaper, shareDoc, billText } from './invoice.js';
 import { openVoice } from './voice.js';
 import { UI } from './core.js';
 import { webHome } from './webdash.js';
 import { closeBooks } from './finance.js';
+import { afterSubmit, pendingCard, notice } from './approvals.js';
 
 const loading = '<div class="loading"><span class="spin"></span></div>';
 const avatar = name => `<span class="avatar">${esc(initials(name))}</span>`;
@@ -36,16 +37,17 @@ route(/^home$/, async v => {
   const sales = S.user.role === 'salesman', first = String(S.user.name || '').split(' ')[0];
   const alertsCount = () => (S._alerts || 0);
   v.innerHTML = `<div class="page"><div class="brandbar"><span class="brandmark">${MARK}</span><span class="brandtext"><b>${esc(nice(S.boot.company.name))}</b><span>Sales, stock and accounts</span></span>
-      <button class="roundbtn" data-go="${sales ? 'bills' : 'report/aging'}" aria-label="Alerts">${ic('bell')}<span class="dot" data-dot hidden></span></button><button class="me" data-go="more" aria-label="Profile">${esc(first.slice(0, 1).toUpperCase())}</button></div>
+      <button class="roundbtn" data-go="notices" aria-label="Notifications">${ic('bell')}<span class="dot" data-dot hidden></span></button><button class="me" data-go="more" aria-label="Profile">${esc(first.slice(0, 1).toUpperCase())}</button></div>
     <h1 class="hello">Hello, ${esc(first)}!</h1><p class="hello-sub">${sales ? 'Aaj ka kaam, ek nazar mein' : 'Here’s your business overview'} · ${esc(fd(today()))}</p>
-    <div data-d>${loading}</div></div>`;
+    <div data-pend></div><div data-d>${loading}</div></div>`;
   const D = $('[data-d]', v);
   const draw = async () => {
     const [from, to] = periodRange();
-    const d = await api(`/api/dashboard?from=${from}&to=${to}`);
-    D.innerHTML = sales ? salesmanHome(d) : staffHome(d);
-    const dot = $('[data-dot]', v); if (dot) dot.hidden = !(d.alerts && d.alerts.length);
+    // saved dashboard shows instantly, fresh numbers replace it a moment later
+    await swr(`/api/dashboard?from=${from}&to=${to}`, d => { D.innerHTML = sales ? salesmanHome(d) : staffHome(d); }, { persist: true });
   };
+  const n = notice.unread + (can.boss() ? notice.pending : 0), dot = $('[data-dot]', v); if (dot && n) { dot.hidden = false; dot.textContent = n > 9 ? '9+' : n; }
+  pendingCard($('[data-pend]', v));
   v.onclick = e => {
     const b = e.target.closest('[data-k],[data-go],[data-voicecta],[data-newbill]');
     if (!b) return;
@@ -58,7 +60,7 @@ route(/^home$/, async v => {
 });
 
 function staffHome(d) {
-  const admin = can.admin(), stale = Math.round((Date.parse(today()) - Date.parse(d.lastEntry || today())) / 864e5);
+  const admin = can.boss(), stale = Math.round((Date.parse(today()) - Date.parse(d.lastEntry || today())) / 864e5);
   const m = d.monthly, ser = k => m.map(x => x[k]);
   const ch = pctChg(d.sales, d.prev?.sales), up = ch == null || ch >= 0;
   const label = { today: 'Sales today', month: 'Sales this month', year: 'Sales this year', all: 'Total sales' }[period];
@@ -114,11 +116,17 @@ route(/^bills(?:\/(sale|purchase|returns))?$/, async (v, k) => {
   const load = async (more) => {
     if (!more) { off = 0; rows = []; }
     const kinds = billKind === 'returns' ? ['sale_return', 'purchase_return'] : [billKind];
-    const got = (await Promise.all(kinds.map(kk => api(`/api/invoices?kind=${kk}&q=${encodeURIComponent(Q.value.trim())}&offset=${off}&limit=60`)))).flat();
-    got.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : b.id - a.id));
-    rows = rows.concat(got); off += 60;
-    L.innerHTML = rows.length ? `<div class="list">${rows.map(i => `<button class="row" data-go="bill/${i.id}"><span class="grow"><span class="t">${esc(nice(i.party || '—'))}</span><span class="s">${esc(i.no)} · ${esc(fd(i.date))}${i.source === 'voice' ? ' · voice' : ''}</span></span><span class="v num"><b>${rs(i.total)}</b><br>${status(i)}</span>${chev}</button>`).join('')}</div>${got.length === 60 ? '<button class="btn gray" style="margin-top:12px" data-more>Load more</button>' : ''}`
+    const urls = kinds.map(kk => `/api/invoices?kind=${kk}&q=${encodeURIComponent(Q.value.trim())}&offset=${off}&limit=60`);
+    const base = rows;
+    const paint = got => {
+      got = got.slice().sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : b.id - a.id));
+      rows = base.concat(got);
+      L.innerHTML = rows.length ? `<div class="list">${rows.map(i => `<button class="row" data-go="bill/${i.id}"><span class="grow"><span class="t">${esc(nice(i.party || '—'))}</span><span class="s">${esc(i.no)} · ${esc(fd(i.date))}${i.source === 'voice' ? ' · voice' : ''}</span></span><span class="v num"><b>${rs(i.total)}</b><br>${status(i)}</span>${chev}</button>`).join('')}</div>${got.length === 60 ? '<button class="btn gray" style="margin-top:12px" data-more>Load more</button>' : ''}`
       : `<div class="empty">${ic('doc')}<div>No bills</div></div>`;
+    };
+    if (urls.length === 1 && !more) await swr(urls[0], paint, { persist: !Q.value.trim() });
+    else paint((await Promise.all(urls.map(u => api(u)))).flat());
+    off += 60;
   };
   let t; Q.oninput = () => { clearTimeout(t); t = setTimeout(() => load().catch(fail), 250); };
   body.onclick = e => { const b = e.target.closest('[data-x],[data-go],[data-more]'); if (!b) return; if (b.dataset.x) { billKind = b.dataset.x; $$('[data-x]', body).forEach(x => x.classList.toggle('on', x === b)); L.innerHTML = loading; load().catch(fail); } if (b.dataset.go) go(b.dataset.go); if (b.dataset.more !== undefined) load(true).catch(fail); };
@@ -141,7 +149,7 @@ route(/^bill\/(\d+)(?:\?(share)(?:=1)?)?$/, async (v, id, share) => {
       <div class="row"><span class="grow">Made by</span><span class="v">${esc(i.created_by_name || '—')}${i.source === 'voice' ? ' · by voice' : i.legacy ? ' · old software' : ''}</span></div>
       ${!waPhone(p?.phone) && p ? `<button class="row action" data-phone><span class="grow">Add WhatsApp number</span></button>` : ''}
     </div>
-    ${can.admin() && !i.legacy ? `<div class="list" style="margin-top:20px"><button class="row danger" data-cancel>Cancel this bill</button></div><p class="sec-f">Cancelling removes the bill, its payment and its stock movement. It is recorded in the activity log.</p>` : ''}`;
+    ${can.boss() && !i.legacy ? `<div class="list" style="margin-top:20px"><button class="row danger" data-cancel>Cancel this bill</button></div><p class="sec-f">Cancelling removes the bill, its payment and its stock movement. It is recorded in the activity log.</p>` : ''}`;
   const W = $('[data-paper]', body);
   const drawPaper = () => { W.innerHTML = invoiceHTML(d, { slip: paperMode === 'slip' }); fitPaper(W); };
   drawPaper();
@@ -175,7 +183,7 @@ export async function newBill(kind = 'sale', partyId = null) {
   foot.innerHTML = `<div class="tot"><small>Total</small><b class="num" data-tt>Rs 0</b></div><button class="btn" data-save>Save</button>`;
   const s = sheet({ title, full: true, body: '<div data-b></div>', footer: foot });
   const b = $('[data-b]', s.el);
-  const warn = l => { const p = product(l.p); if (!p) return ''; if ((kind === 'sale' || kind === 'purchase_return') && l.qty > p.stock) return `Only ${fq(p.stock)} in stock`; if (kind === 'sale' && p.cost && l.rate < p.cost && can.admin()) return `Below cost (${rs(p.cost)})`; return ''; };
+  const warn = l => { const p = product(l.p); if (!p) return ''; if ((kind === 'sale' || kind === 'purchase_return') && l.qty > p.stock) return `Only ${fq(p.stock)} in stock`; if (kind === 'sale' && p.cost && l.rate < p.cost && can.boss()) return `Below cost (${rs(p.cost)})`; return ''; };
   const draw = () => {
     const t = T(), pop = S.boot.products.slice(0, 8).filter(p => !B.lines.some(l => l.p === p.id));
     b.innerHTML = `<div class="list">
@@ -245,7 +253,7 @@ export async function newBill(kind = 'sale', partyId = null) {
     const t = T(), btn = e.currentTarget; btn.disabled = true; btn.innerHTML = '<span class="spin" style="border-top-color:#fff"></span>';
     try {
       const r = await api('/api/invoices', { body: { kind, party_id: B.party.id, date: B.date, lines: lines.map(l => ({ product_id: l.p, qty: l.qty, rate: l.rate })), discount: B.discount, tax_pct: B.tax ? B.taxPct : 0, paid: t.paid, pay_account: B.account, note: B.note } });
-      await reloadBoot(); s.close(); hud('Saved'); go(`bill/${r.id}${kind === 'sale' ? '?share' : ''}`);
+      s.close(); afterSubmit(r, x => { if (x) go(`bill/${x.id}${kind === 'sale' ? '?share' : ''}`); });
     } catch (x) { fail(x); btn.disabled = false; btn.textContent = 'Save'; }
   };
   draw();
@@ -354,7 +362,8 @@ function moneyForm(mode, partyId, amount) {
       const amt = +$('[data-amt]', sh.el).value;
       if (!P) return hud(`Choose a ${pk === 'C' ? 'customer' : 'supplier'}`, 'err');
       if (!(amt > 0)) return hud('Enter the amount', 'err');
-      try { await api(mode === 'receive' ? '/api/receipts' : '/api/payments', { body: { party_id: P.id, amount: amt, account: acc, date: $('[data-date]', sh.el).value, note: $('[data-note]', sh.el).value } }); await reloadBoot(); hud('Saved'); sh.close(); render(); } catch (e) { fail(e); }
+      sh.setRight('Saving…', true);
+      try { const r = await api(mode === 'receive' ? '/api/receipts' : '/api/payments', { body: { party_id: P.id, amount: amt, account: acc, date: $('[data-date]', sh.el).value, note: $('[data-note]', sh.el).value } }); sh.close(); afterSubmit(r, x => { if (x) render(); }); } catch (e) { sh.setRight('Save'); fail(e); }
     } });
   const drawP = () => { $('[data-pn]', s.el).innerHTML = P ? `<span class="t">${esc(nice(P.name))}</span><span class="s">Balance ${rs(P.balance)}</span>` : `<span class="tint">Choose ${pk === 'C' ? 'customer' : 'supplier'}</span>`; const an = $('[data-an]', s.el); if (an) an.textContent = nice((S.boot.accounts.find(a => a.code === acc) || {}).name || ''); };
   drawP();
@@ -374,7 +383,8 @@ export function expenseForm() {
     onRight: async sh => {
       const amt = +$('[data-amt]', sh.el).value;
       if (!acc) return hud('Choose expense type', 'err'); if (!(amt > 0)) return hud('Enter the amount', 'err');
-      try { await api('/api/expenses', { body: { account: acc.code, amount: amt, pay_account: from, date: $('[data-date]', sh.el).value, note: $('[data-note]', sh.el).value } }); await reloadBoot(); hud('Saved'); sh.close(); render(); } catch (e) { fail(e); }
+      sh.setRight('Saving…', true);
+      try { const r = await api('/api/expenses', { body: { account: acc.code, amount: amt, pay_account: from, date: $('[data-date]', sh.el).value, note: $('[data-note]', sh.el).value } }); sh.close(); afterSubmit(r, x => { if (x) render(); }); } catch (e) { sh.setRight('Save'); fail(e); }
     } });
   $('[data-acc]', s.el).onclick = async () => { const r = await picker({ title: 'Expense type', items: S.boot.accounts.filter(a => a.type === 'D' && a.grp !== 'Cost of Sales' && a.code !== '5000').map(a => ({ ...a, search: a.name + ' ' + a.grp })), render: a => `<span class="grow"><span class="t">${esc(nice(a.name))}</span><span class="s">${esc(nice(a.grp))}</span></span>` }); if (r) { acc = r; $('[data-an]', s.el).textContent = nice(r.name); } };
   $('[data-from]', s.el).onclick = async () => { const r = await picker({ title: 'Paid from', items: cashAccounts().map(a => ({ ...a, search: a.name })), render: a => `<span class="grow">${esc(nice(a.name))}</span>` }); if (r) { from = r.code; $('[data-fn]', s.el).textContent = nice(r.name); } };
@@ -385,7 +395,8 @@ export function voucherForm() {
   const s = sheet({ title: 'Journal Voucher', right: 'Save', full: true, body: '<div data-b></div>',
     onRight: async sh => {
       const lines = L.filter(l => l.account && (+l.debit || +l.credit)).map(l => ({ account: l.account.code, party_id: l.party?.id || null, debit: +l.debit || 0, credit: +l.credit || 0 }));
-      try { await api('/api/vouchers', { body: { date: $('[data-date]', sh.el).value, memo: $('[data-memo]', sh.el).value, lines } }); await reloadBoot(); hud('Saved'); sh.close(); } catch (e) { fail(e); }
+      sh.setRight('Saving…', true);
+      try { const r = await api('/api/vouchers', { body: { date: $('[data-date]', sh.el).value, memo: $('[data-memo]', sh.el).value, lines } }); sh.close(); afterSubmit(r); } catch (e) { sh.setRight('Save'); fail(e); }
     } });
   const b = $('[data-b]', s.el);
   const draw = () => {
@@ -455,10 +466,14 @@ export function productForm(p = null, name = '') {
 
 /* =============================== MORE =============================== */
 route(/^more$/, async v => {
-  const staff = can.staff(), admin = can.admin();
+  const staff = can.staff(), admin = can.admin(), boss = can.boss();
   const row = (icon, color, label, act) => `<button class="row with-icon" data-act="${act}"><span class="ico" style="background:${color}">${ic(icon)}</span><span class="grow">${label}</span>${chev}</button>`;
   const body = page(v, { title: 'More' });
-  body.innerHTML = `<div class="list"><div class="row with-avatar">${avatar(S.user.name)}<span class="grow"><span class="t">${esc(S.user.name)}</span><span class="s">${esc(S.user.username)} · ${esc({ admin: 'Admin', accountant: 'Accountant', salesman: 'Salesman' }[S.user.role])}</span></span></div></div>
+  body.innerHTML = `<div class="list"><div class="row with-avatar">${avatar(S.user.name)}<span class="grow"><span class="t">${esc(S.user.name)}</span><span class="s">${esc(S.user.username)} · ${esc(ROLE_LABEL[S.user.role] || S.user.role)}</span></span></div></div>
+    <div class="sec-h">Approvals & messages</div><div class="list">
+      ${boss ? row('checkc', 'var(--orange)', `Approvals <span class="badge orange" data-apcount ${notice.pending ? '' : 'hidden'}>${notice.pending}</span>`, 'approvals') : ''}
+      ${can.owner() ? '' : row('clock', 'var(--indigo)', 'Meri requests (approval)', 'myrequests')}
+      ${row('bell', 'var(--red)', 'Notifications', 'notices')}</div>
     <div class="sec-h">Daily work</div><div class="list">
       ${row('mic', 'var(--red)', 'Voice entry', 'voice')}
       ${row('receipt', 'var(--tint)', 'New sale bill', 'sale')}
@@ -473,13 +488,12 @@ route(/^more$/, async v => {
       ${row('arrowup', 'var(--purple)', 'What moved this month', 'insights')}
       ${row('bank', 'var(--teal)', 'Cash flow', 'cashflow')}
       ${row('receipt', 'var(--pink)', 'Sales tax & FBR', 'tax')}</div>` : ''}
-    ${admin ? `<div class="sec-h">Admin</div><div class="list">
+    ${boss ? `<div class="sec-h">${can.owner() ? 'Owner' : 'Admin'}</div><div class="list">
       ${row('people', 'var(--tint)', 'Team & roles', 'users')}
-      ${row('gear', '#8e8e93', 'Company & invoice settings', 'settings')}
+      ${row('gear', '#8e8e93', 'Company, invoice & approval settings', 'settings')}
       ${row('lock', 'var(--red)', `Close books${S.boot.company.lock_date ? ' · up to ' + fd(S.boot.company.lock_date) : ''}`, 'closebooks')}
       ${row('clock', 'var(--orange)', 'Activity log', 'audit')}
-      ${row('tray', 'var(--teal)', 'Download full backup', 'backup')}
-      ${row('drop', 'var(--indigo)', 'Import old software data', 'import')}</div>` : ''}
+      ${admin ? row('tray', 'var(--teal)', 'Download full backup', 'backup') + row('drop', 'var(--indigo)', 'Import old software data', 'import') : ''}</div>` : ''}
     <div class="sec-h">App</div><div class="list">
       ${row('sun', '#8e8e93', 'Appearance', 'theme')}
       ${row('lock', '#8e8e93', 'Change password', 'password')}
@@ -496,7 +510,7 @@ route(/^more$/, async v => {
     if (a === 'expense') expenseForm();
     if (a === 'voucher') voucherForm();
     if (a === 'return') { const k = await actionSheet('Return', [{ label: 'Sales return (customer gave back)', value: 'sale_return' }, { label: 'Purchase return (sent back to supplier)', value: 'purchase_return' }]); if (k) newBill(k); }
-    if (['products', 'accounts', 'reports', 'users', 'audit', 'recovery', 'payables'].includes(a)) go(a);
+    if (['products', 'accounts', 'reports', 'users', 'audit', 'recovery', 'payables', 'approvals', 'myrequests', 'notices'].includes(a)) go(a);
     if (['insights', 'cashflow', 'tax'].includes(a)) go('report/' + a);
     if (a === 'closebooks') closeBooks();
     if (a === 'settings') settingsForm();
@@ -527,8 +541,9 @@ function settingsForm() {
     ${[['name', 'Name'], ['address', 'Address'], ['phone', 'Phone'], ['ntn', 'NTN'], ['strn', 'STRN'], ['email', 'Email'], ['footer', 'Invoice footer']].map(([k, l]) => `<div class="row"><label>${l}</label><input class="fld" data-f="${k}" value="${esc(c[k] || '')}"></div>`).join('')}
     <div class="row col"><label>Bank details (invoice par)</label><textarea class="fld" rows="3" data-f="bank" placeholder="Meezan Bank · A/C Title: Qayam Traders · A/C 0123-4567890 · IBAN PK..">${esc(c.bank || '')}</textarea></div>
     <div class="row col"><label>Terms & conditions</label><textarea class="fld" rows="3" data-f="terms" placeholder="Maal check kar ke wasool karein. Payment 15 din mein.">${esc(c.terms || '')}</textarea></div>
-    <div class="row"><label>Sales tax %</label><input class="fld num" inputmode="decimal" data-f="tax_pct" value="${c.tax_pct || 0}"></div></div>
-    <p class="sec-f">These details print on every invoice. Sales tax % is the default for new bills (0 = off).</p>`,
+    <div class="row"><label>Sales tax %</label><input class="fld num" inputmode="decimal" data-f="tax_pct" value="${c.tax_pct || 0}"></div>
+    <div class="row"><label>Approval above Rs</label><input class="fld num" inputmode="numeric" data-f="approval_limit" value="${c.approval_limit ?? 10000}"></div></div>
+    <p class="sec-f">These details print on every invoice. Sales tax % is the default for new bills (0 = off). Entries above the approval amount wait for Zain or Rehan to approve.</p>`,
     onRight: async sh => { const body = {}; $$('[data-f]', sh.el).forEach(i => { body[i.dataset.f] = i.value; }); try { await api('/api/settings', { method: 'PUT', body }); await reloadBoot(); hud('Saved'); sh.close(); } catch (e) { fail(e); } } });
 }
 
@@ -677,8 +692,12 @@ route(/^users$/, async v => {
   const body = page(v, { title: 'Team', back: 'more', backLabel: 'More', right: `<button class="nbtn" data-new aria-label="Add">${ic('plus')}</button>` });
   const load = async () => {
     const us = await api('/api/users');
-    body.innerHTML = `<div class="list">${us.map(u => `<button class="row with-avatar" data-u="${u.id}">${avatar(u.name)}<span class="grow"><span class="t">${esc(u.name)}${u.active ? '' : ' <span class="badge gray">Off</span>'}</span><span class="s">${esc(u.username)} · ${esc({ admin: 'Admin', accountant: 'Accountant', salesman: 'Salesman' }[u.role])}</span></span>${chev}</button>`).join('')}</div>
-      <p class="sec-f">Everyone uses the same app. Each person signs in once with their own username; the app shows only what their role allows. Salesmen cannot see cost, profit, bank or supplier accounts.</p>`;
+    body.innerHTML = `<div class="list">${us.map(u => `<button class="row with-avatar" data-u="${u.id}">${avatar(u.name)}<span class="grow"><span class="t">${esc(u.name)}${u.active ? '' : ' <span class="badge gray">Off</span>'}</span><span class="s">${esc(u.username)} · ${esc(ROLE_LABEL[u.role] || u.role)}</span></span>${chev}</button>`).join('')}</div>
+      <div class="sec-h">Kaun kya kar sakta hai</div><div class="list roles">
+        <div class="row"><span class="grow"><span class="t">Owner</span><span class="s wrap">Sab kuch dekh aur kar sakta hai, Rs ${(S.boot.company.approval_limit ?? 10000).toLocaleString('en-US')} se upar ki entries approve / reject karta hai, profit dekhta hai.</span></span></div>
+        <div class="row"><span class="grow"><span class="t">Manager</span><span class="s wrap">Rozana ka kaam: bills, purchase, stock, payments, kharche, vouchers, reports. Bari entries approval ke liye jati hain.</span></span></div>
+        <div class="row"><span class="grow"><span class="t">Salesman</span><span class="s wrap">Sirf sale bill aur recovery, apne customers. Cost, profit, bank aur suppliers nahi dekh sakta.</span></span></div>
+        <div class="row"><span class="grow"><span class="t">Admin (technical)</span><span class="s wrap">Software, team, backup aur data import.</span></span></div></div>`;
     body.onclick = e => { const b = e.target.closest('[data-u]'); if (b) userForm(us.find(u => u.id === +b.dataset.u), load); };
   };
   $('[data-new]', v).onclick = () => userForm(null, load);
@@ -688,7 +707,7 @@ function userForm(u, done) {
   sheet({ title: u ? u.name : 'New Person', right: 'Save', body: `<div class="list">
     <div class="row"><label>Name</label><input class="fld" data-f="name" value="${esc(u?.name || '')}"></div>
     ${u ? '' : '<div class="row"><label>Username</label><input class="fld" data-f="username" autocapitalize="none" placeholder="e.g. kaif"></div>'}
-    <div class="row"><label>Role</label><select class="fld" data-f="role">${[['salesman', 'Salesman'], ['accountant', 'Accountant'], ['admin', 'Admin']].map(([k, l]) => `<option value="${k}" ${u?.role === k ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+    <div class="row"><label>Role</label><select class="fld" data-f="role">${[['salesman', 'Salesman'], ['manager', 'Manager'], ['owner', 'Owner'], ...(can.admin() || u?.role === 'admin' ? [['admin', 'Admin (technical)']] : []), ...(u?.role === 'accountant' ? [['accountant', 'Accountant']] : [])].map(([k, l]) => `<option value="${k}" ${u?.role === k ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
     <div class="row"><label>Mobile</label><input class="fld" data-f="phone" inputmode="tel" value="${esc(u?.phone || '')}"></div>
     <div class="row"><label>${u ? 'New password' : 'Password'}</label><input class="fld" data-f="password" type="text" placeholder="${u ? 'leave empty to keep' : '8+ characters'}"></div>
     ${u ? `<div class="row"><span class="grow">Can sign in</span><input type="checkbox" class="toggle" data-f="active" ${u.active ? 'checked' : ''}></div>` : ''}</div>

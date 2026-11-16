@@ -1,6 +1,7 @@
 // Voice entry: speak -> server understands -> approval card -> user approves -> entry saved.
 import { $, $$, esc, ic, chev, api, S, can, sheet, picker, hud, fail, rs, qty as fq, nice, r2, reloadBoot, go } from './core.js';
 import { romanize } from './roman.js';
+import { afterSubmit } from './approvals.js';
 
 // Google hears spoken Urdu best in "hi-IN" (same spoken language); the app always shows it back in Roman Urdu.
 const LANGS = [['hi-IN', 'Urdu (best)'], ['ur-PK', 'اردو'], ['en-IN', 'English']];
@@ -180,11 +181,12 @@ function approvalCard(s, id, d) {
       b.disabled = true; b.innerHTML = '<span class="spin"></span>';
       try {
         const r = await api(`/api/voice/${id}/approve`, { body: { draft: d } });
-        await reloadBoot();
         s.close();
-        hud('Entry ho gayi');
-        if (r.kind === 'sale' || r.kind === 'purchase') go(`bill/${r.id}?share`);
-        else if (d.party?.id || r.kind === 'receipt' || r.kind === 'payment') { const p = S.boot.parties.find(x => x.name.toLowerCase() === d.party.name.toLowerCase()); if (p) go(`party/${p.id}`); }
+        afterSubmit(r, x => {
+          if (!x) return;
+          if (x.kind === 'sale' || x.kind === 'purchase') go(`bill/${x.id}?share`);
+          else if (x.party_id) go(`party/${x.party_id}`);
+        });
       } catch (err) { fail(err); b.disabled = false; b.innerHTML = `${ic('check')} Approve`; }
     }
   };

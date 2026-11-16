@@ -85,7 +85,7 @@ export const auth = {
   get token() { try { return localStorage.getItem(TOKEN); } catch { return null; } },
   get user() { try { return JSON.parse(localStorage.getItem(USER)); } catch { return null; } },
   set(token, user) { try { localStorage.setItem(TOKEN, token); if (user) localStorage.setItem(USER, JSON.stringify(user)); } catch {} },
-  clear() { try { localStorage.removeItem(TOKEN); localStorage.removeItem(USER); localStorage.removeItem('qt.boot'); } catch {} },
+  clear() { try { localStorage.removeItem(TOKEN); localStorage.removeItem(USER); localStorage.removeItem('qt.boot'); Object.keys(localStorage).filter(k => k.startsWith('qt.c:')).forEach(k => localStorage.removeItem(k)); } catch {} mem.clear(); },
 };
 export class ApiError extends Error { constructor(m, s) { super(m); this.status = s; } }
 export async function api(path, opts = {}) {
@@ -97,15 +97,44 @@ export async function api(path, opts = {}) {
   const data = await res.json().catch(() => ({}));
   if (res.status === 401 && !path.includes('/auth/login')) { auth.clear(); location.hash = ''; location.reload(); }
   if (!res.ok) throw new ApiError(data.error || 'Something went wrong.', res.status);
+  if (opts.body || (opts.method && opts.method !== 'GET')) mem.clear();
   return data;
+}
+
+/* ---------- show saved data at once, then refresh (stale-while-revalidate) ---------- */
+const mem = new Map();
+export function peek(path) {
+  if (mem.has(path)) return mem.get(path);
+  try { const v = localStorage.getItem('qt.c:' + path); if (v) { const d = JSON.parse(v); mem.set(path, d); return d; } } catch {}
+  return null;
+}
+// onData(data, fromCache) runs immediately with saved data (if any) and again when fresh data differs.
+export async function swr(path, onData, { persist = false } = {}) {
+  const old = peek(path), oldS = old ? JSON.stringify(old) : '';
+  if (old) onData(old, true);
+  const fresh = api(path).then(d => {
+    mem.set(path, d);
+    const s = JSON.stringify(d);
+    if (persist) try { localStorage.setItem('qt.c:' + path, s); } catch {}
+    if (s !== oldS) onData(d, false);
+    return d;
+  });
+  if (!old) return fresh;
+  fresh.catch(() => {});
+  return old;
 }
 
 /* ---------- app state ---------- */
 export const S = { boot: null, user: null };
+export const ROLE_LABEL = { admin: 'Admin (technical)', owner: 'Owner', manager: 'Manager', accountant: 'Accountant', salesman: 'Salesman' };
 export const can = {
-  staff: () => ['admin', 'accountant'].includes(S.user?.role),
-  admin: () => S.user?.role === 'admin',
+  staff: () => ['admin', 'owner', 'manager', 'accountant'].includes(S.user?.role),   // all entries + reports
+  boss: () => ['admin', 'owner'].includes(S.user?.role),                              // team, settings, cancel bills, profit
+  owner: () => S.user?.role === 'owner',                                              // approves big entries
+  admin: () => S.user?.role === 'admin',                                              // backup, import
 };
+// reload boot data without making the user wait
+export const refreshBoot = () => reloadBoot().catch(() => {});
 export const party = id => S.boot.parties.find(p => p.id === +id);
 export const product = id => S.boot.products.find(p => p.id === +id);
 export async function reloadBoot() {

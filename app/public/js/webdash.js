@@ -1,5 +1,6 @@
 // Web software dashboard (desktop), in the style of the first Qayam design. Live data from /api/dashboard.
-import { $, $$, esc, ic, api, S, can, go, fail, rs, short, fd, fdShort, monShort, today, fyStart, nice, initials } from './core.js';
+import { $, $$, esc, ic, api, S, can, go, fail, rs, short, fd, fdShort, monShort, today, fyStart, nice, initials, swr } from './core.js';
+import { pendingCard } from './approvals.js';
 import { openVoice } from './voice.js';
 
 let wperiod = 'year';
@@ -14,9 +15,10 @@ const spark = (vals) => {
 };
 
 export async function webHome(v) {
-  v.innerHTML = `<div class="page"><div data-d><div class="loading"><span class="spin"></span></div></div></div>`;
+  v.innerHTML = `<div class="page"><div class="wpend" data-pend></div><div data-d><div class="loading"><span class="spin"></span></div></div></div>`;
   const D = $('[data-d]', v);
-  const draw = async () => { const [from, to] = range(); const d = await api(`/api/dashboard?from=${from}&to=${to}`); D.innerHTML = html(d); mount(D, d); };
+  const draw = async () => { const [from, to] = range(); await swr(`/api/dashboard?from=${from}&to=${to}`, d => { D.innerHTML = html(d); mount(D, d); }, { persist: true }); };
+  pendingCard($('[data-pend]', v));
   v.onclick = e => {
     const b = e.target.closest('[data-r],[data-go],[data-act]'); if (!b) return;
     if (b.dataset.r) { wperiod = b.dataset.r; D.style.opacity = .5; draw().catch(fail).finally(() => { D.style.opacity = 1; }); }
@@ -31,7 +33,7 @@ export async function webHome(v) {
 }
 
 function html(d) {
-  const admin = can.admin(), m = d.monthly, ser = k => m.map(x => x[k]);
+  const admin = can.boss(), m = d.monthly, ser = k => m.map(x => x[k]);
   const label = RANGES.find(r => r[0] === wperiod)[1];
   const stale = Math.round((Date.parse(today()) - Date.parse(d.lastEntry || today())) / 864e5);
   const hour = +new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Karachi', hour: '2-digit', hour12: false }).format(new Date());
@@ -102,7 +104,7 @@ function mount(D, d) {
     xh.style.display = ''; $('line', xh).setAttribute('x1', x(i)); $('line', xh).setAttribute('x2', x(i));
     const cs = $$('circle', xh); cs[0].setAttribute('cx', x(i)); cs[0].setAttribute('cy', y(p.sales)); cs[1].setAttribute('cx', x(i)); cs[1].setAttribute('cy', y(p.purchases));
     tip.replaceChildren(); const t = document.createElement('div'); t.className = 'tt'; t.textContent = `${monShort(p.m)} ${p.m.slice(0, 4)}`; tip.append(t);
-    [['Sales', p.sales, 'var(--s1)'], ['Purchases', p.purchases, 'var(--s2)'], ...(can.admin() ? [['Gross profit', p.gp]] : []), ['Recovery', p.recovery]].forEach(([l, v, c]) => { const row = document.createElement('div'); row.className = 'tr'; if (c) { const k = document.createElement('i'); k.style.cssText = `width:12px;height:2px;background:${c};display:inline-block`; row.append(k); } const b = document.createElement('b'); b.textContent = rs(v); const s = document.createElement('span'); s.textContent = l; row.append(b, s); tip.append(row); });
+    [['Sales', p.sales, 'var(--s1)'], ['Purchases', p.purchases, 'var(--s2)'], ...(can.boss() ? [['Gross profit', p.gp]] : []), ['Recovery', p.recovery]].forEach(([l, v, c]) => { const row = document.createElement('div'); row.className = 'tr'; if (c) { const k = document.createElement('i'); k.style.cssText = `width:12px;height:2px;background:${c};display:inline-block`; row.append(k); } const b = document.createElement('b'); b.textContent = rs(v); const s = document.createElement('span'); s.textContent = l; row.append(b, s); tip.append(row); });
     tip.style.display = 'block'; tip.style.left = Math.min(e.clientX + 14, innerWidth - tip.offsetWidth - 8) + 'px'; tip.style.top = (e.clientY - tip.offsetHeight - 12) + 'px';
   };
   $('[data-hit]', host).onpointerleave = () => { xh.style.display = 'none'; tip.style.display = 'none'; };

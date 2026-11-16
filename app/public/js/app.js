@@ -1,7 +1,8 @@
-import { $, $$, esc, ic, api, auth, S, render, go, reloadBoot, hud, UI, nice } from './core.js';
+import { $, $$, esc, ic, api, auth, S, render, go, reloadBoot, hud, UI, nice, can, ROLE_LABEL } from './core.js';
 import { newBill, passwordForm } from './screens.js';
 import { openVoice } from './voice.js';
 import { quickAdd } from './finance.js';
+import { startPolling } from './approvals.js';
 
 try { const t = localStorage.getItem('qt.theme'); if (t && t !== 'auto') document.documentElement.dataset.theme = t; } catch {}
 const LOGO = '<img src="/brand/logo-mark.png" alt="">';
@@ -49,8 +50,8 @@ function wireLogin(last) {
 
 function shell() {
   if (UI === 'web') return webShell();
-  const staff = ['admin', 'accountant'].includes(S.user.role);
-  const tabs = [['home', 'Home', 'home', ''], ['bills', 'Bills', 'doc', 'bill'], ['+', 'New', 'plus', ''], ['parties', staff ? 'Parties' : 'Customers', 'people', 'party'], ['more', 'More', 'more', 'products accounts account reports report users audit']];
+  const staff = can.staff();
+  const tabs = [['home', 'Home', 'home', ''], ['bills', 'Bills', 'doc', 'bill'], ['+', 'New', 'plus', ''], ['parties', staff ? 'Parties' : 'Customers', 'people', 'party'], ['more', 'More', 'more', 'products accounts account reports report users audit approvals myrequests notices recovery payables']];
   const side = [['home', 'Home', 'home'], ['bills', 'Bills', 'doc'], ['parties', staff ? 'Parties' : 'Customers', 'people'], ['products', 'Stock', 'cube'], ...(staff ? [['accounts', 'Accounts', 'list'], ['reports', 'Reports', 'chart']] : []), ['more', 'More', 'more']];
   $('#app').innerHTML = `<div class="shell">
     <nav class="side" aria-label="Sections"><h1>${esc(S.boot.company.name)}</h1>
@@ -69,16 +70,16 @@ function shell() {
 }
 
 function webShell() {
-  const staff = ['admin', 'accountant'].includes(S.user.role), admin = S.user.role === 'admin';
-  const N = [['home', 'Dashboard', 'home'], ['#', 'Sales & recovery'], ['bills', 'Bills', 'doc'], ['recovery', 'Recovery & reminders', 'bell'], ['parties', staff ? 'Customers & suppliers' : 'Customers', 'people'], ...(staff ? [['payables', 'Payables', 'clock']] : []), ['#', 'Stock'], ['products', 'Stock & products', 'cube'],
-    ...(staff ? [['#', 'Accounts'], ['accounts', 'Chart of accounts', 'list'], ['reports', 'Reports', 'chart']] : []), ...(admin ? [['#', 'Admin'], ['users', 'Team & roles', 'person'], ['audit', 'Activity log', 'clock']] : []), ['more', 'More', 'more']];
+  const staff = can.staff(), boss = can.boss();
+  const N = [['home', 'Dashboard', 'home'], ...(boss ? [['approvals', 'Approvals', 'checkc']] : [['myrequests', 'My approval requests', 'clock']]), ['#', 'Sales & recovery'], ['bills', 'Bills', 'doc'], ['recovery', 'Recovery & reminders', 'bell'], ['parties', staff ? 'Customers & suppliers' : 'Customers', 'people'], ...(staff ? [['payables', 'Payables', 'clock']] : []), ['#', 'Stock'], ['products', 'Stock & products', 'cube'],
+    ...(staff ? [['#', 'Accounts'], ['accounts', 'Chart of accounts', 'list'], ['reports', 'Reports', 'chart']] : []), ...(boss ? [['#', can.owner() ? 'Owner' : 'Admin'], ['users', 'Team & roles', 'person'], ['audit', 'Activity log', 'clock']] : []), ['more', 'More', 'more']];
   const alias = { bills: 'bill', parties: 'party', accounts: 'account', reports: 'report' };
   const first = String(S.user.name).split(' ')[0];
   $('#app').innerHTML = `<div class="wshell"><aside class="wside"><div class="wbrand">${LOGO}<div><b>${esc(nice(S.boot.company.name))}</b><small>Dairy distribution ERP</small></div></div>
       <nav class="wnav">${N.map(([k, l, i]) => k === '#' ? `<div class="sec">${l}</div>` : `<button data-tab="${k}" data-alias="${alias[k] || ''}" data-go="${k}">${ic(i)}${l}</button>`).join('')}</nav>
-      <div class="wfoot"><span class="av">${esc(first.slice(0, 1))}</span><div><b>${esc(S.user.name)}</b><small>${esc({ admin: 'Admin', accountant: 'Accountant', salesman: 'Salesman' }[S.user.role])}</small></div></div></aside>
+      <div class="wfoot"><span class="av">${esc(first.slice(0, 1))}</span><div><b>${esc(S.user.name)}</b><small>${esc(ROLE_LABEL[S.user.role] || S.user.role)}</small></div></div></aside>
     <div class="wmain"><header class="wtop"><label class="wsearch">${ic('search')}<input data-wsearch placeholder="Search bills by customer or number…"></label><span style="flex:1"></span>
-      <button class="wicon" data-voiceside aria-label="Voice entry" title="Voice entry">${ic('mic')}</button><button class="wbtn" data-newside>${ic('plus')}New</button></header>
+      <button class="wicon bellw" data-go="notices" aria-label="Notifications" title="Notifications">${ic('bell')}<span class="dot" data-dot hidden></span></button><button class="wicon" data-voiceside aria-label="Voice entry" title="Voice entry">${ic('mic')}</button><button class="wbtn" data-newside>${ic('plus')}New</button></header>
       <main id="view"></main></div></div>
     <nav class="tabbar" aria-label="Tabs"><div class="tabbar-in">${[['home', 'Home', 'home'], ['bills', 'Bills', 'doc'], ['+', '', 'plus'], ['parties', 'Parties', 'people'], ['more', 'More', 'more']].map(([k, l, i]) => k === '+' ? `<button class="tab plus" data-plus aria-label="Add new"><span class="pl">${ic(i)}</span></button>` : `<button class="tab" data-tab="${k}" data-go="${k}">${ic(i)}<span>${l}</span></button>`).join('')}</div></nav>`;
   $('[data-wsearch]').onkeydown = e => { if (e.key === 'Enter') { try { sessionStorage.setItem('qt.q', e.target.value); } catch {} go('bills'); } };
@@ -95,8 +96,9 @@ function F() {}
 
 async function start() {
   let cached = null; try { cached = JSON.parse(localStorage.getItem('qt.boot')); } catch {}
-  if (cached && cached.user?.id === auth.user?.id) { S.boot = cached; S.user = cached.user; shell(); render(); reloadBoot().then(() => { $('.side h1') && ($('.side h1').textContent = S.boot.company.name); }).catch(() => {}); }
+  if (cached && cached.user?.id === auth.user?.id) { S.boot = cached; S.user = cached.user; shell(); render(); reloadBoot().then(() => { if (S.user.role !== cached.user.role) { shell(); render(); } $('.side h1') && ($('.side h1').textContent = S.boot.company.name); }).catch(() => {}); }
   else { $('#app').innerHTML = '<div class="loading" style="min-height:100vh"><span class="spin"></span></div>'; await reloadBoot(); shell(); render(); }
+  startPolling();
   if (S.user.must_change || auth.user?.must_change) setTimeout(() => passwordForm(true), 600);
 }
 
