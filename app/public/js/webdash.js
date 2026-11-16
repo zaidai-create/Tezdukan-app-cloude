@@ -40,7 +40,7 @@ function html(d) {
     ['Sales', d.sales, 'cart', '#2563eb', 'bills', ser('sales'), pct(d.sales, d.prev?.sales), true],
     admin ? ['Gross profit', d.gp, 'chart', '#0d9488', 'report/pl', ser('gp'), pct(d.gp, d.prev?.gp), true] : ['Expenses', d.expenses, 'receipt', '#be123c', 'report/pl', ser('expenses'), null, false],
     ['Recovery received', d.recovery, 'down', '#7c3aed', 'report/daybook', ser('recovery'), pct(d.recovery, d.prev?.recovery), true],
-    ['Customers owe you', d.receivable, 'people', '#ea580c', 'report/aging', ser('receivable'), null, false],
+    ['Customers owe you', d.receivable, 'people', '#ea580c', 'recovery', ser('receivable'), null, false],
     d.payable >= 0 ? ['You owe suppliers', d.payable, 'tag', '#64748b', 'parties/V', ser('payable'), null, null] : ['Advance with suppliers', -d.payable, 'tag', '#64748b', 'parties/V', ser('payable').map(x => -x), null, null],
     ['Cash & bank', d.cashTotal, 'bank', '#0891b2', 'accounts', ser('cash'), null, true],
   ];

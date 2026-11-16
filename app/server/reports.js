@@ -32,11 +32,16 @@ export async function partyBalances(kind) {
   return Object.fromEntries(rows.map(r => [r.id, kind === 'V' ? r2(-r.b) : r2(r.b)]));
 }
 
-export async function aging(to) {
+// FIFO ageing of open bills. kind 'C' = customers (receivable 1200), 'V' = suppliers (payable 2000).
+export async function aging(to, kind = 'C') {
+  const acc = kind === 'V' ? '2000' : '1200';
   const rows = await all(`select jl.party_id, j.date, jl.debit, jl.credit from journal_lines jl join journals j on j.id=jl.journal_id
-    where jl.account='1200' and jl.party_id is not null and j.date <= $1 order by j.date, j.id`, [to]);
+    where jl.account=$2 and jl.party_id is not null and j.date <= $1 order by j.date, j.id`, [to, acc]);
   const by = new Map();
-  for (const r of rows) { const p = by.get(r.party_id) || { deb: [], cred: 0 }; if (r.debit > 0) p.deb.push([r.date, r.debit]); p.cred += r.credit; by.set(r.party_id, p); }
+  for (const r of rows) {
+    const up = kind === 'V' ? +r.credit : +r.debit, down = kind === 'V' ? +r.debit : +r.credit;
+    const p = by.get(r.party_id) || { deb: [], cred: 0 }; if (up > 0) p.deb.push([r.date, up]); p.cred += down; by.set(r.party_id, p);
+  }
   const buckets = [0, 0, 0, 0], out = [];
   for (const [id, p] of by) {
     let c = p.cred, open = 0, oldest = null;
@@ -44,10 +49,83 @@ export async function aging(to) {
     const bal = r2(open - c);
     if (Math.abs(bal) > 0.5) out.push({ party_id: id, balance: bal, oldest, days: oldest ? between(oldest, to) : 0 });
   }
-  const names = Object.fromEntries((await all('select id, name, phone, city from parties')).map(p => [p.id, p]));
-  out.forEach(o => Object.assign(o, { name: names[o.party_id]?.name, phone: names[o.party_id]?.phone, city: names[o.party_id]?.city }));
+  const names = Object.fromEntries((await all('select id, name, phone, city, credit_limit from parties')).map(p => [p.id, p]));
+  const last = Object.fromEntries((await all(`select jl.party_id, max(j.date) d from journal_lines jl join journals j on j.id=jl.journal_id
+    where jl.account=$1 and ${kind === 'V' ? 'jl.debit' : 'jl.credit'} > 0 and jl.party_id is not null group by jl.party_id`, [acc])).map(r => [r.party_id, r.d]));
+  out.forEach(o => Object.assign(o, { name: names[o.party_id]?.name, phone: names[o.party_id]?.phone, city: names[o.party_id]?.city, limit: +names[o.party_id]?.credit_limit || 0, last_paid: last[o.party_id] || null }));
   out.sort((a, b) => b.balance - a.balance);
-  return { buckets: buckets.map(r2), rows: out };
+  return { buckets: buckets.map(r2), rows: out, total: r2(out.reduce((a, o) => a + Math.max(o.balance, 0), 0)) };
+}
+
+// Where cash and bank money came from and went to.
+export async function cashFlow(from, to) {
+  const cash = (await all(`select code, name from accounts where grp='Cash & Bank' order by code`)).map(a => a.code);
+  const open = await one(`select coalesce(sum(jl.debit-jl.credit),0) v from journal_lines jl join journals j on j.id=jl.journal_id where jl.account = any($1) and j.date < $2`, [cash, from]);
+  const rows = await all(`select j.id, j.date, jl.account, a.name, a.type, jl.debit, jl.credit from journal_lines jl join journals j on j.id=jl.journal_id join accounts a on a.code=jl.account
+    where j.date between $1 and $2 and j.id in (select journal_id from journal_lines where account = any($3)) order by j.date, j.id`, [from, to, cash]);
+  const byJ = new Map();
+  for (const r of rows) { const x = byJ.get(r.id) || { date: r.date, lines: [] }; x.lines.push(r); byJ.set(r.id, x); }
+  const cat = new Map(), months = new Map();
+  const add = (k, dir, v, m) => { const c = cat.get(k) || { name: k, dir, v: 0 }; c.v += v; cat.set(k, c); const mm = months.get(m) || { m, in: 0, out: 0 }; mm[dir] += v; months.set(m, mm); };
+  for (const [, j] of byJ) {
+    const cl = j.lines.filter(l => cash.includes(l.account)), other = j.lines.filter(l => !cash.includes(l.account));
+    const net = cl.reduce((a, l) => a + (+l.debit) - (+l.credit), 0);
+    if (Math.abs(net) < 0.005) continue; // transfer between cash and bank
+    const m = String(j.date).slice(0, 7), dir = net > 0 ? 'in' : 'out', v = Math.abs(net);
+    const codes = other.map(l => l.account);
+    let k = 'Other';
+    if (codes.includes('1200')) k = net > 0 ? 'Recovery from customers' : 'Refund to customers';
+    else if (codes.includes('2000')) k = net > 0 ? 'Refund from suppliers' : 'Paid to suppliers';
+    else if (codes.includes('4000')) k = 'Cash sales';
+    else if (other.some(l => l.type === 'D')) k = other.find(l => l.type === 'D').name;
+    else if (other.some(l => l.type === 'E')) k = net > 0 ? 'Capital added' : 'Owner drawings';
+    else if (other.some(l => l.type === 'B')) k = net > 0 ? 'Loans received' : 'Loans / tax paid';
+    add(k, dir, v, m);
+  }
+  const list = [...cat.values()].map(c => ({ ...c, v: r2(c.v) })).sort((a, b) => b.v - a.v);
+  const tin = r2(list.filter(c => c.dir === 'in').reduce((a, c) => a + c.v, 0)), tout = r2(list.filter(c => c.dir === 'out').reduce((a, c) => a + c.v, 0));
+  return { opening: r2(open.v), in: tin, out: tout, closing: r2(+open.v + tin - tout), inflows: list.filter(c => c.dir === 'in'), outflows: list.filter(c => c.dir === 'out'),
+    months: [...months.values()].sort((a, b) => a.m.localeCompare(b.m)).map(x => ({ m: x.m, in: r2(x.in), out: r2(x.out) })) };
+}
+
+// Sales tax by month: output tax on sales less input tax on purchases (FBR return due on the 18th of next month).
+export async function taxSummary(from, to) {
+  const rows = await all(`select to_char(date,'YYYY-MM') m, kind, coalesce(sum(tax),0) tax, coalesce(sum(total-tax),0) val, count(*)::int n from invoices
+    where date between $1 and $2 group by 1, 2 order by 1`, [from, to]);
+  const by = new Map();
+  for (const r of rows) {
+    const x = by.get(r.m) || { m: r.m, sales: 0, output: 0, purchases: 0, input: 0, bills: 0 };
+    const sg = r.kind.endsWith('return') ? -1 : 1;
+    if (r.kind.startsWith('sale')) { x.sales += sg * r.val; x.output += sg * r.tax; x.bills += r.kind === 'sale' ? r.n : 0; } else { x.purchases += sg * r.val; x.input += sg * r.tax; }
+    by.set(r.m, x);
+  }
+  const months = [...by.values()].map(x => { const due = new Date(Date.UTC(+x.m.slice(0, 4), +x.m.slice(5, 7), 18)).toISOString().slice(0, 10); return { ...x, sales: r2(x.sales), output: r2(x.output), purchases: r2(x.purchases), input: r2(x.input), payable: r2(x.output - x.input), due }; });
+  const t = today(), nm = new Date(Date.UTC(+t.slice(0, 4), +t.slice(5, 7) - 1, 18));
+  if (+t.slice(8, 10) > 18) nm.setUTCMonth(nm.getUTCMonth() + 1);
+  const next = nm.toISOString().slice(0, 10);
+  const bal = await one(`select coalesce(sum(jl.credit-jl.debit),0) v from journal_lines jl where jl.account='2200'`);
+  return { months, next_due: next, days_left: between(t, next), payable_now: r2(bal.v),
+    total: { sales: r2(months.reduce((a, x) => a + x.sales, 0)), output: r2(months.reduce((a, x) => a + x.output, 0)), input: r2(months.reduce((a, x) => a + x.input, 0)), payable: r2(months.reduce((a, x) => a + x.payable, 0)) } };
+}
+
+// "What moved": this month to date against the same days of last month.
+export async function insights(to) {
+  const t = to || today(), from = t.slice(0, 8) + '01';
+  const pf = addM(from, -1), day = +t.slice(8, 10);
+  const pEnd = (() => { const d = new Date(Date.UTC(+pf.slice(0, 4), +pf.slice(5, 7) - 1, 1)); const last = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0)).getUTCDate(); return pf.slice(0, 8) + String(Math.min(day, last)).padStart(2, '0'); })();
+  const [a, b] = await Promise.all([flows(from, t), flows(pf, pEnd)]);
+  const cust = async (f, e) => Object.fromEntries((await all(`select party_id, sum(case when kind='sale' then total else -total end) v from invoices where kind in ('sale','sale_return') and date between $1 and $2 group by 1`, [f, e])).map(r => [r.party_id, +r.v]));
+  const prod = async (f, e) => Object.fromEntries((await all(`select l.product_id, sum(l.amount) v from invoice_lines l join invoices i on i.id=l.invoice_id where i.kind='sale' and i.date between $1 and $2 group by 1`, [f, e])).map(r => [r.product_id, +r.v]));
+  const exps = async (f, e) => Object.fromEntries((await all(`select a.name, sum(jl.debit-jl.credit) v from journal_lines jl join journals j on j.id=jl.journal_id join accounts a on a.code=jl.account where a.type='D' and a.grp<>'Cost of Sales' and a.code<>'5000' and j.date between $1 and $2 group by 1`, [f, e])).map(r => [r.name, +r.v]));
+  const [c1, c0, p1, p0, e1, e0] = await Promise.all([cust(from, t), cust(pf, pEnd), prod(from, t), prod(pf, pEnd), exps(from, t), exps(pf, pEnd)]);
+  const names = Object.fromEntries((await all('select id, name from parties')).map(p => [p.id, p.name]));
+  const pnames = Object.fromEntries((await all('select id, name from products')).map(p => [p.id, p.name]));
+  const movers = (now, before, nm) => [...new Set([...Object.keys(now), ...Object.keys(before)])].map(k => ({ id: k, name: nm ? nm[k] : k, now: r2(now[k] || 0), before: r2(before[k] || 0), diff: r2((now[k] || 0) - (before[k] || 0)) })).filter(x => Math.abs(x.diff) > 1).sort((x, y) => Math.abs(y.diff) - Math.abs(x.diff)).slice(0, 6);
+  const metric = (k, label) => ({ k, label, now: a[k], before: b[k], diff: r2(a[k] - b[k]), pct: b[k] ? Math.round((a[k] - b[k]) / Math.abs(b[k]) * 100) : null });
+  const lost = Object.keys(c0).filter(k => c0[k] > 0 && !c1[k]).map(k => ({ id: k, name: names[k], before: r2(c0[k]) })).sort((x, y) => y.before - x.before).slice(0, 6);
+  return { period: { from, to: t, pfrom: pf, pto: pEnd },
+    metrics: [metric('sales', 'Sales'), metric('recovery', 'Recovery'), metric('gp', 'Gross profit'), metric('exp', 'Expenses'), metric('np', 'Net profit')],
+    customers: movers(c1, c0, names), products: movers(p1, p0, pnames), expenses: movers(e1, e0, null), lost };
 }
 
 export async function dashboard(user, from, to) {

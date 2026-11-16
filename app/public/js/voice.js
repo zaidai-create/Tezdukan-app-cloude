@@ -1,31 +1,46 @@
 // Voice entry: speak -> server understands -> approval card -> user approves -> entry saved.
 import { $, $$, esc, ic, chev, api, S, can, sheet, picker, hud, fail, rs, qty as fq, nice, r2, reloadBoot, go } from './core.js';
+import { romanize } from './roman.js';
 
-const LANGS = [['en-IN', 'English / Roman Urdu'], ['ur-PK', 'اردو'], ['hi-IN', 'Hindi']];
-const lang = () => { try { return localStorage.getItem('qt.lang') || 'en-IN'; } catch { return 'en-IN'; } };
+// Google hears spoken Urdu best in "hi-IN" (same spoken language); the app always shows it back in Roman Urdu.
+const LANGS = [['hi-IN', 'Urdu (best)'], ['ur-PK', 'اردو'], ['en-IN', 'English']];
+const lang = () => { try { return localStorage.getItem('qt.lang2') || 'hi-IN'; } catch { return 'hi-IN'; } };
 
+// One sentence per tap (Android repeats words in "continuous" mode), with up to 5 guesses of what was said.
 function recognizer(onText, onState) {
   const Cap = window.Capacitor, Native = Cap?.isNativePlatform?.() && Cap.Plugins?.SpeechRecognition;
   if (Native) {
-    const SR = Cap.Plugins.SpeechRecognition; let base = '', handle;
+    const SR = Cap.Plugins.SpeechRecognition;
     return {
-      async start() {
+      async start(prefix) {
         try { const p = await (SR.requestPermissions ? SR.requestPermissions() : SR.requestPermission()); if (p && p.speechRecognition && p.speechRecognition !== 'granted') throw new Error('Mic permission nahi mili.'); } catch (e) { if (/permission/i.test(e.message)) throw e; }
-        handle = await SR.addListener('partialResults', d => { const m = d.matches || d.value || []; if (m[0]) onText(base + m[0]); });
         onState(true);
-        try { const r = await SR.start({ language: lang(), maxResults: 1, partialResults: true, popup: false }); if (r?.matches?.[0]) onText(base + r.matches[0]); } finally { }
+        try {
+          const r = await SR.start({ language: lang(), maxResults: 5, partialResults: false, popup: false, prompt: 'Boliye' });
+          const m = (r?.matches || []).filter(Boolean);
+          if (m.length) onText(prefix + m[0], m.map(x => prefix + x), true);
+        } finally { onState(false); }
       },
-      async stop() { try { await SR.stop(); } catch {} handle?.remove?.(); onState(false); },
+      async stop() { try { await SR.stop(); } catch {} onState(false); },
     };
   }
   const W = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!W) return null;
-  const rec = new W(); let finalTxt = '', on = false;
-  rec.lang = lang(); rec.interimResults = true; rec.continuous = true;
-  rec.onresult = e => { let interim = ''; for (let i = e.resultIndex; i < e.results.length; i++) { const t = e.results[i][0].transcript; if (e.results[i].isFinal) finalTxt += t + ' '; else interim += t; } onText((finalTxt + interim).trim()); };
-  rec.onend = () => { on = false; onState(false); };
-  rec.onerror = e => { if (e.error === 'not-allowed') fail(new Error('Mic permission nahi mili. Browser settings mein allow karein.')); };
-  return { start() { finalTxt = ''; rec.lang = lang(); rec.start(); on = true; onState(true); }, stop() { if (on) rec.stop(); } };
+  let rec = null, on = false;
+  return {
+    start(prefix) {
+      rec = new W(); rec.lang = lang(); rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 5;
+      rec.onresult = e => {
+        const res = e.results[e.results.length - 1];
+        const alts = [...res].map(a => a.transcript).filter(Boolean);
+        onText(prefix + alts[0], alts.map(a => prefix + a), res.isFinal);
+      };
+      rec.onend = () => { on = false; onState(false); };
+      rec.onerror = e => { if (e.error === 'not-allowed') fail(new Error('Mic permission nahi mili. Browser settings mein allow karein.')); else if (e.error === 'no-speech') hud('Awaaz nahi aayi, dobara bolein', 'info'); };
+      rec.start(); on = true; onState(true);
+    },
+    stop() { if (on && rec) rec.stop(); },
+  };
 }
 
 export function openVoice() {
@@ -33,24 +48,37 @@ export function openVoice() {
     <button class="vmic" data-mic aria-label="Start or stop listening">${ic('mic')}</button>
     <div class="vstate" data-state>Mic dabayein aur bolein</div>
     <textarea class="vtext" data-text rows="3" placeholder="Ya yahan likhein, maslan: 3 kg ghee Mehran Hotel ko diya 3000 ka"></textarea>
+    <div class="chips" data-heard></div>
     <div class="seg" style="margin-top:12px" data-lang>${LANGS.map(([k, l]) => `<button data-l="${k}" class="${lang() === k ? 'on' : ''}">${l}</button>`).join('')}</div>
     <button class="btn" data-understand style="margin-top:4px">Samjho (Understand)</button>
     <div data-out></div>
-    <p class="vex"><b>Misalein:</b><br>“Hyderabad Bakers ko 50 kilo butter premium 1330 rate se diya, 30000 cash mila”<br>“Saim Ali se 50 hazar cash mila”<br>“Petrol 2000 kharcha”${can.staff() ? '<br>“R S Food se 500 kg butter premium 1150 rate kharida”' : ''}</p>` });
-  const T = $('[data-text]', s.el), M = $('[data-mic]', s.el), st = $('[data-state]', s.el);
-  const rec = recognizer(t => { T.value = t; }, on => { M.classList.toggle('on', on); st.textContent = on ? 'Sun raha hoon… bolne ke baad mic dobara dabayein' : (T.value ? 'Theek hai? “Samjho” dabayein' : 'Mic dabayein aur bolein'); });
-  if (!rec) st.innerHTML = 'Is phone par app ka mic nahi chalta. Keyboard ka <b>mic</b> button daba kar bolein, ya likhein.';
-  let listening = false;
+    <p class="vex"><b>Tips:</b> ek waqt mein ek entry bolein, aahista aur saaf. Customer aur product ka naam waise bolein jaise list mein hai.<br><b>Misalein:</b><br>“Hyderabad Bakers ko 50 kilo butter premium 1330 rate se diya, 30000 cash mila”<br>“Saim Ali se 50 hazar cash mila”<br>“Petrol 2000 kharcha”${can.staff() ? '<br>“R S Food se 500 kg butter premium 1150 rate kharida”' : ''}</p>` });
+  const T = $('[data-text]', s.el), M = $('[data-mic]', s.el), st = $('[data-state]', s.el), H = $('[data-heard]', s.el);
+  let alts = [], listening = false;
+  const showAlts = () => {
+    const u = [...new Set(alts.map(a => romanize(a).trim()))].filter(a => a && a !== T.value.trim()).slice(0, 4);
+    H.innerHTML = u.length ? `<span class="l2" style="font-size:13px;align-self:center;flex:none">Ya shayad:</span>${u.map(a => `<button class="chip" data-alt="${esc(a)}">${esc(a)}</button>`).join('')}` : '';
+  };
+  const rec = recognizer((text, list, final) => {
+    T.value = romanize(text).trim();
+    if (final) { alts = list; showAlts(); }
+  }, on => {
+    listening = on; M.classList.toggle('on', on);
+    st.textContent = on ? 'Sun raha hoon… chup hone par khud ruk jayega' : (T.value ? 'Sahi likha hai? Zaroorat ho to theek karein, phir “Samjho”' : 'Mic dabayein aur ek jumla bolein');
+  });
+  if (!rec) st.innerHTML = 'Is browser mein app ka mic nahi chalta. Keyboard ka <b>mic</b> button daba kar bolein, ya likhein.';
   M.onclick = async () => {
     if (!rec) { T.focus(); return; }
-    try { if (listening) { listening = false; await rec.stop(); } else { listening = true; await rec.start(); } } catch (e) { listening = false; fail(e); }
+    try { if (listening) await rec.stop(); else { const pre = T.value.trim() && !alts.length ? T.value.trim() + ' ' : ''; alts = []; H.innerHTML = ''; if (!pre) T.value = ''; await rec.start(pre); } } catch (e) { fail(e); }
   };
-  $('[data-lang]', s.el).onclick = e => { const b = e.target.closest('[data-l]'); if (!b) return; try { localStorage.setItem('qt.lang', b.dataset.l); } catch {} $$('[data-l]', s.el).forEach(x => x.classList.toggle('on', x === b)); };
+  H.onclick = e => { const b = e.target.closest('[data-alt]'); if (!b) return; const cur = T.value; T.value = b.dataset.alt; alts = [cur, ...alts]; showAlts(); };
+  T.oninput = () => { alts = []; H.innerHTML = ''; };
+  $('[data-lang]', s.el).onclick = e => { const b = e.target.closest('[data-l]'); if (!b) return; try { localStorage.setItem('qt.lang2', b.dataset.l); } catch {} $$('[data-l]', s.el).forEach(x => x.classList.toggle('on', x === b)); };
   $('[data-understand]', s.el).onclick = async () => {
-    if (listening) { listening = false; await rec?.stop(); }
+    if (listening) await rec?.stop();
     const text = T.value.trim(); if (!text) return hud('Pehle kuch bolein ya likhein', 'err');
     const btn = $('[data-understand]', s.el); btn.disabled = true; btn.innerHTML = '<span class="spin"></span>';
-    try { const r = await api('/api/voice/parse', { body: { text } }); approvalCard(s, r.id, r.draft); }
+    try { const r = await api('/api/voice/parse', { body: { text, alternatives: alts.map(a => romanize(a).trim()).filter(a => a && a !== text) } }); if (r.draft.text && r.draft.text !== text) T.value = r.draft.text; approvalCard(s, r.id, r.draft); }
     catch (e) { fail(e); }
     finally { btn.disabled = false; btn.textContent = 'Samjho (Understand)'; }
   };

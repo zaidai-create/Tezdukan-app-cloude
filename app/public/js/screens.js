@@ -4,6 +4,7 @@ import { invoiceHTML, statementHTML, fitPaper, shareDoc, billText } from './invo
 import { openVoice } from './voice.js';
 import { UI } from './core.js';
 import { webHome } from './webdash.js';
+import { closeBooks } from './finance.js';
 
 const loading = '<div class="loading"><span class="spin"></span></div>';
 const avatar = name => `<span class="avatar">${esc(initials(name))}</span>`;
@@ -19,7 +20,7 @@ let period = 'month';
 const periodRange = () => { const t = today(); return period === 'today' ? [t, t] : period === 'month' ? [t.slice(0, 8) + '01', t] : period === 'year' ? [fyFrom(), t] : ['2000-01-01', t]; };
 
 /* =============================== HOME =============================== */
-const MARK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c4.5 5.4 7 8.6 7 12a7 7 0 0 1-14 0c0-3.4 2.5-6.6 7-12z"/><path d="M9.5 15.5a2.6 2.6 0 0 0 2.5 2.4"/></svg>';
+const MARK = '<img src="/brand/logo-mark.png" alt="">';
 const PERIODS = [['today', 'Today'], ['month', 'Month'], ['year', 'This Year'], ['all', 'All']];
 const spark = (vals, c) => {
   const v = vals.length ? vals : [0, 0], mx = Math.max(...v), mn = Math.min(...v, 0), sp = (mx - mn) || 1, w = 140, h = 26;
@@ -64,7 +65,7 @@ function staffHome(d) {
   const tiles = [
     ['Sales', d.sales, 'cart', 'var(--brand2)', 'bills', ser('sales')],
     ['Received', d.recovery, 'checkc', 'var(--green)', 'report/daybook', ser('recovery')],
-    ['Customers owe', d.receivable, 'people', 'var(--orange)', 'report/aging', ser('receivable')],
+    ['Customers owe', d.receivable, 'people', 'var(--orange)', 'recovery', ser('receivable')],
     ['Cash & Bank', d.cashTotal, 'bank', 'var(--teal)', 'accounts', ser('cash')],
     admin ? ['Gross profit', d.gp, 'chart', 'var(--purple)', 'report/pl', ser('gp')] : ['Expenses', d.expenses, 'receipt', 'var(--purple)', 'report/pl', ser('expenses')],
     d.payable >= 0 ? ['You owe suppliers', d.payable, 'tag', 'var(--pink)', 'parties/V', ser('payable')] : ['Advance with suppliers', -d.payable, 'tag', 'var(--pink)', 'parties/V', ser('payable').map(x => -x)],
@@ -80,7 +81,7 @@ function staffHome(d) {
     <div class="card ov"><div class="hd">${ic('chart')}<b>Sales overview</b><span class="tag">Last 12 months</span></div>
       <div class="num2"><b class="num">${rs(cur.sales)}</b><span class="l2">this month so far · last month ${short(m.at(-2)?.sales || 0)}</span></div>
       <div class="bars">${m.map((x, k) => `<div class="b ${k === 11 ? 'on' : ''}" title="${esc(monShort(x.m))}: ${esc(rs(x.sales))}">${k === 11 ? `<span class="tipv">${short(x.sales)}</span>` : ''}<div class="bb" style="height:${Math.max(x.sales / max * 100, 2)}%;animation-delay:${k * 30}ms"></div><span>${monShort(x.m)}</span></div>`).join('')}</div></div>
-    ${d.owe.length ? `<div class="sec-h">To collect<button data-go="report/aging">See all</button></div><div class="list">${d.owe.map(o => `<button class="row with-avatar" data-go="party/${o.party_id}">${avatar(o.name)}<span class="grow"><span class="t">${esc(nice(o.name))}</span><span class="s">${o.days ? `Oldest bill ${o.days} days` : 'Advance'}</span></span><span class="v num"><b>${rs(o.balance)}</b></span>${chev}</button>`).join('')}</div>` : ''}
+    ${d.owe.length ? `<div class="sec-h">To collect<button data-go="recovery">See all</button></div><div class="list">${d.owe.map(o => `<button class="row with-avatar" data-go="party/${o.party_id}">${avatar(o.name)}<span class="grow"><span class="t">${esc(nice(o.name))}</span><span class="s">${o.days ? `Oldest bill ${o.days} days` : 'Advance'}</span></span><span class="v num"><b>${rs(o.balance)}</b></span>${chev}</button>`).join('')}</div>` : ''}
     ${d.alerts.length ? `<div class="sec-h">Needs attention</div><div class="list">${d.alerts.map(a => `<div class="row with-icon"><span class="ico" style="background:var(--${a.level === 'red' ? 'red' : a.level === 'yellow' ? 'yellow' : 'orange'})">${ic('warn')}</span><span class="grow"><span class="t" style="white-space:normal">${esc(nice(a.text))}</span><span class="s" style="white-space:normal">${esc(nice(a.hint || ''))}</span></span></div>`).join('')}</div>` : ''}
     <div class="sec-h">Recent bills<button data-go="bills">See all</button></div>
     <div class="list">${d.recent.map(i => `<button class="row" data-go="bill/${i.id}"><span class="grow"><span class="t">${esc(nice(i.party))}</span><span class="s">${esc(i.no)} · ${esc(fdShort(i.date))}</span></span><span class="v num"><b>${rs(i.total)}</b><br>${status({ ...i, kind: 'sale' })}</span>${chev}</button>`).join('')}</div>`;
@@ -89,7 +90,7 @@ function staffHome(d) {
 function salesmanHome(d) {
   return `<div class="hero"><div class="k">${ic('cart')}Sold today</div><div class="big num">${rs(d.billed)}</div><span class="chg">${d.bills} bill${d.bills === 1 ? '' : 's'} · ${rs(d.recovery)} collected</span><button class="more" data-newbill>New bill ${ic('arrow')}</button></div>
     <button class="vbanner" data-voicecta><span class="m">${ic('mic')}</span><span class="t"><b>Bol kar entry karein</b><span>Sale ya recovery, bas bolein</span></span>${wave()}</button>
-    ${d.collect.length ? `<div class="sec-h">To collect</div><div class="list">${d.collect.map(o => `<button class="row with-avatar" data-go="party/${o.party_id}">${avatar(o.name)}<span class="grow"><span class="t">${esc(nice(o.name))}</span><span class="s">${o.days ? `Oldest bill ${o.days} days` : ''}</span></span><span class="v num"><b>${rs(o.balance)}</b></span>${chev}</button>`).join('')}</div>` : ''}
+    ${d.collect.length ? `<div class="sec-h">To collect<button data-go="recovery">See all</button></div><div class="list">${d.collect.map(o => `<button class="row with-avatar" data-go="party/${o.party_id}">${avatar(o.name)}<span class="grow"><span class="t">${esc(nice(o.name))}</span><span class="s">${o.days ? `Oldest bill ${o.days} days` : ''}</span></span><span class="v num"><b>${rs(o.balance)}</b></span>${chev}</button>`).join('')}</div>` : ''}
     <div class="sec-h">My bills</div>
     ${d.recent.length ? `<div class="list">${d.recent.map(i => `<button class="row" data-go="bill/${i.id}"><span class="grow"><span class="t">${esc(nice(i.party))}</span><span class="s">${esc(i.no)} · ${esc(fdShort(i.date))}</span></span><span class="v num"><b>${rs(i.total)}</b></span>${chev}</button>`).join('')}</div>` : `<div class="empty">${ic('doc')}<div>No bills yet</div></div>`}`;
 }
@@ -462,15 +463,20 @@ route(/^more$/, async v => {
       ${row('mic', 'var(--red)', 'Voice entry', 'voice')}
       ${row('receipt', 'var(--tint)', 'New sale bill', 'sale')}
       ${row('down', 'var(--green)', 'Receive payment', 'receive')}
-      ${staff ? row('cart', 'var(--indigo)', 'New purchase bill', 'purchase') + row('up', 'var(--orange)', 'Pay supplier', 'pay') + row('wallet', 'var(--red)', 'Expense', 'expense') + row('return', 'var(--purple)', 'Return (sale / purchase)', 'return') : ''}
+      ${row('bell', '#25b35e', 'Recovery list & reminders', 'recovery')}
+      ${staff ? row('cart', 'var(--indigo)', 'New purchase bill', 'purchase') + row('up', 'var(--orange)', 'Pay supplier', 'pay') + row('wallet', 'var(--red)', 'Expense', 'expense') + row('return', 'var(--purple)', 'Return (sale / purchase)', 'return') + row('clock', 'var(--orange)', 'Payables (suppliers ko dena)', 'payables') : ''}
       ${row('cube', 'var(--teal)', 'Stock & products', 'products')}</div>
     ${staff ? `<div class="sec-h">Accounts</div><div class="list">
       ${row('book', 'var(--indigo)', 'Journal voucher', 'voucher')}
       ${row('list', 'var(--tint)', 'Chart of accounts', 'accounts')}
-      ${row('chart', 'var(--green)', 'Reports', 'reports')}</div>` : ''}
+      ${row('chart', 'var(--green)', 'Reports', 'reports')}
+      ${row('arrowup', 'var(--purple)', 'What moved this month', 'insights')}
+      ${row('bank', 'var(--teal)', 'Cash flow', 'cashflow')}
+      ${row('receipt', 'var(--pink)', 'Sales tax & FBR', 'tax')}</div>` : ''}
     ${admin ? `<div class="sec-h">Admin</div><div class="list">
       ${row('people', 'var(--tint)', 'Team & roles', 'users')}
       ${row('gear', '#8e8e93', 'Company & invoice settings', 'settings')}
+      ${row('lock', 'var(--red)', `Close books${S.boot.company.lock_date ? ' · up to ' + fd(S.boot.company.lock_date) : ''}`, 'closebooks')}
       ${row('clock', 'var(--orange)', 'Activity log', 'audit')}
       ${row('tray', 'var(--teal)', 'Download full backup', 'backup')}
       ${row('drop', 'var(--indigo)', 'Import old software data', 'import')}</div>` : ''}
@@ -490,7 +496,9 @@ route(/^more$/, async v => {
     if (a === 'expense') expenseForm();
     if (a === 'voucher') voucherForm();
     if (a === 'return') { const k = await actionSheet('Return', [{ label: 'Sales return (customer gave back)', value: 'sale_return' }, { label: 'Purchase return (sent back to supplier)', value: 'purchase_return' }]); if (k) newBill(k); }
-    if (['products', 'accounts', 'reports', 'users', 'audit'].includes(a)) go(a);
+    if (['products', 'accounts', 'reports', 'users', 'audit', 'recovery', 'payables'].includes(a)) go(a);
+    if (['insights', 'cashflow', 'tax'].includes(a)) go('report/' + a);
+    if (a === 'closebooks') closeBooks();
     if (a === 'settings') settingsForm();
     if (a === 'password') passwordForm();
     if (a === 'theme') { const t = await actionSheet('Appearance', [{ label: 'Automatic', value: 'auto' }, { label: 'Light', value: 'light' }, { label: 'Dark', value: 'dark' }]); if (t) { try { localStorage.setItem('qt.theme', t); } catch {} if (t === 'auto') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = t; } }
@@ -516,7 +524,9 @@ export function passwordForm(forced = false) {
 function settingsForm() {
   const c = S.boot.company;
   sheet({ title: 'Company & Invoice', right: 'Save', body: `<div class="list">
-    ${[['name', 'Name'], ['address', 'Address'], ['phone', 'Phone'], ['ntn', 'NTN'], ['strn', 'STRN'], ['footer', 'Invoice footer']].map(([k, l]) => `<div class="row"><label>${l}</label><input class="fld" data-f="${k}" value="${esc(c[k] || '')}"></div>`).join('')}
+    ${[['name', 'Name'], ['address', 'Address'], ['phone', 'Phone'], ['ntn', 'NTN'], ['strn', 'STRN'], ['email', 'Email'], ['footer', 'Invoice footer']].map(([k, l]) => `<div class="row"><label>${l}</label><input class="fld" data-f="${k}" value="${esc(c[k] || '')}"></div>`).join('')}
+    <div class="row col"><label>Bank details (invoice par)</label><textarea class="fld" rows="3" data-f="bank" placeholder="Meezan Bank · A/C Title: Qayam Traders · A/C 0123-4567890 · IBAN PK..">${esc(c.bank || '')}</textarea></div>
+    <div class="row col"><label>Terms & conditions</label><textarea class="fld" rows="3" data-f="terms" placeholder="Maal check kar ke wasool karein. Payment 15 din mein.">${esc(c.terms || '')}</textarea></div>
     <div class="row"><label>Sales tax %</label><input class="fld num" inputmode="decimal" data-f="tax_pct" value="${c.tax_pct || 0}"></div></div>
     <p class="sec-f">These details print on every invoice. Sales tax % is the default for new bills (0 = off).</p>`,
     onRight: async sh => { const body = {}; $$('[data-f]', sh.el).forEach(i => { body[i.dataset.f] = i.value; }); try { await api('/api/settings', { method: 'PUT', body }); await reloadBoot(); hud('Saved'); sh.close(); } catch (e) { fail(e); } } });
@@ -589,10 +599,11 @@ route(/^account\/(\w+)$/, async (v, code) => {
   await load();
 });
 
-const REPORTS = [['pl', 'Profit & Loss', 'chart', 'var(--green)'], ['bs', 'Balance Sheet', 'book', 'var(--indigo)'], ['tb', 'Trial Balance', 'list', 'var(--tint)'], ['aging', 'Receivables ageing', 'clock', 'var(--orange)'], ['daybook', 'Day Book', 'doc', 'var(--teal)'], ['stock', 'Stock valuation', 'cube', 'var(--purple)']];
+const REPORTS = [['insights', 'What moved (this vs last month)', 'arrowup', 'var(--purple)'], ['pl', 'Profit & Loss', 'chart', 'var(--green)'], ['bs', 'Balance Sheet', 'book', 'var(--indigo)'], ['cashflow', 'Cash flow', 'bank', 'var(--teal)'], ['tb', 'Trial Balance', 'list', 'var(--tint)'],
+  ['aging', 'Receivables ageing', 'clock', 'var(--orange)'], ['payables', 'Payables ageing', 'clock', 'var(--red)', 'payables'], ['tax', 'Sales tax & FBR', 'receipt', 'var(--pink)'], ['daybook', 'Day Book', 'doc', 'var(--teal)'], ['stock', 'Stock valuation', 'cube', 'var(--purple)']];
 route(/^reports$/, async v => {
   const body = page(v, { title: 'Reports', back: 'more', backLabel: 'More' });
-  body.innerHTML = `<div class="list">${REPORTS.map(([k, l, i, c]) => `<button class="row with-icon" data-go="report/${k}"><span class="ico" style="background:${c}">${ic(i)}</span><span class="grow">${l}</span>${chev}</button>`).join('')}</div>`;
+  body.innerHTML = `<div class="list">${REPORTS.map(([k, l, i, c, to]) => `<button class="row with-icon" data-go="${to || 'report/' + k}"><span class="ico" style="background:${c}">${ic(i)}</span><span class="grow">${l}</span>${chev}</button>`).join('')}</div>`;
   body.onclick = e => { const b = e.target.closest('[data-go]'); if (b) go(b.dataset.go); };
 });
 const RFROM = {};
@@ -600,7 +611,7 @@ route(/^report\/(\w+)$/, async (v, k) => {
   const meta = REPORTS.find(r => r[0] === k) || [k, 'Report'];
   let from = RFROM.from || fyFrom(), to = RFROM.to || today();
   const body = page(v, { title: meta[1], back: 'reports', backLabel: 'Reports' });
-  const needsFrom = k === 'pl' || k === 'daybook', needsTo = k !== 'stock';
+  const needsFrom = ['pl', 'daybook', 'cashflow', 'tax'].includes(k), needsTo = k !== 'stock';
   const load = async () => {
     const dates = `${needsFrom ? `<div class="row"><label>From</label><input class="fld" type="date" data-from value="${from}"></div>` : ''}${needsTo ? `<div class="row"><label>${needsFrom ? 'To' : 'As on'}</label><input class="fld" type="date" data-to value="${to}"></div>` : ''}`;
     let h = '';
@@ -623,6 +634,32 @@ route(/^report\/(\w+)$/, async (v, k) => {
     } else if (k === 'daybook') {
       const d = await api(`/api/reports/day-book?from=${from}&to=${to}`);
       h = `<div class="sec-h">${d.length} entries</div>${d.map(j => `<div class="list" style="margin-bottom:10px"><button class="row" ${j.ref_invoice ? `data-go="bill/${j.ref_invoice}"` : ''}><span class="grow"><span class="t">${esc(j.type)} · ${esc(j.no)}</span><span class="s">${esc(fd(j.date))} · ${esc(nice(String(j.memo).slice(0, 80)))}</span></span></button>${j.lines.map(l => `<div class="row" style="font-size:15px"><span class="grow l2">${esc(nice(l.name))}${l.party ? ' · ' + esc(nice(l.party)) : ''}</span><span class="v num">${l.debit ? 'Dr ' + n2(l.debit) : 'Cr ' + n2(l.credit)}</span></div>`).join('')}</div>`).join('')}`;
+    } else if (k === 'cashflow') {
+      const d = await api(`/api/reports/cash-flow?from=${from}&to=${to}`);
+      const mx = Math.max(1, ...d.months.map(m => Math.max(m.in, m.out)));
+      const grp = (t, rows, cls) => `<div class="sec-h">${t}</div><div class="list">${rows.map(r => `<div class="row"><span class="grow">${esc(nice(r.name))}</span><span class="v num ${cls}">${rs(r.v)}</span></div>`).join('') || '<div class="row l2">None</div>'}</div>`;
+      h = `<div class="tiles" style="margin-top:14px"><div class="tile"><div class="k">Opening cash & bank</div><div class="n num">${short(d.opening)}</div></div><div class="tile"><div class="k">Closing cash & bank</div><div class="n num">${short(d.closing)}</div></div>
+          <div class="tile"><div class="k green">Money in</div><div class="n num">${short(d.in)}</div></div><div class="tile"><div class="k red">Money out</div><div class="n num">${short(d.out)}</div></div></div>
+        ${d.months.length > 1 ? `<div class="sec-h">Month by month</div><div class="list" style="padding:12px 16px">${d.months.map(m => `<div class="cfm"><span>${esc(monShort(m.m + '-01'))}</span><div><i class="g" style="width:${m.in / mx * 100}%"></i><i class="r" style="width:${m.out / mx * 100}%"></i></div><span class="num ${m.in - m.out >= 0 ? 'green' : 'red'}">${short(m.in - m.out)}</span></div>`).join('')}</div>` : ''}
+        ${grp('Where money came from', d.inflows, 'green')}${grp('Where money went', d.outflows, 'red')}
+        <p class="sec-f">Cash aur bank ke darmiyan transfer yahan shamil nahi.</p>`;
+    } else if (k === 'tax') {
+      const d = await api(`/api/reports/sales-tax?from=${from}&to=${to}`);
+      h = `<div class="list" style="margin-top:14px"><div class="row"><span class="grow"><span class="t">Next FBR sales tax return</span><span class="s">Due ${esc(fd(d.next_due))} · ${d.days_left} din baqi</span></span><span class="badge ${d.days_left <= 5 ? 'red' : d.days_left <= 10 ? 'orange' : 'green'}">${d.days_left} din</span></div>
+          <div class="row"><span class="grow">Sales tax payable (books)</span><b class="num">${rs(d.payable_now)}</b></div></div>
+        <div class="tiles" style="margin-top:14px"><div class="tile"><div class="k">Output tax (sales)</div><div class="n num">${short(d.total.output)}</div></div><div class="tile"><div class="k">Input tax (purchases)</div><div class="n num">${short(d.total.input)}</div></div></div>
+        <div class="sec-h">By month</div>${d.months.map(m => `<div class="list" style="margin-bottom:10px"><div class="row"><b class="grow">${esc(monShort(m.m + '-01'))} ${m.m.slice(0, 4)}</b><span class="l2" style="font-size:13px">Return due ${esc(fd(m.due))}</span></div>
+          <div class="row"><span class="grow l2">Sales (ex-tax) · ${m.bills} bills</span><span class="num">${rs(m.sales)}</span></div><div class="row"><span class="grow l2">Output tax</span><span class="num">${rs(m.output)}</span></div>
+          <div class="row"><span class="grow l2">Input tax</span><span class="num">-${rs(m.input)}</span></div><div class="row"><b class="grow">Net payable</b><b class="num">${rs(m.payable)}</b></div></div>`).join('') || '<div class="empty">Is dauran koi bill nahi</div>'}
+        <p class="sec-f">FBR sales tax return har mahine ki 18 tareekh tak. Bill par tax lagane ke liye Settings mein Sales tax % set karein.</p>`;
+    } else if (k === 'insights') {
+      const d = await api(`/api/reports/insights?to=${to}`);
+      const arrow = (x, goodUp = true) => x.diff === 0 ? '' : `<span class="badge ${(x.diff > 0) === goodUp ? 'green' : 'red'}">${x.diff > 0 ? '▲' : '▼'} ${x.pct === null ? short(Math.abs(x.diff)) : Math.abs(x.pct) + '%'}</span>`;
+      const mv = (t, rows, link) => rows.length ? `<div class="sec-h">${t}</div><div class="list">${rows.map(r => `<${link ? `button data-go="${link}/${r.id}"` : 'div'} class="row"><span class="grow"><span class="t">${esc(nice(r.name || '—'))}</span><span class="s">${short(r.before)} → ${short(r.now)}</span></span><span class="v num ${r.diff > 0 ? 'green' : 'red'}">${r.diff > 0 ? '+' : ''}${short(r.diff)}</span></${link ? 'button' : 'div'}>`).join('')}</div>` : '';
+      h = `<p class="sec-f" style="margin-top:12px">${esc(fd(d.period.from))} – ${esc(fd(d.period.to))} vs ${esc(fd(d.period.pfrom))} – ${esc(fd(d.period.pto))}</p>
+        <div class="list">${d.metrics.map(x => `<div class="row"><span class="grow"><span class="t">${x.label}</span><span class="s">Last month ${rs(x.before)}</span></span><span class="v num"><b>${rs(x.now)}</b></span>${arrow(x, x.k !== 'exp')}</div>`).join('')}</div>
+        ${mv('Customers: biggest changes', d.customers, 'party')}${mv('Products: biggest changes', d.products)}${mv('Expenses: biggest changes', d.expenses)}
+        ${d.lost.length ? `<div class="sec-h">Pichle mahine liya, is mahine nahi</div><div class="list">${d.lost.map(r => `<button class="row" data-go="party/${r.id}"><span class="grow">${esc(nice(r.name))}</span><span class="v num">${rs(r.before)}</span>${chev}</button>`).join('')}</div><p class="sec-f">In customers se raabta karein.</p>` : ''}`;
     } else if (k === 'stock') {
       const d = await api('/api/reports/stock');
       const tot = d.reduce((a, p) => a + (+p.value || 0), 0);

@@ -5,9 +5,9 @@ import { createRequire } from 'node:module';
 import { pool, q, one, all, tx, migrate, seedAccounts } from './db.js';
 import { requireAuth, hashPassword, checkPassword, makeToken, loginAllowed, loginFailed, loginOk, audit, seedAdmin } from './auth.js';
 import { createInvoice, deleteInvoice, receipt, payment, expense, voucher, stockAdjust, UserError, r2, today } from './posting.js';
-import { dashboard, ledger, trialBalance, profitLoss, balanceSheet, aging, dayBook, partyBalances } from './reports.js';
+import { dashboard, ledger, trialBalance, profitLoss, balanceSheet, aging, dayBook, partyBalances, cashFlow, taxSummary, insights } from './reports.js';
 import { importLegacy, importCheck } from './importer.js';
-import { parseVoice } from './voice.js';
+import { parseVoice, parseBest } from './voice.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const require = createRequire(import.meta.url);
@@ -67,6 +67,10 @@ app.get('/api/reports/trial-balance', requireAuth(...STAFF), ah(async (req, res)
 app.get('/api/reports/profit-loss', requireAuth(...STAFF), ah(async (req, res) => { const { from, to } = range(req); res.json(await profitLoss(from, to)); }));
 app.get('/api/reports/balance-sheet', requireAuth(...STAFF), ah(async (req, res) => res.json(await balanceSheet(range(req).to))));
 app.get('/api/reports/aging', requireAuth(), ah(async (req, res) => res.json(await aging(range(req).to))));
+app.get('/api/reports/payables', requireAuth(...STAFF), ah(async (req, res) => res.json(await aging(range(req).to, 'V'))));
+app.get('/api/reports/cash-flow', requireAuth(...STAFF), ah(async (req, res) => { const { from, to } = range(req); res.json(await cashFlow(from, to)); }));
+app.get('/api/reports/sales-tax', requireAuth(...STAFF), ah(async (req, res) => { const { from, to } = range(req); res.json(await taxSummary(from, to)); }));
+app.get('/api/reports/insights', requireAuth(...STAFF), ah(async (req, res) => res.json(await insights(range(req).to))));
 app.get('/api/reports/day-book', requireAuth(...STAFF), ah(async (req, res) => { const { from, to } = range(req); res.json(await dayBook(from, to)); }));
 app.get('/api/reports/account-ledger', requireAuth(...STAFF), ah(async (req, res) => { const { from, to } = range(req); res.json(await ledger(String(req.query.account), null, from, to)); }));
 app.get('/api/reports/stock', requireAuth(), ah(async (req, res) => {
@@ -209,7 +213,8 @@ async function voiceContext() {
 app.post('/api/voice/parse', requireAuth(), ah(async (req, res) => {
   const text = String(req.body.text || '').trim().slice(0, 600);
   if (!text) throw new UserError('Kuch bolein ya likhein.');
-  const draft = parseVoice(text, await voiceContext());
+  const alts = Array.isArray(req.body.alternatives) ? req.body.alternatives.map(x => String(x || '').slice(0, 600)).slice(0, 8) : [];
+  const draft = parseBest([text, ...alts], await voiceContext());
   if (req.user.role === 'salesman' && !['sale', 'receipt', 'unknown'].includes(draft.intent)) { draft.notes.push('Aap sirf sale aur recovery entry kar sakte hain.'); draft.intent = 'unknown'; }
   const r = await one('insert into voice_drafts(text, draft, created_by) values($1,$2,$3) returning id', [text, JSON.stringify(draft), req.user.id]);
   res.json({ id: r.id, draft });
@@ -294,7 +299,7 @@ app.put('/api/users/:id', requireAuth('admin'), ah(async (req, res) => {
 app.get('/api/settings', requireAuth(), ah(async (req, res) => res.json(await company())));
 app.put('/api/settings', requireAuth('admin'), ah(async (req, res) => {
   const c0 = await company(), b = req.body;
-  const v = { ...c0, ...Object.fromEntries(['name', 'address', 'phone', 'ntn', 'strn', 'footer', 'email'].filter(k => b[k] !== undefined).map(k => [k, String(b[k]).slice(0, 300)])), tax_pct: b.tax_pct !== undefined ? Math.max(+b.tax_pct || 0, 0) : c0.tax_pct };
+  const v = { ...c0, ...Object.fromEntries(['name', 'address', 'phone', 'ntn', 'strn', 'footer', 'email', 'bank', 'terms', 'lock_date'].filter(k => b[k] !== undefined).map(k => [k, String(b[k]).slice(0, 600)])), tax_pct: b.tax_pct !== undefined ? Math.max(+b.tax_pct || 0, 0) : c0.tax_pct };
   await q(`insert into settings(key, value) values('company',$1) on conflict (key) do update set value=excluded.value`, [JSON.stringify(v)]);
   await audit(req.user.id, 'update', 'settings', 'company', v);
   res.json(v);

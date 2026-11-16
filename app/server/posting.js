@@ -11,6 +11,14 @@ export class UserError extends Error { constructor(m, status = 400) { super(m); 
 const need = (cond, msg) => { if (!cond) throw new UserError(msg); };
 const isDate = d => /^\d{4}-\d{2}-\d{2}$/.test(d || '');
 
+// Period lock: nothing on or before the locked date can be added or cancelled (books closed).
+export async function checkLock(c, date) {
+  const r = (await c.query(`select value->>'lock_date' d from settings where key='company'`)).rows[0];
+  const lock = r?.d && /^\d{4}-\d{2}-\d{2}$/.test(r.d) ? r.d : null;
+  const d = date instanceof Date ? date.toISOString().slice(0, 10) : String(date).slice(0, 10);
+  need(!lock || d > lock, `Books are closed up to ${lock}. Use a later date, or ask the admin to open the period.`);
+}
+
 async function nextNo(c, prefix, date, width) {
   const key = `${prefix}-${fyOf(date)}`;
   const r = await c.query(`insert into counters(key, n) values($1, 1) on conflict (key) do update set n = counters.n + 1 returning n`, [key]);
@@ -24,6 +32,7 @@ export async function postJournal(c, { date, type, memo = '', lines, ref_invoice
   const d = r2(ls.reduce((a, l) => a + l.debit, 0)), k = r2(ls.reduce((a, l) => a + l.credit, 0));
   need(ls.length >= 2, 'An entry needs at least one debit and one credit line.');
   need(d === k, `Debit (${d}) and credit (${k}) must be equal.`);
+  await checkLock(c, date);
   const no = await nextNo(c, JPREFIX[type] || 'JV', date, 4);
   const j = await c.query(`insert into journals(no, date, type, memo, ref_invoice, created_by) values($1,$2,$3,$4,$5,$6) returning id`, [no, date, type, memo, ref_invoice, user_id]);
   for (const l of ls) {
@@ -137,6 +146,7 @@ export async function deleteInvoice(c, user, id) {
   const inv = (await c.query('select * from invoices where id=$1 for update', [id])).rows[0];
   need(inv, 'Bill not found.');
   need(!inv.legacy, 'Bills from the old software cannot be cancelled here. Make a return instead.');
+  await checkLock(c, inv.date);
   const sign = KINDS[inv.kind].stock;
   const ls = (await c.query('select product_id, qty from invoice_lines where invoice_id=$1', [id])).rows;
   for (const l of ls) await c.query('update products set stock = stock - $1 where id=$2', [sign * l.qty, l.product_id]);

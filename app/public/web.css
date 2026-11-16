@@ -19,7 +19,7 @@
 .wshell { display: grid; grid-template-columns: 252px minmax(0, 1fr); min-height: 100vh; }
 .wside { position: sticky; top: 0; height: 100vh; overflow: auto; background: linear-gradient(180deg, #0d1a2d, #12263f); color: #b8c7dd; padding: 12px; display: flex; flex-direction: column; z-index: 40; }
 .wbrand { display: flex; gap: 12px; align-items: center; padding: 12px 14px; border-radius: 16px; background: linear-gradient(135deg, #2563eb, #12a9b8); color: #fff; }
-.wbrand svg { width: 34px; height: 34px; }
+.wbrand img { width: 42px; height: 42px; object-fit: contain; background: #fff; border-radius: 11px; padding: 5px; flex: none; }
 .wbrand b { display: block; font-size: 16.5px; line-height: 1.2; } .wbrand small { opacity: .85; font-size: 12px; }
 .wnav { margin-top: 12px; display: flex; flex-direction: column; gap: 2px; }
 .wnav .sec { font-size: 11px; letter-spacing: .09em; text-transform: uppercase; opacity: .5; padding: 14px 12px 4px; font-weight: 600; }

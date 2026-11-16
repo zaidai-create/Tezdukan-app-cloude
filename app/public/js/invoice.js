@@ -1,74 +1,96 @@
 // Invoice / statement templates and sharing as image or PDF (WhatsApp).
-import { esc, fd, n2, qty, rs, rs2, words, nice, initials, waPhone, loadScript, hud, fail, actionSheet, ic } from './core.js';
+import { esc, fd, n2, qty, rs, rs2, words, nice, waPhone, loadScript, hud, fail, actionSheet, ic } from './core.js';
 
 const KIND_TITLE = { sale: 'Sales Invoice', purchase: 'Purchase Bill', sale_return: 'Credit Note', purchase_return: 'Debit Note' };
+
+const LOGO = '/brand/logo-full.png';
+const coLines = c => [c.address, [c.phone && `Ph ${c.phone}`, c.email].filter(Boolean).join('  ·  '), [c.ntn && `NTN ${c.ntn}`, c.strn && `STRN ${c.strn}`].filter(Boolean).join('  ·  ')].filter(Boolean);
+const head = (c, title, rows) => `
+    <div class="ihead">
+      <div class="ibrand"><img src="${LOGO}" alt="" crossorigin="anonymous"><div class="ico2"><b>${esc(c.name || 'Qayam Traders')}</b>${coLines(c).map(l => `<span>${esc(l)}</span>`).join('')}</div></div>
+      <div class="ititle"><h2>${esc(title)}</h2><table>${rows.map(([k, v]) => `<tr><td>${esc(k)}</td><td>${v}</td></tr>`).join('')}</table></div>
+    </div>
+    <div class="ibar"><i></i></div>`;
+const pre = t => esc(t || '').replace(/\n/g, '<br>');
 
 export function invoiceHTML(d, { slip = false } = {}) {
   const { invoice: i, lines, party: p, company: c } = d;
   const tax = i.tax > 0, title = (tax && i.kind === 'sale') ? 'Sales Tax Invoice' : KIND_TITLE[i.kind];
   const due = Math.max(i.total - i.paid, 0);
-  const payTxt = i.paid >= i.total - 0.5 ? 'Paid' : i.paid > 0 ? 'Partly paid' : 'On credit';
+  const payTxt = i.paid >= i.total - 0.5 ? 'Paid' : i.paid > 0 ? 'Partly paid' : 'Credit';
+  const payCls = i.paid >= i.total - 0.5 ? 'ok' : i.paid > 0 ? 'part' : 'cr';
+  const totQty = lines.reduce((a, l) => a + (+l.qty || 0), 0);
+  const cust = i.kind === 'sale' || i.kind === 'sale_return';
+  const showAcct = p?.kind === 'C' && cust;
   if (slip) {
     return `<div class="paper slip">
-      <div class="c"><b class="big">${esc(c.name)}</b><br>${esc(c.address || '')}${c.phone ? '<br>' + esc(c.phone) : ''}${c.ntn ? '<br>NTN ' + esc(c.ntn) : ''}${c.strn ? ' STRN ' + esc(c.strn) : ''}</div><hr>
-      <div class="r"><span>${esc(title)}</span><span>${esc(i.no)}</span></div><div class="r"><span>Date</span><span>${esc(fd(i.date))}</span></div>
-      <div>To: ${esc(nice(p?.name))}</div><hr>
-      ${lines.map(l => `<div>${esc(nice(l.name))}</div><div class="r"><span>${qty(l.qty)} ${esc(l.unit || '')} x ${n2(l.rate)}</span><span>${n2(l.amount)}</span></div>`).join('')}<hr>
+      <div class="c"><img src="${LOGO}" alt="" class="slogo"><br>${esc(c.address || '')}${c.phone ? '<br>Ph ' + esc(c.phone) : ''}${c.ntn ? '<br>NTN ' + esc(c.ntn) : ''}${c.strn ? ' STRN ' + esc(c.strn) : ''}</div><hr>
+      <div class="c"><b>${esc(title.toUpperCase())}</b></div>
+      <div class="r"><span>No.</span><span>${esc(i.no)}</span></div><div class="r"><span>Date</span><span>${esc(fd(i.date))}</span></div>
+      <div class="r"><span>To</span><span>${esc(nice(p?.name))}</span></div><hr>
+      ${lines.map((l, k) => `<div>${k + 1}. ${esc(nice(l.name))}</div><div class="r"><span>&nbsp;&nbsp;${qty(l.qty)} ${esc(l.unit || '')} x ${n2(l.rate)}</span><span>${n2(l.amount)}</span></div>`).join('')}<hr>
+      <div class="r"><span>Items ${lines.length} · Qty ${qty(totQty)}</span><span></span></div>
       <div class="r"><span>Subtotal</span><span>${n2(i.subtotal)}</span></div>
       ${i.discount ? `<div class="r"><span>Discount</span><span>-${n2(i.discount)}</span></div>` : ''}
       ${tax ? `<div class="r"><span>Sales tax ${+i.tax_pct}%</span><span>${n2(i.tax)}</span></div>` : ''}
-      <div class="r"><b class="big">TOTAL</b><b class="big">${n2(i.total)}</b></div>
+      <div class="r tot"><b class="big">TOTAL Rs</b><b class="big">${n2(i.total)}</b></div>
       <div class="r"><span>Received</span><span>${n2(i.paid)}</span></div>
-      ${p?.kind === 'C' ? `<div class="r"><span>Previous balance</span><span>${n2(d.previous)}</span></div><div class="r"><b>Total due</b><b>${n2(d.after)}</b></div>` : ''}<hr>
-      <div class="c">${esc(c.footer || 'Thank you')}</div></div>`;
+      ${showAcct ? `<div class="r"><span>Previous balance</span><span>${n2(d.previous)}</span></div><div class="r"><b>Total due</b><b>${n2(d.after)}</b></div>` : ''}<hr>
+      <div class="c">${esc(c.footer || 'Thank you for your business')}</div></div>`;
   }
-  const cust = i.kind === 'sale' || i.kind === 'sale_return';
-  return `<div class="paper">
-    <div class="top">
-      <div class="co"><div class="mark">${esc(initials(c.name))}</div><div><b>${esc(c.name)}</b>${c.address ? `<span>${esc(c.address)}</span>` : ''}${c.phone ? `<span>Phone ${esc(c.phone)}</span>` : ''}${c.ntn || c.strn ? `<span>${c.ntn ? 'NTN ' + esc(c.ntn) : ''}${c.ntn && c.strn ? ' · ' : ''}${c.strn ? 'STRN ' + esc(c.strn) : ''}</span>` : ''}</div></div>
-      <div class="ttl"><h2>${esc(title.toUpperCase())}</h2><table><tr><td>No.</td><td><b>${esc(i.no)}</b></td></tr><tr><td>Date</td><td>${esc(fd(i.date))}</td></tr><tr><td>Payment</td><td>${payTxt}</td></tr></table></div>
+  return `<div class="paper inv">
+    ${head(c, title.toUpperCase(), [['Invoice No.', `<b>${esc(i.no)}</b>`], ['Date', esc(fd(i.date))], ['Status', `<span class="st ${payCls}">${payTxt}</span>`]])}
+    <div class="iparty">
+      <div class="pbox"><small>${cust ? 'Bill to' : 'Supplier'}</small><b>${esc(nice(p?.name || ''))}</b>${p?.address || p?.city ? `<div>${esc([p.address, nice(p.city)].filter(Boolean).join(', '))}</div>` : ''}${p?.phone ? `<div>Ph ${esc(p.phone)}</div>` : ''}${p?.ntn ? `<div>NTN/CNIC ${esc(p.ntn)}</div>` : ''}</div>
+      <div class="pbox r"><small>Details</small>
+        <div><span>Prepared by</span><b>${esc(i.created_by_name || '—')}</b></div>
+        <div><span>Items</span><b>${lines.length}</b></div>
+        <div><span>Total qty</span><b>${qty(totQty)}</b></div>
+        ${due > 0.5 && i.kind === 'sale' ? `<div><span>Balance on bill</span><b class="red">Rs ${n2(due)}</b></div>` : ''}
+      </div>
     </div>
-    <div class="rule"></div>
-    <div class="two">
-      <div class="box"><small>${cust ? 'Bill to' : 'Supplier'}</small><b>${esc(nice(p?.name || ''))}</b>${p?.address || p?.city ? `<div>${esc([p.address, nice(p.city)].filter(Boolean).join(', '))}</div>` : ''}${p?.phone ? `<div>${esc(p.phone)}</div>` : ''}${p?.ntn ? `<div>NTN/CNIC ${esc(p.ntn)}</div>` : ''}</div>
-      ${i.created_by_name ? `<div class="box" style="text-align:right"><small>Prepared by</small><div>${esc(i.created_by_name)}</div></div>` : ''}
-    </div>
-    <table class="items"><thead><tr><th style="width:38px">#</th><th>Description</th><th class="n">Qty</th><th>Unit</th><th class="n">Rate</th><th class="n">Amount</th></tr></thead>
-      <tbody>${lines.map((l, k) => `<tr><td>${k + 1}</td><td>${esc(nice(l.name || 'Item'))}</td><td class="n">${qty(l.qty)}</td><td>${esc(l.unit || '')}</td><td class="n">${n2(l.rate)}</td><td class="n">${n2(l.amount)}</td></tr>`).join('')}</tbody></table>
+    <table class="items"><thead><tr><th style="width:34px">#</th><th>Description</th><th class="n">Qty</th><th>Unit</th><th class="n">Rate</th><th class="n">Amount (Rs)</th></tr></thead>
+      <tbody>${lines.map((l, k) => `<tr><td class="k">${k + 1}</td><td><b>${esc(nice(l.name || 'Item'))}</b></td><td class="n">${qty(l.qty)}</td><td>${esc(l.unit || '')}</td><td class="n">${n2(l.rate)}</td><td class="n">${n2(l.amount)}</td></tr>`).join('')}</tbody></table>
     <div class="bottom">
-      <div class="words"><b>Amount in words</b>${esc(words(i.total))}
-        ${p?.kind === 'C' && cust ? `<div class="acct"><div><span>Previous balance</span><span>${rs2(d.previous)}</span></div><div><span>This ${i.kind === 'sale' ? 'bill' : 'credit note'}</span><span>${i.kind === 'sale' ? '' : '-'}${rs2(i.total)}</span></div><div><span>Received now</span><span>-${rs2(i.paid)}</span></div><div style="font-weight:700;border-top:1px solid #e6e8ec;margin-top:4px;padding-top:6px"><span>Total balance due</span><span>${rs2(d.after)}</span></div></div>` : ''}
-        ${i.note && !/^Voice:/.test(i.note) ? `<div class="note">Note: ${esc(i.note)}</div>` : ''}
+      <div class="left">
+        <div class="words"><small>Amount in words</small>${esc(words(i.total))}</div>
+        ${showAcct ? `<div class="acct"><small>Account summary</small><div><span>Previous balance</span><span>${rs2(d.previous)}</span></div><div><span>This ${i.kind === 'sale' ? 'bill' : 'credit note'}</span><span>${i.kind === 'sale' ? '+' : '-'}${rs2(i.total)}</span></div><div><span>Received now</span><span>-${rs2(i.paid)}</span></div><div class="tdue"><span>Total balance due</span><span>${rs2(d.after)}</span></div></div>` : ''}
+        ${i.note && !/^Voice:/.test(i.note) ? `<div class="note"><small>Note</small>${esc(i.note)}</div>` : ''}
       </div>
       <table class="totals">
         <tr><td>Subtotal</td><td>${n2(i.subtotal)}</td></tr>
         ${i.discount ? `<tr><td>Discount</td><td>-${n2(i.discount)}</td></tr>` : ''}
         ${tax ? `<tr><td>Sales tax ${+i.tax_pct}%</td><td>${n2(i.tax)}</td></tr>` : ''}
-        <tr class="grand"><td>Total</td><td>Rs ${n2(i.total)}</td></tr>
-        ${i.kind === 'sale' || i.kind === 'purchase' ? `<tr><td>Received</td><td>${n2(i.paid)}</td></tr>${due > 0.5 ? `<tr class="due"><td>Balance on this bill</td><td>${n2(due)}</td></tr>` : ''}` : ''}
+        <tr class="grand"><td>Grand total</td><td>Rs ${n2(i.total)}</td></tr>
+        ${i.kind === 'sale' || i.kind === 'purchase' ? `<tr><td>${i.kind === 'sale' ? 'Received' : 'Paid'}</td><td>${n2(i.paid)}</td></tr>${due > 0.5 ? `<tr class="due"><td>Balance</td><td>${n2(due)}</td></tr>` : ''}` : ''}
       </table>
     </div>
-    <div class="foot"><div>${esc(c.footer || 'Thank you for your business.')}</div><div class="sign">Authorised signature</div></div>
-    <div class="gen">Computer generated document · ${esc(c.name)}</div>
+    ${c.bank || c.terms ? `<div class="iinfo">${c.bank ? `<div><small>Bank details</small>${pre(c.bank)}</div>` : ''}${c.terms ? `<div><small>Terms &amp; conditions</small>${pre(c.terms)}</div>` : ''}</div>` : ''}
+    <div class="signs"><div>Received by</div><div>For ${esc(c.name || 'Qayam Traders')}<br><span>Authorised signature</span></div></div>
+    <div class="ifoot"><span>${esc(c.footer || 'Thank you for your business.')}</span><span>Computer generated · no signature required</span></div>
   </div>`;
 }
 
 export function statementHTML(d) {
   const { party: p, company: c } = d;
   const cust = p.kind === 'C';
-  return `<div class="paper">
-    <div class="top"><div class="co"><div class="mark">${esc(initials(c.name))}</div><div><b>${esc(c.name)}</b>${c.address ? `<span>${esc(c.address)}</span>` : ''}${c.phone ? `<span>Phone ${esc(c.phone)}</span>` : ''}</div></div>
-      <div class="ttl"><h2>ACCOUNT STATEMENT</h2><table><tr><td>From</td><td>${esc(fd(d.from))}</td></tr><tr><td>To</td><td>${esc(fd(d.to))}</td></tr></table></div></div>
-    <div class="rule"></div>
-    <div class="two"><div class="box"><small>${cust ? 'Customer' : 'Supplier'}</small><b>${esc(nice(p.name))}</b>${p.phone ? `<div>${esc(p.phone)}</div>` : ''}</div>
-      <div class="box" style="text-align:right"><small>Balance ${cust ? 'due' : 'payable'}</small><b>${rs2(d.closing)}</b></div></div>
+  const dr = d.lines.reduce((a, l) => a + (+l.debit || 0), 0), cr = d.lines.reduce((a, l) => a + (+l.credit || 0), 0);
+  return `<div class="paper inv">
+    ${head(c, 'ACCOUNT STATEMENT', [['From', esc(fd(d.from))], ['To', esc(fd(d.to))], ['Entries', String(d.lines.length)]])}
+    <div class="iparty">
+      <div class="pbox"><small>${cust ? 'Customer' : 'Supplier'}</small><b>${esc(nice(p.name))}</b>${p.city ? `<div>${esc(nice(p.city))}</div>` : ''}${p.phone ? `<div>Ph ${esc(p.phone)}</div>` : ''}</div>
+      <div class="pbox r"><small>Summary</small>
+        <div><span>Opening</span><b>${n2(d.opening)}</b></div><div><span>Debit</span><b>${n2(dr)}</b></div><div><span>Credit</span><b>${n2(cr)}</b></div>
+        <div><span>Balance ${cust ? 'due' : 'payable'}</span><b class="red">Rs ${n2(d.closing)}</b></div></div>
+    </div>
     <table class="items"><thead><tr><th>Date</th><th>Ref</th><th>Details</th><th class="n">Debit</th><th class="n">Credit</th><th class="n">Balance</th></tr></thead><tbody>
-      <tr><td>${esc(fd(d.from))}</td><td></td><td>Opening balance</td><td class="n"></td><td class="n"></td><td class="n">${n2(d.opening)}</td></tr>
+      <tr><td>${esc(fd(d.from))}</td><td></td><td><b>Opening balance</b></td><td class="n"></td><td class="n"></td><td class="n">${n2(d.opening)}</td></tr>
       ${d.lines.map(l => `<tr><td>${esc(fd(l.date))}</td><td>${esc(l.no)}</td><td>${esc(shortMemo(l))}</td><td class="n">${l.debit ? n2(l.debit) : ''}</td><td class="n">${l.credit ? n2(l.credit) : ''}</td><td class="n">${n2(l.balance)}</td></tr>`).join('')}
     </tbody></table>
-    <div class="bottom"><div class="words"><b>Closing balance in words</b>${esc(words(d.closing))}</div>
+    <div class="bottom"><div class="left"><div class="words"><small>Closing balance in words</small>${esc(words(d.closing))}</div></div>
       <table class="totals"><tr class="grand"><td>Closing balance</td><td>Rs ${n2(d.closing)}</td></tr></table></div>
-    <div class="gen">Computer generated statement · ${esc(c.name)}</div></div>`;
+    ${c.bank ? `<div class="iinfo"><div><small>Bank details</small>${pre(c.bank)}</div></div>` : ''}
+    <div class="ifoot"><span>${esc(c.footer || 'Thank you for your business.')}</span><span>Computer generated statement</span></div></div>`;
 }
 const shortMemo = l => { const m = String(l.memo || l.type || ''); return m.length > 70 ? m.slice(0, 68) + '…' : m; };
 
@@ -84,6 +106,7 @@ async function canvasOf(html) {
   const host = document.createElement('div');
   host.style.cssText = 'position:fixed;left:-10000px;top:0;background:#fff';
   host.innerHTML = html; document.body.append(host);
+  await Promise.all([...host.querySelectorAll('img')].map(im => im.complete ? 0 : new Promise(r => { im.onload = im.onerror = r; })));
   try { return await window.html2canvas(host.firstElementChild, { scale: 2, backgroundColor: '#ffffff', logging: false, useCORS: true }); }
   finally { host.remove(); }
 }

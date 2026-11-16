@@ -2,6 +2,8 @@
 // Example: "3 kg ghee Mehran Hotel ko diya 3000 ka" -> sale, party Mehran Hotel (new), 3 kg Ghee, total 3000.
 // Rule-based so it works without any paid AI key; the result is always shown for approval, never posted directly.
 
+import { romanize, soundKey } from '../public/js/roman.js';
+
 const DIG = { '٠': 0, '١': 1, '٢': 2, '٣': 3, '٤': 4, '٥': 5, '٦': 6, '٧': 7, '٨': 8, '٩': 9, '۰': 0, '۱': 1, '۲': 2, '۳': 3, '۴': 4, '۵': 5, '۶': 6, '۷': 7, '۸': 8, '۹': 9 };
 const WORDNUM = {
   ek: 1, aik: 1, one: 1, two: 2, teen: 3, tin: 3, three: 3, char: 4, chaar: 4, four: 4, panch: 5, paanch: 5, panj: 5, five: 5,
@@ -33,12 +35,18 @@ function sim(a, b) {
   if (a === b) return 1;
   if (a.length >= 4 && b.length >= 4 && (a.startsWith(b) || b.startsWith(a))) return 0.9;
   const d = lev(a, b), L = Math.max(a.length, b.length);
-  if (L <= 3) return d === 0 ? 1 : 0;
-  return Math.max(0, 1 - d / L);
+  const plain = L <= 3 ? (d === 0 ? 1 : 0) : Math.max(0, 1 - d / L);
+  // sound-alike: "batar" ~ "butter", "hotal" ~ "hotel", "mehran" ~ "meharan"
+  if (Math.min(a.length, b.length) >= 3 && !/^\d/.test(a) && !/^\d/.test(b)) {
+    const ka = soundKey(a), kb = soundKey(b);
+    if (ka.length >= 2 && ka === kb) return Math.max(plain, 0.86);
+    if (ka.length >= 3 && kb.length >= 3) { const kd = lev(ka, kb), kl = Math.max(ka.length, kb.length); if (kd === 1 && kl >= 4) return Math.max(plain, 0.8); }
+  }
+  return plain;
 }
 
 export function tokenize(text) {
-  let s = W(text).replace(/[٠-٩۰-۹]/g, d => DIG[d]);
+  let s = romanize(text).replace(/[٠-٩۰-۹]/g, d => DIG[d]);
   s = s.replace(/(\d),(\d{3})/g, '$1$2').replace(/(\d),(\d{3})/g, '$1$2');
   s = s.replace(/(\d+(?:\.\d+)?)\s*(kg|kgs|g|gm|ltr|pcs|pc|ctn|k)\b/g, '$1 $2');
   s = s.replace(/rs\.?\s*/g, 'rs ').replace(/@/g, ' rate ').replace(/\//g, ' per ');
@@ -261,3 +269,26 @@ export function parseVoice(text, ctx) {
 
 function ctxPartyWord(w, ctx) { return ['ko', 'se', 'to', 'from'].includes(w) || (ctx._partyWords || (ctx._partyWords = new Set(ctx.customers.concat(ctx.vendors).flatMap(p => phraseOf(p.name)).filter(x => !GENERIC.has(x) && !CITY.has(x))))).has(w); }
 function round2(n) { return Math.round(n * 100) / 100; }
+
+/** How well a parse used the user's real customers/products: higher is better. */
+export function parseScore(d) {
+  let sc = d.intent === 'unknown' ? -5 : 2;
+  if (d.party) sc += d.party.id ? 4 : 1;
+  for (const it of d.items || []) sc += (it.product_id ? 4 : 1) + (it.qty ? 1 : 0) + (it.amount ? 1 : 0) - (it.candidates?.length > 2 ? 1 : 0);
+  if (d.amount) sc += 1;
+  sc -= (d.notes || []).length;
+  return sc;
+}
+/** The phone gives several guesses of what was said: understand each and keep the one that fits the books best. */
+export function parseBest(texts, ctx) {
+  const uniq = [...new Set(texts.map(t => String(t || '').trim()).filter(Boolean))].slice(0, 8);
+  let best = null;
+  for (const t of uniq) {
+    const d = parseVoice(t, ctx), sc = parseScore(d);
+    if (!best || sc > best.sc) best = { d, sc };
+  }
+  if (!best) return parseVoice('', ctx);
+  best.d.heard = uniq.map(t => romanize(t));
+  best.d.text = romanize(best.d.text);
+  return best.d;
+}
