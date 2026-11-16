@@ -425,7 +425,11 @@ const port = +process.env.PORT || 3000;
 // Start listening at once (the server sleeps when idle and must wake fast); API calls wait until the database is ready.
 const ready = (async () => {
   const warming = warmPool();            // open connections while the schema check runs
-  const fresh = await migrate();
+  let fresh;
+  // while a deploy switches over, the old release still holds connections: wait and retry instead of giving up
+  for (let i = 0; ; i++) {
+    try { fresh = await migrate(); break; } catch (e) { if (i >= 8 || e.code !== '53300') throw e; console.warn('DB busy, retrying…'); await new Promise(r => setTimeout(r, 1500 * (i + 1))); }
+  }
   await Promise.all([fresh ? seedAccounts() : null, seedAdmin(), warming]);
 })();
 ready.then(() => console.log('Database ready')).catch(e => { console.error('Startup failed:', e); process.exit(1); });

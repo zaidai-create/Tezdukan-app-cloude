@@ -14,7 +14,7 @@ const local = /@(localhost|127\.0\.0\.1)[:/]/.test(url) || process.env.PGSSL ===
 // All app tables live in their own schema (default "qayam") so they never mix with other apps in the same database.
 export const SCHEMA = (process.env.DB_SCHEMA || 'qayam').replace(/[^a-z0-9_]/g, '');
 // Keep connections open: opening a new one to a far-away database costs over a second.
-export const pool = new pg.Pool({ connectionString: url, ssl: local ? false : { rejectUnauthorized: false }, max: +process.env.DB_POOL_MAX || 8, idleTimeoutMillis: 15 * 60e3, keepAlive: true, keepAliveInitialDelayMillis: 10e3 });
+export const pool = new pg.Pool({ connectionString: url, ssl: local ? false : { rejectUnauthorized: false }, max: +process.env.DB_POOL_MAX || 6, idleTimeoutMillis: 15 * 60e3, keepAlive: true, keepAliveInitialDelayMillis: 10e3 });
 pool.on('error', e => console.error('db pool:', e.message));
 pool.on('connect', c => { c.query(`set search_path to ${SCHEMA}`).catch(() => {}); });
 
@@ -80,7 +80,7 @@ export async function seedAccounts() {
     [C.map(a => a[0]), C.map(a => a[1]), C.map(a => a[2]), C.map(a => a[3]), C.map(a => SYSTEM_ACCOUNTS.includes(a[0]))]);
 }
 // Open a few connections up front and keep one busy now and then so they stay warm.
-export async function warmPool(n = +process.env.DB_POOL_MAX || 8) {
+export async function warmPool(n = Math.min(+process.env.DB_POOL_MAX || 6, 4)) {
   await Promise.all(Array.from({ length: n }, () => pool.query('select 1').catch(() => {})));
   setInterval(() => pool.query('select 1').catch(() => {}), 4 * 60e3).unref();
 }
