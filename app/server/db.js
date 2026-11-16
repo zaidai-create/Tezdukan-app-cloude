@@ -1,5 +1,6 @@
 import pg from 'pg';
 import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
@@ -45,7 +46,14 @@ export async function migrate() {
     await c.query(`set search_path to ${SCHEMA}`);
     const sp = (await c.query('show search_path')).rows[0].search_path;
     if (sp.replace(/"/g, '').trim() !== SCHEMA) throw new Error(`search_path is ${sp}, expected ${SCHEMA}`);
-    await c.query(readFileSync(join(here, 'schema.sql'), 'utf8'));
+    // skip the whole schema script when it has not changed since the last start (saves time when the server wakes up)
+    const sql = readFileSync(join(here, 'schema.sql'), 'utf8');
+    const hash = createHash('sha1').update(sql).digest('hex');
+    const have = await c.query(`select value #>> '{}' h from settings where key='schema_hash'`).then(r => r.rows[0]?.h, () => null);
+    if (have === hash) return false;
+    await c.query(sql);
+    await c.query(`insert into settings(key, value) values('schema_hash', to_jsonb($1::text)) on conflict (key) do update set value = excluded.value`, [hash]);
+    return true;
   } finally { c.release(); }
 }
 
@@ -72,7 +80,7 @@ export async function seedAccounts() {
     [C.map(a => a[0]), C.map(a => a[1]), C.map(a => a[2]), C.map(a => a[3]), C.map(a => SYSTEM_ACCOUNTS.includes(a[0]))]);
 }
 // Open a few connections up front and keep one busy now and then so they stay warm.
-export async function warmPool(n = 4) {
+export async function warmPool(n = +process.env.DB_POOL_MAX || 8) {
   await Promise.all(Array.from({ length: n }, () => pool.query('select 1').catch(() => {})));
   setInterval(() => pool.query('select 1').catch(() => {}), 4 * 60e3).unref();
 }

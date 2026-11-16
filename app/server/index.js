@@ -77,6 +77,7 @@ async function warm() {
     await Promise.all(want.slice(i, i + 3).map(([, v]) => fetch(`http://127.0.0.1:${port}${v.url}`, { headers: { authorization: v.auth, 'x-warm': '1' } }).then(r => r.arrayBuffer()).catch(() => {})));
   }
 }
+app.use('/api', (req, res, next) => { ready.then(() => next(), next); });
 app.use('/api', (req, res, next) => {
   if (req.method !== 'GET' && !/^\/(auth\/login|voice\/parse)$/.test(req.path)) res.on('finish', () => { if (res.statusCode < 400) { if (/^\/(users|me)/.test(req.path)) clearUserCache(); invalidate(); } });
   next();
@@ -421,10 +422,13 @@ app.use((err, req, res, next) => {
 });
 
 const port = +process.env.PORT || 3000;
-(async () => {
-  await migrate();
-  await Promise.all([seedAccounts(), seedAdmin(), warmPool(4)]);
-  app.listen(port, () => console.log(`Qayam ERP listening on ${port}`));
-})().catch(e => { console.error('Startup failed:', e); process.exit(1); });
+// Start listening at once (the server sleeps when idle and must wake fast); API calls wait until the database is ready.
+const ready = (async () => {
+  const warming = warmPool();            // open connections while the schema check runs
+  const fresh = await migrate();
+  await Promise.all([fresh ? seedAccounts() : null, seedAdmin(), warming]);
+})();
+ready.then(() => console.log('Database ready')).catch(e => { console.error('Startup failed:', e); process.exit(1); });
+app.listen(port, () => console.log(`Qayam ERP listening on ${port}`));
 
 process.on('SIGTERM', () => pool.end().finally(() => process.exit(0)));
