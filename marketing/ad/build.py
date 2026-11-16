@@ -3,7 +3,7 @@ import os, sys, subprocess, json, math
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 AD = os.path.dirname(os.path.abspath(__file__))
-REC, VO, BLD, MOCK = f'{AD}/rec', os.environ.get('VO_DIR', f'{AD}/vo2'), f'{AD}/build', f'{AD}/mock'
+REC, VO, BLD, MOCK = os.environ.get('REC_DIR', f'{AD}/rec2'), os.environ.get('VO_DIR', f'{AD}/vo3'), f'{AD}/build', f'{AD}/mock'
 L = f'{BLD}/layers'; os.makedirs(L, exist_ok=True)
 W, H, FPS, XF = 1920, 1080, 30, 0.6
 FD = '/usr/share/fonts/opentype/inter'
@@ -42,24 +42,26 @@ S = [
  dict(id='s12', kind='outro', vo='a12', dur=8.0, cap=['Qayam Traders ERP —', 'Bill banao. Hisaab rakho. Business barhao.']),
 ]
 
+ZOOM = {'s02': [(0.4, 5.6, 1.75, 0.45, 0.18), (5.9, 7.9, 1.45, 0.5, 0.8), (8.0, 10.3, 1.8, 0.5, 0.17), (11.0, 14.6, 1.45, 0.5, 0.84), (14.9, 16.6, 1.6, 0.75, 0.76)], 's03': [(0.4, 5.8, 1.55, 0.5, 0.3)], 's04': [(0.4, 3.6, 1.3, 0.5, 0.22), (5.5, 9.5, 1.25, 0.5, 0.45)], 's05': [(2.6, 5.4, 1.35, 0.5, 0.3), (6.3, 18.0, 1.5, 0.5, 0.36), (18.6, 21.6, 1.45, 0.5, 0.52)], 's06': [(0.3, 3.6, 1.7, 0.5, 0.45), (4.4, 9.4, 1.35, 0.5, 0.86)], 's07': [(0.8, 8.8, 1.65, 0.5, 0.22), (9.0, 13.6, 1.4, 0.5, 0.33), (14.3, 16.8, 1.3, 0.5, 0.82)], 's08': [(0.2, 1.9, 1.55, 0.5, 0.22), (2.1, 4.6, 1.7, 0.5, 0.15), (4.9, 7.6, 1.55, 0.5, 0.26), (7.8, 10.4, 1.35, 0.5, 0.2)], 's09': [(0.4, 4.2, 1.35, 0.5, 0.3), (4.8, 9.6, 1.3, 0.5, 0.42)], 's11': [(0.3, 5.2, 1.25, 0.5, 0.3)]}
+
 # ---------------- static layers ----------------
 def rr(size, radius, fill):
     im = Image.new('RGBA', size, (0, 0, 0, 0)); ImageDraw.Draw(im).rounded_rectangle([0, 0, size[0] - 1, size[1] - 1], radius, fill=fill); return im
 
-SW, SH = 400, 866            # phone screen (from 390x844)
-BZ = 15                      # bezel
+SW, SH = 474, 1026           # phone screen (from 390x844, nearly full height)
+BZ = 14                      # bezel
 PW, PH = SW + 2 * BZ, SH + 2 * BZ
 def phone_layers():
-    fr = rr((PW, PH), 62, (14, 16, 20, 255))
+    fr = rr((PW, PH), 70, (14, 16, 20, 255))
     d = ImageDraw.Draw(fr)
-    d.rounded_rectangle([1, 1, PW - 2, PH - 2], 61, outline=(70, 74, 82, 255), width=2)
-    hole = rr((SW, SH), 48, (0, 0, 0, 255)).split()[3]
+    d.rounded_rectangle([1, 1, PW - 2, PH - 2], 69, outline=(70, 74, 82, 255), width=2)
+    hole = rr((SW, SH), 56, (0, 0, 0, 255)).split()[3]
     a = fr.split()[3]; a.paste(0, (BZ, BZ), hole); fr.putalpha(a)
-    d.ellipse([PW // 2 - 6, BZ + 7, PW // 2 + 6, BZ + 19], fill=(20, 20, 24, 255))      # camera
+    d.ellipse([PW // 2 - 7, BZ + 8, PW // 2 + 7, BZ + 22], fill=(20, 20, 24, 255))      # camera
     d.rounded_rectangle([PW - 3, 190, PW + 1, 270], 2, fill=(40, 42, 48, 255))          # side button
     fr.save(f'{L}/phone.png')
-    rr((SW, SH), 48, (255, 255, 255, 255)).save(f'{L}/phone_mask.png')
-    sh = Image.new('RGBA', (PW + 160, PH + 160), (0, 0, 0, 0)); ImageDraw.Draw(sh).rounded_rectangle([80, 95, 80 + PW, 95 + PH], 62, fill=(0, 0, 0, 150))
+    rr((SW, SH), 56, (255, 255, 255, 255)).save(f'{L}/phone_mask.png')
+    sh = Image.new('RGBA', (PW + 160, PH + 160), (0, 0, 0, 0)); ImageDraw.Draw(sh).rounded_rectangle([80, 95, 80 + PW, 95 + PH], 70, fill=(0, 0, 0, 150))
     sh.filter(ImageFilter.GaussianBlur(34)).save(f'{L}/phone_shadow.png')
 
 BW = 1460; BH = round(BW * 900 / 1440); BAR = 44
@@ -75,10 +77,10 @@ def browser_layers():
     sh = Image.new('RGBA', (w + 200, h + 200), (0, 0, 0, 0)); ImageDraw.Draw(sh).rounded_rectangle([100, 120, 100 + w, 120 + h], 18, fill=(0, 0, 0, 140))
     sh.filter(ImageFilter.GaussianBlur(40)).save(f'{L}/browser_shadow.png')
 
-SB = 26
+SB = 31
 def statusbar():
     im = Image.new('RGBA', (SW, SB), (243, 246, 244, 255)); d = ImageDraw.Draw(im)
-    d.text((30, SB / 2 + 1), '10:42', font=F('Inter-SemiBold', 14), fill=(28, 28, 30), anchor='lm')
+    d.text((36, SB / 2 + 1), '10:42', font=F('Inter-SemiBold', 16), fill=(28, 28, 30), anchor='lm')
     x = SW - 30
     d.rounded_rectangle([x - 24, 8, x - 2, 18], 3, outline=(28, 28, 30), width=2); d.rectangle([x - 22, 10, x - 8, 16], fill=(28, 28, 30)); d.rectangle([x - 1, 11, x + 1, 15], fill=(28, 28, 30))
     d.text((x - 32, SB / 2 + 1), '4G', font=F('Inter-Bold', 12), fill=(28, 28, 30), anchor='rm')
@@ -121,7 +123,23 @@ def bullet_img(path, text):
     d.ellipse([14, 15, 46, 47], fill=GOLD + (255,)); d.line([(22, 31), (28, 38), (39, 24)], fill=NAVY + (255,), width=4, joint='curve')
     d.text((62, h / 2 + 1), text, font=f, fill=WHITE, anchor='lm'); im.save(path); return im.size
 
-def caption_img(path, text):
+def caption_img(path, text, maxw=1700):
+    f = F('Inter-SemiBold', 36); meas = ImageDraw.Draw(Image.new('RGBA', (1, 1))).textlength
+    lines = [text]
+    if meas(text, font=f) + 64 > maxw:
+        words = text.split(' '); best = None
+        for i in range(1, len(words)):
+            a, b = ' '.join(words[:i]), ' '.join(words[i:]); m = max(meas(a, font=f), meas(b, font=f))
+            if best is None or m < best[0]: best = (m, a, b)
+        lines = [best[1], best[2]]
+    tw = max(meas(l, font=f) for l in lines)
+    w, h = int(tw + 64), 26 + 48 * len(lines)
+    im = rr((w, h), 20, (6, 14, 32, 200)); d = ImageDraw.Draw(im)
+    ImageDraw.Draw(im).rounded_rectangle([0, 0, w - 1, h - 1], 20, outline=(255, 255, 255, 30), width=1)
+    for i, l in enumerate(lines): d.text((w / 2, 13 + 24 + 48 * i), l, font=f, fill=(255, 255, 255), anchor='mm')
+    im.save(path); return im.size
+
+def caption_img_old(path, text):
     f = F('Inter-SemiBold', 36); tw = ImageDraw.Draw(Image.new('RGBA', (1, 1))).textlength(text, font=f)
     w, h = int(tw + 64), 70
     im = rr((w, h), 20, (6, 14, 32, 200)); d = ImageDraw.Draw(im)
@@ -154,9 +172,23 @@ def caps_for(s, prefix):
     for k, p in enumerate(parts):
         b = a + span * len(p) / tot
         if k == len(parts) - 1: b = min(max(b, a + 1.6), s['dur'] - 0.25)
-        fn = f'{L}/{prefix}_cap{k}.png'; size = caption_img(fn, p)
+        fn = f'{L}/{prefix}_cap{k}.png'; size = caption_img(fn, p, s['_col'][1] if s.get('_col') else 1700)
         out.append((fn, size, a, b)); a = b
     return out
+
+def zoom_expr(sid, f, a0):
+    wins = ZOOM.get(sid, [])
+    if not wins: return None
+    T = '(in/30)'
+    parts_z, parts_x, parts_y = [], [], []
+    for (a, b, z, fx, fy) in wins:
+        ta, tb = (a - a0) / f if a0 else a / f, (b - a0) / f if a0 else b / f
+        ta, tb = a / f, b / f
+        r = f"(clip(({T}-{ta:.3f})/0.55,0,1)*clip(({tb:.3f}-{T})/0.55,0,1))"
+        sm = f"({r}*{r}*(3-2*{r}))"
+        parts_z.append(f"{min((z - 1) * 0.3, 0.12):.3f}*{sm}"); parts_x.append(f"{fx - .5:.3f}*{sm}"); parts_y.append(f"{fy - .5:.3f}*{sm}")
+    Zx = '1+' + '+'.join(parts_z); FX = '0.5+' + '+'.join(parts_x); FY = '0.5+' + '+'.join(parts_y)
+    return Zx, f"clip(({FX})*iw-iw/zoom/2,0,iw-iw/zoom)", f"clip(({FY})*ih-ih/zoom/2,0,ih-ih/zoom)"
 
 E = lambda st, d=0.6, amp=1: f"pow(1-min(max((t-{st})/{d},0),1),3)*{amp}"
 
@@ -178,14 +210,19 @@ def scene(s):
         inp.extend(['-i', src]); ci = n; n += 1
     if kind == 'app':
         left = s['side'] == 'left'
-        PX = 230 if left else W - 230 - PW; PY = 52
-        TX = PX + PW + 110 if left else 150
+        PX = 170 if left else W - 170 - PW; PY = (H - PH) // 2
+        TX = PX + PW + 120 if left else 150
+        COLW = (W - 120 - TX) if left else (PX - 120 - TX)
+        s['_col'] = (TX, COLW)
         dirn = 1 if left else -1
         mi = add_img(f'{L}/phone_mask.png'); fi = add_img(f'{L}/phone.png'); shi = add_img(f'{L}/phone_shadow.png')
         k += 1
         own_bar = name == 'install'
-        sz = f'scale={SW}:{SH}:flags=lanczos' if own_bar else f'scale={SW}:{SH - SB}:flags=lanczos,pad={SW}:{SH}:0:{SB}:color=0xF3F6F4'
-        fc.append(f'[{ci}:v]trim=start={a}:end={b},setpts=(PTS-STARTPTS)/{f:.4f},fps={FPS},tpad=stop_mode=clone:stop_duration={D},trim=duration={D},{sz},format=rgba[c0]')
+        zx = zoom_expr(s['id'], f, a)
+        oh = SH if own_bar else SH - SB
+        zp = f"zoompan=z='{zx[0]}':x='{zx[1]}':y='{zx[2]}':d=1:s={SW}x{oh}:fps={FPS}" if zx else f'scale={SW}:{oh}:flags=lanczos'
+        sz = zp if own_bar else f'{zp},pad={SW}:{SH}:0:{SB}:color=0xF3F6F4'
+        fc.append(f'[{ci}:v]trim=start={a}:end={b},setpts=(PTS-STARTPTS)/{f:.4f},fps={FPS},tpad=stop_mode=clone:stop_duration={D},trim=duration={D},setpts=PTS-STARTPTS,{sz},format=rgba[c0]')
         if not own_bar:
             sbi = add_img(f'{L}/statusbar.png'); fc.append(f'[c0][{sbi}:v]overlay=0:0[c1]'); fc.append(f'[c1][{mi}:v]alphamerge[scr]')
         else: fc.append(f'[c0][{mi}:v]alphamerge[scr]')
@@ -194,7 +231,7 @@ def scene(s):
         fc.append(f"[w1][scr]overlay=x={PX + BZ}:y='{PY + BZ}+{ey}':eval=frame[w2]")
         fc.append(f"[w2][{fi}:v]overlay=x={PX}:y='{PY}+{ey}':eval=frame[w3]"); last = 'w3'
         # text panel
-        y = 250
+        y = 210
         cw, chh = chip_img(f'{L}/{s["id"]}_chip.png', s['chip']); ov(add_img(f'{L}/{s["id"]}_chip.png'), f"{TX}+{dirn}*{E(0.25, .55, 50)}", y, 0.25); y += chh + 26
         tw, th = text_img(f'{L}/{s["id"]}_title.png', s['title'], F('InterDisplay-ExtraBold', 76), spacing=6)
         ov(add_img(f'{L}/{s["id"]}_title.png'), f"{TX - 10}+{dirn}*{E(0.4, .6, 70)}", y - 10, 0.4); y += th + 26
@@ -239,7 +276,9 @@ def scene(s):
     # captions
     for (fn, (cw, chh), a, b) in caps_for(s, s['id']):
         idx = add_img(fn)
-        ov(idx, (W - cw) // 2, H - chh - 34, a, 0.25, f',fade=out:st={b - 0.25:.2f}:d=0.25:alpha=1')
+        if s.get('_col'): cx = s['_col'][0] + (s['_col'][1] - cw) // 2; cy = 900 - chh // 2
+        else: cx = (W - cw) // 2; cy = H - chh - 34
+        ov(idx, cx, cy, a, 0.25, f',fade=out:st={b - 0.25:.2f}:d=0.25:alpha=1')
     fc.append(f'[{last}]format=yuv420p[out]')
     cmd = ['ffmpeg', '-y', '-v', 'error', *inp, '-filter_complex', ';'.join(fc), '-map', '[out]', '-t', f'{D:.3f}', '-r', str(FPS), '-c:v', 'libx264', '-preset', 'medium', '-crf', '17', '-pix_fmt', 'yuv420p', out]
     run(cmd); print('scene', s['id'], round(D, 2)); return out

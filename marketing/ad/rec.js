@@ -185,7 +185,7 @@ const scenes = {
 
 (async () => {
   fs.mkdirSync(OUT + '/tmp', { recursive: true });
-  const b = await chromium.launch();
-  for (const [k, fn] of Object.entries(scenes)) { if (ONLY.length && !ONLY.includes(k)) continue; try { await fn(b); } catch (e) { console.log('FAIL', k, e.message.split('\n')[0]); } }
-  await b.close();
+  const b1 = await chromium.launch(), b2 = await chromium.launch({ args: ['--force-device-scale-factor=2'] });  // phone scenes at 2x for sharp zooms
+  for (const [k, fn] of Object.entries(scenes)) { if (ONLY.length && !ONLY.includes(k)) continue; try { await fn(k === 'web' ? b1 : b2); } catch (e) { console.log('FAIL', k, e.message.split('\n')[0]); } }
+  await b1.close(); await b2.close();
 })();
