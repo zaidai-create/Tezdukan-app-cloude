@@ -107,9 +107,9 @@ export async function createInvoice(c, user, b, old = null) {
   const key = `${K.prefix}-${fyOf(date)}`;
   const inv = old ? (await c.query(`update invoices set date=$2, party_id=$3, subtotal=$4, discount=$5, tax_pct=$6, tax=$7, total=$8, paid=$9, pay_account=$10, note=$11, edited_at=now(), edited_by=$12
       where id=$1 returning id, no`, [old.id, date, p.id, T.subtotal, T.discount, T.tax_pct, T.tax, T.total, paid, payAcc ? payAcc.code : null, String(b.note || '').slice(0, 500), user.id])).rows[0] : (await c.query(`with n as (insert into counters(key, n) values($1, 1) on conflict (key) do update set n = counters.n + 1 returning n)
-    insert into invoices(kind, no, date, party_id, subtotal, discount, tax_pct, tax, total, paid, pay_account, note, source, created_by)
-    select $2, $1 || '-' || lpad(n.n::text, $3, '0'), $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15 from n returning id, no`,
-  [key, b.kind, K.width, date, p.id, T.subtotal, T.discount, T.tax_pct, T.tax, T.total, paid, payAcc ? payAcc.code : null, String(b.note || '').slice(0, 500), b.source === 'voice' ? 'voice' : 'app', user.id])).rows[0];
+    insert into invoices(kind, no, date, party_id, subtotal, discount, tax_pct, tax, total, paid, pay_account, note, source, created_by, ref_no)
+    select $2, $1 || '-' || lpad(n.n::text, $3, '0'), $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16 from n returning id, no`,
+  [key, b.kind, K.width, date, p.id, T.subtotal, T.discount, T.tax_pct, T.tax, T.total, paid, payAcc ? payAcc.code : null, String(b.note || '').slice(0, 500), b.source === 'voice' ? 'voice' : 'app', user.id, String(b.ref_no || '').slice(0, 40)])).rows[0];
 
   // stock and weighted-average cost per product
   const per = new Map();

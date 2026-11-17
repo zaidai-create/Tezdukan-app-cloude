@@ -1,7 +1,8 @@
 // Registers: bills, payments, item-wise sales, customer/supplier summary and stock history as filterable tables
 // with totals, Excel (CSV) export and PDF/print.
-import { $, $$, esc, ic, chev, api, S, can, picker, hud, fail, route, go, page, rs, n2, qty as fq, fd, nice, today, fyStart, UI, swr } from './core.js';
-import { shareDoc, shareFile } from './invoice.js';
+import { $, $$, esc, ic, chev, api, S, can, picker, hud, fail, route, go, page, rs, n2, qty as fq, fd, nice, today, fyStart, UI, swr, short } from './core.js';
+const r2 = x => Math.round(x * 1000) / 1000;
+import { shareDoc, shareFile, viewDoc } from './invoice.js';
 
 const loading = '<div class="loading"><span class="spin"></span></div>';
 const KL = { sale: 'Sale', purchase: 'Purchase', sale_return: 'Sales return', purchase_return: 'Purchase return' };
@@ -10,13 +11,13 @@ const ML = { receipt: 'Received', payment: 'Paid to supplier', expense: 'Expense
 /* ---------- date presets ---------- */
 const mStart = d => d.slice(0, 8) + '01';
 const prevMonth = () => { const t = today(), d = new Date(Date.UTC(+t.slice(0, 4), +t.slice(5, 7) - 1, 0)); const e = d.toISOString().slice(0, 10); return [mStart(e), e]; };
-const PRESETS = [['month', 'Is mahina', () => [mStart(today()), today()]], ['last', 'Pichla mahina', prevMonth], ['year', 'Is saal (FY)', () => [fyStart(today()), today()]], ['all', 'Sab', () => ['2000-01-01', today()]], ['custom', 'Tareekh chunein', null]];
+const PRESETS = [['today', 'Aaj', () => [today(), today()]], ['month', 'Is mahina', () => [mStart(today()), today()]], ['last', 'Pichla mahina', prevMonth], ['year', 'Is saal (FY)', () => [fyStart(today()), today()]], ['all', 'Sab', () => ['2000-01-01', today()]], ['custom', 'Tareekh chunein', null]];
 
 const qs = s => Object.fromEntries(new URLSearchParams(s || ''));
 const toQ = o => new URLSearchParams(Object.entries(o).filter(([, v]) => v !== '' && v != null)).toString();
 
 /* ---------- filter bar ---------- */
-function filterBar(F, { kinds, partyKind, status, search = true }) {
+export function filterBar(F, { kinds, partyKind, status, search = true }) {
   const pName = F.party ? nice(S.boot.parties.find(p => p.id === +F.party)?.name || 'Party') : null;
   return `<div class="fbar">
     ${kinds ? `<div class="seg" data-fk>${kinds.map(([k, l]) => `<button data-v="${k}" class="${F.kind === k ? 'on' : ''}">${l}</button>`).join('')}</div>` : ''}
@@ -29,7 +30,7 @@ function filterBar(F, { kinds, partyKind, status, search = true }) {
     ${search ? `<div class="search">${ic('search')}<input data-fq placeholder="Naam ya number se dhoondein" value="${esc(F.q || '')}" autocomplete="off"></div>` : ''}
   </div>`;
 }
-function wireFilters(host, F, partyKind, reload) {
+export function wireFilters(host, F, partyKind, reload) {
   host.addEventListener('click', async e => {
     const k = e.target.closest('[data-fk] [data-v]'); if (k) { F.kind = k.dataset.v; reload(true); return; }
     if (e.target.closest('[data-fpx]')) { e.stopPropagation(); F.party = ''; reload(true); return; }
@@ -48,17 +49,17 @@ function wireFilters(host, F, partyKind, reload) {
   });
   let tm; host.addEventListener('input', e => { if (e.target.dataset.fq !== undefined) { F.q = e.target.value; clearTimeout(tm); tm = setTimeout(() => reload(), 300); } });
 }
-const initF = (o, preset = 'year') => { const F = { kind: '', party: '', status: 'all', q: '', preset, ...o }; const p = PRESETS.find(x => x[0] === F.preset); if (p?.[2] && !(o.from && o.to)) [F.from, F.to] = p[2](); if (o.from || o.to) F.preset = 'custom'; return F; };
+export const initF = (o, preset = 'year') => { const F = { kind: '', party: '', status: 'all', q: '', preset, ...o }; const p = PRESETS.find(x => x[0] === F.preset); if (p?.[2] && !(o.from && o.to)) [F.from, F.to] = p[2](); if (o.from || o.to) F.preset = 'custom'; return F; };
 
 /* ---------- table, CSV, print ---------- */
 // cols: [key, label, {n: numeric, fmt: fn, cls, total}]
-function table(cols, rows, totals, rowAttr = () => '') {
+export function table(cols, rows, totals, rowAttr = () => '') {
   return `<div class="tscroll"><table class="rtable"><thead><tr>${cols.map(([, l, o = {}]) => `<th class="${o.n ? 'n' : ''}">${esc(l)}</th>`).join('')}</tr></thead>
     <tbody>${rows.map(r => `<tr ${rowAttr(r)}>${cols.map(([k, , o = {}]) => `<td class="${o.n ? 'n' : ''} ${typeof o.cls === 'function' ? o.cls(r) : o.cls || ''}">${o.fmt ? o.fmt(r[k], r) : esc(r[k] ?? '')}</td>`).join('')}</tr>`).join('')}</tbody>
     ${totals ? `<tfoot><tr>${cols.map(([k, , o = {}], i) => `<td class="${o.n ? 'n' : ''}">${i === 0 ? 'Total' : totals[k] != null && totals[k] !== '' ? (o.tfmt || o.fmt || (x => x))(totals[k], totals) : ''}</td>`).join('')}</tr></tfoot>` : ''}</table></div>`;
 }
 const plain = (o, v, r) => { const h = o.fmt ? String(o.fmt(v, r)) : String(v ?? ''); return h.replace(/<br>/g, ' ').replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#39;/g, "'").replace(/&quot;/g, '"').trim(); };
-async function exportCSV(name, cols, rows, totals) {
+export async function exportCSV(name, cols, rows, totals) {
   const cell = s => { s = String(s ?? ''); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
   const raw = (o, k, r) => (o.n && typeof r[k] === 'number' ? r[k] : plain(o, r[k], r));
   const lines = [cols.map(c => cell(c[1])).join(','), ...rows.map(r => cols.map(([k, , o = {}]) => cell(raw(o, k, r))).join(','))];
@@ -66,17 +67,17 @@ async function exportCSV(name, cols, rows, totals) {
   const blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv' });
   try { await shareFile(blob, `${name}.csv`, name); } catch (e) { fail(e); }
 }
-function printTable(title, sub, cols, rows, totals) {
+export function printTable(title, sub, cols, rows, totals) {
   const c = S.boot.company;
   const html = `<div class="paper rep"><div class="rhead"><img src="/brand/logo-full.png" alt=""><div><b>${esc(c.name)}</b><span>${esc(title)}</span><small>${esc(sub)}</small></div></div>
     <table class="rtable print"><thead><tr>${cols.map(([, l, o = {}]) => `<th class="${o.n ? 'n' : ''}">${esc(l)}</th>`).join('')}</tr></thead><tbody>${rows.map(r => `<tr>${cols.map(([k, , o = {}]) => `<td class="${o.n ? 'n' : ''}">${esc(plain(o, r[k], r))}</td>`).join('')}</tr>`).join('')}</tbody>
     ${totals ? `<tfoot><tr>${cols.map(([k, , o = {}], i) => `<td class="${o.n ? 'n' : ''}">${i === 0 ? 'Total' : totals[k] != null && totals[k] !== '' ? esc(plain({ fmt: o.tfmt || o.fmt }, totals[k], totals)) : ''}</td>`).join('')}</tr></tfoot>` : ''}</table>
     <div class="gen">Printed ${esc(fd(today()))} · ${esc(c.name)}</div></div>`;
-  shareDoc(html, { name: title.replace(/\W+/g, '-'), text: `${title} · ${sub}` });
+  viewDoc(html, { name: title.replace(/\W+/g, '-'), title, text: `${title} · ${sub}` });
 }
-const actions = () => `<div class="racts2"><button class="chip" data-csv>${ic('tray')} Excel (CSV)</button><button class="chip" data-print>${ic('printer')} PDF / Print</button></div>`;
-const rng = F => `${fd(F.from)} – ${fd(F.to)}`;
-const money = v => (v ? n2(v) : '—');
+export const actions = () => `<div class="racts2"><button class="chip" data-csv>${ic('tray')} Excel (CSV)</button><button class="chip" data-print>${ic('pdf')} PDF / Image</button></div>`;
+export const rng = F => `${fd(F.from)} – ${fd(F.to)}`;
+export const money = v => (v ? n2(v) : '—');
 
 /* =============== BILLS REGISTER =============== */
 const statusOf = r => r.kind.endsWith('return') ? '<span class="badge gray">Return</span>' : r.due < 0.5 ? '<span class="badge green">Paid</span>' : r.paid > 0 ? '<span class="badge orange">Part paid</span>' : '<span class="badge red">Credit</span>';
@@ -241,7 +242,116 @@ route(/^product\/(\d+)$/, async (v, id) => {
     const g = e.target.closest('[data-go]'); if (g) return go(g.dataset.go);
     if (e.target.closest('[data-csv]')) exportCSV(`Stock-${nice(p.name).replace(/\W+/g, '-')}`, cols, d.moves);
     if (e.target.closest('[data-sales]')) go('itemsales');
-    if (e.target.closest('[data-adj]')) { const m = await import('./screens.js'); if (await m.productForm(S.boot.products.find(x => x.id === p.id))) go(`product/${p.id}`); }
+    if (e.target.closest('[data-adj]')) { const m = await import('./screens.js'); m.stockAdjustForm(S.boot.products.find(x => x.id === p.id) || p, () => go(`product/${p.id}`)); }
   });
   const ed = $('[data-edit]', v); if (ed) ed.onclick = async () => { const m = await import('./screens.js'); if (await m.productForm(S.boot.products.find(x => x.id === p.id))) go(`product/${p.id}`); };
+});
+
+/* =============== STOCK REPORT (movement + value, oversold flagged) =============== */
+const ST = { oversold: ['Oversold', 'red'], out: ['Khatam', 'gray'], low: ['Kam', 'orange'], ok: ['', ''] };
+let stF = null;
+const narrow = () => innerWidth < 700;
+function stockCards(rows) {
+  if (!rows.length) return '<div class="empty">Koi item nahi</div>';
+  const f = x => (Math.abs(x) < 0.0005 ? '—' : fq(x));
+  return `<div class="list stk">${rows.map(r => { const ra = r2(r.sale_ret - r.pur_ret + r.adjusted); return `<button class="stkrow" data-go="product/${r.id}">
+    <div class="h"><b>${esc(nice(r.name))}</b>${r.status !== 'ok' ? `<span class="badge ${ST[r.status][1]}">${ST[r.status][0]}</span>` : ''}</div>
+    <div class="g"><span><small>Opening</small>${f(r.opening)}</span><span class="grn"><small>Aaya</small>${r.purchased ? '+' + fq(r.purchased) : '—'}</span><span class="red"><small>Bika</small>${r.sold ? '−' + fq(r.sold) : '—'}</span><span><small>Return/adj</small>${ra ? (ra > 0 ? '+' : '−') + fq(Math.abs(ra)) : '—'}</span><span class="cl ${r.closing < 0 ? 'red' : ''}"><small>Bacha</small><b>${fq(r.closing)}</b></span></div>
+    <div class="s">${esc(r.unit || '')}${r.tp ? ` · TP ${n2(r.tp)}` : ''}${r.tp_value ? ` · value ${rs(r.tp_value)}` : ''}${r.sales_amt ? ` · sale ${rs(r.sales_amt)}` : ''}</div></button>`; }).join('')}</div>`;
+}
+route(/^stock$/, async v => {
+  if (!stF) stF = initF({ status: 'all' }, 'month');
+  const F = stF, staff = can.staff();
+  const body = page(v, { title: 'Stock report', back: 'reports', backLabel: 'Reports', sub: 'Kitna aaya, kitna bika, kitna bacha — aur kis ka stock minus hai' });
+  const fq0 = x => (Math.abs(x) < 0.0005 ? '—' : fq(x));
+  const cols = [['name', 'Item', { fmt: (x, r) => `<b>${esc(nice(x))}</b>${r.status !== 'ok' ? ` <span class="badge ${ST[r.status][1]}">${ST[r.status][0]}</span>` : ''}` }], ['unit', 'Unit'],
+    ['opening', 'Opening', { n: 1, fmt: fq0 }], ['purchased', 'Purchase', { n: 1, fmt: fq0, cls: 'grn' }], ['sale_ret', 'Sale return', { n: 1, fmt: fq0 }], ['sold', 'Sold', { n: 1, fmt: fq0, cls: 'red' }], ['pur_ret', 'Purch. return', { n: 1, fmt: fq0 }],
+    ['adjusted', 'Adjust', { n: 1, fmt: fq0 }], ['closing', 'Closing', { n: 1, fmt: x => `<b>${fq(x)}</b>`, cls: r => (r.closing < 0 ? 'red' : '') }], ['tp', 'TP', { n: 1, fmt: x => (x ? n2(x) : '—') }],
+    ...(staff ? [['cost', 'Avg cost', { n: 1, fmt: x => n2(x) }], ['value', 'Value (cost)', { n: 1, fmt: x => n2(x), cls: 'b' }]] : []), ['tp_value', 'Value (TP)', { n: 1, fmt: x => n2(x) }]];
+  let data;
+  const draw = () => {
+    const q = (F.q || '').toLowerCase();
+    const rows = data.rows.filter(r => (F.status === 'all' || r.status === F.status || (F.status === 'moved' && (r.purchased || r.sold))) && (!q || r.name.toLowerCase().includes(q)));
+    const t = data.totals;
+    $('[data-out]', body).innerHTML = `${t.oversold ? `<button class="banner warn" data-os>${ic('warn')}<span class="grow"><b>${t.oversold} item oversold (stock minus mein)</b><small>Zyada bika hai jitna system mein aaya. Purchase entry check karein ya stock count karke adjust karein.</small></span></button>` : ''}
+      <div class="rsum">${staff ? `<div><small>Stock value (cost)</small><b>${rs(t.value)}</b></div>` : ''}<div><small>Stock value (TP)</small><b>${rs(t.tp_value)}</b></div><div><small>Is dauran sale</small><b>${rs(t.sales_amt)}</b></div><div><small>Oversold · Kam</small><b><span class="red">${t.oversold}</span> · <span class="orange">${t.low}</span></b></div></div>
+      ${actions()}${narrow() ? stockCards(rows) : table(cols, rows, { opening: '', purchased: rows.reduce((a, r) => a + r.purchased, 0), sold: rows.reduce((a, r) => a + r.sold, 0), value: rows.reduce((a, r) => a + (r.value || 0), 0), tp_value: rows.reduce((a, r) => a + r.tp_value, 0) }, r => `data-go="product/${r.id}"`)}
+      <p class="sec-f">Opening + Purchase + Sale return − Sold − Purchase return ± Adjust = Closing. Value sirf plus stock par.</p>`;
+  };
+  const load = async redraw => {
+    if (redraw) $('[data-f]', body).innerHTML = filterBar(F, { status: [['all', 'Sab items'], ['moved', 'Jo is dauran chale'], ['oversold', 'Oversold (minus)'], ['low', 'Kam stock'], ['out', 'Khatam']] });
+    try { await swr(`/api/reports/stock-movement?from=${F.from}&to=${F.to}`, d => { data = d; draw(); }); } catch (e) { fail(e); }
+  };
+  body.innerHTML = `<div data-f></div><div data-out>${loading}</div>`;
+  wireFilters(body, F, null, redraw => load(redraw));
+  body.addEventListener('click', e => {
+    if (e.target.closest('[data-os]')) { F.status = 'oversold'; return load(true); }
+    const g = e.target.closest('[data-go]'); if (g) return go(g.dataset.go);
+    if (e.target.closest('[data-csv]')) exportCSV('Stock-report', cols, data.rows);
+    if (e.target.closest('[data-print]')) printTable('Stock report', rng(F), cols.filter(c => c[0] !== 'unit'), data.rows);
+  });
+  await load(true);
+});
+
+/* =============== AGING / OUTSTANDING =============== */
+let agK = 'C';
+route(/^aging(?:\/(C|V))?$/, async (v, k) => {
+  if (k) agK = k; if (!can.staff()) agK = 'C';
+  const body = page(v, { title: agK === 'V' ? 'Payables ageing' : 'Outstanding (ageing)', back: 'reports', backLabel: 'Reports', sub: agK === 'V' ? 'Suppliers ko kitna dena hai, kab se' : 'Kis se kitna lena hai, kitna purana' });
+  body.innerHTML = loading;
+  const d = await api(`/api/reports/${agK === 'V' ? 'payables' : 'aging'}?to=${today()}`);
+  const rows = d.rows.filter(r => r.balance > 0.5);
+  const cols = [['name', agK === 'V' ? 'Supplier' : 'Customer', { fmt: (x, r) => `<b>${esc(nice(x))}</b>${r.city ? `<br><small class="l2">${esc(nice(r.city))}</small>` : ''}` }], ['balance', 'Total due', { n: 1, fmt: x => n2(x), cls: 'b' }],
+    ['b0', '0–30 din', { n: 1, fmt: money }], ['b30', '31–60', { n: 1, fmt: money, cls: r => (r.b30 > 0 ? 'orange' : '') }], ['b60', '61–90', { n: 1, fmt: money, cls: r => (r.b60 > 0 ? 'red' : '') }], ['b90', '90+', { n: 1, fmt: money, cls: r => (r.b90 > 0 ? 'red b' : '') }],
+    ['days', 'Oldest', { n: 1, fmt: x => (x ? x + ' din' : '—') }], ['last_paid', 'Last payment', { fmt: x => (x ? fd(x) : 'kabhi nahi') }]];
+  const t = { balance: rows.reduce((a, r) => a + r.balance, 0), b0: d.buckets[0], b30: d.buckets[1], b60: d.buckets[2], b90: d.buckets[3] };
+  const pc = x => (t.balance ? Math.round(x / t.balance * 100) : 0);
+  const A = narrow() ? short : rs;
+  const cards = () => `<div class="list stk">${rows.map(r => `<button class="stkrow" data-go="party/${r.party_id}">
+      <div class="h"><b>${esc(nice(r.name))}</b><span class="tot num">${rs(r.balance)}</span></div>
+      <div class="g g4"><span class="${r.b0 > 0 ? 'grn' : ''}"><small>0–30</small>${r.b0 > 0.5 ? short(r.b0).replace('Rs ', '') : '—'}</span><span class="${r.b30 > 0 ? 'org' : ''}"><small>31–60</small>${r.b30 > 0.5 ? short(r.b30).replace('Rs ', '') : '—'}</span><span class="${r.b60 > 0 ? 'red' : ''}"><small>61–90</small>${r.b60 > 0.5 ? short(r.b60).replace('Rs ', '') : '—'}</span><span class="${r.b90 > 0 ? 'red' : ''}"><small>90+</small>${r.b90 > 0.5 ? short(r.b90).replace('Rs ', '') : '—'}</span></div>
+      <div class="s">${r.city ? esc(nice(r.city)) + ' · ' : ''}${r.days ? `sab se purana ${r.days} din` : 'advance'} · ${r.last_paid ? 'last payment ' + esc(fd(r.last_paid)) : 'kabhi payment nahi'}</div></button>`).join('') || '<div class="empty">Koi baqaya nahi</div>'}</div>`;
+  body.innerHTML = `${can.staff() ? `<div class="seg"><button data-k="C" class="${agK === 'C' ? 'on' : ''}">Customers (lena)</button><button data-k="V" class="${agK === 'V' ? 'on' : ''}">Suppliers (dena)</button></div>` : ''}
+    <div class="rsum"><div><small>Kul baqaya</small><b>${A(t.balance)}</b></div><div><small>0–30 din · ${pc(t.b0)}%</small><b class="grn">${A(t.b0)}</b></div><div><small>31–60 din · ${pc(t.b30)}%</small><b class="orange">${A(t.b30)}</b></div><div><small>61–90 din · ${pc(t.b60)}%</small><b class="red">${A(t.b60)}</b></div><div><small>90+ din · ${pc(t.b90)}%</small><b class="red">${A(t.b90)}</b></div></div>
+    <div class="segbar2">${[['b0', 'var(--green)'], ['b30', 'var(--orange)'], ['b60', '#e5484d'], ['b90', '#9b1c1c']].map(([k2, c]) => (t[k2] > 0 ? `<i style="flex:${t[k2]};background:${c}"></i>` : '')).join('')}</div>
+    ${actions()}${narrow() ? cards() : table(cols, rows, t, r => `data-go="party/${r.party_id}"`)}`;
+  body.onclick = e => {
+    const s2 = e.target.closest('[data-k]'); if (s2) return go('aging/' + s2.dataset.k);
+    const g = e.target.closest('[data-go]'); if (g) return go(g.dataset.go);
+    if (e.target.closest('[data-csv]')) exportCSV(agK === 'V' ? 'Payables-ageing' : 'Outstanding-ageing', cols, rows, t);
+    if (e.target.closest('[data-print]')) printTable(agK === 'V' ? 'Payables ageing' : 'Outstanding ageing', 'As on ' + fd(today()), cols, rows, t);
+  };
+});
+
+/* =============== CASH BOOK (daily) =============== */
+const cbCards = (d, F) => `<div class="list stk cbk"><div class="cbrow ob"><span class="l"><b>Opening balance</b><small>${esc(fd(F.from))}</small></span><span class="r"><b>${n2(d.opening)}</b></span></div>
+  ${d.lines.map(r => `<button class="cbrow" ${r.bill ? `data-go="bill/${r.bill}"` : ''}><span class="l"><b>${esc(nice(r.against || r.memo || ''))}</b><small>${esc(fd(r.date))}${r.no ? ' · ' + esc(r.no) : ''}${r.account ? ' · ' + esc(nice(r.account)) : ''}</small></span>
+    <span class="r">${+r.in ? `<b class="grn">+${n2(r.in)}</b>` : `<b class="red">−${n2(r.out)}</b>`}<small>bal ${n2(r.balance)}</small></span></button>`).join('') || '<div class="empty">Is dauran koi cash entry nahi</div>'}
+  <div class="cbrow ob"><span class="l"><b>Closing balance</b><small>${esc(fd(F.to))}</small></span><span class="r"><b>${n2(d.closing)}</b></span></div></div>`;
+let cbF = null, cbAcc = '';
+route(/^cashbook$/, async v => {
+  if (!cbF) cbF = initF({}, 'today');
+  const F = cbF;
+  const body = page(v, { title: 'Cash book', back: 'more', backLabel: 'More', sub: 'Din ka hisaab: kitna aaya, kitna gaya, kitna bacha' });
+  const cols = [['date', 'Date', { fmt: x => fd(x) }], ['no', 'Voucher'], ['against', 'Kis se / kis ko', { fmt: (x, r) => esc(nice(x || r.memo || '')) }], ['account', 'Cash / bank', { fmt: x => esc(nice(x || '')) }],
+    ['in', 'Aaya (in)', { n: 1, fmt: money, cls: 'grn' }], ['out', 'Gaya (out)', { n: 1, fmt: money, cls: 'red' }], ['balance', 'Balance', { n: 1, fmt: x => n2(x), cls: 'b' }]];
+  let d;
+  const load = async () => {
+    const out = $('[data-out]', body); out.style.opacity = .5;
+    d = await api(`/api/reports/cash-book?from=${F.from}&to=${F.to}${cbAcc ? '&account=' + cbAcc : ''}`); out.style.opacity = 1;
+    const cash = S.boot.accounts.filter(a => a.grp === 'Cash & Bank');
+    out.innerHTML = `<div class="chips tabs"><button class="chip ${!cbAcc ? 'on' : ''}" data-acc="">Sab (cash + bank)</button>${cash.map(a => `<button class="chip ${cbAcc === a.code ? 'on' : ''}" data-acc="${a.code}">${esc(nice(a.name))}</button>`).join('')}</div>
+      <div class="rsum"><div><small>Opening</small><b>${rs(d.opening)}</b></div><div><small>Aaya</small><b class="grn">${rs(d.in)}</b></div><div><small>Gaya</small><b class="red">${rs(d.out)}</b></div><div><small>Closing</small><b>${rs(d.closing)}</b></div></div>
+      ${actions()}${narrow() ? cbCards(d, F) : table(cols, [{ date: F.from, no: '', against: 'Opening balance', account: '', in: 0, out: 0, balance: d.opening }, ...d.lines], { in: d.in, out: d.out, balance: d.closing }, r => (r.bill ? `data-go="bill/${r.bill}"` : ''))}`;
+  };
+  body.innerHTML = `${filterBar(F, { search: false })}<div data-out>${loading}</div>`;
+  wireFilters(body, F, null, () => load().catch(fail));
+  body.addEventListener('click', e => {
+    const a = e.target.closest('[data-acc]'); if (a) { cbAcc = a.dataset.acc; return load().catch(fail); }
+    const g = e.target.closest('[data-go]'); if (g) return go(g.dataset.go);
+    if (!d) return;
+    if (e.target.closest('[data-csv]')) exportCSV('Cash-book', cols, d.lines, { in: d.in, out: d.out, balance: d.closing });
+    if (e.target.closest('[data-print]')) printTable('Cash book', rng(F), cols, [{ date: F.from, no: '', against: 'Opening balance', in: 0, out: 0, balance: d.opening }, ...d.lines], { in: d.in, out: d.out, balance: d.closing });
+  });
+  await load();
 });

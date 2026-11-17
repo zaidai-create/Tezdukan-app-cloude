@@ -10,14 +10,16 @@ export function quickAdd() {
   if ($('.qadd')) return;
   const staff = can.staff();
   const items = [
-    ['bill', 'receipt', 'Create Bill', 'Naya sale bill', 'qa-blue'],
-    ['recovery', 'down', 'Add Recovery', 'Customer se payment', 'qa-green'],
-    ...(staff ? [['expense', 'wallet', 'Add Expense', 'Kharcha likhein', 'qa-orange']] : []),
+    ['sale', 'receipt', 'Sales Invoice', 'qa-blue'],
+    ...(staff ? [['purchase', 'cart', 'Purchase Invoice', 'qa-indigo']] : []),
+    ['recovery', 'down', 'Add Recovery', 'qa-green'],
+    ...(staff ? [['expense', 'wallet', 'Add Expense', 'qa-orange']] : []),
   ];
   const dim = document.createElement('div'); dim.className = 'dim-bg qdim';
   const el = document.createElement('div'); el.className = 'qadd'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'New');
   el.innerHTML = `<div class="grab"></div><div class="qh"><b>Kya add karna hai?</b><button class="qx" data-x aria-label="Close">${ic('x')}</button></div>
-    <div class="qgrid">${items.map(([k, i, l, s, c]) => `<button class="qbtn ${c}" data-k="${k}"><span class="qi">${ic(i)}</span><b>${l}</b><small>${s}</small></button>`).join('')}</div>
+    <div class="qgrid g${items.length}">${items.map(([k, i, l, c]) => `<button class="qbtn ${c}" data-k="${k}"><span class="qi">${ic(i)}</span><b>${l}</b></button>`).join('')}</div>
+    ${staff ? `<div class="qrow"><button data-k="sale_return">${ic('return')}Sales Return</button><button data-k="purchase_return">${ic('return')}Purchase Return</button></div>` : ''}
     <button class="qmore" data-k="more">Baaki sab options: <b>More</b> ${ic('chevr')}</button>`;
   document.body.append(dim, el);
   const close = () => { el.classList.add('closing'); dim.classList.add('closing'); setTimeout(() => { el.remove(); dim.remove(); }, 200); };
@@ -27,7 +29,7 @@ export function quickAdd() {
     const b = e.target.closest('[data-k]'); if (!b) return;
     close();
     const k = b.dataset.k;
-    if (k === 'bill') newBill('sale');
+    if (['sale', 'purchase', 'sale_return', 'purchase_return'].includes(k)) newBill(k);
     if (k === 'recovery') receiveMoney();
     if (k === 'expense') expenseForm();
     if (k === 'more') go('more');

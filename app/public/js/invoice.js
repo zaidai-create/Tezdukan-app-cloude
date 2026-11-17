@@ -1,7 +1,7 @@
 // Invoice / statement templates and sharing as image or PDF (WhatsApp).
 import { esc, fd, n2, qty, rs, rs2, words, nice, waPhone, loadScript, hud, fail, actionSheet, ic } from './core.js';
 
-const KIND_TITLE = { sale: 'Sales Invoice', purchase: 'Purchase Bill', sale_return: 'Credit Note', purchase_return: 'Debit Note' };
+const KIND_TITLE = { sale: 'Sales Invoice', purchase: 'Purchase Invoice', sale_return: 'Sales Return', purchase_return: 'Purchase Return' };
 
 const LOGO = '/brand/logo-full.png';
 const coLines = c => [c.address, [c.phone && `Ph ${c.phone}`, c.email].filter(Boolean).join('  ·  '), [c.ntn && `NTN ${c.ntn}`, c.strn && `STRN ${c.strn}`].filter(Boolean).join('  ·  ')].filter(Boolean);
@@ -30,7 +30,7 @@ export function invoiceHTML(d, { slip = false, balance = false } = {}) {
   const { invoice: i, party: p, company: c } = d;
   const tax = i.tax > 0, title = (tax && i.kind === 'sale') ? 'Sales Tax Invoice' : KIND_TITLE[i.kind];
   const due = Math.max(i.total - i.paid, 0);
-  const payTxt = i.paid >= i.total - 0.5 ? 'Paid' : i.paid > 0 ? 'Partly paid' : 'Credit';
+  const payTxt = /return/.test(i.kind) ? (i.paid >= i.total - 0.5 ? 'Refunded' : 'Adjusted') : i.paid >= i.total - 0.5 ? 'Paid' : i.paid > 0 ? 'Partly paid' : 'Credit';
   const payCls = i.paid >= i.total - 0.5 ? 'ok' : i.paid > 0 ? 'part' : 'cr';
   const D = discountOf(d), lines = D.L;
   const totQty = lines.reduce((a, l) => a + (+l.qty || 0), 0);
@@ -58,6 +58,7 @@ export function invoiceHTML(d, { slip = false, balance = false } = {}) {
     <div class="iparty">
       <div class="pbox"><small>${cust ? 'Bill to' : 'Supplier'}</small><b>${esc(nice(p?.name || ''))}</b>${p?.address || p?.city ? `<div>${esc([p.address, nice(p.city)].filter(Boolean).join(', '))}</div>` : ''}${p?.phone ? `<div>Ph ${esc(p.phone)}</div>` : ''}${p?.ntn ? `<div>NTN/CNIC ${esc(p.ntn)}</div>` : ''}</div>
       <div class="pbox r"><small>Details</small>
+        ${i.ref_no ? `<div><span>Against invoice</span><b>${esc(i.ref_no)}</b></div>` : ''}
         <div><span>Prepared by</span><b>${esc(i.created_by_name || '—')}</b></div>
         <div><span>Items</span><b>${lines.length}</b></div>
         <div><span>Total qty</span><b>${qty(totQty)}</b></div>
@@ -69,7 +70,7 @@ export function invoiceHTML(d, { slip = false, balance = false } = {}) {
     <div class="bottom">
       <div class="left">
         <div class="words"><small>Amount in words</small>${esc(words(i.total))}</div>
-        ${D.total > 0.5 && cust ? `<div class="save"><small>Aap ki bachat · Your savings</small><b>Rs ${n2(D.total)}</b><span>${pc(D.pct)} off the trade price${D.item > 0.5 && D.bill > 0.5 ? ` (items ${n2(D.item)} + bill ${n2(D.bill)})` : ''}</span></div>` : ''}
+        ${D.total > 0.5 && i.kind === 'sale' ? `<div class="save"><small>Aap ki bachat · Your savings</small><b>Rs ${n2(D.total)}</b><span>${pc(D.pct)} off the trade price${D.item > 0.5 && D.bill > 0.5 ? ` (items ${n2(D.item)} + bill ${n2(D.bill)})` : ''}</span></div>` : ''}
         ${showAcct ? `<div class="acct"><small>Account summary</small><div><span>Previous balance</span><span>${rs2(d.previous)}</span></div><div><span>This ${i.kind === 'sale' ? 'bill' : 'credit note'}</span><span>${i.kind === 'sale' ? '+' : '-'}${rs2(i.total)}</span></div><div><span>Received now</span><span>-${rs2(i.paid)}</span></div><div class="tdue"><span>Total balance due</span><span>${rs2(d.after)}</span></div></div>` : ''}
         ${i.note && !/^Voice:/.test(i.note) ? `<div class="note"><small>Note</small>${esc(i.note)}</div>` : ''}
       </div>
@@ -88,26 +89,34 @@ export function invoiceHTML(d, { slip = false, balance = false } = {}) {
   </div>`;
 }
 
-export function statementHTML(d) {
-  const { party: p, company: c } = d;
-  const cust = p.kind === 'C';
+// Proper ledger (A4): Date | Voucher | Particulars | Debit | Credit | Balance Dr/Cr — used for party statements and every account ledger.
+// d: { opening, lines[{date,no,memo,type,debit,credit,balance}], closing, from, to, company }; flip: balances are stored the other way round (suppliers)
+const drcr = (b, flip) => { const v = flip ? -b : b; return `${n2(Math.abs(v))} ${Math.abs(v) < 0.005 ? '' : v > 0 ? 'Dr' : 'Cr'}`; };
+export function ledgerHTML(d, { title = 'ACCOUNT LEDGER', who = '', whoLabel = 'Account', whoLines = [], flip = false, note = '' } = {}) {
+  const c = d.company || {};
   const dr = d.lines.reduce((a, l) => a + (+l.debit || 0), 0), cr = d.lines.reduce((a, l) => a + (+l.credit || 0), 0);
-  return `<div class="paper inv">
-    ${head(c, 'ACCOUNT STATEMENT', [['From', esc(fd(d.from))], ['To', esc(fd(d.to))], ['Entries', String(d.lines.length)]])}
+  return `<div class="paper inv led">
+    ${head(c, title, [['From', esc(fd(d.from))], ['To', esc(fd(d.to))], ['Entries', String(d.lines.length)]])}
     <div class="iparty">
-      <div class="pbox"><small>${cust ? 'Customer' : 'Supplier'}</small><b>${esc(nice(p.name))}</b>${p.city ? `<div>${esc(nice(p.city))}</div>` : ''}${p.phone ? `<div>Ph ${esc(p.phone)}</div>` : ''}</div>
+      <div class="pbox"><small>${esc(whoLabel)}</small><b>${esc(nice(who))}</b>${whoLines.map(x => `<div>${esc(x)}</div>`).join('')}</div>
       <div class="pbox r"><small>Summary</small>
-        <div><span>Opening</span><b>${n2(d.opening)}</b></div><div><span>Debit</span><b>${n2(dr)}</b></div><div><span>Credit</span><b>${n2(cr)}</b></div>
-        <div><span>Balance ${cust ? 'due' : 'payable'}</span><b class="red">Rs ${n2(d.closing)}</b></div></div>
+        <div><span>Opening balance</span><b>${drcr(d.opening, flip)}</b></div><div><span>Total debit</span><b>${n2(dr)}</b></div><div><span>Total credit</span><b>${n2(cr)}</b></div>
+        <div><span>Closing balance</span><b class="red">${drcr(d.closing, flip)}</b></div></div>
     </div>
-    <table class="items"><thead><tr><th>Date</th><th>Ref</th><th>Details</th><th class="n">Debit</th><th class="n">Credit</th><th class="n">Balance</th></tr></thead><tbody>
-      <tr><td>${esc(fd(d.from))}</td><td></td><td><b>Opening balance</b></td><td class="n"></td><td class="n"></td><td class="n">${n2(d.opening)}</td></tr>
-      ${d.lines.map(l => `<tr><td>${esc(fd(l.date))}</td><td>${esc(l.no)}</td><td>${esc(shortMemo(l))}</td><td class="n">${l.debit ? n2(l.debit) : ''}</td><td class="n">${l.credit ? n2(l.credit) : ''}</td><td class="n">${n2(l.balance)}</td></tr>`).join('')}
-    </tbody></table>
-    <div class="bottom"><div class="left"><div class="words"><small>Closing balance in words</small>${esc(words(d.closing))}</div></div>
-      <table class="totals"><tr class="grand"><td>Closing balance</td><td>Rs ${n2(d.closing)}</td></tr></table></div>
+    <table class="items ledt"><thead><tr><th style="width:92px">Date</th><th style="width:118px">Voucher</th><th>Particulars</th><th class="n">Debit</th><th class="n">Credit</th><th class="n">Balance</th></tr></thead><tbody>
+      <tr class="ob"><td>${esc(fd(d.from))}</td><td></td><td><b>Opening balance</b></td><td class="n"></td><td class="n"></td><td class="n"><b>${drcr(d.opening, flip)}</b></td></tr>
+      ${d.lines.map(l => `<tr><td>${esc(fd(l.date))}</td><td>${esc(l.no || '')}</td><td>${esc(shortMemo(l))}</td><td class="n">${+l.debit ? n2(l.debit) : ''}</td><td class="n">${+l.credit ? n2(l.credit) : ''}</td><td class="n">${drcr(l.balance, flip)}</td></tr>`).join('')}
+    </tbody><tfoot><tr><td colspan="3"><b>Total</b></td><td class="n"><b>${n2(dr)}</b></td><td class="n"><b>${n2(cr)}</b></td><td class="n"><b>${drcr(d.closing, flip)}</b></td></tr></tfoot></table>
+    <div class="bottom"><div class="left"><div class="words"><small>Closing balance in words</small>${esc(words(Math.abs(d.closing)))}</div>${note ? `<div class="note">${esc(note)}</div>` : ''}</div>
+      <table class="totals"><tr class="grand"><td>Closing balance</td><td>Rs ${drcr(d.closing, flip)}</td></tr></table></div>
     ${c.bank ? `<div class="iinfo"><div><small>Bank details</small>${pre(c.bank)}</div></div>` : ''}
-    <div class="ifoot"><span>${esc(c.footer || 'Thank you for your business.')}</span><span>Computer generated statement</span></div></div>`;
+    <div class="ifoot"><span>${esc(c.footer || 'Thank you for your business.')}</span><span>Computer generated ledger</span></div></div>`;
+}
+export function statementHTML(d) {
+  const p = d.party, cust = p.kind === 'C';
+  // the server sends supplier balances as "you owe" (positive): show them as Cr
+  return ledgerHTML(d, { title: 'ACCOUNT STATEMENT', who: p.name, whoLabel: cust ? 'Customer' : 'Supplier', whoLines: [nice(p.city || ''), p.phone ? 'Ph ' + p.phone : ''].filter(Boolean), flip: !cust,
+    note: cust ? (d.closing > 0 ? 'Dr = amount the customer owes us.' : '') : (d.closing > 0 ? 'Cr = amount we owe the supplier.' : '') });
 }
 const shortMemo = l => { const m = String(l.memo || l.type || ''); return m.length > 70 ? m.slice(0, 68) + '…' : m; };
 
@@ -154,6 +163,50 @@ export async function shareFile(blob, filename, text) {
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; document.body.append(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 4000);
   hud('Downloaded. WhatsApp mein attach karein.', 'info', 2200);
+}
+
+// Open a file on the phone (PDF viewer / gallery) or in a new browser tab.
+export async function openFile(blob, filename, mime) {
+  const Cap = window.Capacitor;
+  if (Cap?.isNativePlatform?.() && Cap.Plugins?.Filesystem) {
+    const { uri } = await Cap.Plugins.Filesystem.writeFile({ path: filename, data: await b64(blob), directory: 'CACHE' });
+    const FO = Cap.Plugins.FileOpener;
+    if (FO) { try { await FO.open({ filePath: uri, contentType: mime, openWithDefault: true }); return; } catch (e) { /* no viewer app: fall back to share */ } }
+    if (Cap.Plugins.Share) { await Cap.Plugins.Share.share({ title: filename, files: [uri], dialogTitle: 'Open with' }); return; }
+  }
+  const u = URL.createObjectURL(blob);
+  const w = open(u, '_blank');
+  if (!w) { const a = document.createElement('a'); a.href = u; a.download = filename; document.body.append(a); a.click(); a.remove(); }
+  setTimeout(() => URL.revokeObjectURL(u), 60000);
+}
+
+// In-app viewer: the document as a picture you can zoom, with Open PDF / Image / Send / Print.
+export async function viewDoc(html, { name, phone, text, title }) {
+  const ov = document.createElement('div'); ov.className = 'docview';
+  ov.innerHTML = `<div class="dv-bar"><button class="dv-x" data-x aria-label="Close">${ic('x')}</button><b>${esc(title || name)}</b><span class="sp"></span><button data-zo aria-label="Zoom out">−</button><button data-zi aria-label="Zoom in">+</button></div>
+    <div class="dv-body"><div class="loading"><span class="spin"></span></div></div>
+    <div class="dv-actions"><button data-pdf>${ic('pdf')}<span>PDF</span></button><button data-img>${ic('image')}<span>Image</span></button><button data-send>${ic('share')}<span>Send</span></button><button data-print>${ic('printer')}<span>Print</span></button></div>`;
+  document.body.append(ov); document.body.style.overflow = 'hidden';
+  const close = () => { ov.remove(); document.body.style.overflow = ''; removeEventListener('keydown', esc_); };
+  const esc_ = e => { if (e.key === 'Escape') close(); }; addEventListener('keydown', esc_);
+  let cv = null, zoom = 1;
+  const body = ov.querySelector('.dv-body');
+  const setZoom = z => { zoom = Math.min(Math.max(z, 1), 3.5); const im = body.querySelector('img'); if (im) im.style.width = (zoom * 100) + '%'; };
+  ov.onclick = async e => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.x !== undefined) return close();
+    if (b.dataset.zi !== undefined) return setZoom(zoom + 0.5);
+    if (b.dataset.zo !== undefined) return setZoom(zoom - 0.5);
+    if (!cv) return;
+    try {
+      if (b.dataset.pdf !== undefined) { hud('PDF khul raha hai…', 'info', 900); await openFile(await pdfBlob(cv), `${name}.pdf`, 'application/pdf'); }
+      if (b.dataset.img !== undefined) await openFile(await canvasBlob(cv, 'image/jpeg', 0.92), `${name}.jpg`, 'image/jpeg');
+      if (b.dataset.send !== undefined) shareDoc(html, { name, phone, text });
+      if (b.dataset.print !== undefined) printHTML(html);
+    } catch (x) { fail(x); }
+  };
+  body.addEventListener('dblclick', () => setZoom(zoom > 1 ? 1 : 2));
+  try { cv = await canvasOf(html); body.innerHTML = `<img alt="" src="${cv.toDataURL('image/jpeg', 0.9)}">`; } catch (x) { fail(x); close(); }
 }
 
 export async function shareDoc(html, { name, phone, text }) {

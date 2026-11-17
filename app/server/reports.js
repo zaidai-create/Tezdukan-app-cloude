@@ -50,9 +50,10 @@ export async function aging(to, kind = 'C') {
   const buckets = [0, 0, 0, 0], out = [];
   for (const [id, p] of by) {
     let c = p.cred, open = 0, oldest = null;
-    for (const [d, a] of p.deb) { const u = Math.min(a, c); c -= u; const o = a - u; if (o > 0.5) { open += o; if (!oldest) oldest = d; const age = between(d, to); buckets[age <= 30 ? 0 : age <= 60 ? 1 : age <= 90 ? 2 : 3] += o; } }
+    const bk = [0, 0, 0, 0];
+    for (const [d, a] of p.deb) { const u = Math.min(a, c); c -= u; const o = a - u; if (o > 0.5) { open += o; if (!oldest) oldest = d; const age = between(d, to); const k = age <= 30 ? 0 : age <= 60 ? 1 : age <= 90 ? 2 : 3; buckets[k] += o; bk[k] += o; } }
     const bal = r2(open - c);
-    if (Math.abs(bal) > 0.5) out.push({ party_id: id, balance: bal, oldest, days: oldest ? between(oldest, to) : 0 });
+    if (Math.abs(bal) > 0.5) out.push({ party_id: id, balance: bal, oldest, days: oldest ? between(oldest, to) : 0, b0: r2(bk[0]), b30: r2(bk[1]), b60: r2(bk[2]), b90: r2(bk[3]), advance: r2(c) });
   }
   const names = Object.fromEntries(plist.map(p => [p.id, p]));
   const last = Object.fromEntries(lastRows.map(r => [r.party_id, r.d]));
@@ -243,4 +244,75 @@ export async function dayBook(from, to) {
       json_agg(json_build_object('account', jl.account, 'name', a.name, 'party', p.name, 'debit', jl.debit, 'credit', jl.credit) order by jl.id) lines
     from journals j join journal_lines jl on jl.journal_id=j.id join accounts a on a.code=jl.account left join parties p on p.id=jl.party_id
     where j.date between $1 and $2 group by j.id order by j.date desc, j.id desc limit 500`, [from, to]);
+}
+
+// ---------------- stock movement: opening, in, out, returns, adjustments, closing for a period ----------------
+export async function stockMovement(from, to) {
+  const [prods, mv, adj] = await Promise.all([
+    all(`select id, name, unit, category, stock, cost, price, reorder from products where active order by name`),
+    all(`select il.product_id pid, i.kind, (i.date < $1) before, (i.date > $2) after, sum(il.qty) q, sum(il.amount) amt
+      from invoice_lines il join invoices i on i.id = il.invoice_id group by 1, 2, 3, 4`, [from, to]),
+    all(`select entity_id::int pid, (at::date < $1) before, (at::date > $2) after, sum((data->>'dq')::numeric) q
+      from audit_log where entity = 'product' and action = 'adjust' group by 1, 2, 3`, [from, to]),
+  ]);
+  const SIGN = { purchase: 1, sale_return: 1, sale: -1, purchase_return: -1 };
+  const P = new Map(prods.map(p => [p.id, { ...p, purchased: 0, sold: 0, sale_ret: 0, pur_ret: 0, adjusted: 0, after: 0, sales_amt: 0 }]));
+  for (const r of mv) {
+    const p = P.get(r.pid); if (!p) continue;
+    const q = +r.q * SIGN[r.kind];
+    if (r.after) { p.after += q; continue; }
+    if (r.before) continue;
+    if (r.kind === 'purchase') p.purchased += +r.q; else if (r.kind === 'sale') { p.sold += +r.q; p.sales_amt += +r.amt; } else if (r.kind === 'sale_return') p.sale_ret += +r.q; else p.pur_ret += +r.q;
+  }
+  for (const r of adj) { const p = P.get(r.pid); if (!p) continue; if (r.after) p.after += +r.q; else if (!r.before) p.adjusted += +r.q; }
+  const rows = [...P.values()].map(p => {
+    const closing = r2(+p.stock - p.after);
+    const opening = r2(closing - (p.purchased + p.sale_ret - p.sold - p.pur_ret + p.adjusted));
+    const status = closing < 0 ? 'oversold' : p.reorder > 0 && closing <= p.reorder ? 'low' : closing === 0 ? 'out' : 'ok';
+    return { id: p.id, name: p.name, unit: p.unit, category: p.category, opening, purchased: r2(p.purchased), sale_ret: r2(p.sale_ret), sold: r2(p.sold), pur_ret: r2(p.pur_ret), adjusted: r2(p.adjusted), closing,
+      tp: +p.price, cost: +p.cost, value: r2(Math.max(closing, 0) * p.cost), tp_value: r2(Math.max(closing, 0) * p.price), sales_amt: r2(p.sales_amt), reorder: +p.reorder, status };
+  });
+  const sum = k => r2(rows.reduce((a, r) => a + r[k], 0));
+  return { from, to, rows, totals: { value: sum('value'), tp_value: sum('tp_value'), sales_amt: sum('sales_amt'), oversold: rows.filter(r => r.status === 'oversold').length, low: rows.filter(r => r.status === 'low').length } };
+}
+
+// ---------------- cash book: every cash/bank movement with running balance ----------------
+export async function cashBook(from, to, account = null) {
+  const accs = await all(`select code, name from accounts where grp = 'Cash & Bank' ${account ? 'and code = $1' : ''} order by code`, account ? [account] : []);
+  const codes = accs.map(a => a.code);
+  const [open, rows] = await Promise.all([
+    one(`select coalesce(sum(jl.debit - jl.credit), 0) v from journal_lines jl join journals j on j.id = jl.journal_id where jl.account = any($1) and j.date < $2`, [codes, from]),
+    all(`select j.id, j.no, j.date, j.type, j.memo, j.ref_invoice, u.name by_name,
+        sum(case when jl.account = any($1) then jl.debit else 0 end) cin, sum(case when jl.account = any($1) then jl.credit else 0 end) cout,
+        string_agg(distinct case when jl.account = any($1) then a.name end, ', ') acc,
+        string_agg(distinct case when jl.account <> all($1) then coalesce(p.name, a.name) end, ', ') against
+      from journals j join journal_lines jl on jl.journal_id = j.id join accounts a on a.code = jl.account left join parties p on p.id = jl.party_id left join users u on u.id = j.created_by
+      where j.date between $2 and $3 and j.id in (select journal_id from journal_lines where account = any($1))
+      group by j.id, u.name order by j.date, j.id`, [codes, from, to]),
+  ]);
+  let run = r2(open.v);
+  const lines = rows.map(r => { const i = r2(r.cin), o = r2(r.cout); const net = r2(i - o); run = r2(run + net); return { id: r.id, no: r.no, date: r.date, type: r.type, memo: r.memo, bill: r.ref_invoice, by: r.by_name, account: r.acc, against: r.against, in: net > 0 ? net : 0, out: net < 0 ? -net : 0, balance: run }; }).filter(l => l.in || l.out);
+  return { from, to, accounts: accs, opening: r2(open.v), lines, in: r2(lines.reduce((a, l) => a + l.in, 0)), out: r2(lines.reduce((a, l) => a + l.out, 0)), closing: run };
+}
+
+// ---------------- ledger hub: every account grouped the way the business thinks about it ----------------
+export function ledgerGroup(a) {
+  const g = String(a.grp || '').toLowerCase(), n = String(a.name || '').toLowerCase();
+  if (a.grp === 'Cash & Bank') return 'cash';
+  if (/comm/.test(n) && (a.type === 'B' || a.type === 'D')) return 'commission';
+  if (g === 'payroll' || /salary|staff|wages/.test(g + ' ' + n)) return 'staff';
+  if (a.type === 'E') return 'partners';
+  if (a.type === 'D' && a.grp !== 'Cost of Sales' && a.code !== '5000') return 'expense';
+  if (a.code === '1200' || a.code === '2000') return 'control';
+  return 'other';
+}
+export async function ledgerHub(from, to) {
+  const [accs, per, bal] = await Promise.all([
+    all('select code, name, type, grp from accounts order by name'),
+    all(`select jl.account, sum(jl.debit) d, sum(jl.credit) c, count(distinct j.id)::int n from journal_lines jl join journals j on j.id = jl.journal_id where j.date between $1 and $2 group by 1`, [from, to]),
+    all(`select jl.account, sum(jl.debit - jl.credit) b from journal_lines jl join journals j on j.id = jl.journal_id where j.date <= $1 group by 1`, [to]),
+  ]);
+  const P = new Map(per.map(r => [r.account, r])), Bm = new Map(bal.map(r => [r.account, +r.b]));
+  return accs.map(a => { const p = P.get(a.code) || {}; const b = Bm.get(a.code) || 0; const nat = a.type === 'A' || a.type === 'D' ? b : -b;
+    return { ...a, group: ledgerGroup(a), debit: r2(p.d || 0), credit: r2(p.c || 0), entries: p.n || 0, balance: r2(nat), raw: r2(b) }; });
 }

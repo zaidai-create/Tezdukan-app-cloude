@@ -10,7 +10,7 @@ import { requireAuth, hashPassword, checkPassword, makeToken, loginAllowed, logi
 import { deleteInvoice, stockAdjust, UserError, r2, today, checkLock } from './posting.js';
 import { billRegister, moneyRegister, itemSales, partySummary, stockHistory } from './registers.js';
 import { submit, approve, reject, cancelOwn, listApprovals, activity, notices, APPROVERS, resetLimit } from './approvals.js';
-import { dashboard, ledger, trialBalance, profitLoss, balanceSheet, aging, dayBook, partyBalances, cashFlow, taxSummary, insights } from './reports.js';
+import { dashboard, ledger, trialBalance, profitLoss, balanceSheet, aging, dayBook, partyBalances, cashFlow, taxSummary, insights, stockMovement, cashBook, ledgerHub } from './reports.js';
 import { importLegacy, importCheck } from './importer.js';
 import { parseVoice, parseBest } from './voice.js';
 
@@ -132,6 +132,13 @@ app.get('/api/reports/trial-balance', guard(...STAFF), ah(async (req, res) => re
 app.get('/api/reports/profit-loss', guard(...STAFF), ah(async (req, res) => { const { from, to } = range(req); res.json(await profitLoss(from, to)); }));
 app.get('/api/reports/balance-sheet', guard(...STAFF), ah(async (req, res) => res.json(await balanceSheet(range(req).to))));
 app.get('/api/reports/aging', guard(), ah(async (req, res) => res.json(await aging(range(req).to))));
+app.get('/api/reports/stock-movement', guard(), ah(async (req, res) => {
+  const d = await stockMovement(isDate(req.query.from) ? req.query.from : today().slice(0, 8) + '01', range(req).to);
+  if (!STAFF.includes(req.user.role)) d.rows.forEach(r => { delete r.cost; delete r.value; });
+  res.json(d);
+}));
+app.get('/api/reports/cash-book', guard(...STAFF), ah(async (req, res) => { const { from, to } = range(req); res.json(await cashBook(from, to, req.query.account ? String(req.query.account) : null)); }));
+app.get('/api/ledgers', guard(...STAFF), ah(async (req, res) => { const { from, to } = range(req); res.json(await ledgerHub(from, to)); }));
 app.get('/api/reports/payables', guard(...STAFF), ah(async (req, res) => res.json(await aging(range(req).to, 'V'))));
 app.get('/api/reports/cash-flow', guard(...STAFF), ah(async (req, res) => { const { from, to } = range(req); res.json(await cashFlow(from, to)); }));
 app.get('/api/reports/sales-tax', guard(...STAFF), ah(async (req, res) => { const { from, to } = range(req); res.json(await taxSummary(from, to)); }));
@@ -202,6 +209,20 @@ app.post('/api/products/:id/adjust', guard(...STAFF), ah(async (req, res) => { a
 app.get('/api/accounts', guard(...STAFF), ah(async (req, res) => {
   const b = Object.fromEntries((await all('select account, sum(debit-credit) b from journal_lines group by account')).map(r => [r.account, r2(r.b)]));
   res.json((await all('select * from accounts order by code')).map(a => ({ ...a, balance: b[a.code] || 0 })));
+}));
+// one-tap ledger heads: a staff member, a commission person, an expense head, a partner, a bank account
+const QUICK = { staff: ['D', 'Payroll', 400000, 400499], commission: ['B', 'Commission Payable', 201100, 201499], expense: ['D', 'General & Administrative Expense', 400600, 400999], partner: ['E', 'Partners Capital', 500010, 500499], bank: ['A', 'Cash & Bank', 1040, 1099] };
+app.post('/api/accounts/quick', guard(...STAFF), ah(async (req, res) => {
+  const q = QUICK[req.body.kind]; if (!q) throw new UserError('Choose what kind of ledger this is.');
+  const name = String(req.body.name || '').trim().toUpperCase(); if (!name) throw new UserError('Enter a name.');
+  if (await one('select 1 from accounts where upper(name) = $1', [name])) throw new UserError('A ledger with this name already exists.');
+  const r = await tx(async c => {
+    const m = (await c.query(`select coalesce(max(code::bigint), $1 - 1) m from accounts where code ~ '^[0-9]+$' and code::bigint between $1 and $2`, [q[2], q[3]])).rows[0].m;
+    if (+m + 1 > q[3]) throw new UserError('No free account code left in this range.');
+    return (await c.query('insert into accounts(code, name, type, grp) values($1,$2,$3,$4) returning *', [String(+m + 1), name, q[0], q[1]])).rows[0];
+  });
+  audit(req.user.id, 'create', 'account', r.code, r);
+  res.json(r);
 }));
 app.post('/api/accounts', guard(...STAFF), ah(async (req, res) => {
   const { code, name, type, grp } = req.body;

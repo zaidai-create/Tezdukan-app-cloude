@@ -132,6 +132,8 @@ create index if not exists il_invoice on invoice_lines(invoice_id);
 alter table invoice_lines add column if not exists tp numeric(14,2);
 alter table invoices add column if not exists edited_at timestamptz;
 alter table invoices add column if not exists edited_by int;
+-- a return can point to the bill it returns from
+alter table invoices add column if not exists ref_no text not null default '';
 
 create table if not exists counters (
   key text primary key,
