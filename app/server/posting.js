@@ -80,9 +80,10 @@ export async function createInvoice(c, user, b, old = null) {
   if (user.role === 'salesman') { need(b.kind === 'sale', 'Salesmen can make sale bills only.'); b.pay_account = '1000'; }
   const date = isDate(b.date) ? b.date : today();
   need(Array.isArray(b.lines) && b.lines.length, 'Add at least one item.');
-  for (const l of b.lines) { need(r3(l.qty) > 0, 'Every item needs a quantity above zero.'); need(r2(l.rate) > 0, 'Every item needs a rate above zero.'); }
+  // a line at rate 0 is free stock (sample / bonus): it moves stock but adds nothing to the bill
+  for (const l of b.lines) { need(r3(l.qty) > 0, 'Every item needs a quantity above zero.'); need(r2(l.rate) >= 0, 'A rate cannot be negative.'); }
   const T = invoiceTotals(b);
-  need(T.total > 0, 'The bill total must be above zero.');
+  need(T.total >= 0, 'The bill total cannot be negative.');
   const payCode = String(b.pay_account || '1000');
   const ids = [...new Set(b.lines.map(l => +l.product_id))];
 
@@ -97,7 +98,7 @@ export async function createInvoice(c, user, b, old = null) {
     const pr = prods.get(+l.product_id); need(pr, 'One of the products no longer exists.');
     const qty = r3(l.qty), rate = r2(l.rate);
     // TP shown on the bill: the price list rate (or what the user saw), never below the rate charged
-    const tp = withTp ? Math.max(r2(l.tp) > 0 ? r2(l.tp) : r2(pr.price), rate) : null;
+    const tp = withTp ? (rate === 0 ? 0 : Math.max(r2(l.tp) > 0 ? r2(l.tp) : r2(pr.price), rate)) : null;
     return { pr, qty, rate, tp, amount: r2(qty * rate) };
   });
   const paid = (b.kind === 'sale' || b.kind === 'purchase') ? T.paid : 0;
@@ -142,8 +143,8 @@ export async function createInvoice(c, user, b, old = null) {
   } else {
     js.push(J('Purchase Return Entry', [{ account: '2000', party_id: p.id, debit: total }, { account: '1300', credit: net }, { account: '2200', credit: tax }]));
   }
-  // 1 trip: all journals
-  await postJournals(c, js);
+  // 1 trip: all journals (an all-free bill has nothing to post for money, only stock)
+  await postJournals(c, js.filter(j => j.lines.some(l => r2(l.debit) > 0 || r2(l.credit) > 0)));
   if (old) audit(user.id, 'edit', 'invoice', inv.id, { kind: b.kind, no: inv.no, total, before: old.total, party: p.name, approval: b.approval_id || undefined });
   else audit(user.id, 'create', 'invoice', inv.id, { kind: b.kind, no: inv.no, total, party: p.name, source: b.source || 'app', approval: b.approval_id || undefined });
   return { id: inv.id, no: inv.no, total, edited: !!old };
