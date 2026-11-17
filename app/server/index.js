@@ -182,7 +182,7 @@ app.get('/api/parties/:id/rates', guard(), ah(async (req, res) => {
   if (req.user.role === 'salesman' && !(await one(`select 1 from parties where id=$1 and kind='C'`, [+req.params.id]))) throw new UserError('Not found.', 404);
   // last rate this party paid/charged for each product, for auto-filling bills
   const rows = await all(`select distinct on (il.product_id) il.product_id, il.rate from invoice_lines il join invoices i on i.id=il.invoice_id
-    where i.party_id=$1 and i.kind in ('sale','purchase') order by il.product_id, i.date desc, i.id desc`, [+req.params.id]);
+    where i.party_id=$1 and i.kind in ('sale','purchase') and il.rate > 0 order by il.product_id, i.date desc, i.id desc`, [+req.params.id]);
   res.json(Object.fromEntries(rows.map(r => [r.product_id, r.rate])));
 }));
 const partyFields = b => [String(b.name || '').trim(), String(b.city || '').trim(), String(b.phone || '').trim(), String(b.address || '').trim(), String(b.ntn || '').trim(), r2(b.credit_limit)];
@@ -335,7 +335,7 @@ async function voiceContext() {
   const parties = await all('select id, kind, name from parties where active');
   const expenseAccounts = await all(`select code, name from accounts where type='D' and grp <> 'Cost of Sales' and code <> '5000' order by code`);
   const last = await all(`select distinct on (i.party_id, il.product_id) i.party_id, il.product_id, il.rate from invoice_lines il join invoices i on i.id=il.invoice_id
-    where i.kind in ('sale','purchase') order by i.party_id, il.product_id, i.date desc, i.id desc`);
+    where i.kind in ('sale','purchase') and il.rate > 0 order by i.party_id, il.product_id, i.date desc, i.id desc`);
   const lr = new Map(last.map(r => [r.party_id + ':' + r.product_id, r.rate]));
   const sold = new Map(products.map(p => [p.id, p.sold]));
   return { products, customers: parties.filter(p => p.kind === 'C'), vendors: parties.filter(p => p.kind === 'V'), expenseAccounts, lastRate: (p, party) => lr.get(party + ':' + p) || 0, rank: id => sold.get(id) || 0 };
