@@ -23,3 +23,6 @@ mobile/android/
 .gradle/
 *.apk
 *.keystore
+
+# Files handed to the client (APKs, certificates)
+deliver/
