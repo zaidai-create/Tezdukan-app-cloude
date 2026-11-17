@@ -14,7 +14,10 @@ const local = /@(localhost|127\.0\.0\.1)[:/]/.test(url) || process.env.PGSSL ===
 // All app tables live in their own schema (default "qayam") so they never mix with other apps in the same database.
 export const SCHEMA = (process.env.DB_SCHEMA || 'qayam').replace(/[^a-z0-9_]/g, '');
 // Keep connections open: opening a new one to a far-away database costs over a second.
-export const pool = new pg.Pool({ connectionString: url, ssl: local ? false : { rejectUnauthorized: false }, max: +process.env.DB_POOL_MAX || 6, idleTimeoutMillis: 15 * 60e3, keepAlive: true, keepAliveInitialDelayMillis: 10e3 });
+// Remote database: TLS with the certificate checked against Supabase's root CA (server/supabase-ca.crt),
+// so nobody in between can read or change the data. PG_CA_FILE can point at another CA.
+const ca = local ? null : readFileSync(process.env.PG_CA_FILE || join(dirname(fileURLToPath(import.meta.url)), 'supabase-ca.crt'), 'utf8');
+export const pool = new pg.Pool({ connectionString: url, ssl: local ? false : { ca, rejectUnauthorized: process.env.PG_TLS_VERIFY !== 'off' }, max: +process.env.DB_POOL_MAX || 6, idleTimeoutMillis: 15 * 60e3, keepAlive: true, keepAliveInitialDelayMillis: 10e3 });
 pool.on('error', e => console.error('db pool:', e.message));
 pool.on('connect', c => { c.query(`set search_path to ${SCHEMA}`).catch(() => {}); });
 

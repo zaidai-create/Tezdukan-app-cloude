@@ -11,10 +11,10 @@
     "test": "node test/voice.test.mjs"
   },
   "dependencies": {
-    "compression": "^1.7.5",
+    "compression": "^1.8.2",
     "express": "^4.21.2",
     "html2canvas": "1.4.1",
-    "jspdf": "^2.5.2",
+    "jspdf": "^4.2.1",
     "pg": "^8.13.1"
   }
 }

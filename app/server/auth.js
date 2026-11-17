@@ -60,12 +60,17 @@ export function requireAuth(...roles) {
 
 // Simple brute-force guard for the login endpoint.
 const tries = new Map();
-export function loginAllowed(key) {
-  const now = Date.now(), t = tries.get(key) || { n: 0, at: now };
-  if (now - t.at > 15 * 60e3) { t.n = 0; t.at = now; }
-  return t.n < 8;
+export function loginAllowed(key, max = 8) {
+  const now = Date.now(), t = tries.get(key);
+  if (t && now - t.at > 15 * 60e3) tries.delete(key);
+  return !tries.has(key) || tries.get(key).n < max;
 }
-export function loginFailed(key) { const t = tries.get(key) || { n: 0, at: Date.now() }; t.n++; tries.set(key, t); }
+export function loginFailed(key) {
+  const now = Date.now(); let t = tries.get(key);
+  if (!t || now - t.at > 15 * 60e3) t = { n: 0, at: now };
+  t.n++; tries.set(key, t);
+  if (tries.size > 20000) for (const [k, v] of tries) if (now - v.at > 15 * 60e3) tries.delete(k);
+}
 export function loginOk(key) { tries.delete(key); }
 
 export function audit(userId, action, entity, entityId, data) {

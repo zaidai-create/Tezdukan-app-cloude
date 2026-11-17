@@ -115,6 +115,6 @@ if ('serviceWorker' in navigator && !window.Capacitor?.isNativePlatform?.()) nav
 (async () => {
   if (!auth.token) return loginScreen();
   try { await start(); }
-  catch (e) { if (e.status === 401) loginScreen(); else { $('#app').innerHTML = `<div class="login"><div class="appicon">${LOGO}</div><h1>Can't connect</h1><p>${esc(e.message)}</p><button class="btn" onclick="location.reload()">Try again</button></div>`; } }
+  catch (e) { if (e.status === 401) loginScreen(); else { $('#app').innerHTML = `<div class="login"><div class="appicon">${LOGO}</div><h1>Can't connect</h1><p>${esc(e.message)}</p><button class="btn" data-reload>Try again</button></div>`; $('[data-reload]').onclick = () => location.reload(); } }
 })();
 window.addEventListener('unhandledrejection', e => { if (e.reason?.message) hud(e.reason.message, 'err', 2400); });

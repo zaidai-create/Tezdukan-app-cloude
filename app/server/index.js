@@ -19,8 +19,22 @@ const require = createRequire(import.meta.url);
 const app = express();
 app.disable('x-powered-by');
 app.use(compression({ threshold: 1024 }));
-app.use(express.json({ limit: '25mb' }));
-app.use((req, res, next) => { res.set({ 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'same-origin' }); next(); });
+app.set('trust proxy', 1);   // behind the hosting proxy: req.ip is the real client address
+app.use('/api/admin/import', express.json({ limit: '25mb' }));
+app.use(express.json({ limit: '1mb' }));
+// Security headers: only our own scripts may run, the app cannot be framed by other sites, HTTPS only.
+const CSP = ["default-src 'self'", "script-src 'self'", "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com", "font-src 'self' data: https://fonts.gstatic.com",
+  "img-src 'self' data: blob:", "connect-src 'self'", "worker-src 'self'", "manifest-src 'self'", "frame-src 'self' blob:", "object-src 'none'", "base-uri 'self'", "form-action 'self'", "frame-ancestors 'none'"].join('; ');
+app.use((req, res, next) => {
+  // The hosting proxy (Ample) already adds Strict-Transport-Security and X-Content-Type-Options to every response;
+  // sending them again makes duplicate headers that browsers treat as invalid. Set BEHIND_PLAIN_PROXY=1 elsewhere.
+  if (process.env.BEHIND_PLAIN_PROXY === '1') res.set({ 'X-Content-Type-Options': 'nosniff', 'Strict-Transport-Security': 'max-age=31536000; includeSubDomains' });
+  res.set({ 'Referrer-Policy': 'same-origin', 'X-Frame-Options': 'DENY', 'Content-Security-Policy': CSP,
+    'Permissions-Policy': 'camera=(), geolocation=(), payment=(), usb=(), microphone=(self)',
+    'Cross-Origin-Opener-Policy': 'same-origin', 'Cross-Origin-Resource-Policy': 'same-origin' });
+  if (req.path.startsWith('/api/')) res.set('Cache-Control', 'no-store');
+  next();
+});
 
 const ah = fn => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 const isDate = d => /^\d{4}-\d{2}-\d{2}$/.test(d || '');
@@ -90,9 +104,14 @@ const company = async () => co || (co = (await one(`select value from settings w
 app.post('/api/auth/login', ah(async (req, res) => {
   const username = String(req.body.username || '').trim().toLowerCase(), pw = String(req.body.password || '');
   const key = `${req.ip}|${username}`;
-  if (!loginAllowed(key)) return res.status(429).json({ error: 'Too many tries. Wait 15 minutes.' });
+  if (!loginAllowed(key) || !loginAllowed('*|' + username, 30) || !loginAllowed(req.ip + '|*', 40)) return res.status(429).json({ error: 'Too many tries. Wait 15 minutes.' });
+  if (username.length > 60 || pw.length > 200) return res.status(400).json({ error: 'Wrong username or password.' });
   const u = await one('select * from users where username=$1', [username]);
-  if (!u || !u.active || !checkPassword(pw, u.pass_hash)) { loginFailed(key); return res.status(401).json({ error: 'Wrong username or password.' }); }
+  if (!u || !u.active || !checkPassword(pw, u.pass_hash)) {
+    loginFailed(key); loginFailed('*|' + username); loginFailed(req.ip + '|*');
+    if (u) audit(u.id, 'login_failed', 'user', u.id, { ip: req.ip });
+    return res.status(401).json({ error: 'Wrong username or password.' });
+  }
   loginOk(key);
   await audit(u.id, 'login', 'user', u.id);
   res.json({ token: makeToken(u), user: { id: u.id, username: u.username, name: u.name, role: u.role, must_change: u.must_change } });
@@ -160,6 +179,7 @@ app.get('/api/parties/:id/ledger', guard(), ah(async (req, res) => {
   res.json({ party: p, from, to, ...l, company: co0 });
 }));
 app.get('/api/parties/:id/rates', guard(), ah(async (req, res) => {
+  if (req.user.role === 'salesman' && !(await one(`select 1 from parties where id=$1 and kind='C'`, [+req.params.id]))) throw new UserError('Not found.', 404);
   // last rate this party paid/charged for each product, for auto-filling bills
   const rows = await all(`select distinct on (il.product_id) il.product_id, il.rate from invoice_lines il join invoices i on i.id=il.invoice_id
     where i.party_id=$1 and i.kind in ('sale','purchase') order by il.product_id, i.date desc, i.id desc`, [+req.params.id]);
@@ -251,7 +271,7 @@ app.get('/api/invoices', guard(), ah(async (req, res) => {
   if (isDate(req.query.from)) { p.push(req.query.from); w.push(`i.date >= $${p.length}`); }
   if (isDate(req.query.to)) { p.push(req.query.to); w.push(`i.date <= $${p.length}`); }
   if (req.query.q) { p.push('%' + String(req.query.q).toLowerCase() + '%'); w.push(`(lower(pt.name) like $${p.length} or lower(i.no) like $${p.length})`); }
-  const lim = Math.min(+req.query.limit || 60, 300), off = Math.max(+req.query.offset || 0, 0);
+  const lim = Math.max(1, Math.min(Math.floor(+req.query.limit) || 60, 300)), off = Math.max(Math.floor(+req.query.offset) || 0, 0);
   res.json(await all(`select i.id, i.no, i.date, i.total, i.paid, i.kind, i.legacy, i.source, pt.name party, pt.id party_id from invoices i left join parties pt on pt.id=i.party_id
     where ${w.join(' and ')} order by i.date desc, i.id desc limit ${lim} offset ${off}`, p));
 }));
@@ -291,7 +311,7 @@ app.get('/api/approvals', guard(), ah(async (req, res) => res.json(await listApp
 app.post('/api/approvals/:id/approve', guard(...APPROVERS), ah(async (req, res) => res.json(await approve(req.user, +req.params.id))));
 app.post('/api/approvals/:id/reject', guard(...APPROVERS), ah(async (req, res) => res.json(await reject(req.user, +req.params.id, String(req.body.reason || '')))));
 app.delete('/api/approvals/:id', guard(), ah(async (req, res) => res.json(await cancelOwn(req.user, +req.params.id))));
-app.get('/api/activity', guard(...BOSS), ah(async (req, res) => res.json(await activity(Math.min(+req.query.limit || 150, 400)))));
+app.get('/api/activity', guard(...BOSS), ah(async (req, res) => res.json(await activity(Math.max(1, Math.min(Math.floor(+req.query.limit) || 150, 400))))));
 app.get('/api/notices', guard(), ah(async (req, res) => res.json(await notices(req.user))));
 app.post('/api/notices/read', guard(), ah(async (req, res) => { await q('update notices set read_at=now() where user_id=$1 and read_at is null', [req.user.id]); res.json({ ok: true }); }));
 app.get('/api/journals/:id', guard(...STAFF), ah(async (req, res) => {
@@ -451,9 +471,13 @@ app.use(express.static(join(here, '..', 'public'), { index: 'index.html', maxAge
 app.get(/^\/(?!api\/).*/, (req, res) => res.set('Cache-Control', 'no-cache').sendFile(join(here, '..', 'public', 'index.html')));
 
 app.use((err, req, res, next) => {
-  const status = err.status || (err.code && /^(23|22|P0)/.test(err.code) ? 400 : 500);
-  if (status >= 500) console.error(err);
-  res.status(status).json({ error: status >= 500 ? 'Something went wrong on the server. Try again.' : err.message });
+  if (err.type === 'entity.too.large') return res.status(413).json({ error: 'Too much data in one request.' });
+  if (err.type === 'entity.parse.failed') return res.status(400).json({ error: 'Bad request.' });
+  const db = err.code && /^(23|22|P0)/.test(err.code);
+  const status = err.status || (db ? 400 : 500);
+  if (status >= 500 || db) console.error(err);
+  // database errors are logged for us but never shown to the user (they reveal table and column names)
+  res.status(status).json({ error: status >= 500 ? 'Something went wrong on the server. Try again.' : db ? (err.code === '23505' ? 'This already exists.' : 'Some values are not valid. Please check and try again.') : err.message });
 });
 
 const port = +process.env.PORT || 3000;
