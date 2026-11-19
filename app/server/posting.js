@@ -20,7 +20,8 @@ export async function checkLock(c, date) {
   need(!lock || d > lock, `Books are closed up to ${lock}. Use a later date, or ask the owner to open the period.`);
 }
 
-export const JPREFIX = { 'Sale Entry': 'SV', 'Purchase Entry': 'PV', 'Cash Receipt': 'CRV', 'Bank Receipt': 'BRV', 'Cash Payment': 'CPV', 'Bank Payment': 'BPV', 'Journal': 'JV', 'Sales Return Entry': 'SRV', 'Purchase Return Entry': 'PRV', 'Stock Adjustment': 'SAV' };
+export const JPREFIX = { 'Sale Entry': 'SV', 'Purchase Entry': 'PV', 'Cash Receipt': 'CRV', 'Bank Receipt': 'BRV', 'Cash Payment': 'CPV', 'Bank Payment': 'BPV', 'Journal': 'JV', 'Sales Return Entry': 'SRV', 'Purchase Return Entry': 'PRV', 'Stock Adjustment': 'SAV',
+  'Contra': 'CTV', 'Credit Note': 'CNV', 'Debit Note': 'DNV', 'Reversal': 'RVV', 'Loan': 'LNV', 'Depreciation': 'DPV', 'Payroll': 'PYV', 'Fixed Asset': 'FAV' };
 
 // Post several journals in ONE round trip (database function post_journals checks lock date and balance).
 export async function postJournals(c, list) {
@@ -29,7 +30,7 @@ export async function postJournals(c, list) {
     const d = r2(lines.reduce((a, l) => a + l.debit, 0)), k = r2(lines.reduce((a, l) => a + l.credit, 0));
     need(lines.length >= 2, 'An entry needs at least one debit and one credit line.');
     need(d === k, `Debit (${d}) and credit (${k}) must be equal.`);
-    return { date: j.date, type: j.type, prefix: JPREFIX[j.type] || 'JV', memo: String(j.memo || '').slice(0, 500), ref_invoice: j.ref_invoice || null, user_id: j.user_id || null, lines };
+    return { date: j.date, type: j.type, prefix: JPREFIX[j.type] || 'JV', memo: String(j.memo || '').slice(0, 500), ref_invoice: j.ref_invoice || null, user_id: j.user_id || null, vkind: j.vkind || '', reverses: j.reverses || null, lines };
   });
   if (!js.length) return [];
   return (await c.query('select post_journals($1::jsonb) r', [JSON.stringify(js)])).rows[0].r;
@@ -231,7 +232,7 @@ export async function voucher(c, user, b) {
     if ((code === '1200' || code === '2000') && !pid) throw new UserError(`${r.accs[code]} needs a party on the line.`);
     return { account: code, party_id: pid, debit: l.debit, credit: l.credit };
   });
-  const j = await postJournal(c, { date, type: b.type && JPREFIX[b.type] ? b.type : 'Journal', memo: String(b.memo || '').slice(0, 500), lines, user_id: user.id });
+  const j = await postJournal(c, { date, type: b.type && JPREFIX[b.type] ? b.type : 'Journal', vkind: String(b.vkind || 'journal').slice(0, 20), memo: String(b.memo || '').slice(0, 500), lines, user_id: user.id });
   audit(user.id, 'create', 'voucher', j.id, { lines: lines.length, amt: r2(lines.reduce((a, l) => a + r2(l.debit), 0)), no: j.no, memo: String(b.memo || '').slice(0, 80), approval: b.approval_id || undefined });
   return { ...j };
 }

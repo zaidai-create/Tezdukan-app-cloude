@@ -223,7 +223,7 @@ begin
     fy := lpad((y % 100)::text, 2, '0') || lpad(((y + 1) % 100)::text, 2, '0');
     insert into counters(key, n) values ((j->>'prefix') || '-' || fy, 1) on conflict (key) do update set n = counters.n + 1 returning counters.n into n;
     no_ := (j->>'prefix') || '-' || fy || '-' || lpad(n::text, 4, '0');
-    insert into journals(no, date, type, memo, ref_invoice, created_by) values (no_, (j->>'date')::date, j->>'type', coalesce(j->>'memo',''), (j->>'ref_invoice')::int, (j->>'user_id')::int) returning id into jid;
+    insert into journals(no, date, type, memo, ref_invoice, created_by, vkind, reverses) values (no_, (j->>'date')::date, j->>'type', coalesce(j->>'memo',''), (j->>'ref_invoice')::int, (j->>'user_id')::int, coalesce(j->>'vkind',''), (j->>'reverses')::int) returning id into jid;
     insert into journal_lines(journal_id, account, party_id, debit, credit)
       select jid, l->>'account', (l->>'party_id')::int, coalesce((l->>'debit')::numeric,0), coalesce((l->>'credit')::numeric,0)
       from jsonb_array_elements(j->'lines') l where coalesce((l->>'debit')::numeric,0) > 0 or coalesce((l->>'credit')::numeric,0) > 0;
@@ -231,3 +231,120 @@ begin
   end loop;
   return out_;
 end $$;
+
+-- =====================================================================
+-- Phase 1 upgrade: loans, vouchers & reversals, banking, assets, payroll, barcodes
+-- =====================================================================
+
+-- products: SKU and barcode (scanner / camera)
+alter table products add column if not exists sku text not null default '';
+alter table products add column if not exists barcode text not null default '';
+create index if not exists products_barcode on products(barcode) where barcode <> '';
+
+-- journals: voucher kind, and reversal instead of deleting (keeps the audit trail)
+alter table journals add column if not exists vkind text not null default '';
+alter table journals add column if not exists reverses int;
+alter table journals add column if not exists reversed_by int;
+create index if not exists journals_no on journals(no);
+
+-- loans: money we lent (G = given) or borrowed (T = taken).
+-- book = business: posted to the books through its own ledger account.
+-- book = personal: kept only here, never mixed into the business accounts.
+create table if not exists loans (
+  id            serial primary key,
+  no            text not null unique,
+  direction     char(1) not null check (direction in ('G','T')),
+  book          text not null default 'business' check (book in ('business','personal')),
+  person        text not null,
+  phone         text not null default '',
+  cnic          text not null default '',
+  account       text references accounts(code),
+  principal     numeric(14,2) not null default 0,
+  interest_pct  numeric(6,2) not null default 0,
+  start_date    date not null,
+  installments  int not null default 1 check (installments between 1 and 600),
+  frequency     text not null default 'monthly' check (frequency in ('weekly','monthly','once')),
+  note          text not null default '',
+  status        text not null default 'active' check (status in ('active','closed','written_off')),
+  created_by    int references users(id),
+  created_at    timestamptz not null default now()
+);
+create table if not exists loan_txns (
+  id           serial primary key,
+  loan_id      int not null references loans(id) on delete cascade,
+  date         date not null,
+  kind         text not null check (kind in ('disburse','repay','charge','writeoff','opening')),
+  amount       numeric(14,2) not null check (amount > 0),
+  principal    numeric(14,2) not null default 0,
+  interest     numeric(14,2) not null default 0,
+  cash_account text,
+  journal_id   int references journals(id) on delete set null,
+  note         text not null default '',
+  created_by   int references users(id),
+  created_at   timestamptz not null default now()
+);
+create index if not exists loan_txns_loan on loan_txns(loan_id, date);
+
+-- bank reconciliation: when a bank line cleared on the statement
+create table if not exists bank_clear (
+  line_id     int primary key references journal_lines(id) on delete cascade,
+  cleared_on  date not null,
+  by_user     int references users(id),
+  at          timestamptz not null default now()
+);
+create table if not exists bank_statements (
+  account     text not null references accounts(code),
+  as_on       date not null,
+  balance     numeric(14,2) not null,
+  by_user     int references users(id),
+  at          timestamptz not null default now(),
+  primary key (account, as_on)
+);
+
+-- fixed assets with straight-line monthly depreciation
+create table if not exists assets (
+  id            serial primary key,
+  name          text not null,
+  category      text not null default '',
+  account       text not null references accounts(code),
+  cost          numeric(14,2) not null check (cost > 0),
+  salvage       numeric(14,2) not null default 0,
+  life_months   int not null check (life_months > 0),
+  start_date    date not null,
+  disposed_on   date,
+  note          text not null default '',
+  created_by    int references users(id),
+  created_at    timestamptz not null default now()
+);
+create table if not exists asset_dep (
+  asset_id   int not null references assets(id) on delete cascade,
+  month      date not null,
+  amount     numeric(14,2) not null,
+  journal_id int references journals(id) on delete set null,
+  primary key (asset_id, month)
+);
+
+-- payroll: employees, monthly salary runs
+create table if not exists employees (
+  id          serial primary key,
+  name        text not null,
+  phone       text not null default '',
+  cnic        text not null default '',
+  designation text not null default '',
+  salary      numeric(14,2) not null default 0,
+  join_date   date,
+  account     text references accounts(code),       -- salary expense ledger (Payroll group)
+  payable     text references accounts(code),       -- this person's salary payable / advance ledger
+  user_id     int references users(id),
+  active      boolean not null default true,
+  created_at  timestamptz not null default now()
+);
+create table if not exists payroll_runs (
+  id          serial primary key,
+  month       date not null unique,
+  total       numeric(14,2) not null,
+  journal_id  int references journals(id) on delete set null,
+  lines       jsonb not null,
+  created_by  int references users(id),
+  created_at  timestamptz not null default now()
+);

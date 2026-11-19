@@ -20,6 +20,7 @@ export function quickAdd() {
   el.innerHTML = `<div class="grab"></div><div class="qh"><b>Kya add karna hai?</b><button class="qx" data-x aria-label="Close">${ic('x')}</button></div>
     <div class="qgrid g${items.length}">${items.map(([k, i, l, c]) => `<button class="qbtn ${c}" data-k="${k}"><span class="qi">${ic(i)}</span><b>${l}</b></button>`).join('')}</div>
     ${staff ? `<div class="qrow"><button data-k="sale_return">${ic('return')}Sales Return</button><button data-k="purchase_return">${ic('return')}Purchase Return</button></div>` : ''}
+    ${staff ? `<div class="qrow q3"><button data-k="money_in">${ic('down')}Money In</button><button data-k="money_out">${ic('up')}Money Out</button><button data-k="transfer">${ic('swap')}Transfer</button></div>` : ''}
     <button class="qmore" data-k="more">Baaki sab options: <b>More</b> ${ic('chevr')}</button>`;
   document.body.append(dim, el);
   const close = () => { el.classList.add('closing'); dim.classList.add('closing'); setTimeout(() => { el.remove(); dim.remove(); }, 200); };
@@ -33,6 +34,8 @@ export function quickAdd() {
     if (k === 'recovery') receiveMoney();
     if (k === 'expense') expenseForm();
     if (k === 'more') go('more');
+    if (k === 'money_in' || k === 'money_out') import('./finance2.js').then(m => m.moneyForm(k === 'money_in' ? 'in' : 'out'));
+    if (k === 'transfer') import('./finance2.js').then(m => m.transferForm());
   };
   setTimeout(() => $('.qbtn', el)?.focus(), 50);
 }

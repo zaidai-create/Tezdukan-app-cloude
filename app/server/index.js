@@ -13,6 +13,7 @@ import { submit, approve, reject, cancelOwn, listApprovals, activity, notices, A
 import { dashboard, ledger, trialBalance, profitLoss, balanceSheet, aging, dayBook, partyBalances, cashFlow, taxSummary, insights, stockMovement, cashBook, ledgerHub } from './reports.js';
 import { importLegacy, importCheck } from './importer.js';
 import { parseVoice, parseBest } from './voice.js';
+import * as F2 from './finance2.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const require = createRequire(import.meta.url);
@@ -131,7 +132,7 @@ app.post('/api/me/password', guard(), ah(async (req, res) => {
 app.get('/api/boot', guard(), ah(async (req, res) => {
   const staff = STAFF.includes(req.user.role);
   const [products, cb, vb, parties, accounts, co, team] = await Promise.all([
-    all(`select p.id, p.name, p.category, p.unit, p.price, p.stock, p.reorder, p.aliases${staff ? ', p.cost' : ''}, coalesce(s.q, 0) sold
+    all(`select p.id, p.name, p.category, p.unit, p.price, p.stock, p.reorder, p.aliases, p.sku, p.barcode${staff ? ', p.cost' : ''}, coalesce(s.q, 0) sold
       from products p left join (select il.product_id, sum(il.qty) q from invoice_lines il join invoices i on i.id=il.invoice_id where i.kind='sale' group by il.product_id) s on s.product_id=p.id
       where p.active order by sold desc, p.name`),
     partyBalances('C'), staff ? partyBalances('V') : {},
@@ -209,17 +210,20 @@ app.put('/api/parties/:id', guard(), ah(async (req, res) => {
 }));
 
 /* ---------- products ---------- */
-const prodFields = b => [String(b.name || '').trim(), String(b.category || '').trim(), String(b.unit || 'pc').trim() || 'pc', r2(b.cost), r2(b.price), +b.reorder || 0, String(b.aliases || '').trim()];
+const prodFields = b => [String(b.name || '').trim(), String(b.category || '').trim(), String(b.unit || 'pc').trim() || 'pc', r2(b.cost), r2(b.price), +b.reorder || 0, String(b.aliases || '').trim(), String(b.sku || '').trim().slice(0, 40), String(b.barcode || '').replace(/\s+/g, '').slice(0, 64)];
+const dupBarcode = async (code, id = 0) => { if (code && await one('select 1 from products where barcode=$1 and id<>$2 and active', [code, id])) throw new UserError('Yeh barcode pehle se kisi aur product par laga hai.'); };
 app.post('/api/products', guard(...STAFF), ah(async (req, res) => {
   const f = prodFields(req.body); if (!f[0]) throw new UserError('Enter a product name.');
-  const r = await one('insert into products(name, category, unit, cost, price, reorder, aliases) values($1,$2,$3,$4,$5,$6,$7) returning *', f);
+  await dupBarcode(f[8]);
+  const r = await one('insert into products(name, category, unit, cost, price, reorder, aliases, sku, barcode) values($1,$2,$3,$4,$5,$6,$7,$8,$9) returning *', f);
   await audit(req.user.id, 'create', 'product', r.id, { name: r.name });
   res.json({ ...r, sold: 0 });
 }));
 app.put('/api/products/:id', guard(...STAFF), ah(async (req, res) => {
   const p = await one('select * from products where id=$1', [+req.params.id]); if (!p) throw new UserError('Not found.', 404);
   const f = prodFields({ ...p, ...req.body }); if (!f[0]) throw new UserError('Enter a product name.');
-  const r = await one('update products set name=$1, category=$2, unit=$3, cost=$4, price=$5, reorder=$6, aliases=$7, active=$8 where id=$9 returning *', [...f, req.body.active !== false, p.id]);
+  await dupBarcode(f[8], p.id);
+  const r = await one('update products set name=$1, category=$2, unit=$3, cost=$4, price=$5, reorder=$6, aliases=$7, sku=$8, barcode=$9, active=$10 where id=$11 returning *', [...f, req.body.active !== false, p.id]);
   await audit(req.user.id, 'update', 'product', p.id, { before: p, after: r });
   res.json(r);
 }));
@@ -452,6 +456,43 @@ app.get('/api/admin/backup', guard('admin'), ah(async (req, res) => {
   await audit(req.user.id, 'backup', 'all', null);
   res.set('Content-Disposition', `attachment; filename="qayam-backup-${today()}.json"`).json(out);
 }));
+
+/* ---------- Phase 1: search, money in/out, transfers, notes, reversal, loans, banking, assets, payroll ---------- */
+app.get('/api/search', guard(), ah(async (req, res) => res.json(await F2.search(req.user, req.query.q, req.query.type))));
+app.get('/api/recent', guard(), ah(async (req, res) => res.json(await F2.recent(req.user))));
+app.get('/api/money/categories', guard(...STAFF), ah(async (req, res) => res.json(await F2.categories())));
+app.put('/api/money/categories', guard(...BOSS), ah(async (req, res) => res.json(await F2.saveCategories(req.user, req.body.list))));
+app.post('/api/money', guard(...STAFF), ah(async (req, res) => res.json(await tx(c => submit(c, req.user, 'money', req.body)))));
+app.post('/api/transfer', guard(...STAFF), ah(async (req, res) => res.json(await tx(c => submit(c, req.user, 'transfer', req.body)))));
+app.post('/api/notes', guard(...STAFF), ah(async (req, res) => res.json(await tx(c => submit(c, req.user, 'note', req.body)))));
+app.post('/api/journals/:id/reverse', guard(...BOSS), ah(async (req, res) => res.json(await F2.reverseJournal(req.user, +req.params.id, String(req.body.reason || ''), req.body.date))));
+app.get('/api/loans', guard(...STAFF), ah(async (req, res) => res.json(await F2.listLoans())));
+app.get('/api/loans/:id', guard(...STAFF), ah(async (req, res) => res.json(await F2.loanDetail(+req.params.id))));
+// personal loans never touch the business books, so they do not need an owner's approval
+app.post('/api/loans', guard(...STAFF), ah(async (req, res) => { const b = { ...req.body, amount: r2(req.body.principal) };
+  res.json(await tx(c => (b.book === 'personal' ? F2.createLoan(c, req.user, b) : submit(c, req.user, 'loan', b)))); }));
+app.post('/api/loans/:id/txn', guard(...STAFF), ah(async (req, res) => { const L = await one('select book from loans where id=$1', [+req.params.id]); if (!L) throw new UserError('Loan not found.', 404);
+  const b = { ...req.body, loan_id: +req.params.id }; res.json(await tx(c => (L.book === 'personal' ? F2.loanTxn(c, req.user, b) : submit(c, req.user, 'loan_txn', b)))); }));
+app.get('/api/reports/loan-recovery', guard(...STAFF), ah(async (req, res) => res.json(await F2.loanRecovery())));
+app.get('/api/bank-rec', guard(...STAFF), ah(async (req, res) => res.json(await F2.bankRec(String(req.query.account || ''), isDate(req.query.to) ? req.query.to : today()))));
+app.post('/api/bank-rec/clear', guard(...STAFF), ah(async (req, res) => res.json(await F2.bankClear(req.user, req.body.ids, req.body.on, req.body.clear !== false))));
+app.post('/api/bank-rec/statement', guard(...STAFF), ah(async (req, res) => res.json(await F2.bankStatement(req.user, String(req.body.account || ''), req.body.as_on, req.body.balance))));
+app.get('/api/assets', guard(...STAFF), ah(async (req, res) => res.json(await F2.listAssets())));
+app.post('/api/assets', guard(...STAFF), ah(async (req, res) => res.json(await tx(c => submit(c, req.user, 'asset', { ...req.body, amount: r2(req.body.cost) })))));
+app.post('/api/assets/depreciate', guard(...STAFF), ah(async (req, res) => res.json(await F2.runDepreciation(req.user, String(req.body.upto || '')))));
+app.post('/api/assets/:id/dispose', guard(...BOSS), ah(async (req, res) => res.json(await F2.disposeAsset(req.user, +req.params.id, req.body))));
+app.get('/api/employees', guard(...STAFF), ah(async (req, res) => res.json(await F2.listEmployees())));
+app.post('/api/employees', guard(...STAFF), ah(async (req, res) => res.json(await F2.saveEmployee(req.user, req.body))));
+app.put('/api/employees/:id', guard(...STAFF), ah(async (req, res) => res.json(await F2.saveEmployee(req.user, req.body, +req.params.id))));
+app.get('/api/payroll/runs', guard(...STAFF), ah(async (req, res) => res.json(await all('select r.*, j.no voucher from payroll_runs r left join journals j on j.id = r.journal_id order by month desc limit 36'))));
+app.post('/api/payroll/run', guard(...STAFF), ah(async (req, res) => {
+  const E = await all('select id, salary from employees where active'); const want = new Map((req.body.lines || []).map(l => [+l.employee_id, r2(l.amount)]));
+  const amount = r2(E.reduce((s, e) => s + (want.has(e.id) ? want.get(e.id) : +e.salary), 0));
+  res.json(await tx(c => submit(c, req.user, 'payroll', { ...req.body, amount })));
+}));
+app.post('/api/payroll/pay', guard(...STAFF), ah(async (req, res) => res.json(await tx(c => submit(c, req.user, 'salary', req.body)))));
+app.get('/api/reports/general-ledger', guard(...STAFF), ah(async (req, res) => { const { from, to } = range(req); res.json(await F2.generalLedger(from, to, req.query.account ? String(req.query.account) : null)); }));
+app.get('/api/reports/expenses', guard(...STAFF), ah(async (req, res) => { const { from, to } = range(req); res.json(await F2.expenseReport(from, to)); }));
 
 app.get('/api/health', ah(async (req, res) => { await q('select 1'); res.json({ ok: true, time: new Date().toISOString() }); }));
 app.use('/api', (req, res) => res.status(404).json({ error: 'Not found.' }));

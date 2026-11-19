@@ -11,11 +11,12 @@ const spark = (vals) => {
   const w = 96, h = 28, mx = Math.max(...vals), mn = Math.min(0, ...vals), sp = (mx - mn) || 1;
   const pts = vals.map((v, i) => [i * (w - 6) / (vals.length - 1 || 1) + 2, h - 4 - (v - mn) / sp * (h - 8)]);
   const last = pts.at(-1);
-  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true"><polyline points="${pts.map(p => p.map(x => x.toFixed(1)).join(',')).join(' ')}" fill="none" stroke="#a9b8cc" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${last[0].toFixed(1)}" cy="${last[1].toFixed(1)}" r="3.5" fill="#2563eb" stroke="var(--card)" stroke-width="2"/></svg>`;
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true"><polyline points="${pts.map(p => p.map(x => x.toFixed(1)).join(',')).join(' ')}" fill="none" stroke="#a9b8cc" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${last[0].toFixed(1)}" cy="${last[1].toFixed(1)}" r="3.5" fill="#0d7a52" stroke="var(--card)" stroke-width="2"/></svg>`;
 };
 
 export async function webHome(v) {
-  v.innerHTML = `<div class="page"><div class="wpend" data-pend></div><div data-d><div class="loading"><span class="spin"></span></div></div></div>`;
+  v.innerHTML = `<div class="page"><div class="wpend" data-pend></div><div data-d><div class="loading"><span class="spin"></span></div></div><div class="wrecent" data-recent></div></div>`;
+  import('./finance2.js').then(m => m.fillRecent($('[data-recent]', v)));
   const D = $('[data-d]', v);
   const draw = async () => { const [from, to] = range(); await swr(`/api/dashboard?from=${from}&to=${to}`, d => { D.innerHTML = html(d); mount(D, d); }, { persist: true }); };
   pendingCard($('[data-pend]', v));
@@ -39,7 +40,7 @@ function html(d) {
   const hour = +new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Karachi', hour: '2-digit', hour12: false }).format(new Date());
   const greet = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
   const kpis = [
-    ['Sales', d.sales, 'cart', '#2563eb', 'bills', ser('sales'), pct(d.sales, d.prev?.sales), true],
+    ['Sales', d.sales, 'cart', '#0d7a52', 'bills', ser('sales'), pct(d.sales, d.prev?.sales), true],
     admin ? ['Gross profit', d.gp, 'chart', '#0d9488', 'report/pl', ser('gp'), pct(d.gp, d.prev?.gp), true] : ['Expenses', d.expenses, 'receipt', '#be123c', 'report/pl', ser('expenses'), null, false],
     ['Recovery received', d.recovery, 'down', '#7c3aed', 'report/daybook', ser('recovery'), pct(d.recovery, d.prev?.recovery), true],
     ['Customers owe you', d.receivable, 'people', '#ea580c', 'recovery', ser('receivable'), null, false],

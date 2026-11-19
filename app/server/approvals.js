@@ -5,7 +5,8 @@ import { audit } from './auth.js';
 import { runKind, amountOf, KINDS, UserError, need, isDate, today, r2, loadEditable } from './posting.js';
 
 export const APPROVERS = ['owner'];
-export const KIND_LABEL = { sale: 'Sale bill', purchase: 'Purchase bill', sale_return: 'Sales return', purchase_return: 'Purchase return', receipt: 'Payment received', payment: 'Payment to supplier', expense: 'Expense', voucher: 'Journal voucher', edit: 'Bill edit', opening: 'Opening balance' };
+export const KIND_LABEL = { sale: 'Sale bill', purchase: 'Purchase bill', sale_return: 'Sales return', purchase_return: 'Purchase return', receipt: 'Payment received', payment: 'Payment to supplier', expense: 'Expense', voucher: 'Journal voucher', edit: 'Bill edit', opening: 'Opening balance',
+  money: 'Money in / out', transfer: 'Fund transfer', note: 'Credit / debit note', loan: 'New loan', loan_txn: 'Loan entry', asset: 'Fixed asset', payroll: 'Payroll', salary: 'Salary payment' };
 const rs = n => 'Rs ' + Math.round(n).toLocaleString('en-US');
 
 // kept in memory; reset whenever anything is saved

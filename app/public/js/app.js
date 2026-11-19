@@ -5,6 +5,7 @@ import { quickAdd } from './finance.js';
 import { startPolling } from './approvals.js';
 import './registers.js';
 import './ledgers.js';
+import { openSearch } from './finance2.js';
 
 try { const t = localStorage.getItem('qt.theme'); if (t && t !== 'auto') document.documentElement.dataset.theme = t; } catch {}
 const LOGO = '<img src="/brand/logo-mark.png" alt="">';
@@ -53,7 +54,7 @@ function wireLogin(last) {
 function shell() {
   if (UI === 'web') return webShell();
   const staff = can.staff();
-  const tabs = [['home', 'Home', 'home', ''], ['bills', 'Invoices', 'doc', 'bill register'], ['+', 'New', 'plus', ''], ['parties', staff ? 'Parties' : 'Customers', 'people', 'party'], ['more', 'More', 'more', 'products product accounts account reports report users audit approvals myrequests notices recovery payables moneyreg itemsales partysum ledgers stock aging cashbook']];
+  const tabs = [['home', 'Home', 'home', ''], ['bills', 'Invoices', 'doc', 'bill register'], ['+', 'New', 'plus', ''], ['parties', staff ? 'Parties' : 'Customers', 'people', 'party'], ['more', 'More', 'more', 'products product accounts account reports report users audit approvals myrequests notices recovery payables moneyreg itemsales partysum ledgers stock aging cashbook finance loans loan loanrec bankrec assets payroll employee voucher gl expenses']];
   const side = [['home', 'Home', 'home'], ['bills', 'Invoices', 'doc'], ['parties', staff ? 'Parties' : 'Customers', 'people'], ['products', 'Stock', 'cube'], ...(staff ? [['accounts', 'Accounts', 'list'], ['reports', 'Reports', 'chart']] : []), ['more', 'More', 'more']];
   $('#app').innerHTML = `<div class="shell">
     <nav class="side" aria-label="Sections"><h1>${esc(S.boot.company.name)}</h1>
@@ -75,19 +76,19 @@ function webShell() {
   const staff = can.staff(), boss = can.boss();
   const N = [['home', 'Dashboard', 'home'], ...(boss ? [['approvals', 'Approvals', 'checkc']] : [['myrequests', 'My approval requests', 'clock']]),
     ['#', 'Sales & recovery'], ['bills', 'Invoices', 'doc'], ['recovery', 'Recovery & reminders', 'bell'], ['parties', staff ? 'Customers & suppliers' : 'Customers', 'people'], ['aging', 'Outstanding (ageing)', 'clock'],
-    ...(staff ? [['#', 'Khata'], ['ledgers', 'Ledgers (khata)', 'list'], ['cashbook', 'Cash book', 'book'], ['moneyreg', 'Payments register', 'wallet'], ['payables', 'Payables', 'clock']] : []),
+    ...(staff ? [['#', 'Khata'], ['ledgers', 'Ledgers (khata)', 'list'], ['cashbook', 'Cash book', 'book'], ['moneyreg', 'Payments & vouchers', 'wallet'], ['payables', 'Payables', 'clock'],
+      ['#', 'Finance & banking'], ['finance', 'Money in / out', 'swap'], ['loans', 'Loans', 'wallet'], ['bankrec', 'Bank reconciliation', 'bank'], ['assets', 'Fixed assets', 'cube'], ['payroll', 'Payroll & staff', 'person']] : []),
     ['#', 'Stock'], ['products', 'Stock & products', 'cube'], ['stock', 'Stock report', 'list'],
-    ...(staff ? [['#', 'Accounts'], ['reports', 'Reports', 'chart'], ['accounts', 'Chart of accounts', 'list']] : []), ...(boss ? [['#', can.owner() ? 'Owner' : 'Admin'], ['users', 'Team & roles', 'person'], ['audit', 'Activity log', 'clock']] : []), ['more', 'More', 'more']];
-  const alias = { bills: 'bill register', parties: 'party', accounts: '', reports: 'report itemsales partysum', products: 'product', moneyreg: '', ledgers: 'account' };
+    ...(staff ? [['#', 'Accounts'], ['reports', 'Reports', 'chart'], ['gl', 'General ledger', 'book'], ['accounts', 'Chart of accounts', 'list']] : []), ...(boss ? [['#', can.owner() ? 'Owner' : 'Admin'], ['users', 'Team & roles', 'person'], ['audit', 'Activity log', 'clock']] : []), ['more', 'More', 'more']];
+  const alias = { bills: 'bill register', parties: 'party', accounts: '', reports: 'report itemsales partysum expenses loanrec', products: 'product', moneyreg: 'voucher', ledgers: 'account', loans: 'loan', payroll: 'employee', finance: '' };
   const first = String(S.user.name).split(' ')[0];
   $('#app').innerHTML = `<div class="wshell"><aside class="wside"><div class="wbrand">${LOGO}<div><b>${esc(nice(S.boot.company.name))}</b><small>Dairy distribution ERP</small></div></div>
       <nav class="wnav">${N.map(([k, l, i]) => k === '#' ? `<div class="sec">${l}</div>` : `<button data-tab="${k}" data-alias="${alias[k] || ''}" data-go="${k}">${ic(i)}${l}</button>`).join('')}</nav>
       <div class="wfoot"><span class="av">${esc(first.slice(0, 1))}</span><div><b>${esc(S.user.name)}</b><small>${esc(ROLE_LABEL[S.user.role] || S.user.role)}</small></div></div></aside>
-    <div class="wmain"><header class="wtop"><label class="wsearch">${ic('search')}<input data-wsearch placeholder="Search bills by customer or number…"></label><span style="flex:1"></span>
+    <div class="wmain"><header class="wtop"><button class="wsearch" data-gsearch>${ic('search')}<span>Kuch bhi dhoondein — product, barcode, customer, bill, voucher, loan…</span><kbd>Ctrl K</kbd></button><span style="flex:1"></span>
       <button class="wicon bellw" data-go="notices" aria-label="Notifications" title="Notifications">${ic('bell')}<span class="dot" data-dot hidden></span></button><button class="wicon" data-voiceside aria-label="Voice entry" title="Voice entry">${ic('mic')}</button><button class="wbtn" data-newside>${ic('plus')}New</button></header>
       <main id="view"></main></div></div>
     <nav class="tabbar" aria-label="Tabs"><div class="tabbar-in">${[['home', 'Home', 'home'], ['bills', 'Bills', 'doc'], ['+', '', 'plus'], ['parties', 'Parties', 'people'], ['more', 'More', 'more']].map(([k, l, i]) => k === '+' ? `<button class="tab plus" data-plus aria-label="Add new"><span class="pl">${ic(i)}</span></button>` : `<button class="tab" data-tab="${k}" data-go="${k}">${ic(i)}<span>${l}</span></button>`).join('')}</div></nav>`;
-  $('[data-wsearch]').onkeydown = e => { if (e.key === 'Enter') { try { sessionStorage.setItem('qt.q', e.target.value); } catch {} go('bills'); } };
   document.body.onclick = e => {
     const t = e.target.closest('[data-go],[data-plus],[data-newside],[data-voiceside]');
     if (!t || t.closest('.page,.sheet,.acts')) return;

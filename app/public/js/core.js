@@ -60,6 +60,8 @@ const P = {
   logout: '<path d="M14 4h5v16h-5M10 8l-4 4 4 4M6 12h10"/>',
   tray: '<path d="M4 14v6h16v-6M12 3v11M8 10l4 4 4-4"/>',
   clock: '<circle cx="12" cy="12" r="9.5"/><path d="M12 7v5l3.5 2"/>',
+  scan: '<path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><path d="M8 8v8M11 8v8M14 8v8M17 8v8"/>',
+  swap: '<path d="M7 4 3.5 7.5 7 11M3.5 7.5H17M17 13l3.5 3.5L17 20M20.5 16.5H7"/>',
   calendar: '<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
   warn: '<path d="M12 3 2 20h20z"/><path d="M12 10v4.5M12 17.5v.5"/>',
   list: '<path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/>',
@@ -248,8 +250,10 @@ export async function render() {
 
 /* ---------- page frame with large title and collapsing bar ---------- */
 export function page(view, { title, sub = '', back, backLabel = 'Back', right = '', body = '' }) {
-  view.innerHTML = `<header class="nav" id="nav"><div class="nav-in">${back ? `<button class="nbtn" data-back>${ic('back')}${esc(backLabel)}</button>` : ''}<span class="nav-title">${esc(title)}</span><span class="sp"></span>${right}</div></header>
-    <div class="page ${view.dataset.dir || ''}"><h1 class="large">${esc(title)}</h1>${sub ? `<p class="sub">${sub}</p>` : ''}<div data-body>${body}</div></div>`;
+  // web: the top bar is the app's own, so page actions sit next to the title instead
+  const web = UI === 'web';
+  view.innerHTML = `<header class="nav" id="nav"><div class="nav-in">${back ? `<button class="nbtn" data-back>${ic('back')}${esc(backLabel)}</button>` : ''}<span class="nav-title">${esc(title)}</span><span class="sp"></span><button class="nbtn gsb" data-gsearch aria-label="Search">${ic('search')}</button>${web ? '' : right}</div></header>
+    <div class="page ${view.dataset.dir || ''}"><div class="ptitle"><h1 class="large">${esc(title)}</h1>${web && right ? `<div class="pacts">${right}</div>` : ''}</div>${sub ? `<p class="sub">${sub}</p>` : ''}<div data-body>${body}</div></div>`;
   if (back) $('[data-back]', view).onclick = () => (history.length > 1 ? history.back() : go(back));
   return $('[data-body]', view);
 }

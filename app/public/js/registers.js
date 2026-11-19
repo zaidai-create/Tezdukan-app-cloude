@@ -152,10 +152,10 @@ route(/^moneyreg(?:\?(.*))?$/, async (v, query) => {
     const tr = e.target.closest('[data-j]'); if (!tr) return;
     const r = data.rows.find(x => x.id === +tr.dataset.j);
     const { actionSheet, confirmBox } = await import('./core.js');
-    const opts = [...(r.party_id ? [{ label: 'Party ka khata kholein', value: 'party' }] : []), ...(can.boss() && !r.legacy && !r.bill ? [{ label: 'Yeh entry cancel karein', value: 'cancel', danger: true }] : [])];
-    if (!opts.length) return;
+    const opts = [{ label: 'Voucher dekhein / reverse', value: 'view' }, ...(r.party_id ? [{ label: 'Party ka khata kholein', value: 'party' }] : [])];
     const a = await actionSheet(`${ML[r.kind] || 'Entry'} · ${rs(r.amount)} · ${r.no}`, opts);
     if (a === 'party') go(`party/${r.party_id}`);
+    if (a === 'view') go(`voucher/${r.id}`);
     if (a === 'cancel' && await confirmBox(`${r.no} cancel karein? Ledger se hat jayegi.`, 'Cancel entry', true)) {
       try { await api(`/api/journals/${r.id}`, { method: 'DELETE' }); hud('Cancelled'); load(); } catch (x) { fail(x); }
     }
